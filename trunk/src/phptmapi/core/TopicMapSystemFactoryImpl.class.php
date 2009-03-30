@@ -53,7 +53,7 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
     $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_MODEL_XTM_1_0, false, true);
     $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_MODEL_XTM_1_1, true, true);
     $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_MERGE_BY_NAME, false, true);
-    $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_NOTATION_URI, true, true);
+    $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_NOTATION_URI, false, true);
     $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_READONLY, false, true);
   }
   
@@ -173,8 +173,7 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    */
   public static function newInstance() {
     if (is_null(self::$instance)) {
-      $class = __CLASS__;
-      self::$instance = new $class();
+      self::$instance = new self();
     }
     return self::$instance;
   }
