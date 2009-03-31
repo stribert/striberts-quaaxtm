@@ -98,7 +98,6 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       }
       $this->assocsCache = $assocs;
     } else {
-      var_dump('assocs from cache');
       $assocs = $this->assocsCache;
     }
     return $assocs;
