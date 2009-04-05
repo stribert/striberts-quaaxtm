@@ -890,9 +890,53 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     
     $this->mysql->finishTransaction();
     
-    if (!$this->mysql->hasError()) {
-      $this->id = null;
-      $this->dbId = null;
+    $this->id = null;
+    $this->dbId = null;
+  }
+  
+  /**
+   * Removes an association from the associations cache.
+   * 
+   * @param AssociationImpl The association to be removed.
+   * @return void
+   */
+  public function removeAssociation(Association $assoc) {
+    if ($this->equals($assoc->getParent())) {
+      if (!is_null($this->assocsCache)) {
+        $_assocs = array();
+        foreach ($this->assocsCache as $_assoc) {
+          $_assocs[$_assoc->getId()] = $_assoc;
+        }
+        unset($_assocs[$assoc->getId()]);
+        $this->assocsCache = array_values($_assocs);
+      } else {
+        return;
+      }
+    } else {
+      return;
+    }
+  }
+  
+  /**
+   * Removes a topic from the topics cache.
+   * 
+   * @param TopicImpl The topic to be removed.
+   * @return void
+   */
+  public function removeTopic(Topic $topic) {
+    if ($this->equals($topic->getParent())) {
+      if (!is_null($this->topicsCache)) {
+        $_topics = array();
+        foreach ($this->topicsCache as $_topic) {
+          $_topics[$_topic->getId()] = $_topic;
+        }
+        unset($_topics[$topic->getId()]);
+        $this->topicsCache = array_values($_topics);
+      } else {
+        return;
+      }
+    } else {
+      return;
     }
   }
   
