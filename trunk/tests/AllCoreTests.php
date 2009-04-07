@@ -10,6 +10,8 @@ class AllCoreTestsSuite extends PHPUnit_Framework_TestSuite {
     $suite = new AllCoreTestsSuite();
     $suite->addTestSuite('BasicRunTest');
     $suite->addTestSuite('AssociationTest');
+    $suite->addTestSuite('ConstructTest');
+    $suite->addTestSuite('ItemIdentifierConstraintTest');
     return $suite;
   }
  
