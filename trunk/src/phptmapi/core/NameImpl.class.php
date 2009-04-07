@@ -237,6 +237,10 @@ final class NameImpl extends ScopedImpl implements Name {
     $query = 'DELETE FROM ' . $this->config['table']['topicname'] . 
       ' WHERE id = ' . $this->dbId;
     $this->mysql->execute($query);
+    if (!$this->mysql->hasError()) {
+      $this->id = null;
+      $this->dbId = null;
+    }
   }
   
   /**
