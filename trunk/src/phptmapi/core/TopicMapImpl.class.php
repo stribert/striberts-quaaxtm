@@ -218,51 +218,31 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
           return new $className($dbId, $this->mysql, $this->config, $this);
           break;
         case TopicImpl::NAME_CLASS_NAME:
-          if ($this->constructParent instanceof Topic) {
-            $construct = new $className($dbId, $this->mysql, $this->config, 
-              $this->constructParent, $this);
-            $this->constructParent = null;
-            return $construct;
-          } else {
-            throw new PHPTMAPIRuntimeException(__METHOD__ . ': No parent defined for ' .
-              $className . '!');
-          }
+          $parent = $this->constructParent instanceof Topic ? $this->constructParent : 
+            $this->getNameParent($dbId);
+          $this->constructParent = null;
+          return new $className($dbId, $this->mysql, $this->config, $parent, $this);
           break;
         case self::ASSOC_CLASS_NAME:
           return new $className($dbId, $this->mysql, $this->config, $this);
           break;
         case AssociationImpl::ROLE_CLASS_NAME:
-          if ($this->constructParent instanceof Association) {
-            $construct = new $className($dbId, $this->mysql, $this->config, 
-              $this->constructParent, $this);
-            $this->constructParent = null;
-            return $construct;
-          } else {
-            throw new PHPTMAPIRuntimeException(__METHOD__ . ': No parent defined for ' .
-              $className . '!');
-          }
+          $parent = $this->constructParent instanceof Association ? 
+            $this->constructParent : $this->getRoleParent($dbId);
+          $this->constructParent = null;
+          return new $className($dbId, $this->mysql, $this->config, $parent, $this);
           break;
         case TopicImpl::OCC_CLASS_NAME:
-          if ($this->constructParent instanceof Topic) {
-            $construct = new $className($dbId, $this->mysql, $this->config, 
-              $this->constructParent, $this);
-            $this->constructParent = null;
-            return $construct;
-          } else {
-            throw new PHPTMAPIRuntimeException(__METHOD__ . ': No parent defined for ' .
-              $className . '!');
-          }
+          $parent = $this->constructParent instanceof Topic ? $this->constructParent : 
+            $this->getOccurrenceParent($dbId);
+          $this->constructParent = null;
+          return new $className($dbId, $this->mysql, $this->config, $parent, $this);
           break;
         case NameImpl::VARIANT_CLASS_NAME:
-          if ($this->constructParent instanceof Name) {
-            $construct = new $className($dbId, $this->mysql, $this->config, 
-              $this->constructParent, $this);
-            $this->constructParent = null;
-            return $construct;
-          } else {
-            throw new PHPTMAPIRuntimeException(__METHOD__ . ': No parent defined for ' .
-              $className . '!');
-          }
+          $parent = $this->constructParent instanceof Name ? $this->constructParent : 
+            $this->getVariantParent($dbId);
+          $this->constructParent = null;
+          return new $className($dbId, $this->mysql, $this->config, $parent, $this);
           break;
         case __CLASS__:
           return new $className($dbId, $this->mysql, $this->config);
@@ -986,6 +966,66 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     } else {
       return false;
     }
+  }
+  
+  /**
+   * Gets the parent topic of a topic name.
+   * 
+   * @param int The name id in database.
+   * @return TopicImpl
+   */
+  private function getNameParent($nameId) {
+    $query = 'SELECT parent_id FROM ' . $this->config['table']['topicmapconstruct'] . 
+      ' WHERE topicname_id = ' . $nameId;
+    $mysqlResult = $this->mysql->execute($query);
+    $result = $mysqlResult->fetch();
+    return $this->getConstructById(self::TOPIC_CLASS_NAME . '-' . $result['parent_id']);
+  }
+  
+  /**
+   * Gets the parent topic of an occurrence.
+   * 
+   * @param int The occurrence id in database.
+   * @return TopicImpl
+   */
+  private function getOccurrenceParent($occId) {
+    $query = 'SELECT parent_id FROM ' . $this->config['table']['topicmapconstruct'] . 
+      ' WHERE occurrence_id = ' . $occId;
+    $mysqlResult = $this->mysql->execute($query);
+    $result = $mysqlResult->fetch();
+    return $this->getConstructById(self::TOPIC_CLASS_NAME . '-' . $result['parent_id']);
+  }
+  
+  /**
+   * Gets the parent association of a role.
+   * 
+   * @param int The role id in database.
+   * @return AssociationImpl
+   */
+  private function getRoleParent($roleId) {
+    $query = 'SELECT parent_id FROM ' . $this->config['table']['topicmapconstruct'] . 
+      ' WHERE assocrole_id = ' . $roleId;
+    $mysqlResult = $this->mysql->execute($query);
+    $result = $mysqlResult->fetch();
+    return $this->getConstructById(self::ASSOC_CLASS_NAME . '-' . $result['parent_id']);
+  }
+  
+  /**
+   * Gets the parent topic name of a variant name.
+   * 
+   * @param int The variant name id in database.
+   * @return NameImpl
+   */
+  private function getVariantParent($variantId) {
+    $query = 'SELECT parent_id FROM ' . $this->config['table']['topicmapconstruct'] . 
+      ' WHERE variant_id = ' . $variantId;
+    $mysqlResult = $this->mysql->execute($query);
+    $result = $mysqlResult->fetch();
+    $nameId = $result['parent_id'];
+    $parentTopic = $this->getNameParent($nameId);
+    $this->setConstructParent($parentTopic);
+    return $this->getConstructById(TopicImpl::NAME_CLASS_NAME . '-' . 
+      $result['parent_id']);
   }
 }
 ?>
