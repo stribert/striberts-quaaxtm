@@ -80,8 +80,8 @@ abstract class ConstructImpl implements Construct {
    * This method returns <var>null</var> iff this construct is a {@link TopicMapImpl}
    * instance.
    *
-   * @return ConstructImpl|null The parent of this construct or <var>null</var> iff the construct
-   *        is an instance of {@link TopicMapImpl}.
+   * @return ConstructImpl|null The parent of this construct or <var>null</var> 
+   *        iff the construct is an instance of {@link TopicMapImpl}.
    */
   public function getParent() {
     return $this->parent;
@@ -491,6 +491,25 @@ abstract class ConstructImpl implements Construct {
     } else {
       return;
     }
+  }
+  
+  /**
+   * Generates a true set from given array containing {@link Construct}s.
+   * 
+   * Note: This could also be done with SQL, however we want to avoid expensive
+   * temp. tables when using DISTINCT or GROUP BY.
+   * 
+   * @param array An array containing {@link Construct}s.
+   * @return array
+   */
+  protected function arrayToSet(array $array) {
+    $set = array();
+    foreach ($array as $element) {
+      if ($element instanceof Construct) {
+        $set[$element->getId()] = $element;
+      }
+    }
+    return array_values($set);
   }
   
   /**
