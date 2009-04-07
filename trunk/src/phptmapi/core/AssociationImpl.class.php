@@ -67,8 +67,8 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * Returns all roles with the specified <var>type</var>.
    * The return value may be an empty array but must never be <var>null</var>.
    * 
-   * @param Topic The type of the {@link Role} instances to be returned.
-   * @return array An array (maybe empty) containing {@link Role}s with the specified
+   * @param TopicImpl The type of the {@link RoleImpl} instances to be returned.
+   * @return array An array (maybe empty) containing {@link RoleImpl}s with the specified
    *        <var>type</var> property.
    */
   public function getRolesByType(Topic $type) {
@@ -86,11 +86,11 @@ final class AssociationImpl extends ScopedImpl implements Association {
   }
 
   /**
-   * Creates a new {@link Role} representing a role in this association. 
+   * Creates a new {@link RoleImpl} representing a role in this association. 
    * 
-   * @param Topic The role type.
-   * @param Topic The role player.
-   * @return Role A newly created association role.
+   * @param TopicImpl The role type.
+   * @param TopicImpl The role player.
+   * @return RoleImpl A newly created association role.
    */
   public function createRole(Topic $type, Topic $player) {
     // duplicate suppression
@@ -130,7 +130,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * Returns the role types participating in this association.
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing {@link Topic}s representing the role types.
+   * @return array An array containing {@link TopicImpl}s representing the role types.
    */
   public function getRoleTypes() {
     $types = array();
@@ -142,13 +142,13 @@ final class AssociationImpl extends ScopedImpl implements Association {
         $result['type_id']);
       $types[] = $type;
     }
-    return $types;
+    return $this->arrayToSet($types);
   }
   
   /**
    * Returns the reifier of this construct.
    * 
-   * @return Topic The topic that reifies this construct or
+   * @return TopicImpl The topic that reifies this construct or
    *        <var>null</var> if this construct is not reified.
    */
   public function getReifier() {
@@ -159,7 +159,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * Sets the reifier of this construct.
    * The specified <var>reifier</var> MUST NOT reify another information item.
    *
-   * @param Topic|null The topic that should reify this construct or null
+   * @param TopicImpl|null The topic that should reify this construct or null
    *        if an existing reifier should be removed.
    * @return void
    * @throws {@link ModelConstraintException} If the specified <var>reifier</var> 
@@ -172,7 +172,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
   /**
    * Returns the type of this construct.
    *
-   * @return Topic
+   * @return TopicImpl
    */
   public function getType() {
     $query = 'SELECT type_id FROM ' . $this->config['table']['association'] . 
@@ -187,7 +187,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * Sets the type of this construct.
    * Any previous type is overridden.
    * 
-   * @param Topic The topic that should define the nature of this construct.
+   * @param TopicImpl The topic that should define the nature of this construct.
    * @return void
    */
   public function setType(Topic $type) {
@@ -203,7 +203,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
   }
   
   /**
-   * Remove this association.
+   * Removes this association.
    * 
    * @override
    * @return void
@@ -212,6 +212,11 @@ final class AssociationImpl extends ScopedImpl implements Association {
     $query = 'DELETE FROM ' . $this->config['table']['association'] . 
       ' WHERE id = ' . $this->dbId;
     $this->mysql->execute($query);
+    if (!$this->mysql->hasError()) {
+      $this->parent->removeAssociation($this);
+      $this->id = null;
+      $this->dbId = null;
+    }
   }
 }
 ?>
