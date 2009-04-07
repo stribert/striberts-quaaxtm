@@ -140,6 +140,10 @@ final class VariantImpl extends ScopedImpl implements Variant {
     $query = 'DELETE FROM ' . $this->config['table']['variant'] . 
       ' WHERE id = ' . $this->dbId;
     $this->mysql->execute($query);
+    if (!$this->mysql->hasError()) {
+      $this->id = null;
+      $this->dbId = null;
+    }
   }
   
   /**
