@@ -1046,6 +1046,11 @@ final class TopicImpl extends ConstructImpl implements Topic {
             $query = 'DELETE FROM ' . $this->config['table']['topic'] . 
               ' WHERE id = ' . $this->dbId;
             $this->mysql->execute($query);
+            if (!$this->mysql->hasError()) {
+              $this->parent->removeTopic($this);
+              $this->id = null;
+              $this->dbId = null;
+            }
           }
         }
       }
