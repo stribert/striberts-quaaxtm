@@ -24,12 +24,35 @@ class PHPTMAPITestCase extends PHPUnit_Framework_TestCase {
     $this->topicMap = null;
   }
   
-  protected function getIdsOfChildren(array $children) {
+  protected function getIdsOfConstructs(array $constructs) {
     $ids = array();
-    foreach ($children as $child) {
-      $ids[] = $child->getId();
+    foreach ($constructs as $construct) {
+      $ids[] = $construct->getId();
     }
     return $ids;
+  }
+  
+  protected function createAssoc() {
+    return $this->topicMap->createAssociation($this->topicMap->createTopic());
+  }
+  
+  protected function createRole() {
+    return $this->createAssoc()->createRole($this->topicMap->createTopic(), 
+      $this->topicMap->createTopic());
+  }
+  
+  protected function createOcc() {
+    return $this->topicMap->createTopic()->createOccurrence($this->topicMap->createTopic(), 
+      'http://www.google.com/', 'http://www.w3.org/2001/XMLSchema#anyURI');
+  }
+  
+  protected function createName() {
+    return $this->topicMap->createTopic()->createName('Testname');
+  }
+  
+  protected function createVariant() {
+    return $this->createName()->createVariant('Testvariant', 
+      'http://www.w3.org/2001/XMLSchema#string', array($this->topicMap->createTopic()));
   }
 }
 ?>
