@@ -66,7 +66,7 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    */
   public function getTopicMap($uri) {
     $query = 'SELECT id FROM ' . $this->config['table']['topicmap'] . 
-      ' WHERE baselocator = "' . $uri . '"';
+      ' WHERE locator = "' . $uri . '"';
     $mysqlResult = $this->mysql->execute($query);
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {
@@ -91,13 +91,13 @@ final class TopicMapSystemImpl implements TopicMapSystem {
     if (!empty($uri)) {
       // check if locator already exists
       $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['topicmap'] . 
-        ' WHERE baselocator = "' . $uri . '"';
+        ' WHERE locator = "' . $uri . '"';
       $mysqlResult = $this->mysql->execute($query);
       $result = $mysqlResult->fetchArray();
       if ($result[0] == 0) {// locator does not exist
         $this->mysql->startTransaction();
         $query = 'INSERT INTO ' . $this->config['table']['topicmap'] . 
-          ' (id, baselocator) VALUES (NULL, "' . $uri . '")';
+          ' (id, locator) VALUES (NULL, "' . $uri . '")';
         $this->mysql->execute($query);
         $lastId = $mysqlResult->getLastId();
         
@@ -124,10 +124,10 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    */
   public function getLocators() {
     $locators = array();
-    $query = 'SELECT baselocator FROM '.$this->config['table']['topicmap'];
+    $query = 'SELECT locator FROM ' . $this->config['table']['topicmap'];
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $locators[] = $result['baselocator'];
+      $locators[] = $result['locator'];
     }
     return $locators;
   }
