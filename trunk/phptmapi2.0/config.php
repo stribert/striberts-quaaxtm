@@ -18,7 +18,7 @@
  * Boston, MA 02111-1307 USA
  */
 
-define('PATH_TO_FACTORY_IMPL', '/home/johannes/workspace/quaaxtm0.5/' .
+define('PATH_TO_FACTORY_IMPL', '/home/johannes/workspace/quaaxtm0.5_svn_local/' .
   'src/phptmapi/core/TopicMapSystemFactoryImpl.class.php');
 define('FACTORY_IMPL', 'TopicMapSystemFactoryImpl');
 // extension for implementation
