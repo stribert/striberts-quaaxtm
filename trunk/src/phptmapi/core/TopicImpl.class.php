@@ -643,8 +643,10 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * 
    * @param TopicImpl The topic to be merged into this topic.
    * @return void
-   * @throws InvalidArgumentException If the topics don't belong to the same topic map.
-   * @throws ModelConstraintException If the topics reify different Topic Maps constructs.
+   * @throws InvalidArgumentException If the other topic to be merged does not belong 
+   *        to the same topic map.
+   * @throws ModelConstraintException If the two topics to be merged reify different 
+   *        Topic Maps constructs.
    */
   public function mergeIn(Topic $other) {
     if ($this->equals($other)) return;
