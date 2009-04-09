@@ -56,6 +56,20 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $this->constructDbId = $this->getConstructDbId();
     $this->topicsCache = $this->assocsCache = null;
   }
+  
+  /**
+   * Returns the storage address that is defined in 
+   * {@link TopicMapSystemImpl::createTopicMap()}.
+   * 
+   * @return string A URI which is the storage address of the {@link TopicMapImpl}.
+   */
+  public function getLocator() {
+    $query = 'SELECT locator FROM ' . $this->config['table']['topicmap'] . 
+      ' WHERE id = ' . $this->dbId;
+    $mysqlResult = $this->mysql->execute($query);
+    $result = $mysqlResult->fetch();
+    return $result['locator'];
+  }
 
   /**
    * Returns all {@link TopicImpl}s contained in this topic map.
