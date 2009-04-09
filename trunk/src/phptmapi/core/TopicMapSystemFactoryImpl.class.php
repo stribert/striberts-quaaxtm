@@ -195,6 +195,8 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
       DIRECTORY_SEPARATOR . 
       '..' . 
       DIRECTORY_SEPARATOR . 
+      'lib' . 
+      DIRECTORY_SEPARATOR . 
       'phptmapi2.0' . 
       DIRECTORY_SEPARATOR . 
       'config.php'
@@ -220,13 +222,17 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
       '..' . 
       DIRECTORY_SEPARATOR . 
       '..';
-    /*$phptmapiCorePath = $qtmPath . 
+    $phptmapiCorePath = $qtmPath . 
+      DIRECTORY_SEPARATOR . 
+      'lib' . 
       DIRECTORY_SEPARATOR . 
       'phptmapi2.0' . 
       DIRECTORY_SEPARATOR . 
-      'core';*/
-    $phptmapiCorePath = '/home/johannes/workspace/phptmapi2.0_svn/core';
+      'core';
+    //$phptmapiCorePath = '/home/johannes/workspace/phptmapi2.0_svn/core';
     $phptmapiIndexPath = $qtmPath . 
+      DIRECTORY_SEPARATOR . 
+      'lib' . 
       DIRECTORY_SEPARATOR . 
       'phptmapi2.0' . 
       DIRECTORY_SEPARATOR . 
