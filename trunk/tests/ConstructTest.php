@@ -71,7 +71,7 @@ class ConstructTest extends PHPTMAPITestCase {
       'Expected iid not to be returned!');
     $this->assertFalse(in_array($locator2, $construct->getItemIdentifiers(), true), 
       'Expected iid not to be returned!');
-    $this->assertTrue(is_null($tm->getConstructByItemIdentifier($locator1)), 
+    $this->assertNull($tm->getConstructByItemIdentifier($locator1), 
       'Got a construct even if the iid is unassigned!');
     try {
       $construct->addItemIdentifier(null);
