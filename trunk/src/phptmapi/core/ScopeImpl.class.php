@@ -67,9 +67,9 @@ final class ScopeImpl implements IScope {
   }
   
   /**
-   * @see IScope::containsAll()
+   * @see IScope::isTrueSubset()
    */
-  public function containsAll(array $themes) {
+  public function isTrueSubset(array $themes) {
     $set = array();
     foreach ($themes as $theme) {
       if ($theme instanceof Topic) {
@@ -78,7 +78,8 @@ final class ScopeImpl implements IScope {
     }
     $otherThemesIds = array_keys($set);
     $intersect = array_intersect($this->themesIds, $otherThemesIds);
-    return count($intersect) == count($this->themesIds) ? true : false;
+    return count($intersect) == count($this->themesIds) && 
+      count($otherThemesIds) > count($this->themesIds) ? true : false;
   }
   
   /**
