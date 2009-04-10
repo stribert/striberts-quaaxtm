@@ -30,8 +30,6 @@ require_once('PHPTMAPITestCase.php');
  */
 class NameTest extends PHPTMAPITestCase {
   
-  private $dtString = 'http://www.w3.org/2001/XMLSchema#string';
-  
   public function testTopicMap() {
     $this->assertTrue($this->topicMap instanceof TopicMap);
   }
@@ -59,6 +57,18 @@ class NameTest extends PHPTMAPITestCase {
       $sids));
   }
   
+  public function testType() {
+    $name = $this->createName();
+    $type1 = $this->topicMap->createTopic();
+    $type2 = $this->topicMap->createTopic();
+    $name->setType($type1);
+    $nameType = $name->getType();
+    $this->assertEquals($nameType->getId(), $type1->getId());
+    $name->setType($type2);
+    $nameType = $name->getType();
+    $this->assertEquals($nameType->getId(), $type2->getId());
+  }
+  
   public function testValue() {
     $value1 = 'PHPTMAPI name';
     $value2 = 'Süßer Name';
@@ -77,12 +87,35 @@ class NameTest extends PHPTMAPITestCase {
     $this->assertEquals($name->getValue(), $value2);
   }
   
+  public function testScope() {
+    $name = $this->createName();
+    $this->assertTrue($name instanceof Name);
+    $tm = $this->topicMap;
+    $theme1 = $tm->createTopic();
+    $theme2 = $tm->createTopic();
+    $name->addTheme($theme1);
+    $name->addTheme($theme2);
+    $this->assertEquals(count($name->getScope()), 2);
+    $ids = $this->getIdsOfConstructs($name->getScope());
+    $this->assertTrue(in_array($theme1->getId(), $ids, true), 
+      'Theme is not part of getScope()!');
+    $this->assertTrue(in_array($theme2->getId(), $ids, true), 
+      'Theme is not part of getScope()!');
+    $name = $tm->createTopic()->createName('Name', array($theme1, $theme2));
+    $this->assertEquals(count($name->getScope()), 2);
+    $ids = $this->getIdsOfConstructs($name->getScope());
+    $this->assertTrue(in_array($theme1->getId(), $ids, true), 
+      'Theme is not part of getScope()!');
+    $this->assertTrue(in_array($theme2->getId(), $ids, true), 
+      'Theme is not part of getScope()!');
+  }
+  
   public function testVariantValueDatatype() {
     $name = $this->createName();
     $this->assertTrue($name instanceof Name);
     $theme = $this->topicMap->createTopic();
     try {
-      $name->createVariant(null, $this->dtString, array($theme));
+      $name->createVariant(null, parent::$dtString, array($theme));
       $this->fail('null is not allowed as value!');
     } catch (ModelConstraintException $e) {
       // no op.
@@ -99,11 +132,14 @@ class NameTest extends PHPTMAPITestCase {
     } catch (ModelConstraintException $e) {
       // no op.
     }
-    $variant = $name->createVariant('Variant', $this->dtString, array($theme));
+    $variant = $name->createVariant('Variant', parent::$dtString, array($theme));
     $this->assertEquals($variant->getValue(), 'Variant', 'Values are different!');
-    $this->assertEquals($variant->getDatatype(), $this->dtString, 'Datatypes are different!');
-    $variant = $name->createVariant('Variant Variant', $this->dtString, array($theme));
+    $this->assertEquals($variant->getDatatype(), parent::$dtString, 
+      'Datatypes are different!');
+    $variant->setValue('Variant Variant', parent::$dtString);
     $this->assertEquals($variant->getValue(), 'Variant Variant', 'Values are different!');
+    $this->assertEquals($variant->getDatatype(), parent::$dtString, 
+      'Datatypes are different!');
     $this->assertEquals(count($variant->getScope()), 1, 'Expected 1 theme in scope!');
     $ids = $this->getIdsOfConstructs($variant->getScope());
     $this->assertTrue(in_array($theme->getId(), $ids, true), 
@@ -113,29 +149,30 @@ class NameTest extends PHPTMAPITestCase {
   public function testVariantScope() {
     $name = $this->createName();
     $this->assertTrue($name instanceof Name);
-    $theme1 = $this->topicMap->createTopic();
-    $theme2 = $this->topicMap->createTopic();
-    $theme3 = $this->topicMap->createTopic();
+    $tm = $this->topicMap;
+    $theme1 = $tm->createTopic();
+    $theme2 = $tm->createTopic();
+    $theme3 = $tm->createTopic();
     $name->addTheme($theme1);
     try {
-      $variant = $name->createVariant('Variant', $this->dtString, array($theme1));
+      $variant = $name->createVariant('Variant', parent::$dtString, array($theme1));
       $this->fail('Scope is not a true superset!');
     } catch (ModelConstraintException $e) {
       // no op.
     }
     try {
-      $variant = $name->createVariant('Variant', $this->dtString, array($theme2, $theme3));
+      $variant = $name->createVariant('Variant', parent::$dtString, array($theme2, $theme3));
       $this->fail('Scope is not a true superset!');
     } catch (ModelConstraintException $e) {
       // no op.
     }
     try {
-      $variant = $name->createVariant('Variant', $this->dtString, array($theme3));
+      $variant = $name->createVariant('Variant', parent::$dtString, array($theme3));
       $this->fail('Scope is not a true superset!');
     } catch (ModelConstraintException $e) {
       // no op.
     }
-    $variant = $name->createVariant('Variant', $this->dtString, array($theme1, $theme2));
+    $variant = $name->createVariant('Variant', parent::$dtString, array($theme1, $theme2));
     $ids = $this->getIdsOfConstructs($variant->getScope());
     $this->assertTrue(in_array($theme1->getId(), $ids, true), 
       'Theme is not part of getScope()!');

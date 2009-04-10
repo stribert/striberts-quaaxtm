@@ -34,5 +34,90 @@ class OccurrenceTest extends PHPTMAPITestCase {
     $this->assertTrue($this->topicMap instanceof TopicMap);
   }
   
+  public function testParent() {
+    $tm = $this->topicMap;
+    $parent = $tm->createTopic();
+    $this->assertEquals(count($parent->getOccurrences()), 0, 
+      'Expected new topic to be created without occurrences!');
+    $occ = $parent->createOccurrence($tm->createTopic(), 
+      'http://phptmapi.sourceforge.net/', parent::$dtUri);
+    $this->assertEquals($occ->getParent()->getId(), $parent->getId());
+    $this->assertEquals(count($parent->getOccurrences()), 1, 
+      'Expected 1 occurrence!');
+    $ids = $this->getIdsOfConstructs($parent->getOccurrences());
+    $this->assertTrue(in_array($occ->getId(), $ids, true), 
+      'Occurrence is not part of getOccurrences()!');
+    $occ->remove();
+    $this->assertEquals(count($parent->getOccurrences()), 0, 
+      'Expected 0 occurrences after removal!');
+  }
+  
+  public function testType() {
+    $occ = $this->createOcc();
+    $this->assertTrue($occ instanceof Occurrence);
+    $type1 = $this->topicMap->createTopic();
+    $type2 = $this->topicMap->createTopic();
+    $occ->setType($type1);
+    $occType = $occ->getType();
+    $this->assertEquals($occType->getId(), $type1->getId());
+    $occ->setType($type2);
+    $occType = $occ->getType();
+    $this->assertEquals($occType->getId(), $type2->getId());
+  }
+  
+  public function testValueDatatype() {
+    $tm = $this->topicMap;
+    $parent = $tm->createTopic();
+    try {
+      $parent->createOccurrence($tm->createTopic(), null, parent::$dtUri);
+      $this->fail('null is not allowed as value!');
+    } catch (ModelConstraintException $e) {
+      // no op.
+    }
+    try {
+      $parent->createOccurrence($tm->createTopic(), 
+        'http://phptmapi.sourceforge.net/', null);
+      $this->fail('null is not allowed as datatype!');
+    } catch (ModelConstraintException $e) {
+      // no op.
+    }
+    try {
+      $parent->createOccurrence($tm->createTopic(), null, null);
+      $this->fail('Occurrences have a value and a datatype != null!');
+    } catch (ModelConstraintException $e) {
+      // no op.
+    }
+    $occ = $parent->createOccurrence($tm->createTopic(), 
+      'http://phptmapi.sourceforge.net/', parent::$dtUri);
+    $this->assertEquals($occ->getValue(), 'http://phptmapi.sourceforge.net/', 
+      'Values are different!');
+    $this->assertEquals($occ->getDatatype(), parent::$dtUri, 'Datatypes are different!');
+    $occ->setValue('http://localhost/', parent::$dtUri);
+    $this->assertEquals($occ->getValue(), 'http://localhost/', 'Values are different!');
+  }
+  
+  public function testScope() {
+    $occ = $this->createOcc();
+    $this->assertTrue($occ instanceof Occurrence);
+    $tm = $this->topicMap;
+    $theme1 = $tm->createTopic();
+    $theme2 = $tm->createTopic();
+    $occ->addTheme($theme1);
+    $occ->addTheme($theme2);
+    $this->assertEquals(count($occ->getScope()), 2);
+    $ids = $this->getIdsOfConstructs($occ->getScope());
+    $this->assertTrue(in_array($theme1->getId(), $ids, true), 
+      'Theme is not part of getScope()!');
+    $this->assertTrue(in_array($theme2->getId(), $ids, true), 
+      'Theme is not part of getScope()!');
+    $occ = $tm->createTopic()->createOccurrence($tm->createTopic(), 
+      'http://phptmapi.sourceforge.net/', parent::$dtUri, array($theme1, $theme2));
+    $this->assertEquals(count($occ->getScope()), 2);
+    $ids = $this->getIdsOfConstructs($occ->getScope());
+    $this->assertTrue(in_array($theme1->getId(), $ids, true), 
+      'Theme is not part of getScope()!');
+    $this->assertTrue(in_array($theme2->getId(), $ids, true), 
+      'Theme is not part of getScope()!');
+  }
 }
 ?>
