@@ -19,7 +19,11 @@
  */
 
 require_once('/home/johannes/workspace/phptmapi2.0_svn/core/TopicMapSystemFactory.class.php');
-require_once('tests.php');
+require_once('BasicRunTest.php');
+require_once('AssociationTest.php');
+require_once('ConstructTest.php');
+require_once('ItemIdentifierConstraintTest.php');
+require_once('NameTest.php');
 
 /**
  * Core test suite.
