@@ -31,6 +31,9 @@ require_once('/home/johannes/workspace/phptmapi2.0_svn/core/TopicMapSystemFactor
 class PHPTMAPITestCase extends PHPUnit_Framework_TestCase {
   
   protected static $tmLocator = 'http://localhost/tm/1';
+  protected static $dtString = 'http://www.w3.org/2001/XMLSchema#string';
+  protected static $dtUri = 'http://www.w3.org/2001/XMLSchema#anyURI';
+  
   protected $sharedFixture;
   protected $topicMap;
   
@@ -70,7 +73,7 @@ class PHPTMAPITestCase extends PHPUnit_Framework_TestCase {
   
   protected function createOcc() {
     return $this->topicMap->createTopic()->createOccurrence($this->topicMap->createTopic(), 
-      'http://www.google.com/', 'http://www.w3.org/2001/XMLSchema#anyURI');
+      'http://phptmapi.sourceforge.net/', self::$dtUri);
   }
   
   protected function createName() {
@@ -79,7 +82,7 @@ class PHPTMAPITestCase extends PHPUnit_Framework_TestCase {
   
   protected function createVariant() {
     return $this->createName()->createVariant('Testvariant', 
-      'http://www.w3.org/2001/XMLSchema#string', array($this->topicMap->createTopic()));
+      self::$dtString, array($this->topicMap->createTopic()));
   }
 }
 ?>
