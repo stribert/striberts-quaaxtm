@@ -159,7 +159,7 @@ final class VariantImpl extends ScopedImpl implements Variant {
     $scope = array_values($_scope);
     // check if the new scope is still a true superset of the parent name's scope
     $nameScopeObj = $this->parent->getScopeObject();
-    if ($nameScopeObj->containsAll($scope)) {
+    if ($nameScopeObj->isTrueSubset($scope)) {
       $this->mysql->startTransaction(true);
       $this->unsetScope();
       $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope);

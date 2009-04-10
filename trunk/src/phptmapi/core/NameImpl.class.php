@@ -34,7 +34,7 @@
 final class NameImpl extends ScopedImpl implements Name {
   
   const VARIANT_CLASS_NAME = 'VariantImpl',
-        SCOPE_NO_SUPERSET_ERR_MSG = ": Variant's scope is not a superset of the name's scope!";
+        SCOPE_NO_SUPERSET_ERR_MSG = ": Variant's scope is not a true superset of the name's scope!";
   
   /**
    * Constructor.
@@ -134,7 +134,7 @@ final class NameImpl extends ScopedImpl implements Name {
       if (!$variantId) {
         // check if given scope is a true superset of the name's scope
         $nameScopeObj = $this->getScopeObject();
-        if ($nameScopeObj->containsAll($scope)) {
+        if ($nameScopeObj->isTrueSubset($scope)) {
           $this->mysql->startTransaction(true);
           $query = 'INSERT INTO ' . $this->config['table']['variant'] . 
             ' (id, topicname_id, value, datatype, hash) VALUES' .
