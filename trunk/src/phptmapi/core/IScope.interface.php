@@ -30,12 +30,12 @@
 interface IScope {
   
   /**
-   * Checks if all themes of this scope are contained in the given themes array.
+   * Checks if scope is a true subset of given scope (themes).
    * 
    * @param array An array containing topics.
    * @return boolean
    */
-  public function containsAll(array $themes);
+  public function isTrueSubset(array $themes);
   
   /**
    * Checks if this scope represents the unconstrained scope (ucs).
