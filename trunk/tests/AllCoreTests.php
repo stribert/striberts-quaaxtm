@@ -39,6 +39,7 @@ class AllCoreTestsSuite extends PHPUnit_Framework_TestSuite {
     $suite->addTestSuite('AssociationTest');
     $suite->addTestSuite('ConstructTest');
     $suite->addTestSuite('ItemIdentifierConstraintTest');
+    $suite->addTestSuite('NameTest');
     return $suite;
   }
  
