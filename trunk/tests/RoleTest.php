@@ -34,5 +34,49 @@ class RoleTest extends PHPTMAPITestCase {
     $this->assertTrue($this->topicMap instanceof TopicMap);
   }
   
+  public function testParent() {
+    $tm = $this->topicMap;
+    $parent = $this->createAssoc();
+    $this->assertEquals(count($parent->getRoles()), 0, 
+      'Expected new association to be created without roles!');
+    $role = $parent->createRole($tm->createTopic(), $tm->createTopic());
+    $this->assertEquals($parent->getId(), $role->getParent()->getId(), 
+      'Unexpected parent after creation!');
+    $this->assertEquals(count($parent->getRoles()), 1, 'Expected 1 role!');
+    $ids = $this->getIdsOfConstructs($parent->getRoles());
+    $this->assertTrue(in_array($role->getId(), $ids, true), 
+      'Role is not part of getRoles()!');
+    $role->remove();
+    $this->assertEquals(count($parent->getRoles()), 0, 'Expected 0 roles after removal!');
+  }
+  
+  public function testRolePlayerSetGet() {
+    $tm = $this->topicMap;
+    $assoc = $this->createAssoc();
+    $this->assertEquals(count($assoc->getRoles()), 0, 
+      'Expected new association to be created without roles!');
+    $roleType = $tm->createTopic();
+    $player = $tm->createTopic();
+    $role = $assoc->createRole($roleType, $player);
+    $this->assertEquals($roleType->getId(), $role->getType()->getId(), 
+      'Unexpected role type!');
+    $this->assertEquals($player->getId(), $role->getPlayer()->getId(), 
+      'Unexpected role player!');
+    $ids = $this->getIdsOfConstructs($player->getRolesPlayed());
+    $this->assertTrue(in_array($role->getId(), $ids, true), 
+      'Role is not part of getRolesPlayed()!');
+    $player2 = $tm->createTopic();
+    $role->setPlayer($player2);
+    $this->assertEquals($player2->getId(), $role->getPlayer()->getId(), 
+      'Unexpected role player after setting another role player!');
+    $ids = $this->getIdsOfConstructs($player2->getRolesPlayed());
+    $this->assertTrue(in_array($role->getId(), $ids, true), 
+      'Role is not part of getRolesPlayed()!');
+    $this->assertEquals(count($player->getRolesPlayed()), 0, 
+      "'Player' should not play the role anymore!");
+    $role->setPlayer($player);
+    $this->assertEquals($player->getId(), $role->getPlayer()->getId(), 
+      'Unexpected role player after setting the previous role player!');
+  }
 }
 ?>
