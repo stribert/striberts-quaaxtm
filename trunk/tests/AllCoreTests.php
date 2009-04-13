@@ -26,6 +26,7 @@ require_once('ItemIdentifierConstraintTest.php');
 require_once('NameTest.php');
 require_once('OccurrenceTest.php');
 require_once('ReifiableTest.php');
+require_once('RoleTest.php');
 
 /**
  * Core test suite.
@@ -48,6 +49,7 @@ class AllCoreTestsSuite extends PHPUnit_Framework_TestSuite {
     $suite->addTestSuite('NameTest');
     $suite->addTestSuite('OccurrenceTest');
     $suite->addTestSuite('ReifiableTest');
+    $suite->addTestSuite('RoleTest');
     return $suite;
   }
  
