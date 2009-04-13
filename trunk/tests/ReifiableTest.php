@@ -30,5 +30,120 @@ require_once('PHPTMAPITestCase.php');
  */
 class ReifiableTest extends PHPTMAPITestCase {
   
+  /**
+   * Tests setting / getting the reifier for the <var>reifiable</var>.
+   * 
+   * @param Reifiable The reifiable to run the tests against.
+   * @return void
+   */
+  protected function _testReification(Reifiable $reifiable) {
+    $this->assertNull($reifiable->getReifier(), 'Unexpected reifier property!');
+    $reifier = $this->topicMap->createTopic();
+    $this->assertNull($reifier->getReified(), 'Unexpected reified property!');
+    $reifiable->setReifier($reifier);
+    $this->assertEquals($reifier->getId(), $reifiable->getReifier()->getId(), 
+      'Unexpected reifier property!');
+    $this->assertEquals($reifiable->getId(), $reifier->getReified()->getId(), 
+      'Unexpected reified property!');
+    $reifiable->setReifier(null);
+    $this->assertNull($reifiable->getReifier(), 'Reifier should be null!');
+    $this->assertNull($reifier->getReified(), 'Reifiable should be null!');
+    $reifiable->setReifier($reifier);
+    $this->assertEquals($reifier->getId(), $reifiable->getReifier()->getId(), 
+      'Unexpected reifier property!');
+    $this->assertEquals($reifiable->getId(), $reifier->getReified()->getId(), 
+      'Unexpected reified property!');
+    try {
+      // Re-assigning the reifier is allowed; the TM processor MUST NOT raise an exception
+      $reifiable->setReifier($reifier);
+    } catch (ModelConstraintException $e) {
+      $this->fail('Unexpected exception while setting the reifier to the same value!');
+    }
+    $this->assertEquals($reifier->getId(), $reifiable->getReifier()->getId(), 
+      'Unexpected reifier property!');
+    $this->assertEquals($reifiable->getId(), $reifier->getReified()->getId(), 
+      'Unexpected reified property!');
+  }
+  
+  /**
+   * Tests if a reifier collision (the reifier is already assigned to another 
+   * construct) is detected.
+   * 
+   * @param Reifiable The reifiable to run the tests against.
+   * @return void
+   */
+  protected function _testReificationCollision(Reifiable $reifiable) {
+    $this->assertNull($reifiable->getReifier(), 'Unexpected reifier property!');
+    $reifier = $this->topicMap->createTopic();
+    $this->assertNull($reifier->getReified(), 'Unexpected reified property!');
+    $otherReifiable = $this->createAssoc();
+    $otherReifiable->setReifier($reifier);
+    $this->assertEquals($reifier->getId(), $otherReifiable->getReifier()->getId(), 
+      'Unexpected reifier property!');
+    $this->assertEquals($otherReifiable->getId(), $reifier->getReified()->getId(), 
+      'Unexpected reified property!');
+    try {
+      $reifiable->setReifier($reifier);
+      $this->fail('The reifier already reifies another construct!');
+    } catch (ModelConstraintException $e) {
+      $this->assertEquals($reifiable->getId(), $e->getReporter()->getId());
+    }
+    $otherReifiable->setReifier(null);
+    $this->assertNull($otherReifiable->getReifier(), 'Reifier should be null!');
+    $this->assertNull($reifier->getReified(), 'Reifiable should be null!');
+    $reifiable->setReifier($reifier);
+    $this->assertEquals($reifier->getId(), $reifiable->getReifier()->getId(), 
+      'Reifier property should have been changed!');
+    $this->assertEquals($reifiable->getId(), $reifier->getReified()->getId(), 
+      'Reified property should have been changed!');
+  }
+  
+  public function testTopicMap() {
+    $this->_testReification($this->topicMap);
+  }
+  
+  public function testTopicMapReifierCollision() {
+    $this->_testReificationCollision($this->topicMap);
+  }
+  
+  public function testAssociation() {
+    $this->_testReification($this->createAssoc());
+  }
+  
+  public function testAssociationReifierCollision() {
+    $this->_testReificationCollision($this->createAssoc());
+  }
+  
+  public function testRole() {
+    $this->_testReification($this->createRole());
+  }
+  
+  public function testRoleReifierCollision() {
+    $this->_testReificationCollision($this->createRole());
+  }
+  
+  public function testOccurrence() {
+    $this->_testReification($this->createOcc());
+  }
+  
+  public function testOccurrenceReifierCollision() {
+    $this->_testReificationCollision($this->createOcc());
+  }
+  
+  public function testName() {
+    $this->_testReification($this->createName());
+  }
+  
+  public function testNameReifierCollision() {
+    $this->_testReificationCollision($this->createName());
+  }
+  
+  public function testVariant() {
+    $this->_testReification($this->createVariant());
+  }
+  
+  public function testVariantReifierCollision() {
+    $this->_testReificationCollision($this->createVariant());
+  }
 }
 ?>
