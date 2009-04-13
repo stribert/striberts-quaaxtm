@@ -21,7 +21,7 @@
 require_once('PHPTMAPITestCase.php');
 
 /**
- * Iid constraint tests.
+ * Item identifier constraint tests.
  *
  * @package test
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
@@ -36,19 +36,19 @@ class ItemIdentifierConstraintTest extends PHPTMAPITestCase {
    * @param Construct The Topic Maps construct to test.
    * @return void
    */
-  private function _testConstraint(Construct $construct) {
+  protected function _testConstraint(Construct $construct) {
     $tm = $this->topicMap;
     $this->assertEquals(0, count($construct->getItemIdentifiers()), 
-      'Expected number of iids to be 0 for newly created construct!');
-    $locator1 = 'http://tmapi.org/test#test1';
-    $locator2 = 'http://tmapi.org/test#test2';
+      'Expected number of item identifiers to be 0 for newly created construct!');
+    $locator1 = 'http://localhost/c/1';
+    $locator2 = 'http://localhost/c/2';
     $assoc = $this->createAssoc();
     $assoc->addItemIdentifier($locator1);
     $this->assertFalse(in_array($locator1, $construct->getItemIdentifiers(), true), 
-      'Unexpected iid!');
+      'Unexpected item identifier!');
     try {
       $construct->addItemIdentifier($locator1);
-      $this->fail('Topic Maps constructs with the same iid are not allowed!');
+      $this->fail('Topic Maps constructs with the same item identifier are not allowed!');
     } catch (IdentityConstraintException $e) {
       $this->assertEquals($construct->getId(), $e->getReporter()->getId());
       $this->assertEquals($assoc->getId(), $e->getExisting()->getId());
@@ -56,20 +56,20 @@ class ItemIdentifierConstraintTest extends PHPTMAPITestCase {
     }
     $construct->addItemIdentifier($locator2);
     $this->assertTrue(in_array($locator2, $construct->getItemIdentifiers(), true), 
-      'Unexpected iid!');
+      'Expected item identifier!');
     $construct->removeItemIdentifier($locator2);
     $assoc->removeItemIdentifier($locator1);
     $this->assertFalse(in_array($locator1, $assoc->getItemIdentifiers(), true), 
-      'Unexpected iid!');
+      'Unexpected item identifier!');
     $construct->addItemIdentifier($locator1);
     $this->assertTrue(in_array($locator1, $construct->getItemIdentifiers(), true), 
-      'Unexpected iid!');
+      'Expected item identifier!');
     if (!$construct instanceof TopicMap) {
       // removal should free the iid
       $construct->remove();
       $assoc->addItemIdentifier($locator1);
       $this->assertTrue(in_array($locator1, $assoc->getItemIdentifiers(), true), 
-        'Unexpected iid!');
+        'Expected item identifier!');
     }
   }
   
@@ -80,6 +80,47 @@ class ItemIdentifierConstraintTest extends PHPTMAPITestCase {
   
   public function testAssociation() {
     $this->_testConstraint($this->createAssoc());
+  }
+  
+  public function testRole() {
+    $this->_testConstraint($this->createRole());
+  }
+  
+  public function testOccurrence() {
+    $this->_testConstraint($this->createOcc());
+  }
+  
+  public function testName() {
+    $this->_testConstraint($this->createName());
+  }
+  
+  public function testVariant() {
+    $this->_testConstraint($this->createVariant());
+  }
+  
+  public function testTopic() {
+    $tm = $this->topicMap;
+    $topic1 = $tm->createTopic();
+    $locator1 = 'http://localhost/t/1';
+    $topic1->addItemIdentifier($locator1);
+    $this->assertTrue(in_array($locator1, $topic1->getItemIdentifiers(), true), 
+      'Expected item identifier!');
+    $topic2 = $tm->createTopic();
+    try {
+      $topic2->addItemIdentifier($locator1);
+      if (!$this->sharedFixture->getFeature('http://tmapi.org/features/automerge/')) {
+        $this->fail('Topics with the same item identifier are not allowed!');
+      }
+    } catch (IdentityConstraintException $e) {
+      $this->assertEquals($topic2->getId(), $e->getReporter()->getId());
+      $this->assertEquals($topic1->getId(), $e->getExisting()->getId());
+      $this->assertEquals($locator1, $e->getLocator());
+    }
+    if ($this->sharedFixture->getFeature('http://tmapi.org/features/automerge/')) {
+      $this->assertEquals(count($tm->getTopics()), 1, 'Topics have not been merged!');
+    } else {
+      // TODO
+    }
   }
 }
 ?>
