@@ -117,9 +117,23 @@ class ItemIdentifierConstraintTest extends PHPTMAPITestCase {
       $this->assertEquals($locator1, $e->getLocator());
     }
     if ($this->sharedFixture->getFeature('http://tmapi.org/features/automerge/')) {
+      // $topic1 has been merged; it must be omitted from here
       $this->assertEquals(count($tm->getTopics()), 1, 'Topics have not been merged!');
+      $this->assertTrue(in_array($locator1, $topic2->getItemIdentifiers(), true), 
+        'Expected item identifier!');
+      $countIidsBefore = count($topic2->getItemIdentifiers());
+      $topic2->addItemIdentifier($locator1);
+      $countIidsAfter = count($topic2->getItemIdentifiers());
+      $this->assertEquals($countIidsBefore, $countIidsAfter, 
+        'Unexpected count of item identifiers!');
+      $this->assertTrue(in_array($locator1, $topic2->getItemIdentifiers(), true), 
+        'Expected item identifier!');
+      $topic2->removeItemIdentifier($locator1);
+      $this->assertFalse(in_array($locator1, $topic2->getItemIdentifiers(), true), 
+        'Unexpected item identifier!');
     } else {
-      // TODO
+      $this->assertEquals(count($tm->getTopics()), 2, 'Expected 2 topics!');
+      // TODO extend tests for automerge = false
     }
   }
 }
