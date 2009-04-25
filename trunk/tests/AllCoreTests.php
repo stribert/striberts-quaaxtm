@@ -28,6 +28,7 @@ require_once('OccurrenceTest.php');
 require_once('ReifiableTest.php');
 require_once('RoleTest.php');
 require_once('ScopedTest.php');
+require_once('TopicTest.php');
 
 /**
  * Core test suite.
@@ -52,6 +53,7 @@ class AllCoreTestsSuite extends PHPUnit_Framework_TestSuite {
     $suite->addTestSuite('ReifiableTest');
     $suite->addTestSuite('RoleTest');
     $suite->addTestSuite('ScopedTest');
+    $suite->addTestSuite('TopicTest');
     return $suite;
   }
  
