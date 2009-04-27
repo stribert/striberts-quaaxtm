@@ -49,8 +49,12 @@ class PHPTMAPITestCase extends PHPUnit_Framework_TestCase {
   }
   
   protected function tearDown() {
-    $this->topicMap->close();
-    $this->topicMap->remove();
+    $locators = $this->sharedFixture->getLocators();
+    foreach ($locators as $locator) {
+      $tm = $this->sharedFixture->getTopicMap($locator);
+      $tm->close();
+      $tm->remove();
+    }
     $this->topicMap = null;
   }
   
