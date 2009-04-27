@@ -30,6 +30,7 @@ require_once('RoleTest.php');
 require_once('ScopedTest.php');
 require_once('TopicTest.php');
 require_once('TopicMapTest.php');
+require_once('TopicMapSystemTest.php');
 
 /**
  * Core test suite.
@@ -56,6 +57,7 @@ class AllCoreTestsSuite extends PHPUnit_Framework_TestSuite {
     $suite->addTestSuite('ScopedTest');
     $suite->addTestSuite('TopicTest');
     $suite->addTestSuite('TopicMapTest');
+    $suite->addTestSuite('TopicMapSystemTest');
     return $suite;
   }
  
