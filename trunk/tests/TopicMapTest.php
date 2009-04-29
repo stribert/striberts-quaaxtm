@@ -221,7 +221,7 @@ class TopicMapTest extends PHPTMAPITestCase {
   
   public function testGetIndex() {
     try {
-      $index = $this->topicMap->getIndex(md5(uniqid()));
+      $this->topicMap->getIndex(md5(uniqid()));
       $this->fail('Exception expected for an unknown index!');
     } catch (Exception $e) {
       // no op.
