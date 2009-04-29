@@ -31,6 +31,7 @@ require_once('ScopedTest.php');
 require_once('TopicTest.php');
 require_once('TopicMapTest.php');
 require_once('TopicMapSystemTest.php');
+require_once('TopicMapMergeTest.php');
 
 /**
  * Core test suite.
@@ -58,6 +59,7 @@ class AllCoreTestsSuite extends PHPUnit_Framework_TestSuite {
     $suite->addTestSuite('TopicTest');
     $suite->addTestSuite('TopicMapTest');
     $suite->addTestSuite('TopicMapSystemTest');
+    $suite->addTestSuite('TopicMapMergeTest');
     return $suite;
   }
  
