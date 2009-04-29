@@ -70,9 +70,9 @@ class TopicMapSystemTest extends PHPTMAPITestCase {
     $tm1 = $this->sys->createTopicMap($base . 'map1');
     $tm2 = $this->sys->createTopicMap($base . 'map2');
     $tm3 = $this->sys->createTopicMap($base . 'map3');
-    $this->assertNotNull($tm1, 'Expected topic map!');
-    $this->assertNotNull($tm2, 'Expected topic map!');
-    $this->assertNotNull($tm3, 'Expected topic map!');
+    $this->assertNotNull($tm1, 'Expected a topic map!');
+    $this->assertNotNull($tm2, 'Expected a topic map!');
+    $this->assertNotNull($tm3, 'Expected a topic map!');
     $id1 = $tm1->getId();
     $id2 = $tm2->getId();
     $id3 = $tm3->getId();
@@ -89,14 +89,56 @@ class TopicMapSystemTest extends PHPTMAPITestCase {
     $tm1 = $this->sys->createTopicMap($base . 'map1');
     $tm2 = $this->sys->createTopicMap($base . 'map2');
     $tm3 = $this->sys->createTopicMap($base . 'map3');
-    $this->assertNotNull($tm1, 'Expected topic map!');
-    $this->assertNotNull($tm2, 'Expected topic map!');
-    $this->assertNotNull($tm3, 'Expected topic map!');
+    $this->assertNotNull($tm1, 'Expected a topic map!');
+    $this->assertNotNull($tm2, 'Expected a topic map!');
+    $this->assertNotNull($tm3, 'Expected a topic map!');
     $countBefore = count($this->sys->getLocators());
     $tm3->remove();
     $countAfter = count($this->sys->getLocators());
     $this->assertEquals($countBefore-1, $countAfter, 'Expected ' . $countBefore-1 . 
       ' topic maps!');
+  }
+  
+  public function testTopicMapMembership() {
+    $base = 'http://localhost/topicmaps/';
+    $tm1 = $this->sys->createTopicMap($base . 'map1');
+    $tm2 = $this->sys->createTopicMap($base . 'map2');
+    $this->assertNotNull($tm1, 'Expected a topic map!');
+    $this->assertNotNull($tm2, 'Expected a topic map!');
+    $topic1 = $tm1->createTopic();
+    $topic2 = $tm2->createTopic();
+    $assoc1 = $tm1->createAssociation($tm1->createTopic());
+    $assoc2 = $tm2->createAssociation($tm2->createTopic());
+    $this->assertEquals($topic1->getParent()->getId(), $tm1->getId(), 
+      'Unexpected parent topic map!');
+    $this->assertNotEquals($topic2->getParent()->getId(), $tm1->getId(), 
+      'Unexpected parent topic map!');
+    $this->assertEquals($topic2->getParent()->getId(), $tm2->getId(), 
+      'Unexpected parent topic map!');
+    $this->assertNotEquals($topic1->getParent()->getId(), $tm2->getId(), 
+      'Unexpected parent topic map!');
+    $this->assertEquals($assoc1->getParent()->getId(), $tm1->getId(), 
+      'Unexpected parent topic map!');
+    $this->assertNotEquals($assoc2->getParent()->getId(), $tm1->getId(), 
+      'Unexpected parent topic map!');
+    $this->assertEquals($assoc2->getParent()->getId(), $tm2->getId(), 
+      'Unexpected parent topic map!');
+    $this->assertNotEquals($assoc1->getParent()->getId(), $tm2->getId(), 
+      'Unexpected parent topic map!');
+  }
+  
+  public function testGetFeature() {
+    try {
+      $this->sys->getFeature(md5(uniqid()));
+      $this->fail('Exception expected for an unknown feature!');
+    } catch (FeatureNotRecognizedException $e) {
+      // no op.
+    }
+  }
+  
+  public function testGetProperty() {
+    $property = $this->sys->getProperty(md5(uniqid()));
+    $this->assertNull($property, 'Unexpected property!');
   }
 }
 ?>
