@@ -32,6 +32,7 @@ require_once('TopicTest.php');
 require_once('TopicMapTest.php');
 require_once('TopicMapSystemTest.php');
 require_once('TopicMapMergeTest.php');
+require_once('TopicMergeTest.php');
 
 /**
  * Core test suite.
@@ -60,6 +61,7 @@ class AllCoreTestsSuite extends PHPUnit_Framework_TestSuite {
     $suite->addTestSuite('TopicMapTest');
     $suite->addTestSuite('TopicMapSystemTest');
     $suite->addTestSuite('TopicMapMergeTest');
+    $suite->addTestSuite('TopicMergeTest');
     return $suite;
   }
  
