@@ -43,12 +43,32 @@ class TopicMapMergeTest extends PHPTMAPITestCase {
     $this->tm1 = $this->topicMap;
     $this->tm2 = $this->sharedFixture->createTopicMap(self::$tmLocator2);
   }
+  
+  /**
+   * @override
+   */
+  public function tearDown() {
+    parent::tearDown();
+    $this->tm2 = null;
+  }
 
   public function testTopicMap() {
     $this->assertTrue($this->tm1 instanceof TopicMap);
     $this->assertTrue($this->tm2 instanceof TopicMap);
   }
   
-
+  /**
+   * Test if $tm->mergeIn($tm) is ignored.
+   */
+  public function testTopicMapMergeNoop() {
+    $sys = $this->sharedFixture;
+    $locator = 'http://localhost/tm/3';
+    $tm = $sys->createTopicMap($locator);
+    $this->assertEquals($tm->getId(), $sys->getTopicMap($locator)->getId(), 
+      'Expected identity!');
+    $tm->mergeIn($sys->getTopicMap($locator));
+    $this->assertEquals($tm->getId(), $sys->getTopicMap($locator)->getId(), 
+      'Expected identity!');
+  }
 }
 ?>
