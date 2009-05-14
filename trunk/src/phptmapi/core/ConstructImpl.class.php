@@ -327,21 +327,16 @@ abstract class ConstructImpl implements Construct {
   protected function gainReifier(Construct $other) {
     if ($this->className === $other->className) {
       if (!is_null($other->getReifier())) {
-        $gain = false;
         if (is_null($this->getReifier())) {
-          $gain = true;
-        } else {// both constructs have reifiers
-          // setReifier() guarantees different reifiers; so throw an MCE here
-          throw new ModelConstraintException($this, __METHOD__ . 
-            ': The two constructs have different reifiers!');
-        }
-        if ($gain) {
           $query = 'UPDATE ' . $this->config['table']['topicmapconstruct'] . 
             ' SET reifier_id = ' . $other->getReifier()->dbId . 
             ' WHERE id = ' . $this->constructDbId;
           $this->mysql->execute($query);
-        } else {
-          return;
+        } else {// both constructs have reifiers
+          $otherReifier = $other->getReifier();
+          // prevent MCE, the other construct will be removed afterwards
+          $other->setReifier(null);
+          $this->getReifier()->mergeIn($otherReifier);
         }
       } else {
         return;
