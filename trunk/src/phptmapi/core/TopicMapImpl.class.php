@@ -353,6 +353,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
           $topic = $this->createTopic();
           $topic->addItemIdentifier($iid);
           $this->mysql->finishTransaction(true);
+          $this->setIid = true;
           return $topic;
         }
       }
@@ -398,6 +399,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
           // add subject identifier to this topic
           $topic->addSubjectIdentifier($sid);
           $this->mysql->finishTransaction(true);
+          $this->setIid = true;
           return $topic;
         }
       }
@@ -429,6 +431,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
         // add subject locator to this topic
         $topic->addSubjectLocator($slo);
         $this->mysql->finishTransaction(true);
+        $this->setIid = true;
         return $topic;
       }
     } else {
@@ -463,9 +466,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     
     if ($this->setIid) {
       $iidFragment = '#topic' . $lastTopicId;
+      $iid = $this->getLocator() . $iidFragment;
       $query = 'INSERT INTO ' . $this->config['table']['itemidentifier'] . 
         ' (topicmapconstruct_id, locator) VALUES' .
-        ' (' . $lastConstructId . ', "' . $iidFragment . '")';
+        ' (' . $lastConstructId . ', "' . $iid . '")';
       $this->mysql->execute($query);
     }
     $this->mysql->finishTransaction();
@@ -497,117 +501,33 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    */
   public function mergeIn(TopicMap $other) {
     if (!$this->equals($other)) {
+      $this->mysql->startTransaction(true);
+      
       $otherTopics = $other->getTopics();
       foreach ($otherTopics as $otherTopic) {
-        $merge = false;
-        // check by subject identifiers
-        $sids = $otherTopic->getSubjectIdentifiers();
-        foreach ($sids as $sid) {
-          $topic = $this->getTopicBySubjectIdentifier($sid);
-          if ($topic) {
-            $topic->mergeIn($otherTopic);
-            $merge = true;
-            break;
-          }
-          // check by item identifiers too
-          $construct = $this->getConstructByItemIdentifier($sid);
-          if ($construct instanceof Topic) {
-            $construct->mergeIn($otherTopic);
-            $merge = true;
-            break;
-          }
-        }
-        
-        if (!$merge) {
-          // not merged; check by item identifiers
-          $iids = $otherTopic->getItemIdentifiers();
-          foreach ($iids as $iid) {
-            $construct = $this->getConstructByItemIdentifier($iid);
-            if ($construct instanceof Topic) {
-              $construct->mergeIn($otherTopic);
-              $merge = true;
-              break;
-            }
-            // check by subject identifiers too
-            $topic = $this->getTopicBySubjectIdentifier($iid);
-            if ($topic) {
-              $topic->mergeIn($otherTopic);
-              $merge = true;
-              break;
-            }
-          }
-        }
-        
-        if (!$merge) {
-          // not merged; check by subject locators
-          $slos = $otherTopic->getSubjectLocators();
-          foreach ($slos as $slo) {
-            $topic = $this->getTopicBySubjectIdentifier($slo);
-            if ($topic) {
-              $topic->mergeIn($otherTopic);
-              $merge = true;
-              break;
-            }
-          }
-        }
-        
-        if (!$merge) {
-          // not merged; add other topic to this topic map
-          $this->mysql->startTransaction();
-          
-          $query = 'UPDATE ' . $this->config['table']['topic'] . 
-            ' SET topicmap_id = ' . $this->dbId . 
-            ' WHERE id = ' . $otherTopic->dbId;
-          $this->mysql->execute($query);
-          
-          $query = 'UPDATE ' . $this->config['table']['topicmapconstruct'] . 
-            ' SET topicmap_id = ' . $this->dbId . ',' . 
-            ' parent_id = ' . $this->dbId . 
-            ' WHERE topic_id = ' . $otherTopic->dbId;
-          $this->mysql->execute($query);
-          
-          $this->mysql->finishTransaction();
+        $this->copyTopic($otherTopic);
+      }
+      
+      // set or merge reifier
+      $otherReifier = $other->getReifier();
+      if (!is_null($otherReifier)) {
+        if (is_null($this->getReifier())) {
+          $reifier = $this->copyTopic($otherReifier);
+          $this->setReifier($reifier);
+        } else {
+          $reifierToMerge = $this->copyTopic($otherReifier);
+          $this->getReifier()->mergeIn($reifierToMerge);
         }
       }
       
-      // gain or merge reifier
-      $query = 'SELECT reifier_id FROM ' . $this->config['table']['topicmapconstruct'] . 
-        ' WHERE topicmap_id = ' . $other->dbId . 
-        ' AND parent_id IS NULL';
-      $mysqlResult = $this->mysql->execute($query);
-      $result = $mysqlResult->fetch();
-      $reifierIdToMerge = !is_null($result['reifier_id']) ? $result['reifier_id'] : null;
-      if (!is_null($reifierIdToMerge)) {
-        $otherReifier = $this->getConstructById(self::TOPIC_CLASS_NAME . '-' . 
-          $reifierIdToMerge);
-        if (!is_null($this->getReifier())) {// merge
-          $this->getReifier()->mergeIn($otherReifier);
-        } else {// set other reifier
-          $this->setReifier($otherReifier);
-        }
-      }
+      // copy item identifiers
+      $this->copyIids($this, $other);
       
-      // other assocs
-      $otherAssocs = $other->getAssociations();
-      foreach ($otherAssocs as $otherAssoc) {
-          $this->mysql->startTransaction();
-          
-          $query = 'UPDATE ' . $this->config['table']['association'] . 
-            ' SET topicmap_id = ' . $this->dbId . 
-            ' WHERE id = ' . $otherAssoc->dbId;
-          $this->mysql->execute($query);
-          
-          $query = 'UPDATE ' . $this->config['table']['topicmapconstruct'] . 
-            ' SET topicmap_id = ' . $this->dbId . ',' . 
-            ' parent_id = ' . $this->dbId . 
-            ' WHERE association_id = ' . $otherAssoc->dbId;
-          $this->mysql->execute($query);
-          
-          $this->mysql->finishTransaction();
-      }
+      // copy associations
+      $this->copyAssociations($other->getAssociations());
       
-      // remove other topic map
-      $other->remove();
+      $this->mysql->finishTransaction(true);
+      
     } else {
       return;
     }
@@ -1040,6 +960,231 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $this->setConstructParent($parentTopic);
     return $this->getConstructById(TopicImpl::NAME_CLASS_NAME . '-' . 
       $result['parent_id']);
+  }
+  
+  /**
+   * Copies a given topic to this topic map.
+   * 
+   * @param TopicImpl The source topic.
+   * @return TopicImpl
+   */
+  private function copyTopic(Topic $sourceTopic) {
+    $existingTopic = $this->getTopicByOthersIdentities($sourceTopic);
+    $targetTopic = $existingTopic instanceof Topic ? $existingTopic : $this->createTopic();
+    
+    // copy identities
+    $iids = $sourceTopic->getItemIdentifiers();
+    foreach ($iids as $iid) {
+      $targetTopic->addItemIdentifier($iid);
+    }
+    $sids = $sourceTopic->getSubjectIdentifiers();
+    foreach ($sids as $sid) {
+      $targetTopic->addSubjectIdentifier($sid);
+    }
+    $slos = $sourceTopic->getSubjectLocators();
+    foreach ($slos as $slo) {
+      $targetTopic->addSubjectLocator($slo);
+    }
+
+    // copy types
+    $this->copyTopicTypes($targetTopic, $sourceTopic);
+    
+    // copy names
+    $this->copyNames($targetTopic, $sourceTopic);
+    
+    // copy occurrences
+    $this->copyOccurrences($targetTopic, $sourceTopic);
+    
+    return $targetTopic;
+  }
+  
+  /**
+   * Copies the types of the source topic to the target topic.
+   * 
+   * @param TopicImpl The target topic.
+   * @param TopicImpl The source topic.
+   * @return void
+   */
+  private function copyTopicTypes(Topic $targetTopic, Topic $sourceTopic) {
+    $sourceTypes = $sourceTopic->getTypes();
+    foreach ($sourceTypes as $sourceType) {
+      $targetType = $this->copyTopic($sourceType);
+      $targetTopic->addType($targetType);
+    }
+  }
+  
+  /**
+   * Copies the names of the source topic to the target topic.
+   * 
+   * @param TopicImpl The target topic.
+   * @param TopicImpl The source topic.
+   * @return void
+   */
+  private function copyNames(Topic $targetTopic, Topic $sourceTopic) {
+    $sourceNames = $sourceTopic->getNames();
+    foreach ($sourceNames as $sourceName) {
+      $targetType = $this->copyTopic($sourceName->getType());
+      $targetNameScope = $this->copyScope($sourceName->getScope());
+      $targetName = $targetTopic->createTypedName($targetType, 
+                                            $sourceName->getValue(), 
+                                            $targetNameScope
+                                          );
+      // source name's iids
+      $this->copyIids($targetName, $sourceName);
+      
+      // source name's reifier
+      $this->copyReifier($targetName, $sourceName);
+
+      // other's name's variants
+      $sourceVariants = $sourceName->getVariants();
+      foreach ($sourceVariants as $sourceVariant) {
+        $targetVariantScope = $this->copyScope($sourceVariant->getScope());
+        $targetVariant = $targetName->createVariant($sourceVariant->getValue(), 
+                                          $sourceVariant->getDatatype(), 
+                                          $targetVariantScope
+                                        );
+        // source variant's iids
+        $this->copyIids($targetVariant, $sourceVariant);
+        
+        // source variant's reifier
+        $this->copyReifier($targetVariant, $sourceVariant);
+      }
+    }
+  }
+  
+  /**
+   * Copies the occurrences of the source topic to the target topic.
+   * 
+   * @param TopicImpl The target topic.
+   * @param TopicImpl The source topic.
+   * @return void
+   */
+  private function copyOccurrences(Topic $targetTopic, Topic $sourceTopic) {
+    $sourceOccurrences = $sourceTopic->getOccurrences();
+    foreach ($sourceOccurrences as $sourceOccurrence) {
+      $targetType = $this->copyTopic($sourceOccurrence->getType());
+      $targetScope = $this->copyScope($sourceOccurrence->getScope());
+      $targetOccurrence = $targetTopic->createOccurrence($targetType, 
+                                      $sourceOccurrence->getValue(), 
+                                      $sourceOccurrence->getDatatype(), 
+                                      $targetScope
+                                    );
+      // source occurrence's iids
+      $this->copyIids($targetOccurrence, $sourceOccurrence);
+      
+      // source occurrence's reifier
+      $this->copyReifier($targetOccurrence, $sourceOccurrence);
+    }
+  }
+  
+  /**
+   * Copies association from a source topic map to this topic map.
+   * 
+   * @param array The source topic map's associations.
+   * @return void
+   */
+  private function copyAssociations(array $sourceAssocs) {
+    foreach ($sourceAssocs as $sourceAssoc) {
+      $targetAssocType = $this->copyTopic($sourceAssoc->getType());
+      $targetScope = $this->copyScope($sourceAssoc->getScope());
+      $targetAssoc = $this->createAssociation($targetAssocType, $targetScope);
+      
+      // copy roles
+      $sourceRoles = $sourceAssoc->getRoles();
+      foreach ($sourceRoles as $sourceRole) {
+        $targetRoleType = $this->copyTopic($sourceRole->getType());
+        $targetPlayer = $this->copyTopic($sourceRole->getPlayer());
+        $targetRole = $targetAssoc->createRole($targetRoleType, $targetPlayer);
+        
+        // source role's iids
+        $this->copyIids($targetRole, $sourceRole);
+        
+        // source role's reifier
+        $this->copyReifier($targetRole, $sourceRole);
+      }
+      
+      // source associations's iids
+      $this->copyIids($targetAssoc, $sourceAssoc);
+      
+      // source associations's reifier
+      $this->copyReifier($targetAssoc, $sourceAssoc);
+    }
+  }
+  
+  /**
+   * Copies the item identifiers of the source construct to the target construct.
+   * 
+   * @param ConstructImpl The target construct.
+   * @param ConstructImpl The source construct.
+   * @return void
+   */
+  private function copyIids(Construct $targetConstruct, Construct $sourceConstruct) {
+    $iids = $sourceConstruct->getItemIdentifiers();
+    foreach ($iids as $iid) {
+      $targetConstruct->addItemIdentifier($iid);
+    }
+  }
+  
+  /**
+   * Copies the reifier of the source reifiable to the target reifiable.
+   * 
+   * @param Reifiable The target reifiable.
+   * @param Reifiable The source reifiable.
+   * @return void
+   */
+  private function copyReifier(Reifiable $targetReifiable, Reifiable $sourceReifiable) {
+    $sourceReifier = $sourceReifiable->getReifier();
+    if (!is_null($sourceReifier)) {
+      $reifier = $this->copyTopic($sourceReifier);
+      $targetReifiable->setReifier($reifier);
+    }
+  }
+  
+  /**
+   * Copies the themes of the source scope to the target scope.
+   * 
+   * @param array The source scope.
+   * @return array The target scope.
+   */
+  private function copyScope(array $sourceScope) {
+    $targetScope = array();
+    foreach ($sourceScope as $sourceTheme) {
+      $targetTheme = $this->copyTopic($sourceTheme);
+      $targetScope[] = $targetTheme;
+    }
+    return $targetScope;
+  }
+  
+  /**
+   * Gets a possibly existing topic by the other topic's identities 
+   * or null if such a topic does not exists.
+   * 
+   * @param TopicImpl The source topic.
+   * @return TopicImpl|null
+   */
+  private function getTopicByOthersIdentities(Topic $sourceTopic) {
+    $iids = $sourceTopic->getItemIdentifiers();
+    foreach ($iids as $iid) {
+      $construct = $this->getConstructByItemIdentifier($iid);
+      if ($construct instanceof Topic) {
+        return $construct;
+      }
+    }
+    $sids = $sourceTopic->getSubjectIdentifiers();
+    foreach ($sids as $sid) {
+      $topic = $this->getTopicBySubjectIdentifier($sid);
+      if (!is_null($topic)) {
+        return $topic;
+      }
+    }
+    $slos = $sourceTopic->getSubjectLocators();
+    foreach ($slos as $slo) {
+      $topic = $this->getTopicBySubjectLocator($slo);
+      if (!is_null($topic)) {
+        return $topic;
+      }
+    }
+    return null;
   }
 }
 ?>
