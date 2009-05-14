@@ -1169,12 +1169,22 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       if ($construct instanceof Topic) {
         return $construct;
       }
+      // check subject identifiers too
+      $topic = $this->getTopicBySubjectIdentifier($iid);
+      if (!is_null($topic)) {
+        return $topic;
+      }
     }
     $sids = $sourceTopic->getSubjectIdentifiers();
     foreach ($sids as $sid) {
       $topic = $this->getTopicBySubjectIdentifier($sid);
       if (!is_null($topic)) {
         return $topic;
+      }
+      // check item identifiers too
+      $construct = $this->getConstructByItemIdentifier($sid);
+      if ($construct instanceof Topic) {
+        return $construct;
       }
     }
     $slos = $sourceTopic->getSubjectLocators();
