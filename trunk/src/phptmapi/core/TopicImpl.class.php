@@ -775,26 +775,23 @@ final class TopicImpl extends ConstructImpl implements Topic {
                                       $othersName->getScope()
                                     );
       // other's name's iids
-      $othersNameIids = $othersName->getItemIdentifiers();
-      foreach ($othersNameIids as $othersNameIid) {
-        $name->addItemIdentifier($othersNameIid);
-      }
+      $name->gainItemIdentifiers($othersName);
+      
       // other's name's reifier
-      $name->setReifier($othersName->getReifier());
+      $name->gainReifier($othersName);
+
       // other's name's variants
       $othersNameVariants = $othersName->getVariants();
       foreach ($othersNameVariants as $othersNameVariant) {
         $variant = $name->createVariant($othersNameVariant->getValue(), 
-                                        $othersNameVariant->getDatatype(), 
-                                        $othersNameVariant->getScope()
+                                          $othersNameVariant->getDatatype(), 
+                                          $othersNameVariant->getScope()
                                         );
         // other's variant's iids
-        $othersNameVariantsIids = $othersNameVariant->getItemIdentifiers();
-        foreach ($othersNameVariantsIids as $othersNameVariantsIid) {
-          $variant->addItemIdentifier($othersNameVariantsIid);
-        }
+        $variant->gainItemIdentifiers($othersNameVariant);
+
         // other's variant's reifier
-        $variant->setReifier($othersNameVariant->getReifier());
+        $variant->gainReifier($othersNameVariant);
       }
     }
     
@@ -807,12 +804,10 @@ final class TopicImpl extends ConstructImpl implements Topic {
                                       $othersOccurrence->getScope()
                                     );
       // other's occurrence's iids
-      $othersOccurrenceIids = $othersOccurrence->getItemIdentifiers();
-      foreach ($othersOccurrenceIids as $othersOccurrenceIid) {
-        $occ->addItemIdentifier($othersOccurrenceIid);
-      }
+      $occ->gainItemIdentifiers($othersOccurrence);
+
       // other's occurrence's reifier
-      $occ->setReifier($othersOccurrence->getReifier());
+      $occ->gainReifier($othersOccurrence);
     }
     
     // merge other's sids
