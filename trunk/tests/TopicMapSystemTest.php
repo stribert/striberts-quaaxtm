@@ -40,6 +40,14 @@ class TopicMapSystemTest extends PHPTMAPITestCase {
     $this->sys = $this->sharedFixture;
   }
   
+  /**
+   * @override
+   */
+  public function tearDown() {
+    parent::tearDown();
+    $this->sys = null;
+  }
+  
   public function testTopicMapSystem() {
     $this->assertTrue($this->sys instanceof TopicMapSystem);
   }
@@ -127,7 +135,7 @@ class TopicMapSystemTest extends PHPTMAPITestCase {
       'Unexpected parent topic map!');
   }
   
-  public function testGetFeature() {
+  public function testGetUnknownFeature() {
     try {
       $this->sys->getFeature(md5(uniqid()));
       $this->fail('Exception expected for an unknown feature!');
@@ -136,7 +144,7 @@ class TopicMapSystemTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testGetProperty() {
+  public function testGetUnknownProperty() {
     $property = $this->sys->getProperty(md5(uniqid()));
     $this->assertNull($property, 'Unexpected property!');
   }
