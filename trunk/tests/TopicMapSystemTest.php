@@ -135,6 +135,15 @@ class TopicMapSystemTest extends PHPTMAPITestCase {
       'Unexpected parent topic map!');
   }
   
+  public function testGetModelFeature() {
+    $featureIri1 = 'http://tmapi.org/features/model/xtm1.0/';
+    $featureIri2 = 'http://tmapi.org/features/model/xtm1.1/';
+    $value1 = $this->sys->getFeature($featureIri1);
+    $value2 = $this->sys->getFeature($featureIri2);
+    $this->assertFalse($value1, 'Unexpected data model support!');
+    $this->assertTrue($value2, 'Unexpected data model support!');
+  }
+  
   public function testGetUnknownFeature() {
     try {
       $this->sys->getFeature(md5(uniqid()));
