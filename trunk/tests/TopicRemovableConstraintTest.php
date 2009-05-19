@@ -34,5 +34,201 @@ class TopicRemovableConstraintTest extends PHPTMAPITestCase {
   public function testTopicMap() {
     $this->assertTrue($this->topicMap instanceof TopicMap);
   }
+  
+  /**
+   * Tests if the topic removable constraint is respected if a topic 
+   * is used as type.
+   * 
+   * @param Typed A typed construct.
+   * @return void
+   */
+  private function _testTyped(Typed $typed) {
+    $tm = $this->topicMap;
+    $topicCount = count($tm->getTopics());
+    $formerType = $typed->getType();
+    $topic = $tm->createTopic();
+    $this->assertEquals(count($tm->getTopics()), $topicCount+1, 
+      'Unexpected topics count!');
+    $typed->setType($topic);
+    try {
+      $topic->remove();
+      $this->fail('Must not remove topic!');
+    } catch (TopicInUseException $e) {
+      $this->assertEquals($topic->getId(), $e->getReporter()->getId(), 
+        'Expected identity!');
+    }
+    $this->assertEquals(count($tm->getTopics()), $topicCount+1, 
+      'Unexpected topics count!');
+    $typed->setType($formerType);
+    $topic->remove();
+    $this->assertEquals(count($tm->getTopics()), $topicCount, 
+      'Unexpected topics count!');
+  }
+  
+  /**
+   * Tests if the topic removable constraint is respected if a topic 
+   * is used as theme.
+   * 
+   * @param Scoped A scoped construct.
+   * @return void
+   */
+  private function _testScoped(Scoped $scoped) {
+    $tm = $this->topicMap;
+    $topicCount = count($tm->getTopics());
+    $topic = $tm->createTopic();
+    $this->assertEquals(count($tm->getTopics()), $topicCount+1, 
+      'Unexpected topics count!');
+    $scoped->addTheme($topic);
+    try {
+      $topic->remove();
+      $this->fail('Must not remove topic!');
+    } catch (TopicInUseException $e) {
+      $this->assertEquals($topic->getId(), $e->getReporter()->getId(), 
+        'Expected identity!');
+    }
+    $this->assertEquals(count($tm->getTopics()), $topicCount+1, 
+      'Unexpected topics count!');
+    $scoped->removeTheme($topic);
+    $topic->remove();
+    $this->assertEquals(count($tm->getTopics()), $topicCount, 
+      'Unexpected topics count!');
+  }
+  
+  /**
+   * Tests if the topic removable constraint is respected if a topic 
+   * is used as reifier.
+   * 
+   * @param Reifiable A reifiable that is not reified.
+   */
+  private function _testReifiable(Reifiable $reifiable) {
+    $tm = $this->topicMap;
+    $this->assertNull($reifiable->getReifier(), 'Unexpected reifier!');
+    $topicCount = count($tm->getTopics());
+    $topic = $tm->createTopic();
+    $this->assertEquals(count($tm->getTopics()), $topicCount+1, 
+      'Unexpected topics count!');
+    $reifiable->setReifier($topic);
+    try {
+      $topic->remove();
+      $this->fail('Must not remove topic!');
+    } catch (TopicInUseException $e) {
+      $this->assertEquals($topic->getId(), $e->getReporter()->getId(), 
+        'Expected identity!');
+    }
+    $this->assertEquals(count($tm->getTopics()), $topicCount+1, 
+      'Unexpected topics count!');
+    $reifiable->setReifier(null);
+    $topic->remove();
+    $this->assertEquals(count($tm->getTopics()), $topicCount, 
+      'Unexpected topics count!');
+  }
+  
+  public function testUsedAsTopicMapReifier() {
+    $this->_testReifiable($this->topicMap);
+  }
+  
+  public function testUsedAsAssociationType() {
+    $this->_testTyped($this->createAssoc());
+  }
+  
+  public function testUsedAsAssociationTheme() {
+    $this->_testScoped($this->createAssoc());
+  }
+  
+  public function testUsedAsAssociationReifier() {
+    $this->_testReifiable($this->createAssoc());
+  }
+  
+  public function testUsedAsRoleType() {
+    $this->_testTyped($this->createRole());
+  }
+  
+  public function testUsedAsRoleReifier() {
+    $this->_testReifiable($this->createRole());
+  }
+  
+  public function testUsedAsOccurrenceType() {
+    $this->_testTyped($this->createOcc());
+  }
+  
+  public function testUsedAsOccurrenceTheme() {
+    $this->_testScoped($this->createOcc());
+  }
+  
+  public function testUsedAsOccurrenceReifier() {
+    $this->_testReifiable($this->createOcc());
+  }
+  
+  public function testUsedAsNameType() {
+    $this->_testTyped($this->createName());
+  }
+  
+  public function testUsedAsNameTheme() {
+    $this->_testScoped($this->createName());
+  }
+  
+  public function testUsedAsNameReifier() {
+    $this->_testReifiable($this->createName());
+  }
+  
+  public function testUsedAsVariantTheme() {
+    $this->_testScoped($this->createVariant());
+  }
+  
+  public function testUsedAsVariantReifier() {
+    $this->_testReifiable($this->createVariant());
+  }
+  
+  /**
+   * Tests if the removable constraint is respected if a topic is 
+   * used as topic type.
+   */
+  public function testUsedAsTopicType() {
+    $tm = $this->topicMap;
+    $topic1 = $tm->createTopic();
+    $topic2 = $tm->createTopic();
+    $this->assertEquals(count($tm->getTopics()), 2, 'Expected 2 topics!');
+    $topic2->addType($topic1);
+    try {
+      $topic1->remove();
+      $this->fail('Must not remove topic!');
+    } catch (TopicInUseException $e) {
+      $this->assertEquals($topic1->getId(), $e->getReporter()->getId(), 
+        'Expected identity!');
+    }
+    $this->assertEquals(count($tm->getTopics()), 2, 'Expected 2 topics!');
+    $topic2->removeType($topic1);
+    $topic1->remove();
+    $this->assertEquals(count($tm->getTopics()), 1, 'Expected 1 topic!');
+  }
+  
+  /**
+   * Tests if the removable constraint is respected if a topic is 
+   * used as player.
+   */
+  public function testUsedAsPlayer() {
+    $tm = $this->topicMap;
+    $topic = $tm->createTopic();
+    $this->assertEquals(count($tm->getTopics()), 1, 'Expected 1 topic!');
+    $topic->remove();
+    $this->assertEquals(count($tm->getTopics()), 0, 'Expected 0 topics!');
+    $topic = $tm->createTopic();
+    $this->assertEquals(count($tm->getTopics()), 1, 'Expected 1 topic!');
+    $assoc = $this->createAssoc();
+    $this->assertEquals(count($tm->getTopics()), 2, 'Expected 2 topics!');
+    $role = $assoc->createRole($tm->createTopic(), $topic);
+    $this->assertEquals(count($tm->getTopics()), 3, 'Expected 3 topics!');
+    try {
+      $topic->remove();
+      $this->fail('Must not remove topic!');
+    } catch (TopicInUseException $e) {
+      $this->assertEquals($topic->getId(), $e->getReporter()->getId(), 
+        'Expected identity!');
+    }
+    $role->setPlayer($tm->createTopic());
+    $this->assertEquals(count($tm->getTopics()), 4, 'Expected 4 topics!');
+    $topic->remove();
+    $this->assertEquals(count($tm->getTopics()), 3, 'Expected 3 topics!');
+  }
 }
 ?>

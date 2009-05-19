@@ -36,7 +36,7 @@ class ScopedTest extends PHPTMAPITestCase {
    * @param Scoped The scoped Topic Maps construct to test.
    * @return void
    */
-  protected function _testScoped(Scoped $scoped) {
+  private function _testScoped(Scoped $scoped) {
     $tm = $this->topicMap;
     $scopeSize = $scoped instanceof Variant ? count($scoped->getScope()) : 0;
     $this->assertEquals($scopeSize, count($scoped->getScope()), 
@@ -91,6 +91,26 @@ class ScopedTest extends PHPTMAPITestCase {
   
   public function testVariant() {
     $this->_testScoped($this->createVariant());
+  }
+  
+  /**
+   * QuaaxTM specific.
+   * TODO remove from PHPTMAPI test suite
+   */
+  public function testCleanupBlocked() {
+    $name1 = $this->createName();
+    $name2 = $this->createName();
+    $theme = $this->topicMap->createTopic();
+    $name1->addTheme($theme);
+    $this->assertEquals(count($name1->getScope()), 1, 'Unexpected scope!');
+    $name2->addTheme($theme);
+    $this->assertEquals(count($name2->getScope()), 1, 'Unexpected scope!');
+    $name1->removeTheme($theme);
+    $this->assertEquals(count($name1->getScope()), 0, 'Unexpected scope!');
+    $name2Scope = $name2->getScope();
+    $this->assertEquals(count($name2Scope), 1, 'Unexpected scope!');
+    $_theme = $name2Scope[0];
+    $this->assertEquals($theme->getId(), $_theme->getId(), 'Expected identity!');
   }
 }
 ?>
