@@ -30,8 +30,41 @@ require_once('PHPTMAPITestCase.php');
  */
 class TypedTest extends PHPTMAPITestCase {
   
+  /**
+   * The typed test.
+   * 
+   * @param Typed A typed construct.
+   * @return void
+   */
+  private function _testTyped(Typed $typed) {
+    $prevType = $typed->getType();
+    $this->assertNotNull($prevType, 'Expected a type!');
+    $type = $this->topicMap->createTopic();
+    $typed->setType($type);
+    $this->assertEquals($type->getId(), $typed->getType()->getId(), 'Expected identity!');
+    $typed->setType($prevType);
+    $this->assertEquals($prevType->getId(), $typed->getType()->getId(), 
+      'Expected identity!');
+  }
+  
   public function testTopicMap() {
     $this->assertTrue($this->topicMap instanceof TopicMap);
+  }
+  
+  public function testAssociation() {
+    $this->_testTyped($this->createAssoc());
+  }
+  
+  public function testRole() {
+    $this->_testTyped($this->createRole());
+  }
+  
+  public function testOccurrence() {
+    $this->_testTyped($this->createOcc());
+  }
+  
+  public function testName() {
+    $this->_testTyped($this->createName());
   }
 }
 ?>
