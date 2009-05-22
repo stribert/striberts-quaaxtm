@@ -36,6 +36,7 @@ require_once('TopicMergeTest.php');
 require_once('TopicRemovableConstraintTest.php');
 require_once('TypedTest.php');
 require_once('TopicMergeDetectionAutomergeEnabledTest.php');
+require_once('VariantTest.php');
 
 /**
  * Core test suite.
@@ -68,6 +69,7 @@ class AllCoreTestsSuite extends PHPUnit_Framework_TestSuite {
     $suite->addTestSuite('TopicRemovableConstraintTest');
     $suite->addTestSuite('TypedTest');
     $suite->addTestSuite('TopicMergeDetectionAutomergeEnabledTest');
+    $suite->addTestSuite('VariantTest');
     return $suite;
   }
  
