@@ -155,13 +155,12 @@ class Mysql {
   public function finishTransaction($forced=false) {
     if ($forced) $this->delayTrnx = false;
     if (!$this->delayTrnx) {
-      $this->trnx = false;
       if ($this->commit) {
-        $this->commit = false;
         $result = $this->execute('COMMIT');
         if (!$result) {
           throw new RuntimeException($this->getError());
         }
+        $this->trnx = false;
       } else {
         $result = $this->execute('ROLLBACK');
         var_dump('ROLLBACK');
