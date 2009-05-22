@@ -36,7 +36,7 @@ class ReifiableTest extends PHPTMAPITestCase {
    * @param Reifiable The reifiable to run the tests against.
    * @return void
    */
-  protected function _testReification(Reifiable $reifiable) {
+  private function _testReification(Reifiable $reifiable) {
     $this->assertNull($reifiable->getReifier(), 'Unexpected reifier property!');
     $reifier = $this->topicMap->createTopic();
     $this->assertNull($reifier->getReified(), 'Unexpected reified property!');
@@ -72,7 +72,7 @@ class ReifiableTest extends PHPTMAPITestCase {
    * @param Reifiable The reifiable to run the tests against.
    * @return void
    */
-  protected function _testReificationCollision(Reifiable $reifiable) {
+  private function _testReificationCollision(Reifiable $reifiable) {
     $this->assertNull($reifiable->getReifier(), 'Unexpected reifier property!');
     $reifier = $this->topicMap->createTopic();
     $this->assertNull($reifier->getReified(), 'Unexpected reified property!');

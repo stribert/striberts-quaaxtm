@@ -36,7 +36,7 @@ class ItemIdentifierConstraintTest extends PHPTMAPITestCase {
    * @param Construct The Topic Maps construct to test.
    * @return void
    */
-  protected function _testConstraint(Construct $construct) {
+  private function _testConstraint(Construct $construct) {
     $tm = $this->topicMap;
     $this->assertEquals(0, count($construct->getItemIdentifiers()), 
       'Expected number of item identifiers to be 0 for newly created construct!');
