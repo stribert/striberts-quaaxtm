@@ -95,7 +95,7 @@ class NameTest extends PHPTMAPITestCase {
     $theme2 = $tm->createTopic();
     $name->addTheme($theme1);
     $name->addTheme($theme2);
-    $this->assertEquals(count($name->getScope()), 2);
+    $this->assertEquals(count($name->getScope()), 2, 'Expected 2 themes!');
     $ids = $this->getIdsOfConstructs($name->getScope());
     $this->assertTrue(in_array($theme1->getId(), $ids, true), 
       'Theme is not part of getScope()!');
@@ -110,73 +110,28 @@ class NameTest extends PHPTMAPITestCase {
       'Theme is not part of getScope()!');
   }
   
-  public function testVariantValueDatatype() {
-    $name = $this->createName();
-    $this->assertTrue($name instanceof Name);
-    $theme = $this->topicMap->createTopic();
-    try {
-      $name->createVariant(null, parent::$dtString, array($theme));
-      $this->fail('null is not allowed as value!');
-    } catch (ModelConstraintException $e) {
-      // no op.
-    }
-    try {
-      $name->createVariant('Variant', null, array($theme));
-      $this->fail('null is not allowed as datatype!');
-    } catch (ModelConstraintException $e) {
-      // no op.
-    }
-    try {
-      $name->createVariant(null, null, array($theme));
-      $this->fail('Variants have a value and a datatype != null!');
-    } catch (ModelConstraintException $e) {
-      // no op.
-    }
-    $variant = $name->createVariant('Variant', parent::$dtString, array($theme));
-    $this->assertEquals($variant->getValue(), 'Variant', 'Values are different!');
-    $this->assertEquals($variant->getDatatype(), parent::$dtString, 
-      'Datatypes are different!');
-    $variant->setValue('Variant Variant', parent::$dtString);
-    $this->assertEquals($variant->getValue(), 'Variant Variant', 'Values are different!');
-    $this->assertEquals($variant->getDatatype(), parent::$dtString, 
-      'Datatypes are different!');
-    $this->assertEquals(count($variant->getScope()), 1, 'Expected 1 theme in scope!');
-    $ids = $this->getIdsOfConstructs($variant->getScope());
-    $this->assertTrue(in_array($theme->getId(), $ids, true), 
-      'Theme is not part of getScope()!');
-  }
-  
-  public function testVariantScope() {
-    $name = $this->createName();
-    $this->assertTrue($name instanceof Name);
+  public function testDuplicates() {
     $tm = $this->topicMap;
-    $theme1 = $tm->createTopic();
-    $theme2 = $tm->createTopic();
-    $theme3 = $tm->createTopic();
-    $name->addTheme($theme1);
-    try {
-      $variant = $name->createVariant('Variant', parent::$dtString, array($theme1));
-      $this->fail('Scope is not a true superset!');
-    } catch (ModelConstraintException $e) {
-      // no op.
-    }
-    try {
-      $variant = $name->createVariant('Variant', parent::$dtString, array($theme2, $theme3));
-      $this->fail('Scope is not a true superset!');
-    } catch (ModelConstraintException $e) {
-      // no op.
-    }
-    try {
-      $variant = $name->createVariant('Variant', parent::$dtString, array($theme3));
-      $this->fail('Scope is not a true superset!');
-    } catch (ModelConstraintException $e) {
-      // no op.
-    }
-    $variant = $name->createVariant('Variant', parent::$dtString, array($theme1, $theme2));
-    $ids = $this->getIdsOfConstructs($variant->getScope());
-    $this->assertTrue(in_array($theme1->getId(), $ids, true), 
+    $topic = $tm->createTopic();
+    $nameTheme = $tm->createTopic();
+    $name = $topic->createName('Name', array($nameTheme));
+    $this->assertEquals(count($name->getScope()), 1, 'Expected 1 theme!');
+    $ids = $this->getIdsOfConstructs($name->getScope());
+    $this->assertTrue(in_array($nameTheme->getId(), $ids, true), 
       'Theme is not part of getScope()!');
-    $this->assertTrue(in_array($theme2->getId(), $ids, true), 
+    $this->assertEquals($name->getValue(), 'Name', 'Expected identity!');
+    $this->assertEquals(count($topic->getNames()), 1, 'Expected 1 name');
+    $ids = $this->getIdsOfConstructs($topic->getNames());
+    $this->assertTrue(in_array($name->getId(), $ids, true), 
+      'Name is not part of getNames()!');
+    $duplName = $topic->createName('Name', array($nameTheme));
+    $names = $topic->getNames();
+    $this->assertEquals(count($names), 1, 'Expected 1 name');
+    $name = $names[0];
+    $this->assertEquals($name->getValue(), 'Name', 'Expected identity!');
+    $this->assertEquals(count($name->getScope()), 1, 'Expected 1 theme!');
+    $ids = $this->getIdsOfConstructs($name->getScope());
+    $this->assertTrue(in_array($nameTheme->getId(), $ids, true), 
       'Theme is not part of getScope()!');
   }
 }
