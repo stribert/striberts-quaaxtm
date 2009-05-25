@@ -104,7 +104,7 @@ class OccurrenceTest extends PHPTMAPITestCase {
     $theme2 = $tm->createTopic();
     $occ->addTheme($theme1);
     $occ->addTheme($theme2);
-    $this->assertEquals(count($occ->getScope()), 2);
+    $this->assertEquals(count($occ->getScope()), 2, 'Expected 2 themes!');
     $ids = $this->getIdsOfConstructs($occ->getScope());
     $this->assertTrue(in_array($theme1->getId(), $ids, true), 
       'Theme is not part of getScope()!');
@@ -118,6 +118,39 @@ class OccurrenceTest extends PHPTMAPITestCase {
       'Theme is not part of getScope()!');
     $this->assertTrue(in_array($theme2->getId(), $ids, true), 
       'Theme is not part of getScope()!');
+  }
+  
+  public function testDuplicates() {
+    $tm = $this->topicMap;
+    $topic = $tm->createTopic();
+    $occTheme = $tm->createTopic();
+    $occType = $tm->createTopic();
+    $topic->createOccurrence($occType, 'Occurrence', parent::$dtString, 
+      array($occTheme));
+    $occurrences = $topic->getOccurrences();
+    $this->assertEquals(count($occurrences), 1, 'Expected 1 occurrence!');
+    $occ = $occurrences[0];
+    $this->assertEquals(count($occ->getScope()), 1, 'Expected 1 theme!');
+    $ids = $this->getIdsOfConstructs($occ->getScope());
+    $this->assertTrue(in_array($occTheme->getId(), $ids, true), 
+      'Theme is not part of getScope()!');
+    $this->assertEquals($occ->getValue(), 'Occurrence', 'Expected identity!');
+    $this->assertEquals($occ->getType()->getId(), $occType->getId(), 
+      'Expected identity!');
+    $this->assertEquals($occ->getDataType(), parent::$dtString, 'Expected identity!');
+    $duplOcc = $topic->createOccurrence($occType, 'Occurrence', parent::$dtString, 
+      array($occTheme));
+    $occurrences = $topic->getOccurrences();
+    $this->assertEquals(count($occurrences), 1, 'Expected 1 occurrence!');
+    $occ = $occurrences[0];
+    $this->assertEquals(count($occ->getScope()), 1, 'Expected 1 theme!');
+    $ids = $this->getIdsOfConstructs($occ->getScope());
+    $this->assertTrue(in_array($occTheme->getId(), $ids, true), 
+      'Theme is not part of getScope()!');
+    $this->assertEquals($occ->getValue(), 'Occurrence', 'Expected identity!');
+    $this->assertEquals($occ->getType()->getId(), $occType->getId(), 
+      'Expected identity!');
+    $this->assertEquals($occ->getDataType(), parent::$dtString, 'Expected identity!');
   }
 }
 ?>

@@ -114,7 +114,10 @@ class NameTest extends PHPTMAPITestCase {
     $tm = $this->topicMap;
     $topic = $tm->createTopic();
     $nameTheme = $tm->createTopic();
-    $name = $topic->createName('Name', array($nameTheme));
+    $topic->createName('Name', array($nameTheme));
+    $names = $topic->getNames();
+    $this->assertEquals(count($names), 1, 'Expected 1 name');
+    $name = $names[0];
     $this->assertEquals(count($name->getScope()), 1, 'Expected 1 theme!');
     $ids = $this->getIdsOfConstructs($name->getScope());
     $this->assertTrue(in_array($nameTheme->getId(), $ids, true), 
