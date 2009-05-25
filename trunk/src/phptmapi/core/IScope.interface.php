@@ -50,5 +50,27 @@ interface IScope {
    * @return array An array containing topics.
    */
   public function getThemes();
+  
+  /**
+   * Checks if this scope contains the given theme.
+   * 
+   * @param TopicImpl The theme to check.
+   * @return boolean
+   */
+  public function hasTheme(Topic $theme);
+  
+  /**
+   * Checks if this scope is protected. Needed for name and variant scope handling.
+   * 
+   * @return boolean
+   */
+  public function isProtected();
+  
+  /**
+   * Sets this scope unprotected. Needed for name and variant scope handling.
+   * 
+   * @return void
+   */
+  public function setUnprotected();
 }
 ?>
