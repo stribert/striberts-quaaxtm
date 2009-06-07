@@ -18,7 +18,19 @@
  * Boston, MA 02111-1307 USA
  */
 
-require_once('/home/johannes/workspace/phptmapi2.0_svn/core/TopicMapSystemFactory.class.php');
+require_once(
+              dirname(__FILE__) . 
+              DIRECTORY_SEPARATOR . 
+              '..' . 
+              DIRECTORY_SEPARATOR . 
+              'lib' . 
+              DIRECTORY_SEPARATOR . 
+              'phptmapi2.0' . 
+              DIRECTORY_SEPARATOR . 
+              'core' . 
+              DIRECTORY_SEPARATOR . 
+              'TopicMapSystemFactory.class.php'
+            );
 require_once('BasicRunTest.php');
 require_once('AssociationTest.php');
 require_once('ConstructTest.php');
