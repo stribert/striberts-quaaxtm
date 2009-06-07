@@ -262,16 +262,6 @@ class VariantTest extends PHPTMAPITestCase {
       'Theme (topic) is not part of getScope()!');
     $this->assertTrue(in_array($nameTheme->getId(), $ids, true), 
       'Theme (topic) is not part of getScope()!');
-    // scopes must be merged, so we have a duplicate
-    $duplVariant = $name->createVariant('Variant', parent::$dtString, 
-      array($varTheme));
-    $this->assertEquals(count($name->getVariants()), 1, 'Expected 1 variant!');
-    $this->assertEquals(count($duplVariant->getScope()), 2, 'Expected 2 themes!');
-    $ids = $this->getIdsOfConstructs($duplVariant->getScope());
-    $this->assertTrue(in_array($varTheme->getId(), $ids, true), 
-      'Theme (topic) is not part of getScope()!');
-    $this->assertTrue(in_array($nameTheme->getId(), $ids, true), 
-      'Theme (topic) is not part of getScope()!');
       
     $variant2 = $name->createVariant('Variant', parent::$dtString, 
       array($varTheme, $anotherVarTheme));
