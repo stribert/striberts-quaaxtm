@@ -157,5 +157,37 @@ class TopicMapSystemTest extends PHPTMAPITestCase {
     $property = $this->sys->getProperty(md5(uniqid()));
     $this->assertNull($property, 'Unexpected property!');
   }
+  
+  public function testGetProperty() {
+    $myTmSystemFactory = TopicMapSystemFactory::newInstance();
+    $myTmSystemFactory->setProperty('myProperty', new myProperty());
+    $myTmSystem = $myTmSystemFactory->newTopicMapSystem();
+    $property = $myTmSystem->getProperty('myProperty');
+    $this->assertTrue(is_object($property), 'Property is no object!');
+    $this->assertEquals('PHPTMAPI', $property->myFunction(), 'Expected identity!');
+  }
+  
+  public function testUnsetProperty() {
+    $myTmSystemFactory = TopicMapSystemFactory::newInstance();
+    $myTmSystemFactory->setProperty('myProperty', new MyProperty());
+    $myTmSystemFactory->setProperty('myProperty', null);
+    $myTmSystem = $myTmSystemFactory->newTopicMapSystem();
+    $property = $myTmSystem->getProperty('myProperty');
+    $this->assertNull($property, 'Unexpected property!');
+  }
+}
+
+/**
+ * Dummy property.
+ *
+ * @package test
+ * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
+ * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
+ */
+class MyProperty {
+  
+  public function myFunction() {
+    return 'PHPTMAPI';
+  }
 }
 ?>
