@@ -129,6 +129,7 @@ final class NameImpl extends ScopedImpl implements Name {
   public function createVariant($value, $datatype, array $scope) {
     if (!is_null($value) && !is_null($datatype)) {
       $value = CharacteristicUtils::canonicalize($value);
+      $scope = array_merge($scope, $this->getScope());
       $hash = $this->getVariantHash($value, $datatype, $scope);
       $variantId = $this->hasVariant($hash);
       if (!$variantId) {
