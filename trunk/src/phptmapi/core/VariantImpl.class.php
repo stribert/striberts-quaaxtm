@@ -147,32 +147,6 @@ final class VariantImpl extends ScopedImpl implements Variant {
   }
   
   /**
-   * Removes a topic from the scope.
-   *
-   * @param TopicImpl The topic which should be removed from the scope.
-   * @return void
-   */
-  public function removeTheme(Topic $theme) {
-    $scope = $this->getScope();
-    $_scope = $this->idsToKeys($scope);
-    unset($_scope[$theme->dbId]);
-    $scope = array_values($_scope);
-    // check if the new scope is still a true superset of the parent name's scope
-    $nameScopeObj = $this->parent->getScopeObject();
-    if ($nameScopeObj->isTrueSubset($scope)) {
-      $this->mysql->startTransaction(true);
-      $this->unsetScope();
-      $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope);
-      $this->setScope($scopeObj);
-      $this->updateScopedPropertyHash($scope);
-      $this->mysql->finishTransaction(true);
-    } else {
-      throw new ModelConstraintException($this, __METHOD__ . 
-        NameImpl::SCOPE_NO_SUPERSET_ERR_MSG);
-    }
-  }
-  
-  /**
    * Gets the hash.
    * 
    * @return string The hash.
