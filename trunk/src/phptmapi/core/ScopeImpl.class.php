@@ -52,7 +52,7 @@ final class ScopeImpl implements IScope {
     $this->mysql = $mysql;
     $this->config = $config;
     if (count($themes) > 0) {
-      $this->makeSet($themes);
+      $this->createSet($themes);
       $scopeId = $this->exists();
       if ($scopeId) {
         $this->dbId = $scopeId;
@@ -97,6 +97,13 @@ final class ScopeImpl implements IScope {
   }
   
   /**
+   * @see IScope::hasTheme()
+   */
+  public function hasTheme(Topic $theme) {
+    return in_array($theme->getDbId(), $this->themesIds) ? true : false;
+  }
+  
+  /**
    * Checks if a scope exists.
    * 
    * @return int|false <var>False</var> if scope does not exist, the scope id otherwise.
@@ -130,14 +137,14 @@ final class ScopeImpl implements IScope {
   }
   
   /**
-   * Generates a true set from the provided themes. Sets the private attributes
-   * <var>themesIds</var> and <var>themes</var>.
+   * Generates a true set from the provided scope (themes). 
+   * Sets the private attributes $themesIds and $themes.
    * 
-   * @param array An array containing {@link TopicImpl}s (the themes).
+   * @param array An array containing topics (the themes).
    */
-  private function makeSet(array $themes) {
+  private function createSet(array $scope) {
     $set = array();
-    foreach ($themes as $theme) {
+    foreach ($scope as $theme) {
       if ($theme instanceof Topic) {
         $set[$theme->getDbId()] = $theme;
       }
@@ -182,8 +189,7 @@ final class ScopeImpl implements IScope {
       $result = $mysqlResult->fetch();
       return (int) $result['scope_id'];
     } else {
-      $query = 'INSERT INTO ' . $this->config['table']['scope'] . 
-        ' VALUES (NULL)';
+      $query = 'INSERT INTO ' . $this->config['table']['scope'] . ' (id) VALUES (NULL)';
       $mysqlResult = $this->mysql->execute($query);
       return (int) $mysqlResult->getLastId();
     }
