@@ -49,6 +49,16 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
   }
   
   /**
+   * Destructor. If enabled duplicate removal in database takes place.
+   * 
+   * @return void
+   */
+  public function __destruct() {
+    if ($this->topicMap->getTopicMapSystem()->getFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL) && 
+      !is_null($this->dbId) && !is_null($this->parent->dbId)) $this->parent->finished($this);
+  }
+  
+  /**
    * Returns the string representation of the value.
    * 
    * @return string The string representation of the value (never <var>null</var>).
