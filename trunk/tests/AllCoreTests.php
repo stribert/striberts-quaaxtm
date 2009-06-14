@@ -49,6 +49,8 @@ require_once('TopicRemovableConstraintTest.php');
 require_once('TypedTest.php');
 require_once('TopicMergeDetectionAutomergeEnabledTest.php');
 require_once('VariantTest.php');
+// QuaaxTM specific tests
+require_once('QTMDuplicateRemovalTest.php');
 
 /**
  * Core test suite.
@@ -82,11 +84,15 @@ class AllCoreTestsSuite extends PHPUnit_Framework_TestSuite {
     $suite->addTestSuite('TypedTest');
     $suite->addTestSuite('TopicMergeDetectionAutomergeEnabledTest');
     $suite->addTestSuite('VariantTest');
+    // QuaaxTM specific tests
+    $suite->addTestSuite('QTMDuplicateRemovalTest');
     return $suite;
   }
  
   protected function setUp() {
     $tmSystemFactory = TopicMapSystemFactory::newInstance();
+    // QuaaxTM specific feature
+    $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, true);
     $tmSystem = $tmSystemFactory->newTopicMapSystem();
     $this->sharedFixture = $tmSystem;
   }
