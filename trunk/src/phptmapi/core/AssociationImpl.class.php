@@ -43,6 +43,16 @@ final class AssociationImpl extends ScopedImpl implements Association {
   public function __construct($dbId, Mysql $mysql, array $config, TopicMap $parent) {
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $parent);
   }
+  
+  /**
+   * Destructor. If enabled duplicate removal in database takes place.
+   * 
+   * @return void
+   */
+  public function __destruct() {
+    if ($this->topicMap->getTopicMapSystem()->getFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL) && 
+      !is_null($this->dbId) && !is_null($this->parent->dbId)) $this->parent->finished($this);
+  }
 
   /**
    * Returns the roles participating in this association.
