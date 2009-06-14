@@ -78,10 +78,11 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    * @return void
    */
   public function addTheme(Topic $theme) {
+    $prevScopeObj = $this->getScopeObject();
     $scope = $this->getScope();
     $scope[] = $theme;
     $this->mysql->startTransaction(true);
-    $this->unsetScope();
+    $this->unsetScope($prevScopeObj);
     $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope);
     $this->setScope($scopeObj);
     $this->updateScopedPropertyHash($scope);
@@ -95,12 +96,19 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    * @return void
    */
   public function removeTheme(Topic $theme) {
+    $prevScopeObj = $this->getScopeObject();
     $scope = $this->getScope();
     $_scope = $this->idsToKeys($scope);
     unset($_scope[$theme->dbId]);
     $scope = array_values($_scope);
+    if ($this instanceof Variant) {
+      // check the variant scope superset constraint
+      $mergedScope = array_merge($scope, $this->parent->getScope());
+      $nameScopeObj = $this->parent->getScopeObject();
+      if (!$nameScopeObj->isTrueSubset($mergedScope)) return;
+    }
     $this->mysql->startTransaction(true);
-    $this->unsetScope();
+    $this->unsetScope($prevScopeObj);
     $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope);
     $this->setScope($scopeObj);
     $this->updateScopedPropertyHash($scope);
@@ -110,25 +118,46 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
   /**
    * Sets the construct's scope.
    * 
-   * @param IScope The scope.
+   * @param IScope The scope object.
    * @return void
    */
-  protected function setScope(IScope $scope) {
+  protected function setScope(IScope $scopeObj) {
     $query = 'INSERT INTO ' . $this->bindingTable . 
       ' (scope_id, ' . $this->fkColumn . ') VALUES' .
-      ' (' . $scope->dbId . ', ' . $this->dbId . ')';
+      ' (' . $scopeObj->dbId . ', ' . $this->dbId . ')';
     $this->mysql->execute($query);
   }
   
   /**
    * Unsets the construct's scope.
    * 
+   * @param IScope The scope object.
    * @return void
    */
-  protected function unsetScope() {
+  protected function unsetScope(IScope $scopeObj) {
     $query = 'DELETE FROM ' . $this->bindingTable . 
       ' WHERE ' . $this->fkColumn . ' = ' . $this->dbId;
     $this->mysql->execute($query);
+    // clean up: check if scope is still in use
+    if (!$scopeObj->isUnconstrained()) {
+      $exists = false;
+      $tables = $this->getBindingTables();
+      foreach ($tables as $table) {
+        $query = 'SELECT COUNT(*) FROM ' . $table . 
+          ' WHERE scope_id = ' . $scopeObj->dbId;
+        $mysqlResult = $this->mysql->execute($query);
+        $result = $mysqlResult->fetchArray();
+        if ($result[0] > 0) {
+          $exists = true;
+          break;
+        }
+      }
+      if (!$exists) {
+        $query = 'DELETE FROM ' . $this->config['table']['scope'] . 
+          ' WHERE id = ' . $scopeObj->dbId;
+        $this->mysql->execute($query);
+      }
+    }
   }
   
   /**
@@ -138,6 +167,20 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    */
   protected function getScopeObject() {
     return new ScopeImpl($this->mysql, $this->config, $this->getScope());
+  }
+  
+  /**
+   * Gets the scope binding tables.
+   * 
+   * @return array
+   */
+  private function getBindingTables() {
+    return array(
+                  $this->config['table']['topicname_scope'], 
+                  $this->config['table']['occurrence_scope'], 
+                  $this->config['table']['association_scope'], 
+                  $this->config['table']['variant_scope']
+                );
   }
   
   /**
