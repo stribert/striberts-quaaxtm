@@ -51,6 +51,16 @@ final class VariantImpl extends ScopedImpl implements Variant {
   }
   
   /**
+   * Destructor. If enabled duplicate removal in database takes place.
+   * 
+   * @return void
+   */
+  public function __destruct() {
+    if ($this->topicMap->getTopicMapSystem()->getFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL) && 
+      !is_null($this->dbId) && !is_null($this->parent->dbId)) $this->parent->finished($this);
+  }
+  
+  /**
    * Returns the string representation of the value.
    * 
    * @return string The string representation of the value (never <var>null</var>).
@@ -147,6 +157,17 @@ final class VariantImpl extends ScopedImpl implements Variant {
   }
   
   /**
+   * Returns the merged scope of the {@link VariantImpl} and the parent {@link NameImpl}.
+   * 
+   * @see ScopedImpl::getScope()
+   * @override
+   */
+  public function getScope() {
+    $scope = array_merge(parent::getScope(), $this->parent->getScope());
+    return $this->createThemesSet($scope);
+  }
+  
+  /**
    * Gets the hash.
    * 
    * @return string The hash.
@@ -157,6 +178,20 @@ final class VariantImpl extends ScopedImpl implements Variant {
     $mysqlResult = $this->mysql->execute($query);
     $result = $mysqlResult->fetch();
     return $result['hash'];
+  }
+  
+  /**
+   * Generates a true set from the provided scope (themes). 
+   * 
+   * @param array An array containing topics (the themes).
+   * @return array An array containing a set of topics (the themes).
+   */
+  private function createThemesSet(array $scope) {
+    $set = array();
+    foreach ($scope as $theme) {
+      $set[$theme->getDbId()] = $theme;
+    }
+    return array_values($set);
   }
 }
 ?>
