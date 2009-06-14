@@ -71,7 +71,7 @@ final class TopicMapSystemImpl implements TopicMapSystem {
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {
       $result = $mysqlResult->fetch();
-      return new TopicMapImpl($result['id'], $this->mysql, $this->config);
+      return new TopicMapImpl($result['id'], $this->mysql, $this->config, $this);
     } else {
       return null;
     }
@@ -105,7 +105,7 @@ final class TopicMapSystemImpl implements TopicMapSystem {
           ' (topicmap_id) VALUES (' . $lastId . ')';
         $this->mysql->execute($query);
         $this->mysql->finishTransaction();
-        return new TopicMapImpl($lastId, $this->mysql, $this->config);
+        return new TopicMapImpl($lastId, $this->mysql, $this->config, $this);
       } else {
         throw new TopicMapExistsException(__METHOD__ . ': Topic map with locator "' . 
           $uri . '" already exists!');
@@ -171,7 +171,8 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    *        if no value is set for the specified <var>propertyName</var>.
    */
   public function getProperty($propertyName) {
-    return $this->properties[$propertyName];
+    return array_key_exists($propertyName, $this->properties) ? 
+      $this->properties[$propertyName] : null;
   }
 
   /**
@@ -186,7 +187,13 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    * @return void
    */
   public function close() {
-    $this->mysql->close();
+    $locators = $this->getLocators();
+    foreach ($locators as $locator) {
+      $topicMap = $this->getTopicMap($locator);
+      $topicMap->close();
+      unset($topicMap);
+    }
+    $this->properties = array();
   }
 }
 ?>
