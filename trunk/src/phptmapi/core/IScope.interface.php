@@ -58,19 +58,5 @@ interface IScope {
    * @return boolean
    */
   public function hasTheme(Topic $theme);
-  
-  /**
-   * Checks if this scope is protected. Needed for name and variant scope handling.
-   * 
-   * @return boolean
-   */
-  public function isProtected();
-  
-  /**
-   * Sets this scope unprotected. Needed for name and variant scope handling.
-   * 
-   * @return void
-   */
-  public function setUnprotected();
 }
 ?>
