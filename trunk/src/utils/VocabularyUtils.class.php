@@ -38,7 +38,8 @@ class VocabularyUtils {
         TMAPI_FEATURE_MODEL_XTM_1_1 = 'http://tmapi.org/features/model/xtm1.1/',
         TMAPI_FEATURE_MERGE_BY_NAME = 'http://tmapi.org/features/merge/byTopicName/',
         TMAPI_FEATURE_NOTATION_URI = 'http://tmapi.org/features/notation/URI/',
-        TMAPI_FEATURE_READONLY = 'http://tmapi.org/features/readOnly/';     
+        TMAPI_FEATURE_READONLY = 'http://tmapi.org/features/readOnly/',
+        QTM_FEATURE_AUTO_DUPL_REMOVAL = 'http://quaaxtm.sourceforge.net/features/autoDuplRemoval/';
 
   /**
    * Constructor.
