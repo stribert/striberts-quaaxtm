@@ -50,6 +50,16 @@ final class NameImpl extends ScopedImpl implements Name {
     TopicMap $topicMap) {
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $topicMap);
   }
+  
+  /**
+   * Destructor. If enabled duplicate removal in database takes place.
+   * 
+   * @return void
+   */
+  public function __destruct() {
+    if ($this->topicMap->getTopicMapSystem()->getFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL) && 
+      !is_null($this->dbId) && !is_null($this->parent->dbId)) $this->parent->finished($this);
+  }
 
   /**
    * Returns the value of this name.
@@ -129,13 +139,13 @@ final class NameImpl extends ScopedImpl implements Name {
   public function createVariant($value, $datatype, array $scope) {
     if (!is_null($value) && !is_null($datatype)) {
       $value = CharacteristicUtils::canonicalize($value);
-      $scope = array_merge($scope, $this->getScope());
+      $mergedScope = array_merge($scope, $this->getScope());
       $hash = $this->getVariantHash($value, $datatype, $scope);
       $variantId = $this->hasVariant($hash);
       if (!$variantId) {
-        // check if given scope is a true superset of the name's scope
+        // check if merged scope is a true superset of the name's scope
         $nameScopeObj = $this->getScopeObject();
-        if ($nameScopeObj->isTrueSubset($scope)) {
+        if ($nameScopeObj->isTrueSubset($mergedScope)) {
           $this->mysql->startTransaction(true);
           $query = 'INSERT INTO ' . $this->config['table']['variant'] . 
             ' (id, topicname_id, value, datatype, hash) VALUES' .
