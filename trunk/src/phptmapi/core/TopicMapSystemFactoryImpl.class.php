@@ -18,7 +18,7 @@
  * Boston, MA 02111-1307 USA
  */
 
-spl_autoload_register(array('TopicMapSystemFactoryImpl', 'autoload'));
+spl_autoload_register('TopicMapSystemFactoryImpl::autoload');
 
 /**
  * This factory class provides access to a topic map system. 
@@ -55,6 +55,7 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
     $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_MERGE_BY_NAME, false, true);
     $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_NOTATION_URI, false, true);
     $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_READONLY, false, true);
+    $this->setupFeatures(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false, false);
   }
   
   /**
@@ -144,7 +145,8 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    *        if no value is currently set for the property.
    */
   public function getProperty($propertyName) {
-    return $this->properties[$propertyName];
+    return array_key_exists($propertyName, $this->properties) ? 
+      $this->properties[$propertyName] : null;
   }
 
   /**
@@ -229,7 +231,6 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
       'phptmapi2.0' . 
       DIRECTORY_SEPARATOR . 
       'core';
-    //$phptmapiCorePath = '/home/johannes/workspace/phptmapi2.0_svn/core';
     $phptmapiIndexPath = $qtmPath . 
       DIRECTORY_SEPARATOR . 
       'lib' . 
@@ -272,7 +273,7 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    * @param string The class name.
    * @return string
    */
-  private function getFileExtension($className) {
+  private static function getFileExtension($className) {
     if (eregi('impl', $className) || 
         eregi('exception', $className) ||
         eregi('mysql', $className) ||
