@@ -54,6 +54,8 @@ class PHPTMAPITestCase extends PHPUnit_Framework_TestCase {
       $this->topicMap = $this->sharedFixture->createTopicMap(self::$tmLocator);
     } else {// allow all extending tests being stand alone
       $tmSystemFactory = TopicMapSystemFactory::newInstance();
+      // QuaaxTM specific feature
+      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, true);
       $tmSystem = $tmSystemFactory->newTopicMapSystem();
       $this->sharedFixture = $tmSystem;
       $this->topicMap = $tmSystem->createTopicMap(self::$tmLocator);
