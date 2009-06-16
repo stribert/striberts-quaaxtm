@@ -40,9 +40,10 @@ class Mysql {
   /**
    * Constructor.
    * 
+   * @param array Configuration data.
    * @return void
    */
-  public function __construct() {
+  public function __construct(array $config) {
     $this->sql = '';
     $this->result = false;
     $this->errno = 0;
@@ -51,22 +52,23 @@ class Mysql {
     $this->commit = false;
     $this->trnx = false;
     $this->delayTrnx = false;
-    $this->connect();
+    $this->connect($config);
   }
 
   /**
    * Initializes a connection to MySQL.
    * 
+   * @param array Configuration data.
    * @return void
    * @throws RuntimeException If the connect fails.
    */
-  private function connect() {
+  private function connect(array $config) {
     $this->connection = mysqli_connect(
-                                      _db_host, 
-                                      _db_user, 
-                                      _db_pass, 
-                                      _db_name, 
-                                      _db_port
+                                      $config['db']['host'], 
+                                      $config['db']['user'], 
+                                      $config['db']['pass'], 
+                                      $config['db']['name'], 
+                                      $config['db']['port']
                                     );
     $error = mysqli_connect_error();
     if (!empty($error)) {
