@@ -18,15 +18,15 @@
  * Boston, MA 02111-1307 USA
  */
 
-define('PATH_TO_FACTORY_IMPL', '/home/johannes/workspace/quaaxtm0.5_svn/' .
-  'src/phptmapi/core/TopicMapSystemFactoryImpl.class.php');
-define('FACTORY_IMPL', 'TopicMapSystemFactoryImpl');
+$factoryImplLocation = '/home/johannes/workspace/quaaxtm0.5_svn/' .
+  'src/phptmapi/core/TopicMapSystemFactoryImpl.class.php';
+$factoryImpl = 'TopicMapSystemFactoryImpl';
 // extension for implementation
-define('_db_host', 'localhost');
-define('_db_name', 'quaaxtm_new');
-define('_db_user', 'root');
-define('_db_pass', '');
-define('_db_port', '3306');
+$config['db']['host'] = 'localhost';
+$config['db']['user'] = 'root';
+$config['db']['pass'] = '';
+$config['db']['name'] = 'quaaxtm_new';
+$config['db']['port'] = '3306';
 $config['table']['association'] = 'qtm_association';
 $config['table']['association_scope'] = 'qtm_association_scope';
 $config['table']['assocrole'] = 'qtm_assocrole';
