@@ -136,16 +136,16 @@ abstract class TopicMapSystemFactory {
    * @static
    */
   private static function getImplementationClass() {
-    require_once(
+    $factoryImplLocation = $factoryImpl = null;
+    require(
       dirname(__FILE__) . 
       DIRECTORY_SEPARATOR . 
       '..' . 
       DIRECTORY_SEPARATOR . 
       'config.php'
     );
-    require_once(PATH_TO_FACTORY_IMPL);
-    $implementation = FACTORY_IMPL;
-    return new $implementation;
+    require_once($factoryImplLocation);
+    return new $factoryImpl;
   }
 }
 ?>
