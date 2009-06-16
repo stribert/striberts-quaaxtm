@@ -188,7 +188,7 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    */
   public function newTopicMapSystem() {
     $config = array();
-    include(
+    require(
       dirname(__FILE__) . 
       DIRECTORY_SEPARATOR . 
       '..' . 
@@ -203,7 +203,7 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
       DIRECTORY_SEPARATOR . 
       'config.php'
     );
-    $mysql = new Mysql();
+    $mysql = new Mysql($config);
     return new TopicMapSystemImpl($mysql, $config, $this->properties, $this->features);
   }
   
