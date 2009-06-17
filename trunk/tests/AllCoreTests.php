@@ -60,12 +60,12 @@ require_once('QTMDuplicateRemovalTest.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class AllCoreTestsSuite extends PHPUnit_Framework_TestSuite {
+class AllCoreTests extends PHPUnit_Framework_TestSuite {
   
   protected $sharedFixture;
   
   public static function suite() {
-    $suite = new AllCoreTestsSuite();
+    $suite = new AllCoreTests();
     $suite->addTestSuite('BasicRunTest');
     $suite->addTestSuite('AssociationTest');
     $suite->addTestSuite('ConstructTest');
