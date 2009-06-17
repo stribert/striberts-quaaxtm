@@ -46,28 +46,32 @@ class PHPTMAPITestCase extends PHPUnit_Framework_TestCase {
   protected static $dtString = 'http://www.w3.org/2001/XMLSchema#string';
   protected static $dtUri = 'http://www.w3.org/2001/XMLSchema#anyURI';
   
-  protected $sharedFixture;
-  protected $topicMap;
+  protected $sharedFixture,
+            $topicMap;
+  
+  private $preservedBaseLocators;
   
   protected function setUp() {
-    if ($this->sharedFixture instanceof TopicMapSystem) {// called from suite
-      $this->topicMap = $this->sharedFixture->createTopicMap(self::$tmLocator);
-    } else {// allow all extending tests being stand alone
+    // allow all extending tests being stand alone
+    if (!$this->sharedFixture instanceof TopicMapSystem) {
       $tmSystemFactory = TopicMapSystemFactory::newInstance();
       // QuaaxTM specific feature
       $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, true);
       $tmSystem = $tmSystemFactory->newTopicMapSystem();
       $this->sharedFixture = $tmSystem;
-      $this->topicMap = $tmSystem->createTopicMap(self::$tmLocator);
     }
+    $this->preservedBaseLocators = $this->sharedFixture->getLocators();
+    $this->topicMap = $this->sharedFixture->createTopicMap(self::$tmLocator);
   }
   
   protected function tearDown() {
     $locators = $this->sharedFixture->getLocators();
     foreach ($locators as $locator) {
-      $tm = $this->sharedFixture->getTopicMap($locator);
-      $tm->close();
-      $tm->remove();
+      if (!in_array($locator, $this->preservedBaseLocators)) {
+        $tm = $this->sharedFixture->getTopicMap($locator);
+        $tm->close();
+        $tm->remove();
+      }
     }
     $this->topicMap = null;
   }
