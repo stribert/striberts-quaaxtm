@@ -20,10 +20,6 @@ Have a look at http://phptmapi.wiki.sourceforge.net/Development+of+PHPTMAPI+2.0 
 information and usage. Please notice that PHPTMAPI 2.0 is not yet finished, and therefore 
 this version of QuaaxTM is not yet finished too.
 
-Pretesters who have installed PHP 5.3.0 RC2 had to set their error reporting to 
-error_reporting(E_ERROR | E_WARNING | E_PARSE | E_NOTICE) as function eregi() is 
-deprecated in 5.3.
-
 Questions and answers
 ---------------------
 Use the PHPTMAPI mailing list: https://lists.sourceforge.net/lists/listinfo/phptmapi-discuss/
