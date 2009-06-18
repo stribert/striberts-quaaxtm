@@ -274,11 +274,11 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    * @return string
    */
   private static function getFileExtension($className) {
-    if (eregi('impl', $className) || 
-        eregi('exception', $className) ||
-        eregi('mysql', $className) ||
-        eregi('topicmapsystemfactory', $className) ||
-        eregi('utils', $className)) {
+    if (stristr($className, 'impl') ||
+        stristr($className, 'utils') ||
+        stristr($className, 'mysql') ||
+        stristr($className, 'topicmapsystemfactory') ||
+        stristr($className, 'exception')) {
       return '.class.php';
     } else {
       return '.interface.php';
