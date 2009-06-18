@@ -3,7 +3,7 @@
  * QuaaxTM is an implementation of PHPTMAPI which uses MySQL with InnoDB as 
  * storage engine.
  * 
- * Copyright (C) 2008 Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
+ * Copyright (C) 2008 Johannes Schmidt <joschmidt@users.sourceforge.net>
  * 
  * This library is free software; you can redistribute it and/or modify it under the 
  * terms of the GNU Lesser General Public License as published by the Free Software 
@@ -37,7 +37,7 @@
  * or if it reifies a {@link Reifiable}.
  *
  * @package core
- * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
+ * @author Johannes Schmidt <joschmidt@users.sourceforge.net>
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
