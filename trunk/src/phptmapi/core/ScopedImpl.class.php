@@ -101,7 +101,7 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
     $_scope = $this->idsToKeys($scope);
     unset($_scope[$theme->dbId]);
     $scope = array_values($_scope);
-    if ($this instanceof Variant) {
+    if ($this instanceof IVariant) {
       // check the variant scope superset constraint
       $mergedScope = array_merge($scope, $this->parent->getScope());
       $nameScopeObj = $this->parent->getScopeObject();
