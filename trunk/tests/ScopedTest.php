@@ -38,7 +38,7 @@ class ScopedTest extends PHPTMAPITestCase {
    */
   private function _testScoped(Scoped $scoped) {
     $tm = $this->topicMap;
-    $scopeSize = $scoped instanceof Variant ? count($scoped->getScope()) : 0;
+    $scopeSize = $scoped instanceof IVariant ? count($scoped->getScope()) : 0;
     $this->assertEquals($scopeSize, count($scoped->getScope()), 
       'Unexpected count of themes!');
     $theme1 = $tm->createTopic();
