@@ -317,7 +317,7 @@ final class NameImpl extends ScopedImpl implements Name {
    * @param VariantImpl The modified variant.
    * @return void
    */
-  public function finished(Variant $variant) {
+  public function finished(IVariant $variant) {
     // get the hash of the finished variant
     $query = 'SELECT hash FROM ' . $this->config['table']['variant'] . 
       ' WHERE id = ' . $variant->dbId;
