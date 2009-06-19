@@ -33,7 +33,7 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-final class VariantImpl extends ScopedImpl implements Variant {
+final class VariantImpl extends ScopedImpl implements IVariant {
   
   /**
    * Constructor.
