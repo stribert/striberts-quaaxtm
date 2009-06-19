@@ -24,7 +24,7 @@ require_once('DatatypeAware.interface.php');
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: Variant.interface.php 24 2009-03-16 21:36:58Z joschmidt $
+ * @version svn:$Id$
  */
 interface IVariant extends DatatypeAware {}
 ?>
