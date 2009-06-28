@@ -87,7 +87,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * Returns all {@link TopicImpl}s contained in this topic map.
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing {@link TopicImpl}s.
+   * @return array An array containing a set of {@link TopicImpl}s.
    */
   public function getTopics() {
     $topics = array();
@@ -97,20 +97,20 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       $mysqlResult = $this->mysql->execute($query);
       while ($result = $mysqlResult->fetch()) {    
         $topic = $this->getConstructById(self::TOPIC_CLASS_NAME . '-' . $result['id']);
-        $topics[] = $topic;
+        $topics[$topic->getId()] = $topic;
       }
       $this->topicsCache = $topics;
     } else {
       $topics = $this->topicsCache;
     }
-    return $topics;
+    return array_values($topics);
   }
 
   /**
    * Returns all {@link AssociationImpl}s contained in this topic map.
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing {@link AssociationImpl}s.
+   * @return array An array containing a set of {@link AssociationImpl}s.
    */
   public function getAssociations() {
     $assocs = array();
@@ -120,13 +120,13 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       $mysqlResult = $this->mysql->execute($query);
       while ($result = $mysqlResult->fetch()) {    
         $assoc = $this->getConstructById(self::ASSOC_CLASS_NAME . '-' . $result['id']);
-        $assocs[] = $assoc;
+        $assocs[$assoc->getId()] = $assoc;
       }
       $this->assocsCache = $assocs;
     } else {
       $assocs = $this->assocsCache;
     }
-    return $assocs;
+    return array_values($assocs);
   }
   
   /**
@@ -135,7 +135,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * The return value may be an empty array but must never be <var>null</var>.
    * 
    * @param TopicImpl The type of the {@link AssociationImpl}s to be returned.
-   * @return array An array containing {@link AssociationImpl}s.
+   * @return array An array containing a set of {@link AssociationImpl}s.
    */
   public function getAssociationsByType(Topic $type) {
     $assocs = array();
@@ -145,9 +145,9 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {    
       $assoc = $this->getConstructById(self::ASSOC_CLASS_NAME . '-' . $result['id']);
-      $assocs[] = $assoc;
+      $assocs[$assoc->getId()] = $assoc;
     }
-    return $assocs;
+    return array_values($assocs);
   }
 
   /**
