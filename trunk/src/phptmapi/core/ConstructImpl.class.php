@@ -113,7 +113,7 @@ abstract class ConstructImpl implements Construct {
    * Returns the item identifiers of this Topic Maps construct.
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing URIs representing the item identifiers.
+   * @return array An array containing a set of URIs representing the item identifiers.
    */
   public function getItemIdentifiers() {
     $iids = array();
