@@ -104,7 +104,7 @@ final class NameImpl extends ScopedImpl implements Name {
    * Returns the {@link VariantImpl}s defined for this name.
    * The return array may be empty but must never be <var>null</var>.
    *
-   * @return array An array containing {@link VariantImpl}s.
+   * @return array An array containing a set of {@link VariantImpl}s.
    */
   public function getVariants() {
     $variants = array();
@@ -114,9 +114,9 @@ final class NameImpl extends ScopedImpl implements Name {
     while ($result = $mysqlResult->fetch()) {
       $this->topicMap->setConstructParent($this);
       $variant = $this->topicMap->getConstructById(self::VARIANT_CLASS_NAME . '-' . $result['id']);
-      $variants[] = $variant;
+      $variants[$variant->getId()] = $variant;
     }
-    return $variants;
+    return array_values($variants);
   }
 
   /**
