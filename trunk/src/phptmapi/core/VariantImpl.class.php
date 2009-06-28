@@ -164,7 +164,7 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    */
   public function getScope() {
     $scope = array_merge(parent::getScope(), $this->parent->getScope());
-    return $this->createThemesSet($scope);
+    return $this->arrayToSet($scope);
   }
   
   /**
@@ -178,20 +178,6 @@ final class VariantImpl extends ScopedImpl implements IVariant {
     $mysqlResult = $this->mysql->execute($query);
     $result = $mysqlResult->fetch();
     return $result['hash'];
-  }
-  
-  /**
-   * Generates a true set from the provided scope (themes). 
-   * 
-   * @param array An array containing topics (the themes).
-   * @return array An array containing a set of topics (the themes).
-   */
-  private function createThemesSet(array $scope) {
-    $set = array();
-    foreach ($scope as $theme) {
-      $set[$theme->getDbId()] = $theme;
-    }
-    return array_values($set);
   }
 }
 ?>
