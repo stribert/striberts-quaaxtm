@@ -54,7 +54,7 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    * An empty array represents the unconstrained scope.
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing {@link TopicImpl}s which define the scope.
+   * @return array An array containing a set of {@link TopicImpl}s which define the scope.
    */
   public function getScope() {
     $scope = array();
@@ -66,9 +66,9 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
     while ($result = $mysqlResult->fetch()) {
       $theme = $this->topicMap->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . 
         $result['topic_id']);
-      $scope[] = $theme;
+      $scope[$theme->getId()] = $theme;
     }
-    return $scope;
+    return array_values($scope);
   }
 
   /**
