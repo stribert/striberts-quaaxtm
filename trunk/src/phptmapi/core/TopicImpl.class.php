@@ -68,7 +68,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * Returns the subject identifiers assigned to this topic.
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing URIs representing the subject identifiers.
+   * @return array An array containing a set of URIs representing the subject identifiers.
    */
   public function getSubjectIdentifiers() {
     $sids = array();
@@ -164,7 +164,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * Returns the subject locators assigned to this topic.
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing URIs representing the subject locators.
+   * @return array An array containing a set of URIs representing the subject locators.
    */
   public function getSubjectLocators() {
     $slos = array();
@@ -244,7 +244,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * Returns the names of this topic.
    * The return value may be an empty array but must never be <var>null</var>.
    * 
-   * @return array An array containing {@link NameImpl}s belonging to this topic.
+   * @return array An array containing a set of {@link NameImpl}s belonging to this topic.
    */
   public function getNames() {
     $names = array();
@@ -254,9 +254,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
     while ($result = $mysqlResult->fetch()) {
       $this->parent->setConstructParent($this);
       $name = $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . $result['id']);
-      $names[] = $name;
+      $names[$name->getId()] = $name;
     }
-    return $names;
+    return array_values($names);
   }
 
   /**
@@ -264,7 +264,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * The return value may be an empty array but must never be <var>null</var>. 
    * 
    * @param TopicImpl The type of the {@link NameImpl}s to be returned.
-   * @return array An array containing {@link NameImpl}s with the specified <var>type</var>.
+   * @return array An array containing a set of {@link NameImpl}s with the specified 
+   *        <var>type</var>.
    */
   public function getNamesByType(Topic $type) {
     $names = array();
@@ -275,9 +276,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
     while ($result = $mysqlResult->fetch()) {
       $this->parent->setConstructParent($this);
       $name = $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . $result['id']);
-      $names[] = $name;
+      $names[$name->getId()] = $name;
     }
-    return $names;
+    return array_values($names);
   }
 
   /**
@@ -357,7 +358,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * Returns the {@link OccurrenceImpl}s of this topic.
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing {@link OccurrenceImpl}s belonging to this topic.
+   * @return array An array containing a set of {@link OccurrenceImpl}s belonging to 
+   *        this topic.
    */
   public function getOccurrences() {
     $occurrences = array();
@@ -368,9 +370,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
       $this->parent->setConstructParent($this);
       $occurrence = $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . 
         $result['id']);
-      $occurrences[] = $occurrence;
+      $occurrences[$occurrence->getId()] = $occurrence;
     }
-    return $occurrences;
+    return array_values($occurrences);
   }
 
   /**
@@ -379,7 +381,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * The return value may be an empty array but must never be <var>null</var>.
    *
    * @param TopicImpl The type of the {@link OccurrenceImpl}s to be returned.
-   * @return array An array containing {@link OccurrenceImpl}s with the 
+   * @return array An array containing a set of {@link OccurrenceImpl}s with the 
    *        specified <var>type</var>.
    */
   public function getOccurrencesByType(Topic $type) {
@@ -392,9 +394,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
       $this->parent->setConstructParent($this);
       $occurrence = $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . 
         $result['id']);
-      $occurrences[] = $occurrence;
+      $occurrences[$occurrence->getId()] = $occurrence;
     }
-    return $occurrences;
+    return array_values($occurrences);
   }
 
   /**
@@ -457,7 +459,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * Returns the roles played by this topic.
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing {@link RoleImpl}s played by this topic.
+   * @return array An array containing a set of {@link RoleImpl}s played by this topic.
    */
   public function getRolesPlayed() {
     $roles = array();
@@ -475,9 +477,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
       $this->parent->setConstructParent($assoc);
       $role = $this->parent->getConstructById(AssociationImpl::ROLE_CLASS_NAME . '-' . 
         $result['id']);
-      $roles[] = $role;
+      $roles[$role->getId()] = $role;
     }
-    return $roles;
+    return array_values($roles);
   }
 
   /**
@@ -485,7 +487,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * The return value may be an empty array but must never be <var>null</var>.
    *
    * @param TopicImpl The type of the {@link RoleImpl}s to be returned.
-   * @return array An array containing {@link RoleImpl}s with the specified <var>type</var>.
+   * @return array An array containing a set of {@link RoleImpl}s with the specified 
+   *        <var>type</var>.
    */
   public function getRolesPlayedByType(Topic $type) {
     $roles = array();
@@ -504,9 +507,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
       $this->parent->setConstructParent($assoc);
       $role = $this->parent->getConstructById(AssociationImpl::ROLE_CLASS_NAME . '-' . 
         $result['id']);
-      $roles[] = $role;
+      $roles[$role->getId()] = $role;
     }
-    return $roles;
+    return array_values($roles);
   }
 
   /**
@@ -517,8 +520,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param TopicImpl The type of the {@link RoleImpl}s to be returned.
    * @param TopicImpl The type of the {@link AssociationImpl} from which the
    *        returned roles must be part of.
-   * @return array An array containing {@link RoleImpl}s with the specified <var>type</var>
-   *        which are part of {@link AssociationImpl}s with the specified <var>assocType</var>.
+   * @return array An array containing a set of {@link RoleImpl}s with the specified 
+   *        <var>type</var> which are part of {@link AssociationImpl}s with the specified 
+   *        <var>assocType</var>.
    */
   public function getRolesPlayedByTypeAssocType(Topic $type, Topic $assocType) {
     $roles = array();
@@ -540,9 +544,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
       $this->parent->setConstructParent($assoc);
       $role = $this->parent->getConstructById(AssociationImpl::ROLE_CLASS_NAME . '-' . 
         $result['id']);
-      $roles[] = $role;
+      $roles[$role->getId()] = $role;
     }
-    return $roles;
+    return array_values($roles);
   }
 
   /**
@@ -555,7 +559,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * 
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing {@link TopicImpl}s.
+   * @return array An array containing a set of {@link TopicImpl}s.
    */
   public function getTypes() {
     $types = array();
@@ -564,9 +568,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $type = $this->parent->getConstructById(__CLASS__ . '-' . $result['type_id']);
-      $types[] = $type;
+      $types[$type->getId()] = $type;
     }
-    return $types;
+    return array_values($types);
   }
 
   /**
