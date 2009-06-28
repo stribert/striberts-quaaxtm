@@ -58,7 +58,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * Returns the roles participating in this association.
    * The return value must never be <var>null</var>.
    * 
-   * @return array An array containing {@link Role}s.
+   * @return array An array containing a set of {@link Role}s.
    */
   public function getRoles() {
     $roles = array();
@@ -68,9 +68,9 @@ final class AssociationImpl extends ScopedImpl implements Association {
     while ($result = $mysqlResult->fetch()) {
       $this->parent->setConstructParent($this);
       $role = $this->parent->getConstructById(self::ROLE_CLASS_NAME . '-' . $result['id']);
-      $roles[] = $role;
+      $roles[$role->getId()] = $role;
     }
-    return $roles;
+    return array_values($roles);
   }
 
   /**
@@ -78,8 +78,8 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * The return value may be an empty array but must never be <var>null</var>.
    * 
    * @param TopicImpl The type of the {@link RoleImpl} instances to be returned.
-   * @return array An array (maybe empty) containing {@link RoleImpl}s with the specified
-   *        <var>type</var> property.
+   * @return array An array (maybe empty) containing a set of {@link RoleImpl}s with 
+   *        the specified <var>type</var> property.
    */
   public function getRolesByType(Topic $type) {
     $roles = array();
@@ -90,9 +90,9 @@ final class AssociationImpl extends ScopedImpl implements Association {
     while ($result = $mysqlResult->fetch()) {
       $this->parent->setConstructParent($this);
       $role = $this->parent->getConstructById(self::ROLE_CLASS_NAME . '-' . $result['id']);
-      $roles[] = $role;
+      $roles[$role->getId()] = $role;
     }
-    return $roles;
+    return array_values($roles);
   }
 
   /**
@@ -140,7 +140,8 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * Returns the role types participating in this association.
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing {@link TopicImpl}s representing the role types.
+   * @return array An array containing a set of {@link TopicImpl}s representing the 
+   *        role types.
    */
   public function getRoleTypes() {
     $types = array();
@@ -150,9 +151,9 @@ final class AssociationImpl extends ScopedImpl implements Association {
     while ($result = $mysqlResult->fetch()) {
       $type = $this->parent->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . 
         $result['type_id']);
-      $types[] = $type;
+      $types[$type->getId()] = $type;
     }
-    return $this->arrayToSet($types);
+    return array_values($types);
   }
   
   /**
