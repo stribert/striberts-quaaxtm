@@ -889,9 +889,9 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    */
   private function contains($id) {
     $constituents = explode('-', $id);
-    $className = $constituents[0];
-    $dbId = $constituents[1];
-    if (!empty($dbId)) {
+    if (count($constituents)==2) {
+      $className = $constituents[0];
+      $dbId = $constituents[1];
       $fkColumn = $this->getFkColumn($className);
       if (!is_null($fkColumn)) {
         if ($fkColumn != ConstructImpl::TOPICMAP_FK_COL) {
@@ -904,8 +904,12 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
             ' AND parent_id IS NULL';
         }
         $mysqlResult = $this->mysql->execute($query);
-        $result = $mysqlResult->fetchArray();
-        return (int) $result[0] > 0 ? true : false;
+        if ($mysqlResult instanceof MysqlResult) {
+          $result = $mysqlResult->fetchArray();
+          return (int) $result[0] > 0 ? true : false;
+        } else {
+          return false;
+        }
       } else {
         return false;
       }
