@@ -39,41 +39,73 @@ class QTMGetConstructTest extends PHPTMAPITestCase {
     $topic = $tm->createTopic();
     $retrievedTopic = $tm->getConstructById($topic->getId());
     $this->assertEquals($topic->getId(), $retrievedTopic->getId(), 'Expected identity!');
-    
+    $retrievedTm = $tm->getConstructById($tm->getId());
+    $this->assertEquals($tm->getId(), $retrievedTm->getId(), 'Expected identity!');
+    $assoc = $this->createAssoc();
+    $retrievedAssoc = $tm->getConstructById($assoc->getId());
+    $this->assertEquals($assoc->getId(), $retrievedAssoc->getId(), 'Expected identity!');
+    $role = $this->createRole();
+    $retrievedRole = $tm->getConstructById($role->getId());
+    $this->assertEquals($role->getId(), $retrievedRole->getId(), 'Expected identity!');
+    $occ = $this->createOcc();
+    $retrievedOcc = $tm->getConstructById($occ->getId());
+    $this->assertEquals($occ->getId(), $retrievedOcc->getId(), 'Expected identity!');
+    $name = $this->createName();
+    $retrievedName = $tm->getConstructById($name->getId());
+    $this->assertEquals($name->getId(), $retrievedName->getId(), 'Expected identity!');
+    $variant = $this->createVariant();
+    $retrievedVariant = $tm->getConstructById($variant->getId());
+    $this->assertEquals($variant->getId(), $retrievedVariant->getId(), 'Expected identity!');
   }
   
   public function testGetConstructByIdInvalid() {
-    $unknown = $this->topicMap->getConstructById(uniqid());
+    $tm = $this->topicMap;
+    $unknown = $tm->getConstructById(uniqid());
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
     
-    $unknown = $this->topicMap->getConstructById('TopicImpl-' . uniqid());
+    $unknown = $tm->getConstructById('TopicImpl-' . uniqid());
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
-    $unknown = $this->topicMap->getConstructById('TopicMapImpl-' . uniqid());
+    $unknown = $tm->getConstructById('TopicMapImpl-' . uniqid());
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
-    $unknown = $this->topicMap->getConstructById('AssociationImpl-' . uniqid());
+    $unknown = $tm->getConstructById('AssociationImpl-' . uniqid());
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
-    $unknown = $this->topicMap->getConstructById('RoleImpl-' . uniqid());
+    $unknown = $tm->getConstructById('RoleImpl-' . uniqid());
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
-    $unknown = $this->topicMap->getConstructById('NameImpl-' . uniqid());
+    $unknown = $tm->getConstructById('NameImpl-' . uniqid());
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
-    $unknown = $this->topicMap->getConstructById('OccurrenceImpl-' . uniqid());
+    $unknown = $tm->getConstructById('OccurrenceImpl-' . uniqid());
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
-    $unknown = $this->topicMap->getConstructById('VariantImpl-' . uniqid());
+    $unknown = $tm->getConstructById('VariantImpl-' . uniqid());
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
     
-    $unknown = $this->topicMap->getConstructById('TopicImpl-0');
+    $unknown = $tm->getConstructById('TopicImpl-0');
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
-    $unknown = $this->topicMap->getConstructById('TopicMapImpl-0');
+    $unknown = $tm->getConstructById('TopicMapImpl-0');
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
-    $unknown = $this->topicMap->getConstructById('AssociationImpl-0');
+    $unknown = $tm->getConstructById('AssociationImpl-0');
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
-    $unknown = $this->topicMap->getConstructById('RoleImpl-0');
+    $unknown = $tm->getConstructById('RoleImpl-0');
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
-    $unknown = $this->topicMap->getConstructById('NameImpl-0');
+    $unknown = $tm->getConstructById('NameImpl-0');
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
-    $unknown = $this->topicMap->getConstructById('OccurrenceImpl-0');
+    $unknown = $tm->getConstructById('OccurrenceImpl-0');
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
-    $unknown = $this->topicMap->getConstructById('VariantImpl-0');
+    $unknown = $tm->getConstructById('VariantImpl-0');
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    
+    $unknown = $tm->getConstructById(uniqid() . '-1');
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    $unknown = $tm->getConstructById(uniqid() . '-1');
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    $unknown = $tm->getConstructById(uniqid() . '-1');
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    $unknown = $tm->getConstructById(uniqid() . '-1');
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    $unknown = $tm->getConstructById(uniqid() . '-1');
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    $unknown = $tm->getConstructById(uniqid() . '-1');
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    $unknown = $tm->getConstructById(uniqid() . '-1');
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
   }
 }

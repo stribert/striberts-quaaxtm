@@ -51,6 +51,7 @@ require_once('TopicMergeDetectionAutomergeEnabledTest.php');
 require_once('VariantTest.php');
 // QuaaxTM specific tests
 require_once('QTMDuplicateRemovalTest.php');
+require_once('QTMGetConstructTest.php');
 
 /**
  * Core test suite.
@@ -86,6 +87,7 @@ class AllCoreTests extends PHPUnit_Framework_TestSuite {
     $suite->addTestSuite('VariantTest');
     // QuaaxTM specific tests
     $suite->addTestSuite('QTMDuplicateRemovalTest');
+    $suite->addTestSuite('QTMGetConstructTest');
     return $suite;
   }
  
