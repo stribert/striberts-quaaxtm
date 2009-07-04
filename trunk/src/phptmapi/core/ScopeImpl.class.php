@@ -60,8 +60,7 @@ final class ScopeImpl implements IScope {
         $this->create();
       }
     } else {// unconstrained scope
-      $this->themesIds = array();
-      $this->themes = array();
+      $this->themesIds = $this->themes = array();
       $this->dbId = $this->getUcsId();
     }
   }
