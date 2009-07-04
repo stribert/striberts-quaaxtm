@@ -352,7 +352,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
           return $construct;
         } else {
           throw new IdentityConstraintException($this, $construct, $iid, __METHOD__ . 
-            ConstructImpl::ITEM_IDENTIFIER_EXISTS_ERR_MSG);
+            parent::ITEM_IDENTIFIER_EXISTS_ERR_MSG);
         }
       } else {
         $topic = $this->getTopicBySubjectIdentifier($iid);
@@ -894,7 +894,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       $dbId = $constituents[1];
       $fkColumn = $this->getFkColumn($className);
       if (!is_null($fkColumn)) {
-        if ($fkColumn != ConstructImpl::TOPICMAP_FK_COL) {
+        if ($fkColumn != parent::TOPICMAP_FK_COL) {
           $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['topicmapconstruct'] . 
             ' WHERE ' . $fkColumn . ' = ' . $dbId . 
             ' AND topicmap_id = ' . $this->dbId;
