@@ -197,8 +197,8 @@ class TopicMergeTest extends PHPTMAPITestCase {
     $topic2 = $tm->createTopic();
     $type = $tm->createTopic();
     $reifier = $tm->createTopic();
-    $name1 = $topic1->createTypedName($type, 'Name');
-    $name2 = $topic2->createTypedName($type, 'Name');
+    $name1 = $topic1->createName('Name', $type);
+    $name2 = $topic2->createName('Name', $type);
     $this->assertEquals(count($tm->getTopics()), 4, 'Expected 4 topics!');
     $name1->setReifier($reifier);
     $this->assertEquals($name1->getReifier()->getId(), $reifier->getId(), 
@@ -235,10 +235,10 @@ class TopicMergeTest extends PHPTMAPITestCase {
     $type = $tm->createTopic();
     $reifier1 = $tm->createTopic();
     $reifier2 = $tm->createTopic();
-    $reifier1->createTypedName($type, 'Reifier1');
-    $reifier2->createTypedName($type, 'Reifier2');
-    $name1 = $topic1->createTypedName($type, 'Name');
-    $name2 = $topic2->createTypedName($type, 'Name');
+    $reifier1->createName('Reifier1', $type);
+    $reifier2->createName('Reifier2', $type);
+    $name1 = $topic1->createName('Name', $type);
+    $name2 = $topic2->createName('Name', $type);
     $this->assertEquals(count($tm->getTopics()), 5, 'Expected 5 topics!');
     $name1->setReifier($reifier1);
     $name2->setReifier($reifier2);
@@ -448,7 +448,7 @@ class TopicMergeTest extends PHPTMAPITestCase {
     $reifier = $tm->createTopic();
     $scope = array($tm->createTopic(), $tm->createTopic());
     $this->assertEquals(count($tm->getTopics()), 6, 'Expected 6 topics!');
-    $name = $topic1->createTypedName($type, 'Name', $scope);
+    $name = $topic1->createName('Name', $type, $scope);
     $name->setReifier($reifier);
     $name->addItemIdentifier('http://localhost/n/1');
     $this->assertEquals(count($topic1->getNames()), 1, 'Expected 1 topic name!');
@@ -479,7 +479,7 @@ class TopicMergeTest extends PHPTMAPITestCase {
     $nameReifier = $tm->createTopic();
     $variantReifier = $tm->createTopic();
     $nameScope = array($tm->createTopic(), $tm->createTopic());
-    $name = $topic1->createTypedName($type, 'Name', $nameScope);
+    $name = $topic1->createName('Name', $type, $nameScope);
     $name->setReifier($nameReifier);
     $nameScope[] = $tm->createTopic();
     $variantScope = $nameScope;

@@ -1041,10 +1041,11 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     foreach ($sourceNames as $sourceName) {
       $targetType = $this->copyTopic($sourceName->getType());
       $targetNameScope = $this->copyScope($sourceName->getScope());
-      $targetName = $targetTopic->createTypedName($targetType, 
-                                            $sourceName->getValue(), 
-                                            $targetNameScope
-                                          );
+      $targetName = $targetTopic->createName( 
+                                              $sourceName->getValue(), 
+                                              $targetType, 
+                                              $targetNameScope
+                                            );
       // source name's iids
       $this->copyIids($targetName, $sourceName);
       

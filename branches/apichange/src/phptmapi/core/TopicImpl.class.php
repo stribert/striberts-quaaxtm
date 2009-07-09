@@ -337,55 +337,6 @@ final class TopicImpl extends ConstructImpl implements Topic {
   }
 
   /**
-   * Creates a {@link NameImpl} for this topic with the specified <var>type</var>,
-   * <var>value</var>, and <var>scope</var>. 
-   *
-   * @param TopicImpl The name type.
-   * @param string The string value of the name; must not be <var>null</var>.
-   * @param array An array containing {@link TopicImpl}s - each representing a theme.
-   *        If the array's length is 0 (default), the name will be in the 
-   *        unconstrained scope.
-   * @return NameImpl The newly created {@link NameImpl}.
-   * @throws {@link ModelConstraintException} If the <var>value</var> is <var>null</var>.
-   */
-  public function createTypedName(Topic $type, $value, array $scope=array()) {
-    if (!is_null($value)) {
-      $value = CharacteristicUtils::canonicalize($value);
-      $hash = $this->getNameHash($value, $type, $scope);
-      $propertyId = $this->hasName($hash);
-      if (!$propertyId) {
-        $this->mysql->startTransaction(true);
-        $query = 'INSERT INTO ' . $this->config['table']['topicname'] . 
-          ' (id, topic_id, type_id, value, hash) VALUES' .
-          ' (NULL, ' . $this->dbId . ', ' . $type->dbId . ', "' . $value . '", "' . $hash . '")';
-        $mysqlResult = $this->mysql->execute($query);
-        $lastNameId = $mysqlResult->getLastId();
-        
-        $query = 'INSERT INTO ' . $this->config['table']['topicmapconstruct'] . 
-          ' (topicname_id, topicmap_id, parent_id) VALUES' .
-          ' (' . $lastNameId . ', ' . $this->parent->dbId . ', ' . $this->dbId . ')';
-        $this->mysql->execute($query);
-        
-        $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope);
-        $query = 'INSERT INTO ' . $this->config['table']['topicname_scope'] . 
-          ' (scope_id, topicname_id) VALUES' .
-          ' (' . $scopeObj->dbId . ', ' . $lastNameId . ')';
-        $this->mysql->execute($query);
-        
-        $this->mysql->finishTransaction(true);
-        $this->parent->setConstructParent($this);
-        return $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . $lastNameId);
-      } else {
-        $this->parent->setConstructParent($this);
-        return $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . $propertyId);
-      }
-    } else {
-      throw new ModelConstraintException($this, __METHOD__ . 
-        ConstructImpl::VALUE_NULL_ERR_MSG);
-    }
-  }
-
-  /**
    * Returns the {@link OccurrenceImpl}s of this topic.
    * The return value may be an empty array but must never be <var>null</var>.
    *
@@ -809,10 +760,11 @@ final class TopicImpl extends ConstructImpl implements Topic {
     // merge other's names
     $othersNames = $other->getNames();
     foreach ($othersNames as $othersName) {
-      $name = $this->createTypedName($othersName->getType(), 
-                                      $othersName->getValue(), 
-                                      $othersName->getScope()
-                                    );
+      $name = $this->createName( 
+                                $othersName->getValue(), 
+                                $othersName->getType(), 
+                                $othersName->getScope()
+                              );
       // other's name's iids
       $name->gainItemIdentifiers($othersName);
       

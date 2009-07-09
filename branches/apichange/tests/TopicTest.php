@@ -317,7 +317,7 @@ class TopicTest extends PHPTMAPITestCase {
       'Expected new topic to be created without names!');
     $this->assertEquals(count($topic->getNamesByType($unusedType)), 0, 
       'Expected new topic to be created without names!');
-    $name = $topic->createTypedName($type1, 'Name');
+    $name = $topic->createName('Name', $type1);
     $this->assertEquals(count($topic->getNamesByType($type1)), 1, 
       'Expected topic to gain this name!');
     $ids = $this->getIdsOfConstructs($topic->getNamesByType($type1));
@@ -442,7 +442,7 @@ class TopicTest extends PHPTMAPITestCase {
     $value = 'Name';
     $this->assertEquals(count($topic->getNames()), 0, 
       'Expected new topic to be created without names!');
-    $name = $topic->createTypedName($type, $value);
+    $name = $topic->createName($value, $type);
     $this->assertEquals(count($topic->getNames()), 1, 'Expected 1 name!');
     $ids = $this->getIdsOfConstructs($topic->getNames());
     $this->assertTrue(in_array($name->getId(), $ids, true), 
@@ -463,7 +463,7 @@ class TopicTest extends PHPTMAPITestCase {
     $value = 'Name';
     $this->assertEquals(count($topic->getNames()), 0, 
       'Expected new topic to be created without names!');
-    $name = $topic->createTypedName($type, $value, array($theme1, $theme2));
+    $name = $topic->createName($value, $type, array($theme1, $theme2));
     $this->assertEquals(count($topic->getNames()), 1, 'Expected 1 name!');
     $ids = $this->getIdsOfConstructs($topic->getNames());
     $this->assertTrue(in_array($name->getId(), $ids, true), 
