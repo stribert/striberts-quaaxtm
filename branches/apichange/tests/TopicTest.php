@@ -511,7 +511,7 @@ class TopicTest extends PHPTMAPITestCase {
     $value = 'Name';
     $this->assertEquals(count($topic->getNames()), 0, 
       'Expected new topic to be created without names!');
-    $name = $topic->createName($value, array($theme1, $theme2));
+    $name = $topic->createName($value, null, array($theme1, $theme2));
     $this->assertEquals(count($topic->getNames()), 1, 'Expected 1 name!');
     $ids = $this->getIdsOfConstructs($topic->getNames());
     $this->assertTrue(in_array($name->getId(), $ids, true), 

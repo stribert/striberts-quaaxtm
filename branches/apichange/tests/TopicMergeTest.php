@@ -572,7 +572,7 @@ class TopicMergeTest extends PHPTMAPITestCase {
       'Occurrence is not part of getOccurrences()!');
     $topic1->mergeIn($topic2);
     $occurrences = $topic1->getOccurrences();
-    $this->assertEquals(count($topic1->getOccurrences($occurrences)), 2, 'Expected 2 occurrences!');
+    $this->assertEquals(count($topic1->getOccurrences()), 2, 'Expected 2 occurrences!');
     if (count($occurrences === 2)) {
       $values = array();
       foreach ($occurrences as $occurrence) {

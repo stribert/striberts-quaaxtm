@@ -37,12 +37,14 @@ class QTMDuplicateRemovalTest extends PHPTMAPITestCase {
   public function testName() {
     $tm = $this->topicMap;
     $parent = $tm->createTopic();
+    $type = $tm->createTopic();
+    $type->addSubjectIdentifier(VocabularyUtils::TMDM_PSI_DEFAULT_NAME_TYPE);
     $theme1 = $tm->createTopic();
     $theme2 = $tm->createTopic();
     $this->assertEquals(count($parent->getNames()), 0, 
       'Expected new topic to be created without names!');
-    $name1 = $parent->createName('Name1', array($theme1, $theme2));
-    $name2 = $parent->createName('Name2');
+    $name1 = $parent->createName('Name1', $type, array($theme1, $theme2));
+    $name2 = $parent->createName('Name2', $type);
     $this->assertEquals($name1->getParent()->getId(), $parent->getId(), 
       'Unexpected name parent after creation!');
     $this->assertEquals($name2->getParent()->getId(), $parent->getId(), 
