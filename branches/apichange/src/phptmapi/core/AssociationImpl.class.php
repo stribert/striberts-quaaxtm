@@ -58,9 +58,10 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * Returns the roles participating in this association.
    * The return value must never be <var>null</var>.
    * 
+   * @param TopicImpl The type of the {@link RoleImpl} instances to be returned. Default <var>null</var>.
    * @return array An array containing a set of {@link Role}s.
    */
-  public function getRoles() {
+  public function getRoles(Topic $type=null) {
     $roles = array();
     $query = 'SELECT id FROM ' . $this->config['table']['assocrole'] . 
       ' WHERE association_id = ' . $this->dbId;

@@ -244,9 +244,10 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * Returns the names of this topic.
    * The return value may be an empty array but must never be <var>null</var>.
    * 
+   * @param TopicImpl The type of the {@link NameImpl}s to be returned. Default <var>null</var>.
    * @return array An array containing a set of {@link NameImpl}s belonging to this topic.
    */
-  public function getNames() {
+  public function getNames(Topic $type=null) {
     $names = array();
     $query = 'SELECT id FROM ' . $this->config['table']['topicname'] . 
       ' WHERE topic_id = ' . $this->dbId;
@@ -289,13 +290,14 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * http://psi.topicmaps.org/iso13250/model/topic-name).
    * 
    * @param string The string value of the name; must not be <var>null</var>.
+   * @param TopicImpl The name type. Default <var>null</var>.
    * @param array An array containing {@link TopicImpl}s - each representing a theme. 
    *        If the array's length is 0 (default), the name will be in the 
    *        unconstrained scope.
    * @return NameImpl The newly created {@link NameImpl}.
    * @throws {@link ModelConstraintException} If the <var>value</var> is <var>null</var>.
    */
-  public function createName($value, array $scope=array()) {
+  public function createName($value, Topic $type=null, array $scope=array()) {
     if (!is_null($value)) {
       $type = $this->getDefaultNameType();
       return $this->createTypedName($type, $value, $scope);
@@ -358,10 +360,12 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * Returns the {@link OccurrenceImpl}s of this topic.
    * The return value may be an empty array but must never be <var>null</var>.
    *
+   * @param TopicImpl The type of the {@link OccurrenceImpl}s to be returned. 
+   *        Default <var>null</var>.
    * @return array An array containing a set of {@link OccurrenceImpl}s belonging to 
    *        this topic.
    */
-  public function getOccurrences() {
+  public function getOccurrences(Topic $type=null) {
     $occurrences = array();
     $query = 'SELECT id FROM ' . $this->config['table']['occurrence'] . 
       ' WHERE topic_id = ' . $this->dbId;
@@ -459,9 +463,11 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * Returns the roles played by this topic.
    * The return value may be an empty array but must never be <var>null</var>.
    *
+   * @param TopicImpl The type of the {@link RoleImpl}s to be returned. Default <var>null</var>.
+   * @param TopicImpl The type of the {@link AssociationImpl} from which the
    * @return array An array containing a set of {@link RoleImpl}s played by this topic.
    */
-  public function getRolesPlayed() {
+  public function getRolesPlayed(Topic $type=null, Topic $assocType=null) {
     $roles = array();
     $query = 'SELECT id FROM ' . $this->config['table']['assocrole'] . 
       ' WHERE player_id = ' . $this->dbId;
