@@ -284,9 +284,10 @@ final class TopicImpl extends ConstructImpl implements Topic {
 
   /**
    * Creates a {@link NameImpl} for this topic with the specified <var>value</var>, 
-   * and <var>scope</var>.
-   * The created {@link NameImpl} will have the default name type
-   * (a {@link TopicImpl} with the subject identifier 
+   * <var>type</var>, and <var>scope</var>.
+   * 
+   * If <var>type</var> is <var>null</var> the created {@link NameImpl} will have the default 
+   * name type (a {@link TopicImpl} with the subject identifier 
    * http://psi.topicmaps.org/iso13250/model/topic-name).
    * 
    * @param string The string value of the name; must not be <var>null</var>.
@@ -299,8 +300,36 @@ final class TopicImpl extends ConstructImpl implements Topic {
    */
   public function createName($value, Topic $type=null, array $scope=array()) {
     if (!is_null($value)) {
-      $type = $this->getDefaultNameType();
-      return $this->createTypedName($type, $value, $scope);
+      $value = CharacteristicUtils::canonicalize($value);
+      $type = is_null($type) ? $this->getDefaultNameType() : $type;
+      $hash = $this->getNameHash($value, $type, $scope);
+      $propertyId = $this->hasName($hash);
+      if (!$propertyId) {
+        $this->mysql->startTransaction(true);
+        $query = 'INSERT INTO ' . $this->config['table']['topicname'] . 
+          ' (id, topic_id, type_id, value, hash) VALUES' .
+          ' (NULL, ' . $this->dbId . ', ' . $type->dbId . ', "' . $value . '", "' . $hash . '")';
+        $mysqlResult = $this->mysql->execute($query);
+        $lastNameId = $mysqlResult->getLastId();
+        
+        $query = 'INSERT INTO ' . $this->config['table']['topicmapconstruct'] . 
+          ' (topicname_id, topicmap_id, parent_id) VALUES' .
+          ' (' . $lastNameId . ', ' . $this->parent->dbId . ', ' . $this->dbId . ')';
+        $this->mysql->execute($query);
+        
+        $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope);
+        $query = 'INSERT INTO ' . $this->config['table']['topicname_scope'] . 
+          ' (scope_id, topicname_id) VALUES' .
+          ' (' . $scopeObj->dbId . ', ' . $lastNameId . ')';
+        $this->mysql->execute($query);
+        
+        $this->mysql->finishTransaction(true);
+        $this->parent->setConstructParent($this);
+        return $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . $lastNameId);
+      } else {
+        $this->parent->setConstructParent($this);
+        return $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . $propertyId);
+      }
     } else {
       throw new ModelConstraintException($this, __METHOD__ . 
         ConstructImpl::VALUE_NULL_ERR_MSG);
