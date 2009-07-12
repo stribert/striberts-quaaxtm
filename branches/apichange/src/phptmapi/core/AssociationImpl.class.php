@@ -65,28 +65,9 @@ final class AssociationImpl extends ScopedImpl implements Association {
     $roles = array();
     $query = 'SELECT id FROM ' . $this->config['table']['assocrole'] . 
       ' WHERE association_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
-    while ($result = $mysqlResult->fetch()) {
-      $this->parent->setConstructParent($this);
-      $role = $this->parent->getConstructById(self::ROLE_CLASS_NAME . '-' . $result['id']);
-      $roles[$role->getId()] = $role;
+    if (!is_null($type)) {
+      $query .= ' AND type_id = ' . $type->dbId;
     }
-    return array_values($roles);
-  }
-
-  /**
-   * Returns all roles with the specified <var>type</var>.
-   * The return value may be an empty array but must never be <var>null</var>.
-   * 
-   * @param TopicImpl The type of the {@link RoleImpl} instances to be returned.
-   * @return array An array (maybe empty) containing a set of {@link RoleImpl}s with 
-   *        the specified <var>type</var> property.
-   */
-  public function getRolesByType(Topic $type) {
-    $roles = array();
-    $query = 'SELECT id FROM ' . $this->config['table']['assocrole'] . 
-      ' WHERE association_id = ' . $this->dbId . 
-      ' AND type_id = ' . $type->dbId;
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $this->parent->setConstructParent($this);
