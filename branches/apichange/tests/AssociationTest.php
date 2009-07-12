@@ -150,51 +150,51 @@ class AssociationTest extends PHPTMAPITestCase {
     $type1 = $tm->createTopic();
     $type2 = $tm->createTopic();
     $unusedType = $tm->createTopic();
-    $this->assertTrue(count($assoc->getRolesByType($type1)) == 0, 
+    $this->assertTrue(count($assoc->getRoles($type1)) == 0, 
       'Expected 0 roles!');
-    $this->assertTrue(count($assoc->getRolesByType($type2)) == 0, 
+    $this->assertTrue(count($assoc->getRoles($type2)) == 0, 
       'Expected 0 roles!');
-    $this->assertTrue(count($assoc->getRolesByType($unusedType)) == 0, 
+    $this->assertTrue(count($assoc->getRoles($unusedType)) == 0, 
       'Expected 0 roles!');
     $role1 = $assoc->createRole($type1, $tm->createTopic());
-    $this->assertTrue(count($assoc->getRolesByType($type1)) == 1, 
+    $this->assertTrue(count($assoc->getRoles($type1)) == 1, 
       'Expected 1 role!');
-    $ids = $this->getIdsOfConstructs($assoc->getRolesByType($type1));
+    $ids = $this->getIdsOfConstructs($assoc->getRoles($type1));
     $this->assertTrue(in_array($role1->getId(), $ids, true), 
-      'Role is not part of getRolesByType()!');
-    $this->assertTrue(count($assoc->getRolesByType($type2)) == 0, 
+      'Role is not part of getRoles()!');
+    $this->assertTrue(count($assoc->getRoles($type2)) == 0, 
       'Expected 0 roles!');
-    $this->assertTrue(count($assoc->getRolesByType($unusedType)) == 0, 
+    $this->assertTrue(count($assoc->getRoles($unusedType)) == 0, 
       'Expected 0 roles!');
     $role2 = $assoc->createRole($type2, $tm->createTopic());
-    $this->assertTrue(count($assoc->getRolesByType($type2)) == 1, 
+    $this->assertTrue(count($assoc->getRoles($type2)) == 1, 
       'Expected 1 role!');
-    $ids = $this->getIdsOfConstructs($assoc->getRolesByType($type2));
+    $ids = $this->getIdsOfConstructs($assoc->getRoles($type2));
     $this->assertTrue(in_array($role2->getId(), $ids, true), 
-      'Role is not part of getRolesByType()!');
+      'Role is not part of getRoles()!');
     $role3 = $assoc->createRole($type2, $tm->createTopic());
-    $this->assertTrue(count($assoc->getRolesByType($type2)) == 2, 
+    $this->assertTrue(count($assoc->getRoles($type2)) == 2, 
       'Expected 2 roles!');
-    $ids = $this->getIdsOfConstructs($assoc->getRolesByType($type2));
+    $ids = $this->getIdsOfConstructs($assoc->getRoles($type2));
     $this->assertTrue(in_array($role2->getId(), $ids, true), 
-      'Role is not part of getRolesByType()!');
+      'Role is not part of getRoles()!');
     $this->assertTrue(in_array($role3->getId(), $ids, true), 
-      'Role is not part of getRolesByType()!');
-    $this->assertTrue(count($assoc->getRolesByType($unusedType)) == 0, 
+      'Role is not part of getRoles()!');
+    $this->assertTrue(count($assoc->getRoles($unusedType)) == 0, 
       'Expected 0 roles!');
     $role3->remove();
-    $this->assertTrue(count($assoc->getRolesByType($type2)) == 1, 
+    $this->assertTrue(count($assoc->getRoles($type2)) == 1, 
       'Expected 1 role!');
-    $ids = $this->getIdsOfConstructs($assoc->getRolesByType($type2));
+    $ids = $this->getIdsOfConstructs($assoc->getRoles($type2));
     $this->assertTrue(in_array($role2->getId(), $ids, true), 
-      'Role is not part of getRolesByType()!');
+      'Role is not part of getRoles()!');
     $role2->remove();
-    $this->assertTrue(count($assoc->getRolesByType($type2)) == 0, 
+    $this->assertTrue(count($assoc->getRoles($type2)) == 0, 
       'Expected 0 roles!');
     $role1->remove();
-    $this->assertTrue(count($assoc->getRolesByType($type1)) == 0, 
+    $this->assertTrue(count($assoc->getRoles($type1)) == 0, 
       'Expected 0 roles!');
-    $this->assertTrue(count($assoc->getRolesByType($unusedType)) == 0, 
+    $this->assertTrue(count($assoc->getRoles($unusedType)) == 0, 
       'Expected 0 roles!');
   }
 }
