@@ -20,6 +20,9 @@ Have a look at http://phptmapi.wiki.sourceforge.net/Development+of+PHPTMAPI+2.0 
 information and usage. Please notice that PHPTMAPI 2.0 is not yet finished, and therefore 
 this version of QuaaxTM is not yet finished too.
 
+Note: If you compile PHP on your own please be sure to enable "mysqli" for QuaaxTM core and 
+"reflection", "spl", "xml", and "tokenizer" for PHPUnit (thanks Benjamin Bock).
+
 Questions and answers
 ---------------------
 Use the PHPTMAPI mailing list: https://lists.sourceforge.net/lists/listinfo/phptmapi-discuss/
