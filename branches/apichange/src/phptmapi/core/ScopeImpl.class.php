@@ -38,7 +38,9 @@ final class ScopeImpl implements IScope {
   private $mysql,
           $config,
           $themes,
-          $themesIds;
+          $themesIds,
+          $currentTopicMap,
+          $currentConstruct;
 
   /**
    * Constructor.
@@ -46,11 +48,15 @@ final class ScopeImpl implements IScope {
    * @param Mysql The Mysql object.
    * @param array The configuration data.
    * @param array An array containing {@link TopicImpl}s (the themes).
+   * @param TopicMapImpl The current topic map.
    * @return void
    */
-  public function __construct(Mysql $mysql, array $config, array $themes) {
+  public function __construct(Mysql $mysql, array $config, array $themes, 
+    TopicMap $currentTopicMap, Construct $currentConstruct) {
     $this->mysql = $mysql;
     $this->config = $config;
+    $this->currentTopicMap = $currentTopicMap;
+    $this->currentConstruct = $currentConstruct;
     if (count($themes) > 0) {
       $this->createSet($themes);
       $scopeId = $this->exists();
@@ -140,11 +146,17 @@ final class ScopeImpl implements IScope {
    * Sets the private attributes $themesIds and $themes.
    * 
    * @param array An array containing topics (the themes).
+   * @throws {@link ModelConstraintException} If a theme (topic) does not belong to the
+   *        current topic map.
    */
   private function createSet(array $scope) {
     $set = array();
     foreach ($scope as $theme) {
       if ($theme instanceof Topic) {
+        if (!$this->currentTopicMap->equals($theme->getParent())) {
+          throw new ModelConstraintException($this->currentConstruct, 
+            __METHOD__ . ConstructImpl::SAME_TM_CONSTRAINT_ERR_MSG);
+        }
         $set[$theme->getDbId()] = $theme;
       }
     }
