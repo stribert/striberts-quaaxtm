@@ -32,6 +32,7 @@ abstract class ConstructImpl implements Construct {
         VALUE_NULL_ERR_MSG = ': Value must not be null!',
         VALUE_DATATYPE_NULL_ERR_MSG = ': Value and datatype must not be null!',
         ITEM_IDENTIFIER_EXISTS_ERR_MSG = ': Item identifier already exists!',
+        SAME_TM_CONSTRAINT_ERR_MSG = ': Same topic map constraint violation!',
         
         ASSOC_FK_COL = 'association_id',
         ROLE_FK_COL = 'assocrole_id',
