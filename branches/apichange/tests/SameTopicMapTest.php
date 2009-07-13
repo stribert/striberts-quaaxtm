@@ -57,5 +57,119 @@ class SameTopicMapTest extends PHPTMAPITestCase {
     $this->assertTrue($this->tm2 instanceof TopicMap);
   }
   
+  public function testAssociationCreationIllegalType() {
+    try {
+      $this->tm1->createAssociation($this->tm2->createTopic());
+      $this->fail('Expected a model contraint exception!');
+    } catch (ModelConstraintException $e) {
+      $this->assertEquals($e->getReporter()->getId(), $this->tm1->getId(), 
+        'Expected identity!');
+    }
+  }
+  
+  public function testAssociationCreationIllegalScope() {
+    try {
+      $this->tm1->createAssociation($this->tm1->createTopic(), 
+        array($this->tm1->createTopic(), $this->tm2->createTopic()));
+      $this->fail('Expected a model contraint exception!');
+    } catch (ModelConstraintException $e) {
+      $this->assertEquals($e->getReporter()->getId(), $this->tm1->getId(), 
+        'Expected identity!');
+    }
+  }
+  
+  public function testNameCreationIllegalType() {
+    try {
+      $parent = $this->tm1->createTopic();
+      $parent->createName('Name', $this->tm2->createTopic());
+      $this->fail('Expected a model contraint exception!');
+    } catch (ModelConstraintException $e) {
+      $this->assertEquals($e->getReporter()->getId(), $parent->getId(), 'Expected identity!');
+    }
+  }
+  
+  public function testNameCreationIllegalScope() {
+    try {
+      $parent = $this->tm1->createTopic();
+      $parent->createName('Name', $this->tm1->createTopic(), 
+        array($this->tm1->createTopic(), $this->tm2->createTopic()));
+      $this->fail('Expected a model contraint exception!');
+    } catch (ModelConstraintException $e) {
+      $this->assertEquals($e->getReporter()->getId(), $parent->getId(), 'Expected identity!');
+    }
+  }
+  
+  public function testOccurrenceCreationIllegalType() {
+    try {
+      $parent = $this->tm1->createTopic();
+      $parent->createOccurrence($this->tm2->createTopic(), 'Occurrence', parent::$dtString);
+      $this->fail('Expected a model contraint exception!');
+    } catch (ModelConstraintException $e) {
+      $this->assertEquals($e->getReporter()->getId(), $parent->getId(), 'Expected identity!');
+    }
+  }
+  
+  public function testOccurrenceCreationIllegalScope() {
+    try {
+      $parent = $this->tm1->createTopic();
+      $parent->createOccurrence($this->tm1->createTopic(), 'Occurrence', parent::$dtString, 
+        array($this->tm1->createTopic(), $this->tm2->createTopic()));
+      $this->fail('Expected a model contraint exception!');
+    } catch (ModelConstraintException $e) {
+      $this->assertEquals($e->getReporter()->getId(), $parent->getId(), 'Expected identity!');
+    }
+  }
+  
+  public function testRoleCreationIllegalType() {
+    try {
+      $parent = $this->tm1->createAssociation($this->tm1->createTopic());
+      $parent->createRole($this->tm2->createTopic(), $this->tm1->createTopic());
+      $this->fail('Expected a model contraint exception!');
+    } catch (ModelConstraintException $e) {
+      $this->assertEquals($e->getReporter()->getId(), $parent->getId(), 'Expected identity!');
+    }
+  }
+  
+  public function testRoleCreationIllegalPlayer() {
+    try {
+      $parent = $this->tm1->createAssociation($this->tm1->createTopic());
+      $parent->createRole($this->tm1->createTopic(), $this->tm2->createTopic());
+      $this->fail('Expected a model contraint exception!');
+    } catch (ModelConstraintException $e) {
+      $this->assertEquals($e->getReporter()->getId(), $parent->getId(), 'Expected identity!');
+    }
+  }
+  
+  public function testAssociationIllegalTheme() {
+    $this->_testIllegalTheme($this->createAssoc());
+  }
+  
+  public function testOccurrenceIllegalTheme() {
+    $this->_testIllegalTheme($this->createOcc());
+  }
+  
+  public function testNameIllegalTheme() {
+    $this->_testIllegalTheme($this->createName());
+  }
+  
+  public function testVariantIllegalTheme() {
+    $this->_testIllegalTheme($this->createVariant());
+  }
+  
+  /**
+   * Tests illegal add theme.
+   * 
+   * @param ScopedImpl
+   * @return void
+   */
+  private function _testIllegalTheme(Scoped $scoped) {
+    try {
+      $scoped->addTheme($this->tm2->createTopic());
+      $this->fail('Expected a model contraint exception!');
+    } catch (ModelConstraintException $e) {
+      // no op.
+    }
+  }
+  
 }
 ?>
