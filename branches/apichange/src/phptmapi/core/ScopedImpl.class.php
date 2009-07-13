@@ -83,7 +83,7 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
     $scope[] = $theme;
     $this->mysql->startTransaction(true);
     $this->unsetScope($prevScopeObj);
-    $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope);
+    $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope, $this->topicMap, $this);
     $this->setScope($scopeObj);
     $this->updateScopedPropertyHash($scope);
     $this->mysql->finishTransaction(true);
@@ -109,7 +109,7 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
     }
     $this->mysql->startTransaction(true);
     $this->unsetScope($prevScopeObj);
-    $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope);
+    $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope, $this->topicMap, $this);
     $this->setScope($scopeObj);
     $this->updateScopedPropertyHash($scope);
     $this->mysql->finishTransaction(true);
@@ -166,7 +166,7 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    * @return ScopeImpl
    */
   protected function getScopeObject() {
-    return new ScopeImpl($this->mysql, $this->config, $this->getScope());
+    return new ScopeImpl($this->mysql, $this->config, $this->getScope(), $this->topicMap, $this);
   }
   
   /**
