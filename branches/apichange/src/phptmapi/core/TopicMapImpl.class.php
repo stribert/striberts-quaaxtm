@@ -288,8 +288,14 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    *        If the array's length is 0 (default), the association will be in the 
    *        unconstrained scope.
    * @return AssociationImpl The newly created {@link AssociationImpl}.
+   * @throws {@link ModelConstraintException} If <var>type</var> or a theme does not 
+   *        belong to this topic map.
    */
   public function createAssociation(Topic $type, array $scope=array()) {
+    if (!$this->equals($type->topicMap)) {
+      throw new ModelConstraintException($this, __METHOD__ . 
+        parent::SAME_TM_CONSTRAINT_ERR_MSG);
+    }
     $hash = $this->getAssocHash($type, $scope, $roles=array());
     $assocId = $this->hasAssoc($hash);
     if (!$assocId) {
@@ -305,7 +311,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
         ' (' . $lastAssocId . ', '.$this->dbId . ', ' . $this->dbId . ')';
       $this->mysql->execute($query);
       
-      $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope);
+      $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope, $this, $this);
       $query = 'INSERT INTO ' . $this->config['table']['association_scope'] . 
         ' (scope_id, association_id) VALUES' .
         ' (' . $scopeObj->dbId . ', ' . $lastAssocId . ')';

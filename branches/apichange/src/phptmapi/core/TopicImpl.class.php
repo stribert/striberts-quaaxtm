@@ -277,12 +277,17 @@ final class TopicImpl extends ConstructImpl implements Topic {
    *        If the array's length is 0 (default), the name will be in the 
    *        unconstrained scope.
    * @return NameImpl The newly created {@link NameImpl}.
-   * @throws {@link ModelConstraintException} If the <var>value</var> is <var>null</var>.
+   * @throws {@link ModelConstraintException} If the <var>value</var> is <var>null</var> or
+   *        <var>type</var> or a theme does not belong to the parent topic map.
    */
   public function createName($value, Topic $type=null, array $scope=array()) {
     if (!is_null($value)) {
       $value = CharacteristicUtils::canonicalize($value);
       $type = is_null($type) ? $this->getDefaultNameType() : $type;
+      if (!$this->topicMap->equals($type->topicMap)) {
+        throw new ModelConstraintException($this, 
+          __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG);
+      }
       $hash = $this->getNameHash($value, $type, $scope);
       $propertyId = $this->hasName($hash);
       if (!$propertyId) {
@@ -298,7 +303,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
           ' (' . $lastNameId . ', ' . $this->parent->dbId . ', ' . $this->dbId . ')';
         $this->mysql->execute($query);
         
-        $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope);
+        $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope, $this->topicMap, $this);
         $query = 'INSERT INTO ' . $this->config['table']['topicname_scope'] . 
           ' (scope_id, topicname_id) VALUES' .
           ' (' . $scopeObj->dbId . ', ' . $lastNameId . ')';
@@ -313,7 +318,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
       }
     } else {
       throw new ModelConstraintException($this, __METHOD__ . 
-        ConstructImpl::VALUE_NULL_ERR_MSG);
+        parent::VALUE_NULL_ERR_MSG);
     }
   }
 
@@ -358,11 +363,16 @@ final class TopicImpl extends ConstructImpl implements Topic {
    *        must not be <var>null</var>. If the array's length is 0 (default), 
    *        the occurrence will be in the unconstrained scope.
    * @return OccurrenceImpl The newly created {@link OccurrenceImpl}.
-   * @throws {@link ModelConstraintException} If either the the <var>value</var> or the
-   *        <var>datatype</var> is <var>null</var>.
+   * @throws {@link ModelConstraintException} If either the <var>value</var> or the
+   *        <var>datatype</var> is <var>null</var>; or <var>type</var> or a theme does not 
+   *        belong to the parent topic map.
    */
   public function createOccurrence(Topic $type, $value, $datatype, array $scope=array()) {
     if (!is_null($value) && !is_null($datatype)) {
+      if (!$this->topicMap->equals($type->topicMap)) {
+        throw new ModelConstraintException($this, 
+          __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG);
+      }
       $value = CharacteristicUtils::canonicalize($value);
       $hash = $this->getOccurrenceHash($type, $value, $datatype, $scope);
       $propertyId = $this->hasOccurrence($hash);
@@ -379,7 +389,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
           ' (' . $lastOccurrenceId . ', ' . $this->parent->dbId . ', ' . $this->dbId . ')';
         $this->mysql->execute($query);
         
-        $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope);
+        $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope, $this->topicMap, $this);
         $query = 'INSERT INTO ' . $this->config['table']['occurrence_scope'] . 
           ' (scope_id, occurrence_id) VALUES' .
           ' (' . $scopeObj->dbId . ', ' . $lastOccurrenceId . ')';
@@ -395,7 +405,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
       }
     } else {
       throw new ModelConstraintException($this, __METHOD__ . 
-        ConstructImpl::VALUE_DATATYPE_NULL_ERR_MSG);
+        parent::VALUE_DATATYPE_NULL_ERR_MSG);
     }
   }
   

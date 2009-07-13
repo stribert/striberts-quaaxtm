@@ -158,7 +158,7 @@ final class NameImpl extends ScopedImpl implements Name {
             ' (' . $lastVariantId . ', ' . $this->topicMap->dbId . ', ' . $this->dbId . ')';
           $this->mysql->execute($query);
           
-          $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope);
+          $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope, $this->topicMap, $this);
           $query = 'INSERT INTO ' . $this->config['table']['variant_scope'] . 
             ' (scope_id, variant_id) VALUES' .
             ' (' . $scopeObj->dbId . ', ' . $lastVariantId . ')';

@@ -83,8 +83,13 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * @param TopicImpl The role type.
    * @param TopicImpl The role player.
    * @return RoleImpl A newly created association role.
+   * @throws {@link ModelConstraintException} If either the <var>type</var> or the 
+   *        <var>player</var> does not belong to the parent topic map.
    */
   public function createRole(Topic $type, Topic $player) {
+    if (!$this->topicMap->equals($type->topicMap) || !$this->topicMap->equals($player->topicMap)) {
+      throw new ModelConstraintException($this, __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG);
+    }
     // duplicate suppression
     $query = 'SELECT id FROM ' . $this->config['table']['assocrole'] . 
       ' WHERE association_id = ' . $this->dbId . 
