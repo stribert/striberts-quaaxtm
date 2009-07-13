@@ -39,6 +39,7 @@ require_once('NameTest.php');
 require_once('OccurrenceTest.php');
 require_once('ReifiableTest.php');
 require_once('RoleTest.php');
+require_once('SameTopicMapTest.php');
 require_once('ScopedTest.php');
 require_once('TopicTest.php');
 require_once('TopicMapTest.php');
@@ -75,6 +76,7 @@ class AllCoreTests extends PHPUnit_Framework_TestSuite {
     $suite->addTestSuite('OccurrenceTest');
     $suite->addTestSuite('ReifiableTest');
     $suite->addTestSuite('RoleTest');
+    $suite->addTestSuite('SameTopicMapTest');
     $suite->addTestSuite('ScopedTest');
     $suite->addTestSuite('TopicTest');
     $suite->addTestSuite('TopicMapTest');
