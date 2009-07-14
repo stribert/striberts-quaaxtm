@@ -71,6 +71,10 @@ final class RoleImpl extends ConstructImpl implements Role {
    */
   public function setPlayer(Topic $player) {
     if (!$this->getPlayer()->equals($player)) {
+      if (!$this->topicMap->equals($player->topicMap)) {
+        throw new ModelConstraintException($this, __METHOD__ . 
+          parent::SAME_TM_CONSTRAINT_ERR_MSG);
+      }
       $this->mysql->startTransaction();
       $query = 'UPDATE ' . $this->config['table']['assocrole'] . 
         ' SET player_id = ' . $player->dbId . 
@@ -131,6 +135,10 @@ final class RoleImpl extends ConstructImpl implements Role {
    */
   public function setType(Topic $type) {
     if (!$this->getType()->equals($type)) {
+      if (!$this->topicMap->equals($type->topicMap)) {
+        throw new ModelConstraintException($this, __METHOD__ . 
+          parent::SAME_TM_CONSTRAINT_ERR_MSG);
+      }
       $this->mysql->startTransaction();
       $query = 'UPDATE ' . $this->config['table']['assocrole'] . 
         ' SET type_id = ' . $type->dbId . 
@@ -141,6 +149,8 @@ final class RoleImpl extends ConstructImpl implements Role {
         $this->parent->getScope(), $this->parent->getRoles());
       $this->topicMap->updateAssocHash($this->parent->dbId, $hash);
       $this->mysql->finishTransaction();
+    } else {
+      return;
     }
   }
   
