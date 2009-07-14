@@ -227,15 +227,23 @@ final class NameImpl extends ScopedImpl implements Name {
    * @return void
    */
   public function setType(Topic $type) {
-    $this->mysql->startTransaction();
-    $query = 'UPDATE ' . $this->config['table']['topicname'] . 
-      ' SET type_id = ' . $type->dbId . 
-      ' WHERE id = ' . $this->dbId;
-    $this->mysql->execute($query);
-    
-    $hash = $this->parent->getNameHash($this->getValue(), $type, $this->getScope());
-    $this->parent->updateNameHash($this->dbId, $hash);
-    $this->mysql->finishTransaction();
+    if (!$this->getType()->equals($type)) {
+      if (!$this->topicMap->equals($type->topicMap)) {
+        throw new ModelConstraintException($this, __METHOD__ . 
+          parent::SAME_TM_CONSTRAINT_ERR_MSG);
+      }
+      $this->mysql->startTransaction();
+      $query = 'UPDATE ' . $this->config['table']['topicname'] . 
+        ' SET type_id = ' . $type->dbId . 
+        ' WHERE id = ' . $this->dbId;
+      $this->mysql->execute($query);
+      
+      $hash = $this->parent->getNameHash($this->getValue(), $type, $this->getScope());
+      $this->parent->updateNameHash($this->dbId, $hash);
+      $this->mysql->finishTransaction();
+    } else {
+      return;
+    }
   }
   
   /**
