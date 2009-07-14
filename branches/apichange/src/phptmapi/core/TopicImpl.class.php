@@ -594,6 +594,10 @@ final class TopicImpl extends ConstructImpl implements Topic {
    */
   public function addType(Topic $type) {
     if (!$this->equals($type)) {
+      if (!$this->topicMap->equals($type->topicMap)) {
+        throw new ModelConstraintException($this, __METHOD__ . 
+          parent::SAME_TM_CONSTRAINT_ERR_MSG);
+      }
       // duplicate suppression
       $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['instanceof'] . 
         ' WHERE topic_id = ' . $this->dbId . 
