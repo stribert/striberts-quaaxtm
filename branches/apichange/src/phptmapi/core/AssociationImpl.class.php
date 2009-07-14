@@ -87,8 +87,10 @@ final class AssociationImpl extends ScopedImpl implements Association {
    *        <var>player</var> does not belong to the parent topic map.
    */
   public function createRole(Topic $type, Topic $player) {
-    if (!$this->topicMap->equals($type->topicMap) || !$this->topicMap->equals($player->topicMap)) {
-      throw new ModelConstraintException($this, __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG);
+    if (!$this->topicMap->equals($type->topicMap) || 
+      !$this->topicMap->equals($player->topicMap)) {
+      throw new ModelConstraintException($this, __METHOD__ . 
+        parent::SAME_TM_CONSTRAINT_ERR_MSG);
     }
     // duplicate suppression
     $query = 'SELECT id FROM ' . $this->config['table']['assocrole'] . 
@@ -189,15 +191,23 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * @return void
    */
   public function setType(Topic $type) {
-    $this->mysql->startTransaction();
-    $query = 'UPDATE ' . $this->config['table']['association'] . 
-      ' SET type_id = ' . $type->dbId . 
-      ' WHERE id = ' . $this->dbId;
-    $this->mysql->execute($query);
-    
-    $hash = $this->parent->getAssocHash($type, $this->getScope(), $this->getRoles());
-    $this->parent->updateAssocHash($this->dbId, $hash);
-    $this->mysql->finishTransaction();
+    if (!$this->getType()->equals($type)) {
+      if (!$this->topicMap->equals($type->topicMap)) {
+        throw new ModelConstraintException($this, __METHOD__ . 
+          parent::SAME_TM_CONSTRAINT_ERR_MSG);
+      }
+      $this->mysql->startTransaction();
+      $query = 'UPDATE ' . $this->config['table']['association'] . 
+        ' SET type_id = ' . $type->dbId . 
+        ' WHERE id = ' . $this->dbId;
+      $this->mysql->execute($query);
+      
+      $hash = $this->parent->getAssocHash($type, $this->getScope(), $this->getRoles());
+      $this->parent->updateAssocHash($this->dbId, $hash);
+      $this->mysql->finishTransaction();
+    } else {
+      return;
+    }
   }
   
   /**
