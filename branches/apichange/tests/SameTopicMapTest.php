@@ -84,7 +84,8 @@ class SameTopicMapTest extends PHPTMAPITestCase {
       $parent->createName('Name', $this->tm2->createTopic());
       $this->fail('Expected a model contraint exception!');
     } catch (ModelConstraintException $e) {
-      $this->assertEquals($e->getReporter()->getId(), $parent->getId(), 'Expected identity!');
+      $this->assertEquals($e->getReporter()->getId(), $parent->getId(), 
+        'Expected identity!');
     }
   }
   
@@ -95,7 +96,8 @@ class SameTopicMapTest extends PHPTMAPITestCase {
         array($this->tm1->createTopic(), $this->tm2->createTopic()));
       $this->fail('Expected a model contraint exception!');
     } catch (ModelConstraintException $e) {
-      $this->assertEquals($e->getReporter()->getId(), $parent->getId(), 'Expected identity!');
+      $this->assertEquals($e->getReporter()->getId(), $parent->getId(), 
+        'Expected identity!');
     }
   }
   
@@ -105,7 +107,8 @@ class SameTopicMapTest extends PHPTMAPITestCase {
       $parent->createOccurrence($this->tm2->createTopic(), 'Occurrence', parent::$dtString);
       $this->fail('Expected a model contraint exception!');
     } catch (ModelConstraintException $e) {
-      $this->assertEquals($e->getReporter()->getId(), $parent->getId(), 'Expected identity!');
+      $this->assertEquals($e->getReporter()->getId(), $parent->getId(), 
+        'Expected identity!');
     }
   }
   
@@ -116,7 +119,8 @@ class SameTopicMapTest extends PHPTMAPITestCase {
         array($this->tm1->createTopic(), $this->tm2->createTopic()));
       $this->fail('Expected a model contraint exception!');
     } catch (ModelConstraintException $e) {
-      $this->assertEquals($e->getReporter()->getId(), $parent->getId(), 'Expected identity!');
+      $this->assertEquals($e->getReporter()->getId(), $parent->getId(), 
+        'Expected identity!');
     }
   }
   
@@ -126,7 +130,8 @@ class SameTopicMapTest extends PHPTMAPITestCase {
       $parent->createRole($this->tm2->createTopic(), $this->tm1->createTopic());
       $this->fail('Expected a model contraint exception!');
     } catch (ModelConstraintException $e) {
-      $this->assertEquals($e->getReporter()->getId(), $parent->getId(), 'Expected identity!');
+      $this->assertEquals($e->getReporter()->getId(), $parent->getId(), 
+        'Expected identity!');
     }
   }
   
@@ -136,7 +141,8 @@ class SameTopicMapTest extends PHPTMAPITestCase {
       $parent->createRole($this->tm1->createTopic(), $this->tm2->createTopic());
       $this->fail('Expected a model contraint exception!');
     } catch (ModelConstraintException $e) {
-      $this->assertEquals($e->getReporter()->getId(), $parent->getId(), 'Expected identity!');
+      $this->assertEquals($e->getReporter()->getId(), $parent->getId(), 
+        'Expected identity!');
     }
   }
   
@@ -156,8 +162,46 @@ class SameTopicMapTest extends PHPTMAPITestCase {
     $this->_testIllegalTheme($this->createVariant());
   }
   
+  public function testAssociationIllegalType() {
+    $this->_testIllegalType($this->createAssoc());
+  }
+  
+  public function testRoleIllegalType() {
+    $this->_testIllegalType($this->createRole());
+  }
+  
+  public function testOccurrenceIllegalType() {
+    $this->_testIllegalType($this->createOcc());
+  }
+  
+  public function testNameIllegalType() {
+    $this->_testIllegalType($this->createName());
+  }
+  
+  public function testRoleIllegalPlayer() {
+    try {
+      $role = $this->createRole();
+      $role->setPlayer($this->tm2->createTopic());
+      $this->fail('Expected a model contraint exception!');
+    } catch (ModelConstraintException $e) {
+      $this->assertEquals($e->getReporter()->getId(), $role->getId(), 
+        'Expected identity!');
+    }
+  }
+  
+  public function testIllegalTopicType() {
+    try {
+      $topic = $this->tm1->createTopic();
+      $topic->addType($this->tm2->createTopic());
+      $this->fail('Expected a model contraint exception!');
+    } catch (ModelConstraintException $e) {
+      $this->assertEquals($e->getReporter()->getId(), $topic->getId(), 
+        'Expected identity!');
+    }
+  }
+  
   /**
-   * Tests illegal add theme.
+   * Tests illegal theme adding.
    * 
    * @param ScopedImpl
    * @return void
@@ -167,7 +211,24 @@ class SameTopicMapTest extends PHPTMAPITestCase {
       $scoped->addTheme($this->tm2->createTopic());
       $this->fail('Expected a model contraint exception!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $this->assertEquals($e->getReporter()->getId(), $scoped->getId(), 
+        'Expected identity!');
+    }
+  }
+  
+  /**
+   * Tests illegal type setting.
+   * 
+   * @param Typed
+   * @return void
+   */
+  private function _testIllegalType(Typed $typed) {
+    try {
+      $typed->setType($this->tm2->createTopic());
+      $this->fail('Expected a model contraint exception!');
+    } catch (ModelConstraintException $e) {
+      $this->assertEquals($e->getReporter()->getId(), $typed->getId(), 
+        'Expected identity!');
     }
   }
   
