@@ -591,6 +591,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * 
    * @param TopicImpl The type of which this topic should become an instance of.
    * @return void
+   * @throws {@link ModelConstraintException} If the <var>type</var> does not belong 
+   *        to the parent topic map.
    */
   public function addType(Topic $type) {
     if (!$this->equals($type)) {
