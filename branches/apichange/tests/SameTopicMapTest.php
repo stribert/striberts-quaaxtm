@@ -200,6 +200,30 @@ class SameTopicMapTest extends PHPTMAPITestCase {
     }
   }
   
+  public function testTopicMapIllegalReifier() {
+    $this->_testIllegalReifier($this->tm1);
+  }
+  
+  public function testAssociationIllegalReifier() {
+    $this->_testIllegalReifier($this->createAssoc());
+  }
+  
+  public function testRoleIllegalReifier() {
+    $this->_testIllegalReifier($this->createRole());
+  }
+  
+  public function testOccurrenceIllegalReifier() {
+    $this->_testIllegalReifier($this->createOcc());
+  }
+  
+  public function testNameIllegalReifier() {
+    $this->_testIllegalReifier($this->createName());
+  }
+  
+  public function testVariantIllegalReifier() {
+    $this->_testIllegalReifier($this->createVariant());
+  }
+  
   /**
    * Tests illegal theme adding.
    * 
@@ -232,5 +256,20 @@ class SameTopicMapTest extends PHPTMAPITestCase {
     }
   }
   
+  /**
+   * Tests illegal reifying.
+   * 
+   * @param Reifiable
+   * @return void
+   */
+  private function _testIllegalReifier(Reifiable $reifiable) {
+    try {
+      $reifiable->setReifier($this->tm2->createTopic());
+      $this->fail('Expected a model contraint exception!');
+    } catch (ModelConstraintException $e) {
+      $this->assertEquals($e->getReporter()->getId(), $reifiable->getId(), 
+        'Expected identity!');
+    }
+  }  
 }
 ?>
