@@ -460,10 +460,15 @@ abstract class ConstructImpl implements Construct {
    *        if an existing reifier should be removed.
    * @return void
    * @throws {@link ModelConstraintException} If the specified <var>reifier</var> 
-   *        reifies another construct.
+   *        reifies another construct or the <var>reifier</var> does not belong to
+   *        the parent topic map.
    */
   protected function _setReifier($reifier) {
     if ($reifier instanceof Topic) {
+      if (!$this->topicMap->equals($reifier->topicMap)) {
+        throw new ModelConstraintException($this, __METHOD__ . 
+          self::SAME_TM_CONSTRAINT_ERR_MSG);
+      }
       // check if reifier reifies another construct in this map
       $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['topicmapconstruct'] . 
         ' WHERE topicmap_id = ' . $this->topicMap->dbId . 
@@ -477,7 +482,7 @@ abstract class ConstructImpl implements Construct {
           ' WHERE id = ' . $this->constructDbId;
         $this->mysql->execute($query);
       } else {
-        throw new ModelConstraintException($this, __METHOD__ . ConstructImpl::REIFIER_ERR_MSG);
+        throw new ModelConstraintException($this, __METHOD__ . self::REIFIER_ERR_MSG);
       }
     } elseif (is_null($reifier)) {// unset reifier
       $query = 'UPDATE ' . $this->config['table']['topicmapconstruct'] . 
