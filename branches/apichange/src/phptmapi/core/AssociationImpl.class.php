@@ -156,14 +156,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
   }
 
   /**
-   * Sets the reifier of this construct.
-   * The specified <var>reifier</var> MUST NOT reify another information item.
-   *
-   * @param TopicImpl|null The topic that should reify this construct or null
-   *        if an existing reifier should be removed.
-   * @return void
-   * @throws {@link ModelConstraintException} If the specified <var>reifier</var> 
-   *        reifies another construct.
+   * @see ConstructImpl::_setReifier()
    */
   public function setReifier($reifier) {
     $this->_setReifier($reifier);
@@ -222,8 +215,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
     $this->mysql->execute($query);
     if (!$this->mysql->hasError()) {
       $this->parent->removeAssociation($this);
-      $this->id = null;
-      $this->dbId = null;
+      $this->id = $this->dbId = null;
     }
   }
 }
