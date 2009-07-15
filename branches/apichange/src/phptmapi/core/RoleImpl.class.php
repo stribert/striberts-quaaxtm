@@ -68,6 +68,8 @@ final class RoleImpl extends ConstructImpl implements Role {
    *
    * @param TopicImpl The topic which should play this role.
    * @return void
+   * @throws {@link ModelConstraintException} If the <var>player</var> does not belong 
+   *        to the parent topic map.
    */
   public function setPlayer(Topic $player) {
     if (!$this->getPlayer()->equals($player)) {
@@ -125,6 +127,8 @@ final class RoleImpl extends ConstructImpl implements Role {
    * 
    * @param TopicImpl The topic that should define the nature of this role.
    * @return void
+   * @throws {@link ModelConstraintException} If the <var>type</var> does not belong 
+   *        to the parent topic map.
    */
   public function setType(Topic $type) {
     if (!$this->getType()->equals($type)) {

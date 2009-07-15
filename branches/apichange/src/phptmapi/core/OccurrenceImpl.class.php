@@ -134,6 +134,8 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    * 
    * @param TopicImpl The topic that should define the nature of this occurrence.
    * @return void
+   * @throws {@link ModelConstraintException} If the <var>type</var> does not belong 
+   *        to the parent topic map.
    */
   public function setType(Topic $type) {
     if (!$this->getType()->equals($type)) {
