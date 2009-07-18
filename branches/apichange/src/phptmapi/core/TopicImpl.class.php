@@ -282,7 +282,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
    */
   public function createName($value, Topic $type=null, array $scope=array()) {
     if (!is_null($value)) {
-      $value = CharacteristicUtils::canonicalize($value);
+      $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
       $type = is_null($type) ? $this->getDefaultNameType() : $type;
       if (!$this->topicMap->equals($type->topicMap)) {
         throw new ModelConstraintException($this, 
@@ -333,13 +333,18 @@ final class TopicImpl extends ConstructImpl implements Topic {
    */
   public function getOccurrences(Topic $type=null) {
     $occurrences = array();
-    $query = 'SELECT id FROM ' . $this->config['table']['occurrence'] . 
+    $query = 'SELECT id, type_id, value, datatype FROM ' . $this->config['table']['occurrence'] . 
       ' WHERE topic_id = ' . $this->dbId;
     if (!is_null($type)) {
       $query .= ' AND type_id = ' . $type->dbId;
     }
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
+      $propertyHolder = new PropertyUtils();
+      $propertyHolder->setTypeId($result['type_id'])
+        ->setValue($result['value'])
+        ->setDataType($result['datatype']);
+      $this->parent->setConstructPropertyHolder($propertyHolder);
       $this->parent->setConstructParent($this);
       $occurrence = $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . 
         $result['id']);
@@ -373,7 +378,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
         throw new ModelConstraintException($this, 
           __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG);
       }
-      $value = CharacteristicUtils::canonicalize($value);
+      $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
+      $datatype = CharacteristicUtils::canonicalize($datatype, $this->mysql->getConnection());
       $hash = $this->getOccurrenceHash($type, $value, $datatype, $scope);
       $propertyId = $this->hasOccurrence($hash);
       if (!$propertyId) {
@@ -396,7 +402,14 @@ final class TopicImpl extends ConstructImpl implements Topic {
         $this->mysql->execute($query);
         
         $this->mysql->finishTransaction(true);
+        
+        $propertyHolder = new PropertyUtils();
+        $propertyHolder->setTypeId($type->dbId)
+          ->setValue($value)
+          ->setDataType($datatype);
+        $this->parent->setConstructPropertyHolder($propertyHolder);
         $this->parent->setConstructParent($this);
+        
         return $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . 
           $lastOccurrenceId);
       } else {

@@ -38,6 +38,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
 
   private $setIid,
           $constructParent,
+          $constructPropertyHolder,
           $topicsCache,
           $assocsCache,
           $tmSystem;
@@ -54,7 +55,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
   public function __construct($dbId, Mysql $mysql, array $config, TopicMapSystem $tmSystem) {
     parent::__construct(__CLASS__ . '-' . $dbId, null, $mysql, $config, $this);
     $this->setIid = true;
-    $this->constructParent = null;
+    $this->constructParent = $this->constructPropertyHolder = null;
     $this->constructDbId = $this->getConstructDbId();
     $this->topicsCache = $this->assocsCache = null;
     $this->tmSystem = $tmSystem;
@@ -262,7 +263,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
           $parent = $this->constructParent instanceof Topic ? $this->constructParent : 
             $this->getOccurrenceParent($dbId);
           $this->constructParent = null;
-          return new $className($dbId, $this->mysql, $this->config, $parent, $this);
+          $propertyHolder = $this->constructPropertyHolder;
+          $this->constructPropertyHolder = null;
+          return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
+            $propertyHolder);
           break;
         case NameImpl::VARIANT_CLASS_NAME:
           $parent = $this->constructParent instanceof Name ? $this->constructParent : 
@@ -603,6 +607,13 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    */
   public function setConstructParent(Construct $parent) {
     $this->constructParent = $parent;
+  }
+  
+  /**
+   * TODO
+   */
+  public function setConstructPropertyHolder(PropertyUtils $propertyHolder) {
+    $this->constructPropertyHolder = $propertyHolder;
   }
   
   /**
