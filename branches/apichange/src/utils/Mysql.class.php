@@ -75,6 +75,15 @@ class Mysql {
       throw new RuntimeException(__METHOD__ . ': ' . $error);
     }
   }
+  
+  /**
+   * Returns the current connection.
+   * 
+   * @return mysqli
+   */
+  public function getConnection() {
+    return $this->connection;
+  }
 	
   /**
    * Closes a connection to MySQL.
