@@ -84,7 +84,7 @@ final class NameImpl extends ScopedImpl implements Name {
    */
   public function setValue($value) {
     if (!is_null($value)) {
-      $value = CharacteristicUtils::canonicalize($value);
+      $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
       $this->mysql->startTransaction();
       $query = 'UPDATE ' . $this->config['table']['topicname'] . 
         ' SET value = "' . $value . '"' .
@@ -138,7 +138,8 @@ final class NameImpl extends ScopedImpl implements Name {
    */
   public function createVariant($value, $datatype, array $scope) {
     if (!is_null($value) && !is_null($datatype)) {
-      $value = CharacteristicUtils::canonicalize($value);
+      $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
+      $datatype = CharacteristicUtils::canonicalize($datatype, $this->mysql->getConnection());
       $mergedScope = array_merge($scope, $this->getScope());
       $hash = $this->getVariantHash($value, $datatype, $scope);
       $variantId = $this->hasVariant($hash);
