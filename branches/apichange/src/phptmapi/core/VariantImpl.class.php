@@ -99,7 +99,8 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    */
   public function setValue($value, $datatype) {
     if (!is_null($value) && !is_null($datatype)) {
-      $value = CharacteristicUtils::canonicalize($value);
+      $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
+      $datatype = CharacteristicUtils::canonicalize($datatype, $this->mysql->getConnection());
       $this->mysql->startTransaction();
       $query = 'UPDATE ' . $this->config['table']['variant'] . 
         ' SET value = "' . $value . '", ' . 
