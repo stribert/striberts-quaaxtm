@@ -60,6 +60,13 @@ class QTMGetConstructTest extends PHPTMAPITestCase {
   
   public function testGetConstructByIdInvalid() {
     $tm = $this->topicMap;
+    $tm->createTopic();
+    $this->createAssoc();
+    $this->createName();
+    $this->createOcc();
+    $this->createRole();
+    $this->createVariant();
+    
     $unknown = $tm->getConstructById(uniqid());
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
     
@@ -76,6 +83,21 @@ class QTMGetConstructTest extends PHPTMAPITestCase {
     $unknown = $tm->getConstructById('OccurrenceImpl-' . uniqid());
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
     $unknown = $tm->getConstructById('VariantImpl-' . uniqid());
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    
+    $unknown = $tm->getConstructById('TopicImpl-' . null);
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    $unknown = $tm->getConstructById('TopicMapImpl-' . null);
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    $unknown = $tm->getConstructById('AssociationImpl-' . null);
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    $unknown = $tm->getConstructById('RoleImpl-' . null);
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    $unknown = $tm->getConstructById('NameImpl-' . null);
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    $unknown = $tm->getConstructById('OccurrenceImpl-' . null);
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    $unknown = $tm->getConstructById('VariantImpl-' . null);
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
     
     $unknown = $tm->getConstructById('TopicImpl-0');
