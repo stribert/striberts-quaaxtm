@@ -94,6 +94,10 @@ class OccurrenceTest extends PHPTMAPITestCase {
     $this->assertEquals($occ->getDatatype(), parent::$dtUri, 'Datatypes are different!');
     $occ->setValue('http://localhost/', parent::$dtUri);
     $this->assertEquals($occ->getValue(), 'http://localhost/', 'Values are different!');
+    $this->assertEquals($occ->getDatatype(), parent::$dtUri, 'Datatypes are different!');
+    $occ->setValue('test', parent::$dtString);
+    $this->assertEquals($occ->getValue(), 'test', 'Values are different!');
+    $this->assertEquals($occ->getDatatype(), parent::$dtString, 'Datatypes are different!');
   }
   
   public function testScope() {
