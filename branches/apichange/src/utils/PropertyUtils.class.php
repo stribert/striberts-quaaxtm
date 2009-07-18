@@ -19,7 +19,8 @@
  */
 
 /**
- * Holds scalar properties of a Topic Maps construct.
+ * Holds scalar properties of a Topic Maps construct as well as the internal
+ * type or player id.
  *
  * @package utils
  * @author Johannes Schmidt <joschmidt@users.sourceforge.net>
