@@ -53,6 +53,7 @@ require_once('VariantTest.php');
 // QuaaxTM specific tests
 require_once('QTMDuplicateRemovalTest.php');
 require_once('QTMGetConstructTest.php');
+require_once('QTMPropertyHolderTest.php');
 
 /**
  * Core test suite.
@@ -90,6 +91,7 @@ class AllCoreTests extends PHPUnit_Framework_TestSuite {
     // QuaaxTM specific tests
     $suite->addTestSuite('QTMDuplicateRemovalTest');
     $suite->addTestSuite('QTMGetConstructTest');
+    $suite->addTestSuite('QTMPropertyHolderTest');
     return $suite;
   }
  
