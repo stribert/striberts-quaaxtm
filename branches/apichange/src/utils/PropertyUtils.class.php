@@ -58,7 +58,7 @@ class PropertyUtils {
      * @return int
      */
     public function getTypeId() {
-      return (int) $this->typeId;
+      return $this->typeId;
     }
     
     /**
@@ -77,7 +77,7 @@ class PropertyUtils {
      * @return string
      */
     public function getValue() {
-      return (string) $this->value;
+      return $this->value;
     }
     
     /**
@@ -96,7 +96,7 @@ class PropertyUtils {
      * @return string
      */
     public function getDatatype() {
-      return (string) $this->datatype;
+      return $this->datatype;
     }
 }
 ?>
