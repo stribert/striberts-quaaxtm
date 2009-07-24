@@ -33,9 +33,7 @@
  */
 final class OccurrenceImpl extends ScopedImpl implements Occurrence {
   
-  private $value,
-          $datatype,
-          $typeId;
+  private $propertyHolder;
   
   /**
    * Constructor.
@@ -52,13 +50,7 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
     
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $topicMap);
     
-    if (!is_null($propertyHolder)) {
-      $this->value = $propertyHolder->getValue();
-      $this->datatype = $propertyHolder->getDatatype();
-      $this->typeId = $propertyHolder->getTypeId();
-    } else {
-      $this->value = $this->datatype = $this->typeId = null;
-    }
+    $this->propertyHolder = !is_null($propertyHolder) ? $propertyHolder : new PropertyUtils();
   }
   
   /**
@@ -77,13 +69,14 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    * @return string The string representation of the value (never <var>null</var>).
    */
   public function getValue() {
-    if (!is_null($this->value)) {
-      return $this->value;
+    if (!is_null($this->propertyHolder->getValue())) {
+      return $this->propertyHolder->getValue();
     } else {
       $query = 'SELECT value FROM ' . $this->config['table']['occurrence'] . 
         ' WHERE id = ' . $this->dbId;
       $mysqlResult = $this->mysql->execute($query);
       $result = $mysqlResult->fetch();
+      $this->propertyHolder->setValue($result['value']);
       return (string) $result['value'];
     }
   }
@@ -95,13 +88,14 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    * @return string The datatype of this construct (never <var>null</var>).
    */
   public function getDatatype() {
-    if (!is_null($this->datatype)) {
-      return $this->datatype;
+    if (!is_null($this->propertyHolder->getDatatype())) {
+      return $this->propertyHolder->getDatatype();
     } else {
       $query = 'SELECT datatype FROM ' . $this->config['table']['occurrence'] . 
         ' WHERE id = ' . $this->dbId;
       $mysqlResult = $this->mysql->execute($query);
       $result = $mysqlResult->fetch();
+      $this->propertyHolder->setDatatype($result['datatype']);
       return (string) $result['datatype'];
     }
   }
@@ -131,8 +125,8 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
       $this->parent->updateOccurrenceHash($this->dbId, $hash);
       $this->mysql->finishTransaction();
 
-      $this->value = $value;
-      $this->datatype = $datatype;
+      $this->propertyHolder->setValue($value);
+      $this->propertyHolder->setDatatype($datatype);
     } else {
       throw new ModelConstraintException($this, __METHOD__ . 
         ConstructImpl::VALUE_DATATYPE_NULL_ERR_MSG);
@@ -145,14 +139,15 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    * @return TopicImpl
    */
   public function getType() {
-    if (!is_null($this->typeId)) {
-      $typeId = $this->typeId;
+    if (!is_null($this->propertyHolder->getTypeId())) {
+      $typeId = $this->propertyHolder->getTypeId();
     } else {
       $query = 'SELECT type_id FROM ' . $this->config['table']['occurrence'] . 
         ' WHERE id = ' . $this->dbId;
       $mysqlResult = $this->mysql->execute($query);
       $result = $mysqlResult->fetch();
       $typeId = $result['type_id'];
+      $this->propertyHolder->setTypeId($typeId);
     }
     return $this->topicMap->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . $typeId);
   }
@@ -183,7 +178,7 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
       $this->parent->updateOccurrenceHash($this->dbId, $hash);
       $this->mysql->finishTransaction();
       
-      $this->typeId = $type->dbId;
+      $this->propertyHolder->setTypeId($type->dbId);
     } else {
       return;
     }
