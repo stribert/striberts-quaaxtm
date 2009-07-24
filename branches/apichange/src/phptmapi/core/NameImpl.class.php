@@ -34,7 +34,9 @@
 final class NameImpl extends ScopedImpl implements Name {
   
   const VARIANT_CLASS_NAME = 'VariantImpl',
-        SCOPE_NO_SUPERSET_ERR_MSG = ": Variant's scope is not a true superset of the name's scope!";
+        SCOPE_NO_SUPERSET_ERR_MSG = ': Variant\'s scope is not a true superset of the name\'s scope!';
+        
+  private $propertyHolder;
   
   /**
    * Constructor.
@@ -47,8 +49,11 @@ final class NameImpl extends ScopedImpl implements Name {
    * @return void
    */
   public function __construct($dbId, Mysql $mysql, array $config, Topic $parent, 
-    TopicMap $topicMap) {
+    TopicMap $topicMap, PropertyUtils $propertyHolder=null) {
+    
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $topicMap);
+    
+    $this->propertyHolder = !is_null($propertyHolder) ? $propertyHolder : new PropertyUtils();
   }
   
   /**
@@ -67,11 +72,16 @@ final class NameImpl extends ScopedImpl implements Name {
    * @return string
    */
   public function getValue() {
-    $query = 'SELECT value FROM ' . $this->config['table']['topicname'] . 
-      ' WHERE id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
-    $result = $mysqlResult->fetch();
-    return $result['value'];
+    if (!is_null($this->propertyHolder->getValue())) {
+      return $this->propertyHolder->getValue();
+    } else {
+      $query = 'SELECT value FROM ' . $this->config['table']['topicname'] . 
+        ' WHERE id = ' . $this->dbId;
+      $mysqlResult = $this->mysql->execute($query);
+      $result = $mysqlResult->fetch();
+      $this->propertyHolder->setValue($result['value']);
+      return $result['value'];
+    }
   }
 
   /**
@@ -94,6 +104,8 @@ final class NameImpl extends ScopedImpl implements Name {
       $hash = $this->parent->getNameHash($value, $this->getType(), $this->getScope());
       $this->parent->updateNameHash($this->dbId, $hash);
       $this->mysql->finishTransaction();
+      
+      $this->propertyHolder->setValue($value);
     } else {
       throw new ModelConstraintException($this, __METHOD__ . 
         ConstructImpl::VALUE_NULL_ERR_MSG);
@@ -205,12 +217,17 @@ final class NameImpl extends ScopedImpl implements Name {
    * @return TopicImpl
    */
   public function getType() {
-    $query = 'SELECT type_id FROM ' . $this->config['table']['topicname'] . 
-      ' WHERE id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
-    $result = $mysqlResult->fetch();
-    return $this->topicMap->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . 
-      $result['type_id']);
+    if (!is_null($this->propertyHolder->getTypeId())) {
+      $typeId = $this->propertyHolder->getTypeId();
+    } else {
+      $query = 'SELECT type_id FROM ' . $this->config['table']['topicname'] . 
+        ' WHERE id = ' . $this->dbId;
+      $mysqlResult = $this->mysql->execute($query);
+      $result = $mysqlResult->fetch();
+      $typeId = $result['type_id'];
+      $this->propertyHolder->setTypeId($typeId);
+    }
+    return $this->topicMap->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . $typeId);
   }
 
   /**
@@ -237,6 +254,8 @@ final class NameImpl extends ScopedImpl implements Name {
       $hash = $this->parent->getNameHash($this->getValue(), $type, $this->getScope());
       $this->parent->updateNameHash($this->dbId, $hash);
       $this->mysql->finishTransaction();
+      
+      $this->propertyHolder->setTypeId($type->dbId);
     } else {
       return;
     }
