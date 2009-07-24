@@ -310,7 +310,13 @@ final class TopicImpl extends ConstructImpl implements Topic {
         $this->mysql->execute($query);
         
         $this->mysql->finishTransaction(true);
+        
+        $propertyHolder = new PropertyUtils();
+        $propertyHolder->setTypeId($type->dbId)
+          ->setValue($value);
+        $this->parent->setConstructPropertyHolder($propertyHolder);
         $this->parent->setConstructParent($this);
+        
         return $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . $lastNameId);
       } else {
         $this->parent->setConstructParent($this);
