@@ -98,5 +98,42 @@ class QTMPropertyHolderTest extends PHPTMAPITestCase {
       'Expected identity!');
   }
   
+  public function testRole() {
+    $parent = $this->createAssoc();
+    $roleType = $this->topicMap->createTopic();
+    $newRoleType = $this->topicMap->createTopic();
+    $player = $this->topicMap->createTopic();
+    $newPlayer = $this->topicMap->createTopic();
+    $role = $parent->createRole($roleType, $player);
+    $this->assertTrue($role instanceof Role, 'Expected a role!');
+    $roles = $parent->getRoles();
+    $this->assertEquals(count($roles), 1, 'Expected 1 role!');
+    $this->assertEquals($role->getType()->getId(), $roleType->getId(), 
+      'Expected identity!');
+    $this->assertEquals($role->getPlayer()->getId(), $player->getId(), 
+      'Expected identity!');
+    $role->setType($newRoleType);
+    $role->setPlayer($newPlayer);
+    $this->assertEquals($role->getType()->getId(), $newRoleType->getId(), 
+      'Expected identity!');
+    $this->assertEquals($role->getPlayer()->getId(), $newPlayer->getId(), 
+      'Expected identity!');
+    $role->setType($roleType);
+    $role->setPlayer($player);
+    $this->assertEquals($role->getType()->getId(), $roleType->getId(), 
+      'Expected identity!');
+    $this->assertEquals($role->getPlayer()->getId(), $player->getId(), 
+      'Expected identity!');
+    unset($role);
+    $roles = $parent->getRoles();
+    $this->assertEquals(count($roles), 1, 'Expected 1 role!');
+    $restoredRole = $roles[0];
+    $this->assertTrue($restoredRole instanceof Role, 'Expected a role!');
+    $this->assertEquals($restoredRole->getType()->getId(), $roleType->getId(), 
+      'Expected identity!');
+    $this->assertEquals($restoredRole->getPlayer()->getId(), $player->getId(), 
+      'Expected identity!');
+  }
+  
 }
 ?>
