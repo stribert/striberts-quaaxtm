@@ -30,6 +30,7 @@
 class PropertyUtils {
 
     private $typeId,
+            $playerId,
             $value,
             $datatype;
             
@@ -39,7 +40,10 @@ class PropertyUtils {
      * @return void
      */
     public function __construct() {
-      $this->typeId = $this->value = $this->datatype = null;
+      $this->typeId = 
+      $this->playerId = 
+      $this->value = 
+      $this->datatype = null;
     }
     
     /**
@@ -59,6 +63,25 @@ class PropertyUtils {
      */
     public function getTypeId() {
       return $this->typeId;
+    }
+    
+    /**
+     * Sets the player id.
+     * 
+     * @return PropertyUtils
+     */
+    public function setPlayerId($playerId) {
+      $this->playerId = $playerId;
+      return $this;
+    }
+    
+    /**
+     * Returns the player id.
+     * 
+     * @return int
+     */
+    public function getPlayerId() {
+      return $this->playerId;
     }
     
     /**
