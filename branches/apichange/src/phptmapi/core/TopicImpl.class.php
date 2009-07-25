@@ -361,8 +361,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
       
       $this->parent->setConstructParent($this);
       
-      $occurrence = $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . 
-        $result['id']);
+      $occurrence = $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . $result['id']);
       
       $occurrences[$occurrence->getId()] = $occurrence;
     }
