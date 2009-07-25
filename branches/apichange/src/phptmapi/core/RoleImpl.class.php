@@ -33,6 +33,8 @@
  */
 final class RoleImpl extends ConstructImpl implements Role {
   
+  private $propertyHolder;
+  
   /**
    * Constructor.
    * 
@@ -41,11 +43,15 @@ final class RoleImpl extends ConstructImpl implements Role {
    * @param array The configuration data.
    * @param AssociationImpl The parent association.
    * @param TopicMapImpl The containing topic map.
+   * @param PropertyUtils The property holder.
    * @return void
    */
   public function __construct($dbId, Mysql $mysql, array $config, Association $parent, 
-    TopicMap $topicMap) {
+    TopicMap $topicMap, PropertyUtils $propertyHolder=null) {
+    
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $topicMap);
+    
+    $this->propertyHolder = !is_null($propertyHolder) ? $propertyHolder : new PropertyUtils();
   }
   
   /**
@@ -54,12 +60,18 @@ final class RoleImpl extends ConstructImpl implements Role {
    * @return TopicImpl
    */
   public function getPlayer() {
-    $query = 'SELECT player_id FROM ' . $this->config['table']['assocrole'] . 
-      ' WHERE id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
-    $result = $mysqlResult->fetch();
+    if (!is_null($this->propertyHolder->getPlayerId())) {
+      $playerId = $this->propertyHolder->getPlayerId();
+    } else {
+      $query = 'SELECT player_id FROM ' . $this->config['table']['assocrole'] . 
+        ' WHERE id = ' . $this->dbId;
+      $mysqlResult = $this->mysql->execute($query);
+      $result = $mysqlResult->fetch();
+      $playerId = $result['player_id'];
+      $this->propertyHolder->setPlayerId($playerId);
+    }
     return $this->topicMap->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . 
-      $result['player_id']);
+      $playerId);
   }
 
   /**
@@ -87,6 +99,8 @@ final class RoleImpl extends ConstructImpl implements Role {
         $this->parent->getScope(), $this->parent->getRoles());
       $this->topicMap->updateAssocHash($this->parent->dbId, $hash);
       $this->mysql->finishTransaction();
+      
+      $this->propertyHolder->setPlayerId($player->dbId);
     }
   }
   
@@ -113,12 +127,18 @@ final class RoleImpl extends ConstructImpl implements Role {
    * @return TopicImpl
    */
   public function getType() {
-    $query = 'SELECT type_id FROM ' . $this->config['table']['assocrole'] . 
-      ' WHERE id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
-    $result = $mysqlResult->fetch();
+    if (!is_null($this->propertyHolder->getTypeId())) {
+      $typeId = $this->propertyHolder->getTypeId();
+    } else {
+      $query = 'SELECT type_id FROM ' . $this->config['table']['assocrole'] . 
+        ' WHERE id = ' . $this->dbId;
+      $mysqlResult = $this->mysql->execute($query);
+      $result = $mysqlResult->fetch();
+      $typeId = $result['type_id'];
+      $this->propertyHolder->setTypeId($typeId);
+    }
     return $this->topicMap->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . 
-      $result['type_id']);
+      $typeId);
   }
 
   /**
@@ -146,6 +166,8 @@ final class RoleImpl extends ConstructImpl implements Role {
         $this->parent->getScope(), $this->parent->getRoles());
       $this->topicMap->updateAssocHash($this->parent->dbId, $hash);
       $this->mysql->finishTransaction();
+      
+      $this->propertyHolder->setTypeId($type->dbId);
     } else {
       return;
     }
