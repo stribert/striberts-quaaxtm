@@ -260,7 +260,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
           $parent = $this->constructParent instanceof Association ? 
             $this->constructParent : $this->getRoleParent($dbId);
           $this->constructParent = null;
-          return new $className($dbId, $this->mysql, $this->config, $parent, $this);
+          $propertyHolder = $this->constructPropertyHolder;
+          $this->constructPropertyHolder = null;
+          return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
+            $propertyHolder);
           break;
         case TopicImpl::OCC_CLASS_NAME:
           $parent = $this->constructParent instanceof Topic ? $this->constructParent : 
