@@ -63,15 +63,22 @@ final class AssociationImpl extends ScopedImpl implements Association {
    */
   public function getRoles(Topic $type=null) {
     $roles = array();
-    $query = 'SELECT id FROM ' . $this->config['table']['assocrole'] . 
+    $query = 'SELECT id, type_id, player_id FROM ' . $this->config['table']['assocrole'] . 
       ' WHERE association_id = ' . $this->dbId;
     if (!is_null($type)) {
       $query .= ' AND type_id = ' . $type->dbId;
     }
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
+      $propertyHolder = new PropertyUtils();
+      $propertyHolder->setTypeId($result['type_id'])
+        ->setPlayerId($result['player_id']);
+      $this->parent->setConstructPropertyHolder($propertyHolder);
+      
       $this->parent->setConstructParent($this);
+      
       $role = $this->parent->getConstructById(self::ROLE_CLASS_NAME . '-' . $result['id']);
+      
       $roles[$role->getId()] = $role;
     }
     return array_values($roles);
@@ -116,7 +123,13 @@ final class AssociationImpl extends ScopedImpl implements Association {
         $this->getRoles());
       $this->parent->updateAssocHash($this->dbId, $hash);
       $this->mysql->finishTransaction();
+      
+      $propertyHolder = new PropertyUtils();
+      $propertyHolder->setTypeId($type->dbId)
+        ->setPlayerId($player->dbId);
+      $this->parent->setConstructPropertyHolder($propertyHolder);
       $this->parent->setConstructParent($this);
+      
       return $this->parent->getConstructById(self::ROLE_CLASS_NAME . '-' . $lastRoleId);
     } else {
       $result = $mysqlResult->fetch();
