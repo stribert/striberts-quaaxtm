@@ -249,15 +249,22 @@ final class TopicImpl extends ConstructImpl implements Topic {
    */
   public function getNames(Topic $type=null) {
     $names = array();
-    $query = 'SELECT id FROM ' . $this->config['table']['topicname'] . 
+    $query = 'SELECT id, type_id, value FROM ' . $this->config['table']['topicname'] . 
       ' WHERE topic_id = ' . $this->dbId;
     if (!is_null($type)) {
       $query .= ' AND type_id = ' . $type->dbId;
     }
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
+      $propertyHolder = new PropertyUtils();
+      $propertyHolder->setTypeId($result['type_id'])
+        ->setValue($result['value']);
+      $this->parent->setConstructPropertyHolder($propertyHolder);
+      
       $this->parent->setConstructParent($this);
+      
       $name = $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . $result['id']);
+      
       $names[$name->getId()] = $name;
     }
     return array_values($names);
@@ -351,9 +358,12 @@ final class TopicImpl extends ConstructImpl implements Topic {
         ->setValue($result['value'])
         ->setDataType($result['datatype']);
       $this->parent->setConstructPropertyHolder($propertyHolder);
+      
       $this->parent->setConstructParent($this);
+      
       $occurrence = $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . 
         $result['id']);
+      
       $occurrences[$occurrence->getId()] = $occurrence;
     }
     return array_values($occurrences);
