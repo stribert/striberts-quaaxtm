@@ -43,6 +43,7 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    * @param array The configuration data.
    * @param TopicImpl The parent topic.
    * @param TopicMapImpl The containing topic map.
+   * @param PropertyUtils The property holder.
    * @return void
    */
   public function __construct($dbId, Mysql $mysql, array $config, Topic $parent, 
