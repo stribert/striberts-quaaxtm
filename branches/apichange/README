@@ -16,9 +16,9 @@ b) MySQL >= 5.0 with InnoDB enabled
    executed separately. Have a look at AllCoreTests.php how QuaaxTM is used - you just
    have to include TopicMapSystemFactory.class.php from PHPTMAPI.
    
-Have a look at http://sourceforge.net/apps/trac/phptmapi/wiki/Development%20of%20PHPTMAPI%202.0 for API 
-information and usage. Please notice that PHPTMAPI 2.0 is not yet finished, and therefore 
-this version of QuaaxTM is not yet finished too.
+Have a look at http://sourceforge.net/apps/trac/phptmapi/wiki/Development%20of%20PHPTMAPI%202.0 
+for API information and usage. Please notice that PHPTMAPI 2.0 is not yet finished, and 
+therefore this version of QuaaxTM is not yet finished too.
 
 Note: If you compile PHP on your own please be sure to enable "mysqli" for QuaaxTM core and 
 "reflection", "spl", "xml", and "tokenizer" for PHPUnit (thanks Benjamin Bock).
