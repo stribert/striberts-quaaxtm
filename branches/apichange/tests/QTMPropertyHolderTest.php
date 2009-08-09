@@ -135,5 +135,28 @@ class QTMPropertyHolderTest extends PHPTMAPITestCase {
       'Expected identity!');
   }
   
+  public function testVariant() {
+    $parent = $this->createName();
+    $scope = array($this->topicMap->createTopic());
+    $variant = $parent->createVariant('New variant', parent::$dtString, $scope);
+    $this->assertTrue($variant instanceof IVariant, 'Expected a variant!');
+    $this->assertEquals(count($parent->getVariants()), 1, 'Expected 1 variant!');
+    $this->assertEquals($variant->getValue(), 'New variant', 'Expected identity!');
+    $this->assertEquals($variant->getDatatype(), parent::$dtString, 'Expected identity!');
+    $variant->setValue('http://example.org/', parent::$dtUri);
+    $this->assertEquals($variant->getValue(), 'http://example.org/', 'Expected identity!');
+    $this->assertEquals($variant->getDatatype(), parent::$dtUri, 'Expected identity!');
+    $variant->setValue('New variant', parent::$dtString);
+    $this->assertEquals($variant->getValue(), 'New variant', 'Expected identity!');
+    $this->assertEquals($variant->getDatatype(), parent::$dtString, 'Expected identity!');
+    unset($variant);
+    $variants = $parent->getVariants();
+    $this->assertEquals(count($variants), 1, 'Expected 1 variant!');
+    $restoredVariant = $variants[0];
+    $this->assertTrue($restoredVariant instanceof IVariant, 'Expected a variant!');
+    $this->assertEquals($restoredVariant->getValue(), 'New variant', 'Expected identity!');
+    $this->assertEquals($restoredVariant->getDatatype(), parent::$dtString, 'Expected identity!');
+  }
+  
 }
 ?>
