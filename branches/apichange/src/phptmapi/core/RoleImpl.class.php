@@ -190,8 +190,9 @@ final class RoleImpl extends ConstructImpl implements Role {
     $this->topicMap->updateAssocHash($this->parent->dbId, $hash);
     $this->mysql->finishTransaction();
     
-    $this->id = null;
-    $this->dbId = null;
+    $this->id = 
+    $this->dbId = 
+    $this->propertyHolder = null;
   }
 }
 ?>
