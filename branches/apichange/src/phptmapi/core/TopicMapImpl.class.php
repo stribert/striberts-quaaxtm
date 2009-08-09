@@ -278,7 +278,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
           $parent = $this->constructParent instanceof Name ? $this->constructParent : 
             $this->getVariantParent($dbId);
           $this->constructParent = null;
-          return new $className($dbId, $this->mysql, $this->config, $parent, $this);
+          $propertyHolder = $this->constructPropertyHolder;
+          $this->constructPropertyHolder = null;
+          return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
+            $propertyHolder);
           break;
         case __CLASS__:
           return new $className($dbId, $this->mysql, $this->config, $this->getTopicMapSystem());

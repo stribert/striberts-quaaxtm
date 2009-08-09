@@ -24,7 +24,7 @@
  * See {@link http://www.isotopicmaps.org/sam/sam-model/#sect-variant}.
  * 
  * Inherited method <var>getParent()</var> from {@link ConstructImpl} returns the 
- * {@link NameImpl}to which this Variant belongs.
+ * {@link NameImpl} to which this Variant belongs.
  * Inherited method <var>getScope()</var> from {@link ScopedImpl} returns the union of 
  * its own scope and the parent's scope.
  *
@@ -35,6 +35,8 @@
  */
 final class VariantImpl extends ScopedImpl implements IVariant {
   
+  private $propertyHolder;
+  
   /**
    * Constructor.
    * 
@@ -43,11 +45,15 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * @param array The configuration data.
    * @param NameImpl The parent name.
    * @param TopicMapImpl The containing topic map.
+   * @param PropertyUtils The property holder.
    * @return void
    */
   public function __construct($dbId, Mysql $mysql, array $config, Name $parent, 
-    TopicMap $topicMap) {
+    TopicMap $topicMap, PropertyUtils $propertyHolder=null) {
+    
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $topicMap);
+    
+    $this->propertyHolder = !is_null($propertyHolder) ? $propertyHolder : new PropertyUtils();
   }
   
   /**
@@ -66,11 +72,16 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * @return string The string representation of the value (never <var>null</var>).
    */
   public function getValue() {
-    $query = 'SELECT value FROM ' . $this->config['table']['variant'] . 
-      ' WHERE id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
-    $result = $mysqlResult->fetch();
-    return $result['value'];
+    if (!is_null($this->propertyHolder->getValue())) {
+      return $this->propertyHolder->getValue();
+    } else {
+      $query = 'SELECT value FROM ' . $this->config['table']['variant'] . 
+        ' WHERE id = ' . $this->dbId;
+      $mysqlResult = $this->mysql->execute($query);
+      $result = $mysqlResult->fetch();
+      $this->propertyHolder->setValue($result['value']);
+      return $result['value'];
+    }
   }
 
   /**
@@ -80,11 +91,16 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * @return string The datatype of this construct (never <var>null</var>).
    */
   public function getDatatype() {
-    $query = 'SELECT datatype FROM ' . $this->config['table']['variant'] . 
-      ' WHERE id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
-    $result = $mysqlResult->fetch();
-    return $result['datatype'];
+    if (!is_null($this->propertyHolder->getDatatype())) {
+      return $this->propertyHolder->getDatatype();
+    } else {
+      $query = 'SELECT datatype FROM ' . $this->config['table']['variant'] . 
+        ' WHERE id = ' . $this->dbId;
+      $mysqlResult = $this->mysql->execute($query);
+      $result = $mysqlResult->fetch();
+      $this->propertyHolder->setDatatype($result['datatype']);
+      return (string) $result['datatype'];
+    }
   }
 
   /**
@@ -111,6 +127,9 @@ final class VariantImpl extends ScopedImpl implements IVariant {
       $hash = $this->parent->getVariantHash($value, $datatype, $this->getScope());
       $this->parent->updateVariantHash($this->dbId, $hash);
       $this->mysql->finishTransaction();
+      
+      $this->propertyHolder->setValue($value);
+      $this->propertyHolder->setDatatype($datatype);
     } else {
       throw new ModelConstraintException($this, __METHOD__ . 
         ConstructImpl::VALUE_DATATYPE_NULL_ERR_MSG);
@@ -145,8 +164,9 @@ final class VariantImpl extends ScopedImpl implements IVariant {
       ' WHERE id = ' . $this->dbId;
     $this->mysql->execute($query);
     if (!$this->mysql->hasError()) {
-      $this->id = null;
-      $this->dbId = null;
+      $this->id = 
+      $this->dbId = 
+      $this->propertyHolder = null;
     }
   }
   

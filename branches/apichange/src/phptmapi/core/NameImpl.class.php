@@ -179,7 +179,13 @@ final class NameImpl extends ScopedImpl implements Name {
           $this->mysql->execute($query);
           
           $this->mysql->finishTransaction(true);
+          
+          $propertyHolder = new PropertyUtils();
+          $propertyHolder->setValue($value)
+            ->setDataType($datatype);
+          $this->topicMap->setConstructPropertyHolder($propertyHolder);
           $this->topicMap->setConstructParent($this);
+          
           return $this->topicMap->getConstructById(self::VARIANT_CLASS_NAME . '-' . $lastVariantId);
         } else {
           throw new ModelConstraintException($this, __METHOD__ . 
@@ -273,8 +279,9 @@ final class NameImpl extends ScopedImpl implements Name {
       ' WHERE id = ' . $this->dbId;
     $this->mysql->execute($query);
     if (!$this->mysql->hasError()) {
-      $this->id = null;
-      $this->dbId = null;
+      $this->id = 
+      $this->dbId = 
+      $this->propertyHolder = null;
     }
   }
   
