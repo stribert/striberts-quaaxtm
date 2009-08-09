@@ -213,8 +213,9 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
       ' WHERE id = ' . $this->dbId;
     $this->mysql->execute($query);
     if (!$this->mysql->hasError()) {
-      $this->id = null;
-      $this->dbId = null;
+      $this->id = 
+      $this->dbId = 
+      $this->propertyHolder = null;
     }
   }
 }
