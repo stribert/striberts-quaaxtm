@@ -619,7 +619,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
   }
   
   /**
-   * TODO
+   * Sets the construct property holder.
+   * 
+   * @param PropertyUtils The property holder.
+   * @return void
    */
   public function setConstructPropertyHolder(PropertyUtils $propertyHolder) {
     $this->constructPropertyHolder = $propertyHolder;
