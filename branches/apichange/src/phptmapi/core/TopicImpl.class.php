@@ -60,7 +60,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @return void
    */
   public function __construct($dbId, Mysql $mysql, array $config, TopicMap $parent) {
+    
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $parent);
+    
     $this->defaultNameType = null;
   }
 

@@ -45,7 +45,9 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    */
   public function __construct($id, Construct $parent, Mysql $mysql, array $config, 
     TopicMap $topicMap) {
+    
     parent::__construct($id, $parent, $mysql, $config, $topicMap);
+    
     $this->bindingTable = $this->getBindingTable();
   }
 

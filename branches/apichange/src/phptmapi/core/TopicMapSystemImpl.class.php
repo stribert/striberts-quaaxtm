@@ -48,6 +48,7 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    */
   public function __construct(Mysql $mysql, array $config, array $properties, 
     array $features) {
+    
     $this->config = $config;
     $this->mysql = $mysql;
     $this->properties = $properties;

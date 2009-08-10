@@ -53,11 +53,15 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return void
    */
   public function __construct($dbId, Mysql $mysql, array $config, TopicMapSystem $tmSystem) {
+    
     parent::__construct(__CLASS__ . '-' . $dbId, null, $mysql, $config, $this);
+    
     $this->setIid = true;
-    $this->constructParent = $this->constructPropertyHolder = null;
+    $this->constructParent = 
+    $this->constructPropertyHolder = null;
     $this->constructDbId = $this->getConstructDbId();
-    $this->topicsCache = $this->assocsCache = null;
+    $this->topicsCache = 
+    $this->assocsCache = null;
     $this->tmSystem = $tmSystem;
   }
   

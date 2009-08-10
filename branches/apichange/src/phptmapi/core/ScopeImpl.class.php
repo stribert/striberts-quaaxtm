@@ -53,6 +53,7 @@ final class ScopeImpl implements IScope {
    */
   public function __construct(Mysql $mysql, array $config, array $themes, 
     TopicMap $currentTopicMap, Construct $currentConstruct) {
+    
     $this->mysql = $mysql;
     $this->config = $config;
     $this->currentTopicMap = $currentTopicMap;
