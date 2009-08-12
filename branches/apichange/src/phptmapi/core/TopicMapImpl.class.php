@@ -893,6 +893,24 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
   }
   
   /**
+   * Clears the topics cache.
+   * 
+   * @return void
+   */
+  public function clearTopicsCache() {
+    $this->topicsCache = null;
+  }
+  
+  /**
+   * Clears the associations cache.
+   * 
+   * @return void
+   */
+  public function clearAssociationsCache() {
+    $this->assocsCache = null;
+  }
+  
+  /**
    * Gets the construct's topicmapconstruct table <var>id</var>.
    * 
    * @return int The id.
@@ -914,8 +932,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return boolean
    */
   private function contains($id) {
-    $constituents = explode('-', $id);
-    if (count($constituents)==2) {
+    if (preg_match('/^[a-z]+\-[0-9]+$/i', $id)) {
+      $constituents = explode('-', $id);
       $className = $constituents[0];
       $dbId = $constituents[1];
       $fkColumn = $this->getFkColumn($className);
@@ -930,7 +948,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
             ' AND parent_id IS NULL';
         }
         $mysqlResult = $this->mysql->execute($query);
-        if ($mysqlResult instanceof MysqlResult) {
+        if (!$this->mysql->hasError()) {
           $result = $mysqlResult->fetchArray();
           return (int) $result[0] > 0 ? true : false;
         } else {
