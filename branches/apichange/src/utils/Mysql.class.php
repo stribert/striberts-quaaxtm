@@ -57,7 +57,7 @@ class Mysql {
   }
 
   /**
-   * Initializes a connection to MySQL.
+   * Connects to MySQL.
    * 
    * @param array Configuration data.
    * @return void
@@ -78,7 +78,7 @@ class Mysql {
   }
   
   /**
-   * Returns the current connection.
+   * Gets the current MySQL connection.
    * 
    * @return mysqli
    */
@@ -98,7 +98,7 @@ class Mysql {
   /**
    * Executes a query.
    * 
-   * @param string $query
+   * @param string The SQL query.
    * @return MysqlResult|false
    */
   public function execute($query) {
@@ -115,7 +115,7 @@ class Mysql {
   }
 
   /**
-   * Registers error if occurred.
+   * Tells if an error occurred.
    * 
    * @return boolean
    */
@@ -142,7 +142,7 @@ class Mysql {
   /**
    * Starts a transaction.
    * 
-   * @param bool True if transaction should be delayed, false is not.
+   * @param boolean True if transaction is delayed, false if not. Default false.
    * @return void
    * @throws RuntimeException If the transaction can not be started.
    */
@@ -161,6 +161,7 @@ class Mysql {
   /**
    * Finishes a transaction.
    * 
+   * @param boolean True if finish is forced, false if not. Default false.
    * @return void
    * @throws RuntimeException If the transaction can not be finished.
    */
