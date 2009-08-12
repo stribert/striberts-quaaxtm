@@ -45,13 +45,14 @@ class Mysql {
    */
   public function __construct(array $config) {
     $this->sql = '';
-    $this->result = false;
-    $this->errno = 0;
     $this->error = '';
+    $this->errno = 0;
     $this->connection = null;
+    $this->result = false;
     $this->commit = false;
     $this->trnx = false;
     $this->delayTrnx = false;
+    
     $this->connect($config);
   }
 
