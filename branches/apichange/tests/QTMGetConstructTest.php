@@ -115,6 +115,21 @@ class QTMGetConstructTest extends PHPTMAPITestCase {
     $unknown = $tm->getConstructById('VariantImpl-0');
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
     
+    $unknown = $tm->getConstructById('TopicImpl-a-1');
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    $unknown = $tm->getConstructById('TopicMapImpl-a-1');
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    $unknown = $tm->getConstructById('AssociationImpl-a-1');
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    $unknown = $tm->getConstructById('RoleImpl-a-1');
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    $unknown = $tm->getConstructById('NameImpl-a-1');
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    $unknown = $tm->getConstructById('OccurrenceImpl-a-1');
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    $unknown = $tm->getConstructById('VariantImpl-a-1');
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    
     $unknown = $tm->getConstructById(uniqid() . '-1');
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
     $unknown = $tm->getConstructById(uniqid() . '-1');

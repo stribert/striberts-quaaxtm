@@ -54,6 +54,7 @@ require_once('VariantTest.php');
 require_once('QTMDuplicateRemovalTest.php');
 require_once('QTMGetConstructTest.php');
 require_once('QTMPropertyHolderTest.php');
+require_once('QTMCacheTest.php');
 
 /**
  * Core test suite.
@@ -92,6 +93,7 @@ class AllCoreTests extends PHPUnit_Framework_TestSuite {
     $suite->addTestSuite('QTMDuplicateRemovalTest');
     $suite->addTestSuite('QTMGetConstructTest');
     $suite->addTestSuite('QTMPropertyHolderTest');
+    $suite->addTestSuite('QTMCacheTest');
     return $suite;
   }
  
