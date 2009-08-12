@@ -84,7 +84,7 @@ class MysqlResult {
    * @return int
    */
   public function getLastId() {
-    return mysqli_insert_id($this->connection);
+    return (int) mysqli_insert_id($this->connection);
   }
 }
 ?>
