@@ -89,6 +89,9 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
     $this->setScope($scopeObj);
     $this->updateScopedPropertyHash($scope);
     $this->mysql->finishTransaction(true);
+    if (!$this->mysql->hasError()) {
+      $this->postSave();
+    }
   }
 
   /**
@@ -115,6 +118,9 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
     $this->setScope($scopeObj);
     $this->updateScopedPropertyHash($scope);
     $this->mysql->finishTransaction(true);
+    if (!$this->mysql->hasError()) {
+      $this->postSave();
+    }
   }
   
   /**

@@ -126,8 +126,11 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
       $this->parent->updateOccurrenceHash($this->dbId, $hash);
       $this->mysql->finishTransaction();
 
-      $this->propertyHolder->setValue($value);
-      $this->propertyHolder->setDatatype($datatype);
+      if (!$this->mysql->hasError()) {
+        $this->propertyHolder->setValue($value);
+        $this->propertyHolder->setDatatype($datatype);
+        $this->postSave();
+      }
     } else {
       throw new ModelConstraintException($this, __METHOD__ . 
         ConstructImpl::VALUE_DATATYPE_NULL_ERR_MSG);
@@ -179,7 +182,10 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
       $this->parent->updateOccurrenceHash($this->dbId, $hash);
       $this->mysql->finishTransaction();
       
-      $this->propertyHolder->setTypeId($type->dbId);
+      if (!$this->mysql->hasError()) {
+        $this->propertyHolder->setTypeId($type->dbId);
+        $this->postSave();
+      }
     } else {
       return;
     }
@@ -209,6 +215,7 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    * @return void
    */
   public function remove() {
+    $this->preDelete();
     $query = 'DELETE FROM ' . $this->config['table']['occurrence'] . 
       ' WHERE id = ' . $this->dbId;
     $this->mysql->execute($query);

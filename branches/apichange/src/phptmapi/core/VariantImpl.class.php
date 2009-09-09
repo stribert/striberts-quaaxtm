@@ -99,7 +99,7 @@ final class VariantImpl extends ScopedImpl implements IVariant {
       $mysqlResult = $this->mysql->execute($query);
       $result = $mysqlResult->fetch();
       $this->propertyHolder->setDatatype($result['datatype']);
-      return (string) $result['datatype'];
+      return $result['datatype'];
     }
   }
 
@@ -128,8 +128,11 @@ final class VariantImpl extends ScopedImpl implements IVariant {
       $this->parent->updateVariantHash($this->dbId, $hash);
       $this->mysql->finishTransaction();
       
-      $this->propertyHolder->setValue($value);
-      $this->propertyHolder->setDatatype($datatype);
+      if (!$this->mysql->hasError()) {
+        $this->propertyHolder->setValue($value);
+        $this->propertyHolder->setDatatype($datatype);
+        $this->postSave();
+      }
     } else {
       throw new ModelConstraintException($this, __METHOD__ . 
         ConstructImpl::VALUE_DATATYPE_NULL_ERR_MSG);
@@ -160,6 +163,7 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * @return void
    */
   public function remove() {
+    $this->preDelete();
     $query = 'DELETE FROM ' . $this->config['table']['variant'] . 
       ' WHERE id = ' . $this->dbId;
     $this->mysql->execute($query);

@@ -100,7 +100,10 @@ final class RoleImpl extends ConstructImpl implements Role {
       $this->topicMap->updateAssocHash($this->parent->dbId, $hash);
       $this->mysql->finishTransaction();
       
-      $this->propertyHolder->setPlayerId($player->dbId);
+      if (!$this->mysql->hasError()) {
+        $this->propertyHolder->setPlayerId($player->dbId);
+        $this->postSave();
+      }
     }
   }
   
@@ -167,7 +170,10 @@ final class RoleImpl extends ConstructImpl implements Role {
       $this->topicMap->updateAssocHash($this->parent->dbId, $hash);
       $this->mysql->finishTransaction();
       
-      $this->propertyHolder->setTypeId($type->dbId);
+      if (!$this->mysql->hasError()) {
+        $this->propertyHolder->setTypeId($type->dbId);
+        $this->postSave();
+      }
     } else {
       return;
     }
@@ -180,6 +186,7 @@ final class RoleImpl extends ConstructImpl implements Role {
    * @return void
    */
   public function remove() {
+    $this->preDelete();
     $this->mysql->startTransaction();
     $query = 'DELETE FROM ' . $this->config['table']['assocrole'] . 
       ' WHERE id = ' . $this->dbId;
