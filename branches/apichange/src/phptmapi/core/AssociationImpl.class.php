@@ -130,7 +130,12 @@ final class AssociationImpl extends ScopedImpl implements Association {
       $this->parent->setConstructPropertyHolder($propertyHolder);
       $this->parent->setConstructParent($this);
       
-      return $this->parent->getConstructById(self::ROLE_CLASS_NAME . '-' . $lastRoleId);
+      $role = $this->parent->getConstructById(self::ROLE_CLASS_NAME . '-' . $lastRoleId);
+      if (!$this->mysql->hasError()) {
+        $role->postInsert();
+        $this->postSave();
+      }
+      return $role;
     } else {
       $result = $mysqlResult->fetch();
       $this->parent->setConstructParent($this);
@@ -213,6 +218,10 @@ final class AssociationImpl extends ScopedImpl implements Association {
       $hash = $this->parent->getAssocHash($type, $this->getScope(), $this->getRoles());
       $this->parent->updateAssocHash($this->dbId, $hash);
       $this->mysql->finishTransaction();
+      
+      if (!$this->mysql->hasError()) {
+        $this->postSave();
+      }
     } else {
       return;
     }
@@ -225,6 +234,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * @return void
    */
   public function remove() {
+    $this->preDelete();
     $query = 'DELETE FROM ' . $this->config['table']['association'] . 
       ' WHERE id = ' . $this->dbId;
     $this->mysql->execute($query);

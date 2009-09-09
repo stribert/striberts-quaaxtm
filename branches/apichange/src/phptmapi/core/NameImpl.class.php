@@ -106,7 +106,10 @@ final class NameImpl extends ScopedImpl implements Name {
       $this->parent->updateNameHash($this->dbId, $hash);
       $this->mysql->finishTransaction();
       
-      $this->propertyHolder->setValue($value);
+      if (!$this->mysql->hasError()) {
+        $this->propertyHolder->setValue($value);
+        $this->postSave();
+      }
     } else {
       throw new ModelConstraintException($this, __METHOD__ . 
         ConstructImpl::VALUE_NULL_ERR_MSG);
@@ -186,7 +189,12 @@ final class NameImpl extends ScopedImpl implements Name {
           $this->topicMap->setConstructPropertyHolder($propertyHolder);
           $this->topicMap->setConstructParent($this);
           
-          return $this->topicMap->getConstructById(self::VARIANT_CLASS_NAME . '-' . $lastVariantId);
+          $variant = $this->topicMap->getConstructById(self::VARIANT_CLASS_NAME . '-' . $lastVariantId);
+          if (!$this->mysql->hasError()) {
+            $variant->postInsert();
+            $this->postSave();
+          }
+          return $variant;
         } else {
           throw new ModelConstraintException($this, __METHOD__ . 
             self::SCOPE_NO_SUPERSET_ERR_MSG);
@@ -262,7 +270,10 @@ final class NameImpl extends ScopedImpl implements Name {
       $this->parent->updateNameHash($this->dbId, $hash);
       $this->mysql->finishTransaction();
       
-      $this->propertyHolder->setTypeId($type->dbId);
+      if (!$this->mysql->hasError()) {
+        $this->propertyHolder->setTypeId($type->dbId);
+        $this->postSave();
+      }
     } else {
       return;
     }
@@ -275,6 +286,7 @@ final class NameImpl extends ScopedImpl implements Name {
    * @return void
    */
   public function remove() {
+    $this->preDelete();
     $query = 'DELETE FROM ' . $this->config['table']['topicname'] . 
       ' WHERE id = ' . $this->dbId;
     $this->mysql->execute($query);
@@ -370,6 +382,8 @@ final class NameImpl extends ScopedImpl implements Name {
         $variant->gainItemIdentifiers($duplicate);
         // gain duplicate's reifier
         $variant->gainReifier($duplicate);
+        
+        $variant->postSave();
         $duplicate->remove();
       }
     }

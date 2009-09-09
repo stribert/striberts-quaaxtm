@@ -128,6 +128,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
             $query = 'INSERT INTO ' . $this->config['table']['subjectidentifier'] . 
               ' (topic_id, locator) VALUES (' . $this->dbId . ', "' . $sid .'")';
             $this->mysql->execute($query);
+            if (!$this->mysql->hasError()) {
+              $this->postSave();
+            }
           } else {// merge
             $existingTopic = $this->factory($mysqlResult);
             $this->mergeIn($existingTopic);
@@ -159,6 +162,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
         ' WHERE topic_id = ' . $this->dbId . 
         ' AND locator = "' . $sid . '"';
       $this->mysql->execute($query);
+      if (!$this->mysql->hasError()) {
+        $this->postSave();
+      }
     }
   }
 
@@ -212,6 +218,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
           $query = 'INSERT INTO ' . $this->config['table']['subjectlocator'] . 
             ' (topic_id, locator) VALUES (' . $this->dbId . ', "' . $slo .'")';
           $this->mysql->execute($query);
+          if (!$this->mysql->hasError()) {
+            $this->postSave();
+          }
         } else {// merge
           $result = $mysqlResult->fetch();
           $existingTopic = $this->parent->getConstructById(__CLASS__ . '-' . $result['id']);
@@ -239,6 +248,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
         ' WHERE topic_id = ' . $this->dbId . 
         ' AND locator = "' . $slo . '"';
       $this->mysql->execute($query);
+      if (!$this->mysql->hasError()) {
+        $this->postSave();
+      }
     }
   }
 
@@ -326,7 +338,12 @@ final class TopicImpl extends ConstructImpl implements Topic {
         $this->parent->setConstructPropertyHolder($propertyHolder);
         $this->parent->setConstructParent($this);
         
-        return $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . $lastNameId);
+        $name = $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . $lastNameId);
+        if (!$this->mysql->hasError()) {
+          $name->postInsert();
+          $this->postSave();
+        }
+        return $name;
       } else {
         $this->parent->setConstructParent($this);
         return $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . $propertyId);
@@ -427,8 +444,13 @@ final class TopicImpl extends ConstructImpl implements Topic {
         $this->parent->setConstructPropertyHolder($propertyHolder);
         $this->parent->setConstructParent($this);
         
-        return $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . 
+        $occ = $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . 
           $lastOccurrenceId);
+        if (!$this->mysql->hasError()) {
+          $occ->postInsert();
+          $this->postSave();
+        }
+        return $occ;
       } else {
         $this->parent->setConstructParent($this);
         return $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . $propertyId);
@@ -641,6 +663,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
           ' (topic_id, type_id) VALUES' .
           ' (' . $this->dbId . ', ' . $type->dbId . ')';
         $this->mysql->execute($query);
+        if (!$this->mysql->hasError()) {
+          $this->postSave();
+        }
       }
     } else {
       return;
@@ -658,6 +683,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
       ' WHERE topic_id = ' . $this->dbId . 
       ' AND type_id = ' . $type->dbId;
     $this->mysql->execute($query);
+    if (!$this->mysql->hasError()) {
+      $this->postSave();
+    }
   }
 
   /**
@@ -885,6 +913,10 @@ final class TopicImpl extends ConstructImpl implements Topic {
     $other->remove();
 
     $this->mysql->finishTransaction(true);
+    
+    if (!$this->mysql->hasError()) {
+      $this->postSave();
+    }
   }
   
   /**
@@ -1091,6 +1123,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
             throw new TopicInUseException($this, __METHOD__ . ': Topic is a reifier!');
           } else {
             // all checks have been passed; delete this topic
+            $this->preDelete();
             $query = 'DELETE FROM ' . $this->config['table']['topic'] . 
               ' WHERE id = ' . $this->dbId;
             $this->mysql->execute($query);

@@ -336,6 +336,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       
       $this->mysql->finishTransaction(true);
       $assoc = $this->getConstructById(self::ASSOC_CLASS_NAME . '-' . $lastAssocId);
+      if (!$this->mysql->hasError()) {
+        $assoc->postInsert();
+        $this->postSave();
+      }
       if (is_null($this->assocsCache)) {
         return $assoc;
       } else {
@@ -509,6 +513,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     }
     $this->mysql->finishTransaction();
     $topic = $this->getConstructById(self::TOPIC_CLASS_NAME . '-' . $lastTopicId);
+    if (!$this->mysql->hasError()) {
+      $topic->postInsert();
+      $this->postSave();
+    }
     if (is_null($this->topicsCache)) {
       return $topic;
     } else {
@@ -739,6 +747,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return void
    */
   public function remove() {
+    $this->preDelete();
     $this->mysql->startTransaction();
     
     // topic names
