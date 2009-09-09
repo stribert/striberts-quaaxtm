@@ -170,6 +170,9 @@ abstract class ConstructImpl implements Construct {
           $rows = $mysqlResult->getNumRows();
           if ($rows == 0) {
             $this->mysql->execute($insert);
+            if (!$this->mysql->hasError()) {
+              $this->postSave();
+            }
           } else {// merge
             $result = $mysqlResult->fetch();
             $existingTopic = $this->topicMap
@@ -178,6 +181,9 @@ abstract class ConstructImpl implements Construct {
           }
         } else {
           $this->mysql->execute($insert);
+          if (!$this->mysql->hasError()) {
+            $this->postSave();
+          }
         }
       } else {// the given item identifier already exists
         $existing = $this->factory($mysqlResult);
@@ -370,11 +376,15 @@ abstract class ConstructImpl implements Construct {
             ' WHERE variant_id = ' . $otherVariant->dbId;
           $this->mysql->execute($query);
           $this->mysql->finishTransaction();
+          if (!$this->mysql->hasError()) {
+            $this->postSave();
+          }
         } else {// only gain variant's iids and reifier
           $this->topicMap->setConstructParent($this);
           $variant = $this->topicMap->getConstructById(NameImpl::VARIANT_CLASS_NAME . '-' . $variantId);
           $variant->gainItemIdentifiers($otherVariant);
           $variant->gainReifier($otherVariant);
+          $variant->postSave();
         }
       }
     } else {
@@ -481,6 +491,9 @@ abstract class ConstructImpl implements Construct {
           ' SET reifier_id = ' . $reifier->dbId . 
           ' WHERE id = ' . $this->constructDbId;
         $this->mysql->execute($query);
+        if (!$this->mysql->hasError()) {
+          $this->postSave();
+        }
       } else {
         throw new ModelConstraintException($this, __METHOD__ . self::REIFIER_ERR_MSG);
       }
@@ -489,6 +502,9 @@ abstract class ConstructImpl implements Construct {
         ' SET reifier_id = NULL' .
         ' WHERE id = ' . $this->constructDbId;
       $this->mysql->execute($query);
+      if (!$this->mysql->hasError()) {
+        $this->postSave();
+      }
     } else {
       return;
     }
@@ -512,6 +528,32 @@ abstract class ConstructImpl implements Construct {
     }
     return array_values($set);
   }
+  
+  /**
+   * Post insert hook for e.g. inserting into cache or search index.
+   * It is guaranteed that this hook is only called of no MySQL error occurred.
+   * 
+   * @param array Optional parameters.
+   * @return void
+   */
+  protected function postInsert(array $params=array()) {}
+  
+  /**
+   * Post save hook for e.g. updating cache or search index.
+   * It is guaranteed that this hook is only called of no MySQL error occurred.
+   * 
+   * @param array Optional parameters.
+   * @return void
+   */
+  protected function postSave(array $params=array()) {}
+  
+  /**
+   * Pre delete hook for e.g. cache or search index drop.
+   * 
+   * @param array Optional parameters.
+   * @return void
+   */
+  protected function preDelete(array $params=array()) {}
   
   /**
    * Gets the construct's topicmapconstruct table <var>id</var>.
