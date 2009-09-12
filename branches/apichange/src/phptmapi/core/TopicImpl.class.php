@@ -396,7 +396,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param TopicImpl The occurrence type.
    * @param string A string representation of the value; must not be <var>null</var>.
    * @param string A URI indicating the datatype of the <var>value</var>; 
-   *        must not be <var>null</var>. I.e. http://www.w3.org/2001/XMLSchema#string 
+   *        must not be <var>null</var>. E.g. http://www.w3.org/2001/XMLSchema#string 
    *        indicates a string value.
    * @param array An array containing {@link TopicImpl}s - each representing a theme; 
    *        must not be <var>null</var>. If the array's length is 0 (default), 

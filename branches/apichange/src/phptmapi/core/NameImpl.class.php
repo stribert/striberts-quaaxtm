@@ -144,7 +144,7 @@ final class NameImpl extends ScopedImpl implements Name {
    * and the themes specified in <var>scope</var>.
    * 
    * @param string A string representation of the value.
-   * @param string A URI indicating the datatype of the <var>value</var>. I.e.
+   * @param string A URI indicating the datatype of the <var>value</var>. E.g.
    *        http://www.w3.org/2001/XMLSchema#string indicates a string value.
    * @param array An array (length >= 1) containing {@link TopicImpl}s, each representing a theme.
    * @return VariantImpl

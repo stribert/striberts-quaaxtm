@@ -86,7 +86,7 @@ final class VariantImpl extends ScopedImpl implements IVariant {
 
   /**
    * Returns the URI identifying the datatype of the value.
-   * I.e. http://www.w3.org/2001/XMLSchema#string indicates a string value.
+   * E.g. http://www.w3.org/2001/XMLSchema#string indicates a string value.
    *
    * @return string The datatype of this construct (never <var>null</var>).
    */
@@ -108,7 +108,7 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    *
    * @param string The string representation of the value; must not be <var>null</var>.
    * @param string The URI identifying the datatype of the value; must not be <var>null</var>. 
-   *        I.e. http://www.w3.org/2001/XMLSchema#string indicates a string value.
+   *        E.g. http://www.w3.org/2001/XMLSchema#string indicates a string value.
    * @return void
    * @throws {@link ModelConstraintException} If the <var>value</var> or <var>datatype</var> 
    *        is <var>null</var>.
