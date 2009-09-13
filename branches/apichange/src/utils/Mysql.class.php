@@ -176,8 +176,6 @@ class Mysql {
         $this->trnx = false;
       } else {
         $result = $this->execute('ROLLBACK');
-        var_dump('ROLLBACK');
-        var_dump($this->getError());
         if (!$result) {
           throw new RuntimeException($this->getError());
         }
