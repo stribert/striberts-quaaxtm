@@ -110,7 +110,7 @@ class Mysql {
       if ($this->trnx) $this->commit = false;
       return false;
     } else {
-    	return new MysqlResult($this->result, $this->connection);
+      return new MysqlResult($this->result, $this->connection);
     }
   }
 
