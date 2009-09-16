@@ -23,7 +23,7 @@ require_once('FactoryConfigurationException.class.php');
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: TopicMapSystemFactory.class.php 19 2009-03-15 20:52:25Z joschmidt $
+ * @version svn:$Id: TopicMapSystemFactory.class.php 32 2009-06-19 20:15:37Z joschmidt $
  */
 abstract class TopicMapSystemFactory {
    

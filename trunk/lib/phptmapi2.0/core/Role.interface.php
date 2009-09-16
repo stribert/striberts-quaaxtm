@@ -23,12 +23,12 @@ require_once('Typed.interface.php');
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: Role.interface.php 26 2009-03-16 22:33:07Z joschmidt $
+ * @version svn:$Id: Role.interface.php 55 2009-07-15 22:04:32Z joschmidt $
  */
 interface Role extends Reifiable, Typed {
 
   /**
-   * Returns the topic playing this role.
+   * Returns the {@link Topic} playing this role.
    *
    * @return Topic
    */
@@ -40,6 +40,8 @@ interface Role extends Reifiable, Typed {
    *
    * @param Topic The topic which should play this role.
    * @return void
+   * @throws {@link ModelConstraintException} If the <var>player</var> does not belong 
+   *        to the parent topic map.
    */
   public function setPlayer(Topic $player);
 }

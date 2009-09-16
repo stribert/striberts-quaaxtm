@@ -64,9 +64,7 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    * 
    * @return void
    */
-  private function __clone() {
-    return;
-  }
+  private function __clone() {}
   
   /**
    * Returns the particular feature requested for in the underlying

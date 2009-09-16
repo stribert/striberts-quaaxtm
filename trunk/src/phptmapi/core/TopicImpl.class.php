@@ -60,7 +60,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @return void
    */
   public function __construct($dbId, Mysql $mysql, array $config, TopicMap $parent) {
+    
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $parent);
+    
     $this->defaultNameType = null;
   }
 
@@ -126,6 +128,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
             $query = 'INSERT INTO ' . $this->config['table']['subjectidentifier'] . 
               ' (topic_id, locator) VALUES (' . $this->dbId . ', "' . $sid .'")';
             $this->mysql->execute($query);
+            if (!$this->mysql->hasError()) {
+              $this->postSave();
+            }
           } else {// merge
             $existingTopic = $this->factory($mysqlResult);
             $this->mergeIn($existingTopic);
@@ -157,6 +162,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
         ' WHERE topic_id = ' . $this->dbId . 
         ' AND locator = "' . $sid . '"';
       $this->mysql->execute($query);
+      if (!$this->mysql->hasError()) {
+        $this->postSave();
+      }
     }
   }
 
@@ -210,6 +218,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
           $query = 'INSERT INTO ' . $this->config['table']['subjectlocator'] . 
             ' (topic_id, locator) VALUES (' . $this->dbId . ', "' . $slo .'")';
           $this->mysql->execute($query);
+          if (!$this->mysql->hasError()) {
+            $this->postSave();
+          }
         } else {// merge
           $result = $mysqlResult->fetch();
           $existingTopic = $this->parent->getConstructById(__CLASS__ . '-' . $result['id']);
@@ -237,6 +248,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
         ' WHERE topic_id = ' . $this->dbId . 
         ' AND locator = "' . $slo . '"';
       $this->mysql->execute($query);
+      if (!$this->mysql->hasError()) {
+        $this->postSave();
+      }
     }
   }
 
@@ -244,38 +258,27 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * Returns the names of this topic.
    * The return value may be an empty array but must never be <var>null</var>.
    * 
+   * @param TopicImpl The type of the {@link NameImpl}s to be returned. Default <var>null</var>.
    * @return array An array containing a set of {@link NameImpl}s belonging to this topic.
    */
-  public function getNames() {
+  public function getNames(Topic $type=null) {
     $names = array();
-    $query = 'SELECT id FROM ' . $this->config['table']['topicname'] . 
+    $query = 'SELECT id, type_id, value FROM ' . $this->config['table']['topicname'] . 
       ' WHERE topic_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
-    while ($result = $mysqlResult->fetch()) {
-      $this->parent->setConstructParent($this);
-      $name = $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . $result['id']);
-      $names[$name->getId()] = $name;
+    if (!is_null($type)) {
+      $query .= ' AND type_id = ' . $type->dbId;
     }
-    return array_values($names);
-  }
-
-  /**
-   * Returns the {@link NameImpl}s of this topic where the name type is <var>type</var>.
-   * The return value may be an empty array but must never be <var>null</var>. 
-   * 
-   * @param TopicImpl The type of the {@link NameImpl}s to be returned.
-   * @return array An array containing a set of {@link NameImpl}s with the specified 
-   *        <var>type</var>.
-   */
-  public function getNamesByType(Topic $type) {
-    $names = array();
-    $query = 'SELECT id FROM ' . $this->config['table']['topicname'] . 
-      ' WHERE topic_id = ' . $this->dbId . 
-      ' AND type_id = ' . $type->dbId;
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
+      $propertyHolder = new PropertyUtils();
+      $propertyHolder->setTypeId($result['type_id'])
+        ->setValue($result['value']);
+      $this->parent->setConstructPropertyHolder($propertyHolder);
+      
       $this->parent->setConstructParent($this);
+      
       $name = $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . $result['id']);
+      
       $names[$name->getId()] = $name;
     }
     return array_values($names);
@@ -283,43 +286,29 @@ final class TopicImpl extends ConstructImpl implements Topic {
 
   /**
    * Creates a {@link NameImpl} for this topic with the specified <var>value</var>, 
-   * and <var>scope</var>.
-   * The created {@link NameImpl} will have the default name type
-   * (a {@link TopicImpl} with the subject identifier 
+   * <var>type</var>, and <var>scope</var>.
+   * 
+   * If <var>type</var> is <var>null</var> the created {@link NameImpl} will have the default 
+   * name type (a {@link TopicImpl} with the subject identifier 
    * http://psi.topicmaps.org/iso13250/model/topic-name).
    * 
    * @param string The string value of the name; must not be <var>null</var>.
+   * @param TopicImpl The name type. Default <var>null</var>.
    * @param array An array containing {@link TopicImpl}s - each representing a theme. 
    *        If the array's length is 0 (default), the name will be in the 
    *        unconstrained scope.
    * @return NameImpl The newly created {@link NameImpl}.
-   * @throws {@link ModelConstraintException} If the <var>value</var> is <var>null</var>.
+   * @throws {@link ModelConstraintException} If the <var>value</var> is <var>null</var> or
+   *        <var>type</var> or a theme does not belong to the parent topic map.
    */
-  public function createName($value, array $scope=array()) {
+  public function createName($value, Topic $type=null, array $scope=array()) {
     if (!is_null($value)) {
-      $type = $this->getDefaultNameType();
-      return $this->createTypedName($type, $value, $scope);
-    } else {
-      throw new ModelConstraintException($this, __METHOD__ . 
-        ConstructImpl::VALUE_NULL_ERR_MSG);
-    }
-  }
-
-  /**
-   * Creates a {@link NameImpl} for this topic with the specified <var>type</var>,
-   * <var>value</var>, and <var>scope</var>. 
-   *
-   * @param TopicImpl The name type.
-   * @param string The string value of the name; must not be <var>null</var>.
-   * @param array An array containing {@link TopicImpl}s - each representing a theme.
-   *        If the array's length is 0 (default), the name will be in the 
-   *        unconstrained scope.
-   * @return NameImpl The newly created {@link NameImpl}.
-   * @throws {@link ModelConstraintException} If the <var>value</var> is <var>null</var>.
-   */
-  public function createTypedName(Topic $type, $value, array $scope=array()) {
-    if (!is_null($value)) {
-      $value = CharacteristicUtils::canonicalize($value);
+      $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
+      $type = is_null($type) ? $this->getDefaultNameType() : $type;
+      if (!$this->topicMap->equals($type->topicMap)) {
+        throw new ModelConstraintException($this, 
+          __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG);
+      }
       $hash = $this->getNameHash($value, $type, $scope);
       $propertyId = $this->hasName($hash);
       if (!$propertyId) {
@@ -335,22 +324,33 @@ final class TopicImpl extends ConstructImpl implements Topic {
           ' (' . $lastNameId . ', ' . $this->parent->dbId . ', ' . $this->dbId . ')';
         $this->mysql->execute($query);
         
-        $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope);
+        $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope, $this->topicMap, $this);
         $query = 'INSERT INTO ' . $this->config['table']['topicname_scope'] . 
           ' (scope_id, topicname_id) VALUES' .
           ' (' . $scopeObj->dbId . ', ' . $lastNameId . ')';
         $this->mysql->execute($query);
         
         $this->mysql->finishTransaction(true);
+        
+        $propertyHolder = new PropertyUtils();
+        $propertyHolder->setTypeId($type->dbId)
+          ->setValue($value);
+        $this->parent->setConstructPropertyHolder($propertyHolder);
         $this->parent->setConstructParent($this);
-        return $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . $lastNameId);
+        
+        $name = $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . $lastNameId);
+        if (!$this->mysql->hasError()) {
+          $name->postInsert();
+          $this->postSave();
+        }
+        return $name;
       } else {
         $this->parent->setConstructParent($this);
         return $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . $propertyId);
       }
     } else {
       throw new ModelConstraintException($this, __METHOD__ . 
-        ConstructImpl::VALUE_NULL_ERR_MSG);
+        parent::VALUE_NULL_ERR_MSG);
     }
   }
 
@@ -358,42 +358,30 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * Returns the {@link OccurrenceImpl}s of this topic.
    * The return value may be an empty array but must never be <var>null</var>.
    *
+   * @param TopicImpl The type of the {@link OccurrenceImpl}s to be returned. 
+   *        Default <var>null</var>.
    * @return array An array containing a set of {@link OccurrenceImpl}s belonging to 
    *        this topic.
    */
-  public function getOccurrences() {
+  public function getOccurrences(Topic $type=null) {
     $occurrences = array();
-    $query = 'SELECT id FROM ' . $this->config['table']['occurrence'] . 
+    $query = 'SELECT id, type_id, value, datatype FROM ' . $this->config['table']['occurrence'] . 
       ' WHERE topic_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
-    while ($result = $mysqlResult->fetch()) {
-      $this->parent->setConstructParent($this);
-      $occurrence = $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . 
-        $result['id']);
-      $occurrences[$occurrence->getId()] = $occurrence;
+    if (!is_null($type)) {
+      $query .= ' AND type_id = ' . $type->dbId;
     }
-    return array_values($occurrences);
-  }
-
-  /**
-   * Returns the {@link OccurrenceImpl}s of this topic where the occurrence type 
-   * is <var>type</var>.
-   * The return value may be an empty array but must never be <var>null</var>.
-   *
-   * @param TopicImpl The type of the {@link OccurrenceImpl}s to be returned.
-   * @return array An array containing a set of {@link OccurrenceImpl}s with the 
-   *        specified <var>type</var>.
-   */
-  public function getOccurrencesByType(Topic $type) {
-    $occurrences = array();
-    $query = 'SELECT id FROM ' . $this->config['table']['occurrence'] . 
-      ' WHERE topic_id = ' . $this->dbId . 
-      ' AND type_id = ' . $type->dbId;
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
+      $propertyHolder = new PropertyUtils();
+      $propertyHolder->setTypeId($result['type_id'])
+        ->setValue($result['value'])
+        ->setDataType($result['datatype']);
+      $this->parent->setConstructPropertyHolder($propertyHolder);
+      
       $this->parent->setConstructParent($this);
-      $occurrence = $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . 
-        $result['id']);
+      
+      $occurrence = $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . $result['id']);
+      
       $occurrences[$occurrence->getId()] = $occurrence;
     }
     return array_values($occurrences);
@@ -408,18 +396,24 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param TopicImpl The occurrence type.
    * @param string A string representation of the value; must not be <var>null</var>.
    * @param string A URI indicating the datatype of the <var>value</var>; 
-   *        must not be <var>null</var>. I.e. http://www.w3.org/2001/XMLSchema#string 
+   *        must not be <var>null</var>. E.g. http://www.w3.org/2001/XMLSchema#string 
    *        indicates a string value.
    * @param array An array containing {@link TopicImpl}s - each representing a theme; 
    *        must not be <var>null</var>. If the array's length is 0 (default), 
    *        the occurrence will be in the unconstrained scope.
    * @return OccurrenceImpl The newly created {@link OccurrenceImpl}.
-   * @throws {@link ModelConstraintException} If either the the <var>value</var> or the
-   *        <var>datatype</var> is <var>null</var>.
+   * @throws {@link ModelConstraintException} If either the <var>value</var> or the
+   *        <var>datatype</var> is <var>null</var>; or <var>type</var> or a theme does not 
+   *        belong to the parent topic map.
    */
   public function createOccurrence(Topic $type, $value, $datatype, array $scope=array()) {
     if (!is_null($value) && !is_null($datatype)) {
-      $value = CharacteristicUtils::canonicalize($value);
+      if (!$this->topicMap->equals($type->topicMap)) {
+        throw new ModelConstraintException($this, 
+          __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG);
+      }
+      $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
+      $datatype = CharacteristicUtils::canonicalize($datatype, $this->mysql->getConnection());
       $hash = $this->getOccurrenceHash($type, $value, $datatype, $scope);
       $propertyId = $this->hasOccurrence($hash);
       if (!$propertyId) {
@@ -435,23 +429,55 @@ final class TopicImpl extends ConstructImpl implements Topic {
           ' (' . $lastOccurrenceId . ', ' . $this->parent->dbId . ', ' . $this->dbId . ')';
         $this->mysql->execute($query);
         
-        $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope);
+        $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope, $this->topicMap, $this);
         $query = 'INSERT INTO ' . $this->config['table']['occurrence_scope'] . 
           ' (scope_id, occurrence_id) VALUES' .
           ' (' . $scopeObj->dbId . ', ' . $lastOccurrenceId . ')';
         $this->mysql->execute($query);
         
         $this->mysql->finishTransaction(true);
+        
+        $propertyHolder = new PropertyUtils();
+        $propertyHolder->setTypeId($type->dbId)
+          ->setValue($value)
+          ->setDataType($datatype);
+        $this->parent->setConstructPropertyHolder($propertyHolder);
         $this->parent->setConstructParent($this);
-        return $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . 
+        
+        $occ = $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . 
           $lastOccurrenceId);
+        if (!$this->mysql->hasError()) {
+          $occ->postInsert();
+          $this->postSave();
+        }
+        return $occ;
       } else {
         $this->parent->setConstructParent($this);
         return $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . $propertyId);
       }
     } else {
       throw new ModelConstraintException($this, __METHOD__ . 
-        ConstructImpl::VALUE_DATATYPE_NULL_ERR_MSG);
+        parent::VALUE_DATATYPE_NULL_ERR_MSG);
+    }
+  }
+  
+  /**
+   * Returns the roles played by this topic.
+   * The return value may be an empty array but must never be <var>null</var>.
+   *
+   * @param TopicImpl The type of the {@link RoleImpl}s to be returned. Default <var>null</var>.
+   * @param TopicImpl The type of the {@link AssociationImpl} from which the
+   * @return array An array containing a set of {@link RoleImpl}s played by this topic.
+   */
+  public function getRolesPlayed(Topic $type=null, Topic $assocType=null) {
+    if (is_null($type) && is_null($assocType)) {
+      return $this->getRolesPlayedUntyped();
+    } elseif (!is_null($type) && is_null($assocType)) {
+      return $this->getRolesPlayedByType($type);
+    } elseif (!is_null($type) && !is_null($assocType)) {
+      return $this->getRolesPlayedByTypeAssocType($type, $assocType);
+    } else {
+      return $this->getRolesPlayedByAssocType($assocType);
     }
   }
 
@@ -459,9 +485,11 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * Returns the roles played by this topic.
    * The return value may be an empty array but must never be <var>null</var>.
    *
+   * @param TopicImpl The type of the {@link RoleImpl}s to be returned. Default <var>null</var>.
+   * @param TopicImpl The type of the {@link AssociationImpl} from which the
    * @return array An array containing a set of {@link RoleImpl}s played by this topic.
    */
-  public function getRolesPlayed() {
+  private function getRolesPlayedUntyped() {
     $roles = array();
     $query = 'SELECT id FROM ' . $this->config['table']['assocrole'] . 
       ' WHERE player_id = ' . $this->dbId;
@@ -490,7 +518,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @return array An array containing a set of {@link RoleImpl}s with the specified 
    *        <var>type</var>.
    */
-  public function getRolesPlayedByType(Topic $type) {
+  private function getRolesPlayedByType(Topic $type) {
     $roles = array();
     $query = 'SELECT id FROM ' . $this->config['table']['assocrole'] . 
       ' WHERE type_id = ' . $type->dbId . 
@@ -524,13 +552,47 @@ final class TopicImpl extends ConstructImpl implements Topic {
    *        <var>type</var> which are part of {@link AssociationImpl}s with the specified 
    *        <var>assocType</var>.
    */
-  public function getRolesPlayedByTypeAssocType(Topic $type, Topic $assocType) {
+  private function getRolesPlayedByTypeAssocType(Topic $type, Topic $assocType) {
     $roles = array();
     $query = 'SELECT t1.id AS id FROM ' . $this->config['table']['assocrole'] . ' t1' .
       ' INNER JOIN ' . $this->config['table']['association'] . ' t2' .
       ' ON t2.id = t1.association_id  ' .
       ' WHERE t2.type_id = ' . $assocType->dbId . 
       ' AND t1.type_id = ' . $type->dbId . 
+      ' AND t1.player_id = ' . $this->dbId;
+    $mysqlResult = $this->mysql->execute($query);
+    while ($result = $mysqlResult->fetch()) {
+      // parent association
+      $query = 'SELECT association_id FROM ' . $this->config['table']['assocrole'] . 
+        ' WHERE id = ' . $result['id'];
+      $_mysqlResult = $this->mysql->execute($query);
+      $_result = $_mysqlResult->fetch();
+      $assoc = $this->parent->getConstructById(TopicMapImpl::ASSOC_CLASS_NAME . '-' . 
+        $_result['association_id']);
+      $this->parent->setConstructParent($assoc);
+      $role = $this->parent->getConstructById(AssociationImpl::ROLE_CLASS_NAME . '-' . 
+        $result['id']);
+      $roles[$role->getId()] = $role;
+    }
+    return array_values($roles);
+  }
+  
+  /**
+   * Returns the {@link RoleImpl}s played by this topic where the 
+   * {@link AssociationImpl} type is <var>assocType</var>.
+   * The return value may be an empty array but must never be <var>null</var>.
+   *
+   * @param TopicImpl The type of the {@link AssociationImpl} from which the
+   *        returned roles must be part of.
+   * @return array An array containing a set of {@link RoleImpl}s which are part of 
+   *        {@link AssociationImpl}s with the specified <var>assocType</var>.
+   */
+  private function getRolesPlayedByAssocType(Topic $assocType) {
+    $roles = array();
+    $query = 'SELECT t1.id AS id FROM ' . $this->config['table']['assocrole'] . ' t1' .
+      ' INNER JOIN ' . $this->config['table']['association'] . ' t2' .
+      ' ON t2.id = t1.association_id  ' .
+      ' WHERE t2.type_id = ' . $assocType->dbId . 
       ' AND t1.player_id = ' . $this->dbId;
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
@@ -581,9 +643,15 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * 
    * @param TopicImpl The type of which this topic should become an instance of.
    * @return void
+   * @throws {@link ModelConstraintException} If the <var>type</var> does not belong 
+   *        to the parent topic map.
    */
   public function addType(Topic $type) {
     if (!$this->equals($type)) {
+      if (!$this->topicMap->equals($type->topicMap)) {
+        throw new ModelConstraintException($this, __METHOD__ . 
+          parent::SAME_TM_CONSTRAINT_ERR_MSG);
+      }
       // duplicate suppression
       $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['instanceof'] . 
         ' WHERE topic_id = ' . $this->dbId . 
@@ -595,6 +663,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
           ' (topic_id, type_id) VALUES' .
           ' (' . $this->dbId . ', ' . $type->dbId . ')';
         $this->mysql->execute($query);
+        if (!$this->mysql->hasError()) {
+          $this->postSave();
+        }
       }
     } else {
       return;
@@ -612,6 +683,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
       ' WHERE topic_id = ' . $this->dbId . 
       ' AND type_id = ' . $type->dbId;
     $this->mysql->execute($query);
+    if (!$this->mysql->hasError()) {
+      $this->postSave();
+    }
   }
 
   /**
@@ -774,10 +848,11 @@ final class TopicImpl extends ConstructImpl implements Topic {
     // merge other's names
     $othersNames = $other->getNames();
     foreach ($othersNames as $othersName) {
-      $name = $this->createTypedName($othersName->getType(), 
-                                      $othersName->getValue(), 
-                                      $othersName->getScope()
-                                    );
+      $name = $this->createName( 
+                                $othersName->getValue(), 
+                                $othersName->getType(), 
+                                $othersName->getScope()
+                              );
       // other's name's iids
       $name->gainItemIdentifiers($othersName);
       
@@ -838,6 +913,10 @@ final class TopicImpl extends ConstructImpl implements Topic {
     $other->remove();
 
     $this->mysql->finishTransaction(true);
+    
+    if (!$this->mysql->hasError()) {
+      $this->postSave();
+    }
   }
   
   /**
@@ -1044,6 +1123,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
             throw new TopicInUseException($this, __METHOD__ . ': Topic is a reifier!');
           } else {
             // all checks have been passed; delete this topic
+            $this->preDelete();
             $query = 'DELETE FROM ' . $this->config['table']['topic'] . 
               ' WHERE id = ' . $this->dbId;
             $this->mysql->execute($query);

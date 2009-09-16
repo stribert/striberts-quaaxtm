@@ -149,38 +149,38 @@ class TopicTest extends PHPTMAPITestCase {
     $type2 = $tm->createTopic();
     $unusedType = $tm->createTopic();
     $assoc = $this->createAssoc();
-    $this->assertEquals(count($player->getRolesPlayedByType($type1)), 0, 
+    $this->assertEquals(count($player->getRolesPlayed($type1)), 0, 
       'Expected new topic to be created without playing roles!');
-    $this->assertEquals(count($player->getRolesPlayedByType($type2)), 0, 
+    $this->assertEquals(count($player->getRolesPlayed($type2)), 0, 
       'Expected new topic to be created without playing roles!');
-    $this->assertEquals(count($player->getRolesPlayedByType($unusedType)), 0, 
+    $this->assertEquals(count($player->getRolesPlayed($unusedType)), 0, 
       'Expected new topic to be created without playing roles!');
     $role = $assoc->createRole($type1, $player);
-    $this->assertEquals(count($player->getRolesPlayedByType($type1)), 1, 
+    $this->assertEquals(count($player->getRolesPlayed($type1)), 1, 
       'Expected topic to play this role!');
-    $ids = $this->getIdsOfConstructs($player->getRolesPlayedByType($type1));
+    $ids = $this->getIdsOfConstructs($player->getRolesPlayed($type1));
     $this->assertTrue(in_array($role->getId(), $ids, true), 
-      'Role is not part of getRolesPlayedByType()!');
-    $this->assertEquals(count($player->getRolesPlayedByType($type2)), 0, 
+      'Role is not part of getRolesPlayed()!');
+    $this->assertEquals(count($player->getRolesPlayed($type2)), 0, 
       'Expected topic not to play this role!');
-    $this->assertEquals(count($player->getRolesPlayedByType($unusedType)), 0, 
+    $this->assertEquals(count($player->getRolesPlayed($unusedType)), 0, 
       'Expected topic not to play this role!');
     $role->setType($type2);
-    $this->assertEquals(count($player->getRolesPlayedByType($type2)), 1, 
+    $this->assertEquals(count($player->getRolesPlayed($type2)), 1, 
       'Expected topic to play this role!');
-    $ids = $this->getIdsOfConstructs($player->getRolesPlayedByType($type2));
+    $ids = $this->getIdsOfConstructs($player->getRolesPlayed($type2));
     $this->assertTrue(in_array($role->getId(), $ids, true), 
-      'Role is not part of getRolesPlayedByType()!');
-    $this->assertEquals(count($player->getRolesPlayedByType($type1)), 0, 
+      'Role is not part of getRolesPlayed()!');
+    $this->assertEquals(count($player->getRolesPlayed($type1)), 0, 
       'Expected topic not to play this role!');
-    $this->assertEquals(count($player->getRolesPlayedByType($unusedType)), 0, 
+    $this->assertEquals(count($player->getRolesPlayed($unusedType)), 0, 
       'Expected topic not to play this role!');
     $role->remove();
-    $this->assertEquals(count($player->getRolesPlayedByType($type1)), 0, 
+    $this->assertEquals(count($player->getRolesPlayed($type1)), 0, 
       'Expected topic to play a role!');
-    $this->assertEquals(count($player->getRolesPlayedByType($type2)), 0, 
+    $this->assertEquals(count($player->getRolesPlayed($type2)), 0, 
       'Expected topic to play a role!');
-    $this->assertEquals(count($player->getRolesPlayedByType($unusedType)), 0, 
+    $this->assertEquals(count($player->getRolesPlayed($unusedType)), 0, 
       'Expected topic to play a role!');
   }
   
@@ -192,75 +192,107 @@ class TopicTest extends PHPTMAPITestCase {
     $roleType1 = $tm->createTopic();
     $roleType2 = $tm->createTopic();
     $assoc = $tm->createAssociation($assocType1);
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType1, $assocType1)), 
+    $this->assertEquals(count($player->getRolesPlayed($roleType1, $assocType1)), 
       0, 'Expected new topic to be created without playing roles!');
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType1, $assocType2)), 
+    $this->assertEquals(count($player->getRolesPlayed(null, $assocType1)), 
       0, 'Expected new topic to be created without playing roles!');
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType2, $assocType1)), 
+    $this->assertEquals(count($player->getRolesPlayed($roleType1, $assocType2)), 
       0, 'Expected new topic to be created without playing roles!');
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType2, $assocType2)), 
+    $this->assertEquals(count($player->getRolesPlayed(null, $assocType2)), 
       0, 'Expected new topic to be created without playing roles!');
+    $this->assertEquals(count($player->getRolesPlayed($roleType2, $assocType1)), 
+      0, 'Expected new topic to be created without playing roles!');
+    $this->assertEquals(count($player->getRolesPlayed($roleType2, $assocType2)), 
+      0, 'Expected new topic to be created without playing roles!');
+    
     $role1 = $assoc->createRole($roleType1, $player);
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType1, $assocType1)), 
+    $this->assertEquals(count($player->getRolesPlayed($roleType1, $assocType1)), 
       1, 'Expected topic to play this role!');
-    $ids = $this->getIdsOfConstructs($player->getRolesPlayedByTypeAssocType($roleType1, $assocType1));
+    $this->assertEquals(count($player->getRolesPlayed(null, $assocType1)), 
+      1, 'Expected topic to play this role!');
+    $ids = $this->getIdsOfConstructs($player->getRolesPlayed($roleType1, $assocType1));
     $this->assertTrue(in_array($role1->getId(), $ids, true), 
-      'Role is not part of getRolesPlayedByTypeAssocType()!');
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType1, $assocType2)), 
+      'Role is not part of getRolesPlayed()!');
+    $ids = $this->getIdsOfConstructs($player->getRolesPlayed(null, $assocType1));
+    $this->assertTrue(in_array($role1->getId(), $ids, true), 
+      'Role is not part of getRolesPlayed()!');
+    $this->assertEquals(count($player->getRolesPlayed($roleType1, $assocType2)), 
       0, 'Expected topic not to play this role!');
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType2, $assocType1)), 
+    $this->assertEquals(count($player->getRolesPlayed($roleType2, $assocType1)), 
       0, 'Expected topic not to play this role!');
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType2, $assocType2)), 
+    $this->assertEquals(count($player->getRolesPlayed($roleType2, $assocType2)), 
       0, 'Expected topic not to play this role!');
+    
     $role2 = $assoc->createRole($roleType2, $player);
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType1, $assocType1)), 
+    $this->assertEquals(count($player->getRolesPlayed($roleType1, $assocType1)), 
       1, 'Expected topic to play this role!');
-    $ids = $this->getIdsOfConstructs($player->getRolesPlayedByTypeAssocType($roleType1, $assocType1));
+    $ids = $this->getIdsOfConstructs($player->getRolesPlayed($roleType1, $assocType1));
     $this->assertTrue(in_array($role1->getId(), $ids, true), 
-      'Topic is not part of getRolesPlayedByTypeAssocType()!');
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType2, $assocType1)), 
+      'Topic is not part of getRolesPlayed()!');
+    $this->assertEquals(count($player->getRolesPlayed($roleType2, $assocType1)), 
       1, 'Expected topic to play this role!');
-    $ids = $this->getIdsOfConstructs($player->getRolesPlayedByTypeAssocType($roleType2, $assocType1));
+    $ids = $this->getIdsOfConstructs($player->getRolesPlayed($roleType2, $assocType1));
     $this->assertTrue(in_array($role2->getId(), $ids, true), 
-      'Topic is not part of getRolesPlayedByTypeAssocType()!');
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType1, $assocType2)), 
+      'Topic is not part of getRolesPlayed()!');
+      
+    $this->assertEquals(count($player->getRolesPlayed(null, $assocType1)), 
+      2, 'Expected topic to play these roles!');
+    $ids = $this->getIdsOfConstructs($player->getRolesPlayed(null, $assocType1));
+    $this->assertTrue(in_array($role1->getId(), $ids, true), 
+      'Topic is not part of getRolesPlayed()!');
+    $this->assertTrue(in_array($role2->getId(), $ids, true), 
+      'Topic is not part of getRolesPlayed()!');
+      
+    $this->assertEquals(count($player->getRolesPlayed($roleType1, $assocType2)), 
       0, 'Expected topic not to play this role!');
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType2, $assocType2)), 
+    $this->assertEquals(count($player->getRolesPlayed($roleType2, $assocType2)), 
       0, 'Expected topic not to play this role!');
     $role2->setType($roleType1);
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType1, $assocType1)), 
+    $this->assertEquals(count($player->getRolesPlayed($roleType1, $assocType1)), 
       2, 'Expected topic to play these roles!');
-    $ids = $this->getIdsOfConstructs($player->getRolesPlayedByTypeAssocType($roleType1, $assocType1));
+    $ids = $this->getIdsOfConstructs($player->getRolesPlayed($roleType1, $assocType1));
     $this->assertTrue(in_array($role1->getId(), $ids, true), 
-      'Topic is not part of getRolesPlayedByTypeAssocType()!');
+      'Topic is not part of getRolesPlayed()!');
     $this->assertTrue(in_array($role2->getId(), $ids, true), 
-      'Role is not part of getRolesPlayedByTypeAssocType()!');
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType1, $assocType2)), 
+      'Role is not part of getRolesPlayed()!');
+      
+    $this->assertEquals(count($player->getRolesPlayed(null, $assocType1)), 
+      2, 'Expected topic to play these roles!');
+    $ids = $this->getIdsOfConstructs($player->getRolesPlayed(null, $assocType1));
+    $this->assertTrue(in_array($role1->getId(), $ids, true), 
+      'Topic is not part of getRolesPlayed()!');
+    $this->assertTrue(in_array($role2->getId(), $ids, true), 
+      'Role is not part of getRolesPlayed()!'); 
+      
+    $this->assertEquals(count($player->getRolesPlayed($roleType1, $assocType2)), 
       0, 'Expected topic not to play this role!');
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType2, $assocType1)), 
+    $this->assertEquals(count($player->getRolesPlayed($roleType2, $assocType1)), 
       0, 'Expected topic not to play this role!');
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType2, $assocType2)), 
+    $this->assertEquals(count($player->getRolesPlayed($roleType2, $assocType2)), 
       0, 'Expected topic not to play this role!');
+    $this->assertEquals(count($player->getRolesPlayed(null, $assocType2)), 
+      0, 'Expected topic not to play this role!');
+    
     $role1->remove();
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType1, $assocType1)), 
+    $this->assertEquals(count($player->getRolesPlayed($roleType1, $assocType1)), 
       1, 'Expected topic to play this role!');
-    $ids = $this->getIdsOfConstructs($player->getRolesPlayedByTypeAssocType($roleType1, $assocType1));
+    $ids = $this->getIdsOfConstructs($player->getRolesPlayed($roleType1, $assocType1));
     $this->assertTrue(in_array($role2->getId(), $ids, true), 
-      'Role is not part of getRolesPlayedByTypeAssocType()!');
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType1, $assocType2)), 
+      'Role is not part of getRolesPlayed()!');
+    $this->assertEquals(count($player->getRolesPlayed($roleType1, $assocType2)), 
       0, 'Expected topic not to play this role!');
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType2, $assocType1)), 
+    $this->assertEquals(count($player->getRolesPlayed($roleType2, $assocType1)), 
       0, 'Expected topic not to play this role!');
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType2, $assocType2)), 
+    $this->assertEquals(count($player->getRolesPlayed($roleType2, $assocType2)), 
       0, 'Expected topic not to play this role!');
     $assoc->remove();
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType1, $assocType1)), 
+    $this->assertEquals(count($player->getRolesPlayed($roleType1, $assocType1)), 
       0, 'Expected topic not to play this role!');
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType1, $assocType2)), 
+    $this->assertEquals(count($player->getRolesPlayed($roleType1, $assocType2)), 
       0, 'Expected topic not to play this role!');
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType2, $assocType1)), 
+    $this->assertEquals(count($player->getRolesPlayed($roleType2, $assocType1)), 
       0, 'Expected topic not to play this role!');
-    $this->assertEquals(count($player->getRolesPlayedByTypeAssocType($roleType2, $assocType2)), 
+    $this->assertEquals(count($player->getRolesPlayed($roleType2, $assocType2)), 
       0, 'Expected topic not to play this role!');
   }
   
@@ -270,38 +302,38 @@ class TopicTest extends PHPTMAPITestCase {
     $type1 = $tm->createTopic();
     $type2 = $tm->createTopic();
     $unusedType = $tm->createTopic();
-    $this->assertEquals(count($topic->getOccurrencesByType($type1)), 0, 
+    $this->assertEquals(count($topic->getOccurrences($type1)), 0, 
       'Expected new topic to be created without occurrences!');
-    $this->assertEquals(count($topic->getOccurrencesByType($type2)), 0, 
+    $this->assertEquals(count($topic->getOccurrences($type2)), 0, 
       'Expected new topic to be created without occurrences!');
-    $this->assertEquals(count($topic->getOccurrencesByType($unusedType)), 0, 
+    $this->assertEquals(count($topic->getOccurrences($unusedType)), 0, 
       'Expected new topic to be created without occurrences!');
     $occ = $topic->createOccurrence($type1, 'Occurrence', self::$dtString);
-    $this->assertEquals(count($topic->getOccurrencesByType($type1)), 1, 
+    $this->assertEquals(count($topic->getOccurrences($type1)), 1, 
       'Expected topic to gain this occurrence!');
-    $ids = $this->getIdsOfConstructs($topic->getOccurrencesByType($type1));
+    $ids = $this->getIdsOfConstructs($topic->getOccurrences($type1));
     $this->assertTrue(in_array($occ->getId(), $ids, true), 
-      'Occurrence is not part of getOccurrencesByType()!');
-    $this->assertEquals(count($topic->getOccurrencesByType($type2)), 0, 
+      'Occurrence is not part of getOccurrences()!');
+    $this->assertEquals(count($topic->getOccurrences($type2)), 0, 
       'Expected topic not to gain this occurrence!');
-    $this->assertEquals(count($topic->getOccurrencesByType($unusedType)), 0, 
+    $this->assertEquals(count($topic->getOccurrences($unusedType)), 0, 
       'Expected topic not to gain this occurrence!');
     $occ->setType($type2);
-    $this->assertEquals(count($topic->getOccurrencesByType($type2)), 1, 
+    $this->assertEquals(count($topic->getOccurrences($type2)), 1, 
       'Expected topic to gain this occurrence!');
-    $ids = $this->getIdsOfConstructs($topic->getOccurrencesByType($type2));
+    $ids = $this->getIdsOfConstructs($topic->getOccurrences($type2));
     $this->assertTrue(in_array($occ->getId(), $ids, true), 
-      'Occurrence is not part of getOccurrencesByType()!');
-    $this->assertEquals(count($topic->getOccurrencesByType($type1)), 0, 
+      'Occurrence is not part of getOccurrences()!');
+    $this->assertEquals(count($topic->getOccurrences($type1)), 0, 
       'Expected topic not to gain this occurrence!');
-    $this->assertEquals(count($topic->getOccurrencesByType($unusedType)), 0, 
+    $this->assertEquals(count($topic->getOccurrences($unusedType)), 0, 
       'Expected topic not to gain this occurrence!');
     $occ->remove();
-    $this->assertEquals(count($topic->getOccurrencesByType($type1)), 0, 
+    $this->assertEquals(count($topic->getOccurrences($type1)), 0, 
       'Expected topic not to gain this occurrence!');
-    $this->assertEquals(count($topic->getOccurrencesByType($type2)), 0, 
+    $this->assertEquals(count($topic->getOccurrences($type2)), 0, 
       'Expected topic not to gain this occurrence!');
-    $this->assertEquals(count($topic->getOccurrencesByType($unusedType)), 0, 
+    $this->assertEquals(count($topic->getOccurrences($unusedType)), 0, 
       'Expected topic not to gain this occurrence!');
   }
   
@@ -311,38 +343,38 @@ class TopicTest extends PHPTMAPITestCase {
     $type1 = $tm->createTopic();
     $type2 = $tm->createTopic();
     $unusedType = $tm->createTopic();
-    $this->assertEquals(count($topic->getNamesByType($type1)), 0, 
+    $this->assertEquals(count($topic->getNames($type1)), 0, 
       'Expected new topic to be created without names!');
-    $this->assertEquals(count($topic->getNamesByType($type2)), 0, 
+    $this->assertEquals(count($topic->getNames($type2)), 0, 
       'Expected new topic to be created without names!');
-    $this->assertEquals(count($topic->getNamesByType($unusedType)), 0, 
+    $this->assertEquals(count($topic->getNames($unusedType)), 0, 
       'Expected new topic to be created without names!');
-    $name = $topic->createTypedName($type1, 'Name');
-    $this->assertEquals(count($topic->getNamesByType($type1)), 1, 
+    $name = $topic->createName('Name', $type1);
+    $this->assertEquals(count($topic->getNames($type1)), 1, 
       'Expected topic to gain this name!');
-    $ids = $this->getIdsOfConstructs($topic->getNamesByType($type1));
+    $ids = $this->getIdsOfConstructs($topic->getNames($type1));
     $this->assertTrue(in_array($name->getId(), $ids, true), 
-      'Name is not part of getNamesByType()!');
-    $this->assertEquals(count($topic->getNamesByType($type2)), 0, 
+      'Name is not part of getNames()!');
+    $this->assertEquals(count($topic->getNames($type2)), 0, 
       'Expected topic not to gain this name!');
-    $this->assertEquals(count($topic->getNamesByType($unusedType)), 0, 
+    $this->assertEquals(count($topic->getNames($unusedType)), 0, 
       'Expected topic not to gain this name!');
     $name->setType($type2);
-    $this->assertEquals(count($topic->getNamesByType($type2)), 1, 
+    $this->assertEquals(count($topic->getNames($type2)), 1, 
       'Expected topic to gain this name!');
-    $ids = $this->getIdsOfConstructs($topic->getNamesByType($type2));
+    $ids = $this->getIdsOfConstructs($topic->getNames($type2));
     $this->assertTrue(in_array($name->getId(), $ids, true), 
-      'Name is not part of getNamesByType()!');
-    $this->assertEquals(count($topic->getNamesByType($type1)), 0, 
+      'Name is not part of getNames()!');
+    $this->assertEquals(count($topic->getNames($type1)), 0, 
       'Expected topic not to gain this name!');
-    $this->assertEquals(count($topic->getNamesByType($unusedType)), 0, 
+    $this->assertEquals(count($topic->getNames($unusedType)), 0, 
       'Expected topic not to gain this name!');
     $name->remove();
-    $this->assertEquals(count($topic->getNamesByType($type1)), 0, 
+    $this->assertEquals(count($topic->getNames($type1)), 0, 
       'Expected topic not to gain this name!');
-    $this->assertEquals(count($topic->getNamesByType($type2)), 0, 
+    $this->assertEquals(count($topic->getNames($type2)), 0, 
       'Expected topic not to gain this name!');
-    $this->assertEquals(count($topic->getNamesByType($unusedType)), 0, 
+    $this->assertEquals(count($topic->getNames($unusedType)), 0, 
       'Expected topic not to gain this name!');
   }
   
@@ -442,7 +474,7 @@ class TopicTest extends PHPTMAPITestCase {
     $value = 'Name';
     $this->assertEquals(count($topic->getNames()), 0, 
       'Expected new topic to be created without names!');
-    $name = $topic->createTypedName($type, $value);
+    $name = $topic->createName($value, $type);
     $this->assertEquals(count($topic->getNames()), 1, 'Expected 1 name!');
     $ids = $this->getIdsOfConstructs($topic->getNames());
     $this->assertTrue(in_array($name->getId(), $ids, true), 
@@ -463,7 +495,7 @@ class TopicTest extends PHPTMAPITestCase {
     $value = 'Name';
     $this->assertEquals(count($topic->getNames()), 0, 
       'Expected new topic to be created without names!');
-    $name = $topic->createTypedName($type, $value, array($theme1, $theme2));
+    $name = $topic->createName($value, $type, array($theme1, $theme2));
     $this->assertEquals(count($topic->getNames()), 1, 'Expected 1 name!');
     $ids = $this->getIdsOfConstructs($topic->getNames());
     $this->assertTrue(in_array($name->getId(), $ids, true), 
@@ -511,7 +543,7 @@ class TopicTest extends PHPTMAPITestCase {
     $value = 'Name';
     $this->assertEquals(count($topic->getNames()), 0, 
       'Expected new topic to be created without names!');
-    $name = $topic->createName($value, array($theme1, $theme2));
+    $name = $topic->createName($value, null, array($theme1, $theme2));
     $this->assertEquals(count($topic->getNames()), 1, 'Expected 1 name!');
     $ids = $this->getIdsOfConstructs($topic->getNames());
     $this->assertTrue(in_array($name->getId(), $ids, true), 

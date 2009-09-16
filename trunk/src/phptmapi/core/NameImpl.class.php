@@ -34,7 +34,9 @@
 final class NameImpl extends ScopedImpl implements Name {
   
   const VARIANT_CLASS_NAME = 'VariantImpl',
-        SCOPE_NO_SUPERSET_ERR_MSG = ": Variant's scope is not a true superset of the name's scope!";
+        SCOPE_NO_SUPERSET_ERR_MSG = ': Variant\'s scope is not a true superset of the name\'s scope!';
+        
+  private $propertyHolder;
   
   /**
    * Constructor.
@@ -44,11 +46,15 @@ final class NameImpl extends ScopedImpl implements Name {
    * @param array The configuration data.
    * @param TopicImpl The parent topic.
    * @param TopicMapImpl The containing topic map.
+   * @param PropertyUtils The property holder.
    * @return void
    */
   public function __construct($dbId, Mysql $mysql, array $config, Topic $parent, 
-    TopicMap $topicMap) {
+    TopicMap $topicMap, PropertyUtils $propertyHolder=null) {
+    
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $topicMap);
+    
+    $this->propertyHolder = !is_null($propertyHolder) ? $propertyHolder : new PropertyUtils();
   }
   
   /**
@@ -67,11 +73,16 @@ final class NameImpl extends ScopedImpl implements Name {
    * @return string
    */
   public function getValue() {
-    $query = 'SELECT value FROM ' . $this->config['table']['topicname'] . 
-      ' WHERE id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
-    $result = $mysqlResult->fetch();
-    return $result['value'];
+    if (!is_null($this->propertyHolder->getValue())) {
+      return $this->propertyHolder->getValue();
+    } else {
+      $query = 'SELECT value FROM ' . $this->config['table']['topicname'] . 
+        ' WHERE id = ' . $this->dbId;
+      $mysqlResult = $this->mysql->execute($query);
+      $result = $mysqlResult->fetch();
+      $this->propertyHolder->setValue($result['value']);
+      return $result['value'];
+    }
   }
 
   /**
@@ -84,7 +95,7 @@ final class NameImpl extends ScopedImpl implements Name {
    */
   public function setValue($value) {
     if (!is_null($value)) {
-      $value = CharacteristicUtils::canonicalize($value);
+      $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
       $this->mysql->startTransaction();
       $query = 'UPDATE ' . $this->config['table']['topicname'] . 
         ' SET value = "' . $value . '"' .
@@ -94,6 +105,11 @@ final class NameImpl extends ScopedImpl implements Name {
       $hash = $this->parent->getNameHash($value, $this->getType(), $this->getScope());
       $this->parent->updateNameHash($this->dbId, $hash);
       $this->mysql->finishTransaction();
+      
+      if (!$this->mysql->hasError()) {
+        $this->propertyHolder->setValue($value);
+        $this->postSave();
+      }
     } else {
       throw new ModelConstraintException($this, __METHOD__ . 
         ConstructImpl::VALUE_NULL_ERR_MSG);
@@ -128,7 +144,7 @@ final class NameImpl extends ScopedImpl implements Name {
    * and the themes specified in <var>scope</var>.
    * 
    * @param string A string representation of the value.
-   * @param string A URI indicating the datatype of the <var>value</var>. I.e.
+   * @param string A URI indicating the datatype of the <var>value</var>. E.g.
    *        http://www.w3.org/2001/XMLSchema#string indicates a string value.
    * @param array An array (length >= 1) containing {@link TopicImpl}s, each representing a theme.
    * @return VariantImpl
@@ -138,7 +154,8 @@ final class NameImpl extends ScopedImpl implements Name {
    */
   public function createVariant($value, $datatype, array $scope) {
     if (!is_null($value) && !is_null($datatype)) {
-      $value = CharacteristicUtils::canonicalize($value);
+      $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
+      $datatype = CharacteristicUtils::canonicalize($datatype, $this->mysql->getConnection());
       $mergedScope = array_merge($scope, $this->getScope());
       $hash = $this->getVariantHash($value, $datatype, $scope);
       $variantId = $this->hasVariant($hash);
@@ -158,15 +175,26 @@ final class NameImpl extends ScopedImpl implements Name {
             ' (' . $lastVariantId . ', ' . $this->topicMap->dbId . ', ' . $this->dbId . ')';
           $this->mysql->execute($query);
           
-          $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope);
+          $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope, $this->topicMap, $this);
           $query = 'INSERT INTO ' . $this->config['table']['variant_scope'] . 
             ' (scope_id, variant_id) VALUES' .
             ' (' . $scopeObj->dbId . ', ' . $lastVariantId . ')';
           $this->mysql->execute($query);
           
           $this->mysql->finishTransaction(true);
+          
+          $propertyHolder = new PropertyUtils();
+          $propertyHolder->setValue($value)
+            ->setDataType($datatype);
+          $this->topicMap->setConstructPropertyHolder($propertyHolder);
           $this->topicMap->setConstructParent($this);
-          return $this->topicMap->getConstructById(self::VARIANT_CLASS_NAME . '-' . $lastVariantId);
+          
+          $variant = $this->topicMap->getConstructById(self::VARIANT_CLASS_NAME . '-' . $lastVariantId);
+          if (!$this->mysql->hasError()) {
+            $variant->postInsert();
+            $this->postSave();
+          }
+          return $variant;
         } else {
           throw new ModelConstraintException($this, __METHOD__ . 
             self::SCOPE_NO_SUPERSET_ERR_MSG);
@@ -192,14 +220,7 @@ final class NameImpl extends ScopedImpl implements Name {
   }
 
   /**
-   * Sets the reifier of this name.
-   * The specified <var>reifier</var> MUST NOT reify another information item.
-   *
-   * @param TopicImpl|null The topic that should reify this name or null
-   *        if an existing reifier should be removed.
-   * @return void
-   * @throws {@link ModelConstraintException} If the specified <var>reifier</var> 
-   *        reifies another construct.
+   * @see ConstructImpl::_setReifier()
    */
   public function setReifier($reifier) {
     $this->_setReifier($reifier);
@@ -211,12 +232,17 @@ final class NameImpl extends ScopedImpl implements Name {
    * @return TopicImpl
    */
   public function getType() {
-    $query = 'SELECT type_id FROM ' . $this->config['table']['topicname'] . 
-      ' WHERE id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
-    $result = $mysqlResult->fetch();
-    return $this->topicMap->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . 
-      $result['type_id']);
+    if (!is_null($this->propertyHolder->getTypeId())) {
+      $typeId = $this->propertyHolder->getTypeId();
+    } else {
+      $query = 'SELECT type_id FROM ' . $this->config['table']['topicname'] . 
+        ' WHERE id = ' . $this->dbId;
+      $mysqlResult = $this->mysql->execute($query);
+      $result = $mysqlResult->fetch();
+      $typeId = $result['type_id'];
+      $this->propertyHolder->setTypeId($typeId);
+    }
+    return $this->topicMap->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . $typeId);
   }
 
   /**
@@ -225,17 +251,32 @@ final class NameImpl extends ScopedImpl implements Name {
    * 
    * @param TopicImpl The topic that should define the nature of this name.
    * @return void
+   * @throws {@link ModelConstraintException} If the <var>type</var> does not belong 
+   *        to the parent topic map.
    */
   public function setType(Topic $type) {
-    $this->mysql->startTransaction();
-    $query = 'UPDATE ' . $this->config['table']['topicname'] . 
-      ' SET type_id = ' . $type->dbId . 
-      ' WHERE id = ' . $this->dbId;
-    $this->mysql->execute($query);
-    
-    $hash = $this->parent->getNameHash($this->getValue(), $type, $this->getScope());
-    $this->parent->updateNameHash($this->dbId, $hash);
-    $this->mysql->finishTransaction();
+    if (!$this->getType()->equals($type)) {
+      if (!$this->topicMap->equals($type->topicMap)) {
+        throw new ModelConstraintException($this, __METHOD__ . 
+          parent::SAME_TM_CONSTRAINT_ERR_MSG);
+      }
+      $this->mysql->startTransaction();
+      $query = 'UPDATE ' . $this->config['table']['topicname'] . 
+        ' SET type_id = ' . $type->dbId . 
+        ' WHERE id = ' . $this->dbId;
+      $this->mysql->execute($query);
+      
+      $hash = $this->parent->getNameHash($this->getValue(), $type, $this->getScope());
+      $this->parent->updateNameHash($this->dbId, $hash);
+      $this->mysql->finishTransaction();
+      
+      if (!$this->mysql->hasError()) {
+        $this->propertyHolder->setTypeId($type->dbId);
+        $this->postSave();
+      }
+    } else {
+      return;
+    }
   }
   
   /**
@@ -245,12 +286,14 @@ final class NameImpl extends ScopedImpl implements Name {
    * @return void
    */
   public function remove() {
+    $this->preDelete();
     $query = 'DELETE FROM ' . $this->config['table']['topicname'] . 
       ' WHERE id = ' . $this->dbId;
     $this->mysql->execute($query);
     if (!$this->mysql->hasError()) {
-      $this->id = null;
-      $this->dbId = null;
+      $this->id = 
+      $this->dbId = 
+      $this->propertyHolder = null;
     }
   }
   
@@ -339,6 +382,8 @@ final class NameImpl extends ScopedImpl implements Name {
         $variant->gainItemIdentifiers($duplicate);
         // gain duplicate's reifier
         $variant->gainReifier($duplicate);
+        
+        $variant->postSave();
         $duplicate->remove();
       }
     }

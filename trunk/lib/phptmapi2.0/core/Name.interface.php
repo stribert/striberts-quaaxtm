@@ -24,7 +24,7 @@ require_once('Scoped.interface.php');
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: Name.interface.php 22 2009-03-16 21:31:11Z joschmidt $
+ * @version svn:$Id: Name.interface.php 43 2009-06-28 20:09:57Z joschmidt $
  */
 interface Name extends Reifiable, Typed, Scoped {
 
@@ -46,19 +46,19 @@ interface Name extends Reifiable, Typed, Scoped {
   public function setValue($value);
 
   /**
-   * Returns the {@link Variant}s defined for this name.
+   * Returns the {@link IVariant}s defined for this name.
    * The return array may be empty but must never be <var>null</var>.
    *
-   * @return array An array containing {@link Variant}s.
+   * @return array An array containing a set of {@link IVariant}s.
    */
   public function getVariants();
 
   /**
-   * Creates a {@link Variant} of this topic name with the specified
+   * Creates a {@link IVariant} of this topic name with the specified
    * <var>value</var>, <var>datatype</var>, and <var>scope</var>. 
-   * The newly created {@link Variant} will have the datatype specified by
+   * The newly created {@link IVariant} will have the datatype specified by
    * <var>datatype</var>. 
-   * The newly created {@link Variant} will contain all themes from the parent name 
+   * The newly created {@link IVariant} will contain all themes from the parent name 
    * and the themes specified in <var>scope</var>.
    * 
    * @param string A string representation of the value.

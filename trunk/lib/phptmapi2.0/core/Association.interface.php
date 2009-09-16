@@ -24,27 +24,21 @@ require_once('Scoped.interface.php');
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: Association.interface.php 24 2009-03-16 21:36:58Z joschmidt $
+ * @version svn:$Id: Association.interface.php 50 2009-07-15 21:50:46Z joschmidt $
  */
 interface Association extends Reifiable, Typed, Scoped {
 
   /**
-   * Returns the roles participating in this association.
-   * The return value must never be <var>null</var>.
+   * Returns the {@link Role}s participating in this association.
+   * If <var>type</var> is not <var>null</var> all roles with the specified <var>type</var> 
+   * are returned.
    * 
-   * @return array An array containing {@link Role}s.
-   */
-  public function getRoles();
-
-  /**
-   * Returns all roles with the specified <var>type</var>.
    * The return value may be an empty array but must never be <var>null</var>.
    * 
-   * @param Topic The type of the {@link Role} instances to be returned.
-   * @return array An array (maybe empty) containing {@link Role}s with the specified
-   *        <var>type</var> property.
+   * @param Topic The type of the {@link Role} instances to be returned. Default <var>null</var>.
+   * @return array An array containing a set of {@link Role}s.
    */
-  public function getRolesByType(Topic $type);
+  public function getRoles(Topic $type=null);
 
   /**
    * Creates a new {@link Role} representing a role in this association. 
@@ -52,6 +46,8 @@ interface Association extends Reifiable, Typed, Scoped {
    * @param Topic The role type.
    * @param Topic The role player.
    * @return Role A newly created association role.
+   * @throws {@link ModelConstraintException} If either the <var>type</var> or the 
+   *        <var>player</var> does not belong to the parent topic map.
    */
   public function createRole(Topic $type, Topic $player);
 
@@ -59,7 +55,7 @@ interface Association extends Reifiable, Typed, Scoped {
    * Returns the role types participating in this association.
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing {@link Topic}s representing the role types.
+   * @return array An array containing a set of {@link Topic}s representing the role types.
    */
   public function getRoleTypes();
 }

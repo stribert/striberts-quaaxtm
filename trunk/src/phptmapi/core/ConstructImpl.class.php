@@ -32,6 +32,7 @@ abstract class ConstructImpl implements Construct {
         VALUE_NULL_ERR_MSG = ': Value must not be null!',
         VALUE_DATATYPE_NULL_ERR_MSG = ': Value and datatype must not be null!',
         ITEM_IDENTIFIER_EXISTS_ERR_MSG = ': Item identifier already exists!',
+        SAME_TM_CONSTRAINT_ERR_MSG = ': Same topic map constraint violation!',
         
         ASSOC_FK_COL = 'association_id',
         ROLE_FK_COL = 'assocrole_id',
@@ -169,6 +170,9 @@ abstract class ConstructImpl implements Construct {
           $rows = $mysqlResult->getNumRows();
           if ($rows == 0) {
             $this->mysql->execute($insert);
+            if (!$this->mysql->hasError()) {
+              $this->postSave();
+            }
           } else {// merge
             $result = $mysqlResult->fetch();
             $existingTopic = $this->topicMap
@@ -177,6 +181,9 @@ abstract class ConstructImpl implements Construct {
           }
         } else {
           $this->mysql->execute($insert);
+          if (!$this->mysql->hasError()) {
+            $this->postSave();
+          }
         }
       } else {// the given item identifier already exists
         $existing = $this->factory($mysqlResult);
@@ -369,11 +376,15 @@ abstract class ConstructImpl implements Construct {
             ' WHERE variant_id = ' . $otherVariant->dbId;
           $this->mysql->execute($query);
           $this->mysql->finishTransaction();
+          if (!$this->mysql->hasError()) {
+            $this->postSave();
+          }
         } else {// only gain variant's iids and reifier
           $this->topicMap->setConstructParent($this);
           $variant = $this->topicMap->getConstructById(NameImpl::VARIANT_CLASS_NAME . '-' . $variantId);
           $variant->gainItemIdentifiers($otherVariant);
           $variant->gainReifier($otherVariant);
+          $variant->postSave();
         }
       }
     } else {
@@ -459,10 +470,15 @@ abstract class ConstructImpl implements Construct {
    *        if an existing reifier should be removed.
    * @return void
    * @throws {@link ModelConstraintException} If the specified <var>reifier</var> 
-   *        reifies another construct.
+   *        reifies another construct or the <var>reifier</var> does not belong to
+   *        the parent topic map.
    */
   protected function _setReifier($reifier) {
     if ($reifier instanceof Topic) {
+      if (!$this->topicMap->equals($reifier->topicMap)) {
+        throw new ModelConstraintException($this, __METHOD__ . 
+          self::SAME_TM_CONSTRAINT_ERR_MSG);
+      }
       // check if reifier reifies another construct in this map
       $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['topicmapconstruct'] . 
         ' WHERE topicmap_id = ' . $this->topicMap->dbId . 
@@ -475,14 +491,20 @@ abstract class ConstructImpl implements Construct {
           ' SET reifier_id = ' . $reifier->dbId . 
           ' WHERE id = ' . $this->constructDbId;
         $this->mysql->execute($query);
+        if (!$this->mysql->hasError()) {
+          $this->postSave();
+        }
       } else {
-        throw new ModelConstraintException($this, __METHOD__ . ConstructImpl::REIFIER_ERR_MSG);
+        throw new ModelConstraintException($this, __METHOD__ . self::REIFIER_ERR_MSG);
       }
     } elseif (is_null($reifier)) {// unset reifier
       $query = 'UPDATE ' . $this->config['table']['topicmapconstruct'] . 
         ' SET reifier_id = NULL' .
         ' WHERE id = ' . $this->constructDbId;
       $this->mysql->execute($query);
+      if (!$this->mysql->hasError()) {
+        $this->postSave();
+      }
     } else {
       return;
     }
@@ -506,6 +528,32 @@ abstract class ConstructImpl implements Construct {
     }
     return array_values($set);
   }
+  
+  /**
+   * Post insert hook for e.g. inserting into cache or search index.
+   * It is guaranteed that this hook is only called of no MySQL error occurred.
+   * 
+   * @param array Optional parameters.
+   * @return void
+   */
+  protected function postInsert(array $params=array()) {}
+  
+  /**
+   * Post save hook for e.g. updating cache or search index.
+   * It is guaranteed that this hook is only called of no MySQL error occurred.
+   * 
+   * @param array Optional parameters.
+   * @return void
+   */
+  protected function postSave(array $params=array()) {}
+  
+  /**
+   * Pre delete hook for e.g. cache or search index drop.
+   * 
+   * @param array Optional parameters.
+   * @return void
+   */
+  protected function preDelete(array $params=array()) {}
   
   /**
    * Gets the construct's topicmapconstruct table <var>id</var>.

@@ -15,7 +15,7 @@
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: Construct.interface.php 21 2009-03-16 20:53:57Z joschmidt $
+ * @version svn:$Id: Construct.interface.php 38 2009-06-28 19:53:07Z joschmidt $
  */
 interface Construct {
     
@@ -54,7 +54,7 @@ interface Construct {
    * Returns the item identifiers of this Topic Maps construct.
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing URIs representing the item identifiers.
+   * @return array An array containing a set of URIs representing the item identifiers.
    */
   public function getItemIdentifiers();
 

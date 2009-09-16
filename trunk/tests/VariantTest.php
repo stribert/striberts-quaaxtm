@@ -121,9 +121,10 @@ class VariantTest extends PHPTMAPITestCase {
   public function testScopePreserveTheme() {
     $tm = $this->topicMap;
     $topic = $tm->createTopic();
+    $type = $tm->createTopic();
     $nameTheme = $tm->createTopic();
     $varTheme = $tm->createTopic();
-    $name = $topic->createName('Name', array($nameTheme));
+    $name = $topic->createName('Name', $type, array($nameTheme));
     $this->assertEquals(count($name->getScope()), 1, 'Expected 1 theme!');
     $ids = $this->getIdsOfConstructs($name->getScope());
     $this->assertTrue(in_array($nameTheme->getId(), $ids, true), 
@@ -150,7 +151,7 @@ class VariantTest extends PHPTMAPITestCase {
     $name->remove();
     $this->assertEquals(count($topic->getNames()), 0, 'Unexpected name!');
     
-    $name = $topic->createName('Name', array($nameTheme));
+    $name = $topic->createName('Name', $type, array($nameTheme));
     $this->assertEquals(count($name->getScope()), 1, 'Expected 1 theme!');
     $ids = $this->getIdsOfConstructs($name->getScope());
     $this->assertTrue(in_array($nameTheme->getId(), $ids, true), 
@@ -185,9 +186,10 @@ class VariantTest extends PHPTMAPITestCase {
   public function testCreateScopeSupersetConstraint() {
     $tm = $this->topicMap;
     $topic = $tm->createTopic();
+    $type = $tm->createTopic();
     $nameTheme = $tm->createTopic();
     $varTheme = $tm->createTopic();
-    $name = $topic->createName('Name', array($nameTheme));
+    $name = $topic->createName('Name', $type, array($nameTheme));
     $this->assertEquals(count($name->getScope()), 1, 'Expected 1 theme!');
     try {
       $name->createVariant('Variant', parent::$dtString, array());
@@ -222,10 +224,11 @@ class VariantTest extends PHPTMAPITestCase {
   public function testCreateScopeSupersetConstraintExtended() {
     $tm = $this->topicMap;
     $topic = $tm->createTopic();
+    $type = $tm->createTopic();
     $nameTheme = $tm->createTopic();
     $varTheme = $tm->createTopic();
     $anotherVarTheme = $tm->createTopic();
-    $name = $topic->createName('Name', array($nameTheme));
+    $name = $topic->createName('Name', $type, array($nameTheme));
     $this->assertEquals(count($name->getScope()), 1, 'Expected 1 theme!');
     try {
       $name->createVariant('Variant', parent::$dtString, array());
@@ -304,9 +307,10 @@ class VariantTest extends PHPTMAPITestCase {
   public function testDuplicates() {
     $tm = $this->topicMap;
     $topic = $tm->createTopic();
+    $type = $tm->createTopic();
     $nameTheme = $tm->createTopic();
     $varTheme = $tm->createTopic();
-    $name = $topic->createName('Name', array($nameTheme));
+    $name = $topic->createName('Name', $type, array($nameTheme));
     $variant = $name->createVariant('Variant', parent::$dtString, 
       array($varTheme));
     $variants = $name->getVariants();

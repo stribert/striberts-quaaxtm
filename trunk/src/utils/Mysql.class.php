@@ -45,18 +45,19 @@ class Mysql {
    */
   public function __construct(array $config) {
     $this->sql = '';
-    $this->result = false;
-    $this->errno = 0;
     $this->error = '';
+    $this->errno = 0;
     $this->connection = null;
+    $this->result = false;
     $this->commit = false;
     $this->trnx = false;
     $this->delayTrnx = false;
+    
     $this->connect($config);
   }
 
   /**
-   * Initializes a connection to MySQL.
+   * Connects to MySQL.
    * 
    * @param array Configuration data.
    * @return void
@@ -75,6 +76,15 @@ class Mysql {
       throw new RuntimeException(__METHOD__ . ': ' . $error);
     }
   }
+  
+  /**
+   * Gets the current MySQL connection.
+   * 
+   * @return mysqli
+   */
+  public function getConnection() {
+    return $this->connection;
+  }
 	
   /**
    * Closes a connection to MySQL.
@@ -88,7 +98,7 @@ class Mysql {
   /**
    * Executes a query.
    * 
-   * @param string $query
+   * @param string The SQL query.
    * @return MysqlResult|false
    */
   public function execute($query) {
@@ -100,12 +110,12 @@ class Mysql {
       if ($this->trnx) $this->commit = false;
       return false;
     } else {
-    	return new MysqlResult($this->result, $this->connection);
+      return new MysqlResult($this->result, $this->connection);
     }
   }
 
   /**
-   * Registers error if occurred.
+   * Tells if an error occurred.
    * 
    * @return boolean
    */
@@ -132,7 +142,7 @@ class Mysql {
   /**
    * Starts a transaction.
    * 
-   * @param bool True if transaction should be delayed, false is not.
+   * @param boolean True if transaction is delayed, false if not. Default false.
    * @return void
    * @throws RuntimeException If the transaction can not be started.
    */
@@ -151,6 +161,7 @@ class Mysql {
   /**
    * Finishes a transaction.
    * 
+   * @param boolean True if finish is forced, false if not. Default false.
    * @return void
    * @throws RuntimeException If the transaction can not be finished.
    */
@@ -165,8 +176,6 @@ class Mysql {
         $this->trnx = false;
       } else {
         $result = $this->execute('ROLLBACK');
-        var_dump('ROLLBACK');
-        var_dump($this->getError());
         if (!$result) {
           throw new RuntimeException($this->getError());
         }

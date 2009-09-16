@@ -58,38 +58,27 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * Returns the roles participating in this association.
    * The return value must never be <var>null</var>.
    * 
+   * @param TopicImpl The type of the {@link RoleImpl} instances to be returned. Default <var>null</var>.
    * @return array An array containing a set of {@link Role}s.
    */
-  public function getRoles() {
+  public function getRoles(Topic $type=null) {
     $roles = array();
-    $query = 'SELECT id FROM ' . $this->config['table']['assocrole'] . 
+    $query = 'SELECT id, type_id, player_id FROM ' . $this->config['table']['assocrole'] . 
       ' WHERE association_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
-    while ($result = $mysqlResult->fetch()) {
-      $this->parent->setConstructParent($this);
-      $role = $this->parent->getConstructById(self::ROLE_CLASS_NAME . '-' . $result['id']);
-      $roles[$role->getId()] = $role;
+    if (!is_null($type)) {
+      $query .= ' AND type_id = ' . $type->dbId;
     }
-    return array_values($roles);
-  }
-
-  /**
-   * Returns all roles with the specified <var>type</var>.
-   * The return value may be an empty array but must never be <var>null</var>.
-   * 
-   * @param TopicImpl The type of the {@link RoleImpl} instances to be returned.
-   * @return array An array (maybe empty) containing a set of {@link RoleImpl}s with 
-   *        the specified <var>type</var> property.
-   */
-  public function getRolesByType(Topic $type) {
-    $roles = array();
-    $query = 'SELECT id FROM ' . $this->config['table']['assocrole'] . 
-      ' WHERE association_id = ' . $this->dbId . 
-      ' AND type_id = ' . $type->dbId;
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
+      $propertyHolder = new PropertyUtils();
+      $propertyHolder->setTypeId($result['type_id'])
+        ->setPlayerId($result['player_id']);
+      $this->parent->setConstructPropertyHolder($propertyHolder);
+      
       $this->parent->setConstructParent($this);
+      
       $role = $this->parent->getConstructById(self::ROLE_CLASS_NAME . '-' . $result['id']);
+      
       $roles[$role->getId()] = $role;
     }
     return array_values($roles);
@@ -101,8 +90,15 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * @param TopicImpl The role type.
    * @param TopicImpl The role player.
    * @return RoleImpl A newly created association role.
+   * @throws {@link ModelConstraintException} If either the <var>type</var> or the 
+   *        <var>player</var> does not belong to the parent topic map.
    */
   public function createRole(Topic $type, Topic $player) {
+    if (!$this->topicMap->equals($type->topicMap) || 
+      !$this->topicMap->equals($player->topicMap)) {
+      throw new ModelConstraintException($this, __METHOD__ . 
+        parent::SAME_TM_CONSTRAINT_ERR_MSG);
+    }
     // duplicate suppression
     $query = 'SELECT id FROM ' . $this->config['table']['assocrole'] . 
       ' WHERE association_id = ' . $this->dbId . 
@@ -127,8 +123,19 @@ final class AssociationImpl extends ScopedImpl implements Association {
         $this->getRoles());
       $this->parent->updateAssocHash($this->dbId, $hash);
       $this->mysql->finishTransaction();
+      
+      $propertyHolder = new PropertyUtils();
+      $propertyHolder->setTypeId($type->dbId)
+        ->setPlayerId($player->dbId);
+      $this->parent->setConstructPropertyHolder($propertyHolder);
       $this->parent->setConstructParent($this);
-      return $this->parent->getConstructById(self::ROLE_CLASS_NAME . '-' . $lastRoleId);
+      
+      $role = $this->parent->getConstructById(self::ROLE_CLASS_NAME . '-' . $lastRoleId);
+      if (!$this->mysql->hasError()) {
+        $role->postInsert();
+        $this->postSave();
+      }
+      return $role;
     } else {
       $result = $mysqlResult->fetch();
       $this->parent->setConstructParent($this);
@@ -167,14 +174,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
   }
 
   /**
-   * Sets the reifier of this construct.
-   * The specified <var>reifier</var> MUST NOT reify another information item.
-   *
-   * @param TopicImpl|null The topic that should reify this construct or null
-   *        if an existing reifier should be removed.
-   * @return void
-   * @throws {@link ModelConstraintException} If the specified <var>reifier</var> 
-   *        reifies another construct.
+   * @see ConstructImpl::_setReifier()
    */
   public function setReifier($reifier) {
     $this->_setReifier($reifier);
@@ -200,17 +200,31 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * 
    * @param TopicImpl The topic that should define the nature of this construct.
    * @return void
+   * @throws {@link ModelConstraintException} If the <var>type</var> does not belong 
+   *        to the parent topic map.
    */
   public function setType(Topic $type) {
-    $this->mysql->startTransaction();
-    $query = 'UPDATE ' . $this->config['table']['association'] . 
-      ' SET type_id = ' . $type->dbId . 
-      ' WHERE id = ' . $this->dbId;
-    $this->mysql->execute($query);
-    
-    $hash = $this->parent->getAssocHash($type, $this->getScope(), $this->getRoles());
-    $this->parent->updateAssocHash($this->dbId, $hash);
-    $this->mysql->finishTransaction();
+    if (!$this->getType()->equals($type)) {
+      if (!$this->topicMap->equals($type->topicMap)) {
+        throw new ModelConstraintException($this, __METHOD__ . 
+          parent::SAME_TM_CONSTRAINT_ERR_MSG);
+      }
+      $this->mysql->startTransaction();
+      $query = 'UPDATE ' . $this->config['table']['association'] . 
+        ' SET type_id = ' . $type->dbId . 
+        ' WHERE id = ' . $this->dbId;
+      $this->mysql->execute($query);
+      
+      $hash = $this->parent->getAssocHash($type, $this->getScope(), $this->getRoles());
+      $this->parent->updateAssocHash($this->dbId, $hash);
+      $this->mysql->finishTransaction();
+      
+      if (!$this->mysql->hasError()) {
+        $this->postSave();
+      }
+    } else {
+      return;
+    }
   }
   
   /**
@@ -220,13 +234,13 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * @return void
    */
   public function remove() {
+    $this->preDelete();
     $query = 'DELETE FROM ' . $this->config['table']['association'] . 
       ' WHERE id = ' . $this->dbId;
     $this->mysql->execute($query);
     if (!$this->mysql->hasError()) {
       $this->parent->removeAssociation($this);
-      $this->id = null;
-      $this->dbId = null;
+      $this->id = $this->dbId = null;
     }
   }
 }

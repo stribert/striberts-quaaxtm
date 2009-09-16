@@ -33,6 +33,8 @@
  */
 final class OccurrenceImpl extends ScopedImpl implements Occurrence {
   
+  private $propertyHolder;
+  
   /**
    * Constructor.
    * 
@@ -41,11 +43,15 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    * @param array The configuration data.
    * @param TopicImpl The parent topic.
    * @param TopicMapImpl The containing topic map.
+   * @param PropertyUtils The property holder.
    * @return void
    */
   public function __construct($dbId, Mysql $mysql, array $config, Topic $parent, 
-    TopicMap $topicMap) {
+    TopicMap $topicMap, PropertyUtils $propertyHolder=null) {
+    
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $topicMap);
+    
+    $this->propertyHolder = !is_null($propertyHolder) ? $propertyHolder : new PropertyUtils();
   }
   
   /**
@@ -64,25 +70,35 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    * @return string The string representation of the value (never <var>null</var>).
    */
   public function getValue() {
-    $query = 'SELECT value FROM ' . $this->config['table']['occurrence'] . 
-      ' WHERE id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
-    $result = $mysqlResult->fetch();
-    return (string) $result['value'];
+    if (!is_null($this->propertyHolder->getValue())) {
+      return $this->propertyHolder->getValue();
+    } else {
+      $query = 'SELECT value FROM ' . $this->config['table']['occurrence'] . 
+        ' WHERE id = ' . $this->dbId;
+      $mysqlResult = $this->mysql->execute($query);
+      $result = $mysqlResult->fetch();
+      $this->propertyHolder->setValue($result['value']);
+      return (string) $result['value'];
+    }
   }
 
   /**
    * Returns the URI identifying the datatype of the value.
-   * I.e. http://www.w3.org/2001/XMLSchema#string indicates a string value.
+   * E.g. http://www.w3.org/2001/XMLSchema#string indicates a string value.
    *
    * @return string The datatype of this construct (never <var>null</var>).
    */
   public function getDatatype() {
-    $query = 'SELECT datatype FROM ' . $this->config['table']['occurrence'] . 
-      ' WHERE id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
-    $result = $mysqlResult->fetch();
-    return (string) $result['datatype'];
+    if (!is_null($this->propertyHolder->getDatatype())) {
+      return $this->propertyHolder->getDatatype();
+    } else {
+      $query = 'SELECT datatype FROM ' . $this->config['table']['occurrence'] . 
+        ' WHERE id = ' . $this->dbId;
+      $mysqlResult = $this->mysql->execute($query);
+      $result = $mysqlResult->fetch();
+      $this->propertyHolder->setDatatype($result['datatype']);
+      return (string) $result['datatype'];
+    }
   }
 
   /**
@@ -90,14 +106,15 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    *
    * @param string The string representation of the value; must not be <var>null</var>.
    * @param string The URI identifying the datatype of the value; must not be <var>null</var>. 
-   *        I.e. http://www.w3.org/2001/XMLSchema#string indicates a string value.
+   *        E.g. http://www.w3.org/2001/XMLSchema#string indicates a string value.
    * @return void
    * @throws {@link ModelConstraintException} If the <var>value</var> or <var>datatype</var> 
    *        is <var>null</var>.
    */
   public function setValue($value, $datatype) {
     if (!is_null($value) && !is_null($datatype)) {
-      $value = CharacteristicUtils::canonicalize($value);
+      $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
+      $datatype = CharacteristicUtils::canonicalize($datatype, $this->mysql->getConnection());
       $this->mysql->startTransaction();
       $query = 'UPDATE ' . $this->config['table']['occurrence'] . 
         ' SET value = "' . $value . '", datatype = "' . $datatype . '"' .
@@ -108,6 +125,12 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
         $this->getScope());
       $this->parent->updateOccurrenceHash($this->dbId, $hash);
       $this->mysql->finishTransaction();
+
+      if (!$this->mysql->hasError()) {
+        $this->propertyHolder->setValue($value);
+        $this->propertyHolder->setDatatype($datatype);
+        $this->postSave();
+      }
     } else {
       throw new ModelConstraintException($this, __METHOD__ . 
         ConstructImpl::VALUE_DATATYPE_NULL_ERR_MSG);
@@ -120,12 +143,17 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    * @return TopicImpl
    */
   public function getType() {
-    $query = 'SELECT type_id FROM ' . $this->config['table']['occurrence'] . 
-      ' WHERE id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
-    $result = $mysqlResult->fetch();
-    return $this->topicMap->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . 
-      $result['type_id']);
+    if (!is_null($this->propertyHolder->getTypeId())) {
+      $typeId = $this->propertyHolder->getTypeId();
+    } else {
+      $query = 'SELECT type_id FROM ' . $this->config['table']['occurrence'] . 
+        ' WHERE id = ' . $this->dbId;
+      $mysqlResult = $this->mysql->execute($query);
+      $result = $mysqlResult->fetch();
+      $typeId = $result['type_id'];
+      $this->propertyHolder->setTypeId($typeId);
+    }
+    return $this->topicMap->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . $typeId);
   }
 
   /**
@@ -134,18 +162,33 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    * 
    * @param TopicImpl The topic that should define the nature of this occurrence.
    * @return void
+   * @throws {@link ModelConstraintException} If the <var>type</var> does not belong 
+   *        to the parent topic map.
    */
   public function setType(Topic $type) {
-    $this->mysql->startTransaction();
-    $query = 'UPDATE ' . $this->config['table']['occurrence'] . 
-      ' SET type_id = ' . $type->dbId . 
-      ' WHERE id = ' . $this->dbId;
-    $this->mysql->execute($query);
-    
-    $hash = $this->parent->getOccurrenceHash($type, $this->getValue(), $this->getDatatype(), 
-      $this->getScope());
-    $this->parent->updateOccurrenceHash($this->dbId, $hash);
-    $this->mysql->finishTransaction();
+    if (!$this->getType()->equals($type)) {
+      if (!$this->topicMap->equals($type->topicMap)) {
+        throw new ModelConstraintException($this, __METHOD__ . 
+          parent::SAME_TM_CONSTRAINT_ERR_MSG);
+      }
+      $this->mysql->startTransaction();
+      $query = 'UPDATE ' . $this->config['table']['occurrence'] . 
+        ' SET type_id = ' . $type->dbId . 
+        ' WHERE id = ' . $this->dbId;
+      $this->mysql->execute($query);
+      
+      $hash = $this->parent->getOccurrenceHash($type, $this->getValue(), $this->getDatatype(), 
+        $this->getScope());
+      $this->parent->updateOccurrenceHash($this->dbId, $hash);
+      $this->mysql->finishTransaction();
+      
+      if (!$this->mysql->hasError()) {
+        $this->propertyHolder->setTypeId($type->dbId);
+        $this->postSave();
+      }
+    } else {
+      return;
+    }
   }
   
   /**
@@ -159,14 +202,7 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
   }
 
   /**
-   * Sets the reifier of this occurrence.
-   * The specified <var>reifier</var> MUST NOT reify another information item.
-   *
-   * @param TopicImpl|null The topic that should reify this construct or null
-   *        if an existing reifier should be removed.
-   * @return void
-   * @throws {@link ModelConstraintException} If the specified <var>reifier</var> 
-   *        reifies another construct.
+   * @see ConstructImpl::_setReifier()
    */
   public function setReifier($reifier) {
     $this->_setReifier($reifier);
@@ -179,12 +215,14 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    * @return void
    */
   public function remove() {
+    $this->preDelete();
     $query = 'DELETE FROM ' . $this->config['table']['occurrence'] . 
       ' WHERE id = ' . $this->dbId;
     $this->mysql->execute($query);
     if (!$this->mysql->hasError()) {
-      $this->id = null;
-      $this->dbId = null;
+      $this->id = 
+      $this->dbId = 
+      $this->propertyHolder = null;
     }
   }
 }

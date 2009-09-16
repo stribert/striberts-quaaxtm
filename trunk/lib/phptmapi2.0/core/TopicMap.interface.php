@@ -21,7 +21,7 @@ require_once('Reifiable.interface.php');
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: TopicMap.interface.php 28 2009-04-09 20:11:34Z joschmidt $
+ * @version svn:$Id: TopicMap.interface.php 53 2009-07-15 21:58:34Z joschmidt $
  */
 interface TopicMap extends Reifiable {
 
@@ -37,7 +37,7 @@ interface TopicMap extends Reifiable {
    * Returns all {@link Topic}s contained in this topic map.
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing {@link Topic}s.
+   * @return array An array containing a set of {@link Topic}s.
    */
   public function getTopics();
 
@@ -45,7 +45,7 @@ interface TopicMap extends Reifiable {
    * Returns all {@link Association}s contained in this topic map.
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing {@link Association}s.
+   * @return array An array containing a set of {@link Association}s.
    */
   public function getAssociations();
 
@@ -102,6 +102,8 @@ interface TopicMap extends Reifiable {
    *        If the array's length is 0 (default), the association will be in the 
    *        unconstrained scope.
    * @return Association The newly created {@link Association}.
+   * @throws {@link ModelConstraintException} If <var>type</var> or a theme does not 
+   *        belong to this topic map.
    */
   public function createAssociation(Topic $type, array $scope=array());
 
@@ -203,11 +205,10 @@ interface TopicMap extends Reifiable {
 
   /**
    * Closes use of this topic map instance. 
-   * This method should be invoked by the application once it has finished 
-   * using this topic map instance.
-   * Implementations may release any resources required for the 
-   * <var>TopicMap</var> instance or any of the {@link Construct} instances 
-   * contained by this instance.
+   * This method should be invoked by the application once it has finished using this 
+   * topic map instance.
+   * Implementations may release any resources required for the <var>TopicMap</var> 
+   * instance or any of the {@link Construct} instances contained by this instance.
    * 
    * @return void
    */

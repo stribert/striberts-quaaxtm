@@ -91,6 +91,7 @@ class NameTest extends PHPTMAPITestCase {
     $name = $this->createName();
     $this->assertTrue($name instanceof Name);
     $tm = $this->topicMap;
+    $type = $tm->createTopic();
     $theme1 = $tm->createTopic();
     $theme2 = $tm->createTopic();
     $name->addTheme($theme1);
@@ -101,7 +102,7 @@ class NameTest extends PHPTMAPITestCase {
       'Theme is not part of getScope()!');
     $this->assertTrue(in_array($theme2->getId(), $ids, true), 
       'Theme is not part of getScope()!');
-    $name = $tm->createTopic()->createName('Name', array($theme1, $theme2));
+    $name = $tm->createTopic()->createName('Name', $type, array($theme1, $theme2));
     $this->assertEquals(count($name->getScope()), 2);
     $ids = $this->getIdsOfConstructs($name->getScope());
     $this->assertTrue(in_array($theme1->getId(), $ids, true), 
@@ -113,8 +114,9 @@ class NameTest extends PHPTMAPITestCase {
   public function testDuplicates() {
     $tm = $this->topicMap;
     $topic = $tm->createTopic();
+    $type = $tm->createTopic();
     $nameTheme = $tm->createTopic();
-    $topic->createName('Name', array($nameTheme));
+    $topic->createName('Name', $type, array($nameTheme));
     $names = $topic->getNames();
     $this->assertEquals(count($names), 1, 'Expected 1 name');
     $name = $names[0];
@@ -127,7 +129,7 @@ class NameTest extends PHPTMAPITestCase {
     $ids = $this->getIdsOfConstructs($topic->getNames());
     $this->assertTrue(in_array($name->getId(), $ids, true), 
       'Name is not part of getNames()!');
-    $duplName = $topic->createName('Name', array($nameTheme));
+    $duplName = $topic->createName('Name', $type, array($nameTheme));
     $names = $topic->getNames();
     $this->assertEquals(count($names), 1, 'Expected 1 name');
     $name = $names[0];

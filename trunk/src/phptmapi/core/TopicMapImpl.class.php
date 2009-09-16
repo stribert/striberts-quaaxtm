@@ -38,6 +38,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
 
   private $setIid,
           $constructParent,
+          $constructPropertyHolder,
           $topicsCache,
           $assocsCache,
           $tmSystem;
@@ -52,11 +53,15 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return void
    */
   public function __construct($dbId, Mysql $mysql, array $config, TopicMapSystem $tmSystem) {
+    
     parent::__construct(__CLASS__ . '-' . $dbId, null, $mysql, $config, $this);
+    
     $this->setIid = true;
-    $this->constructParent = null;
+    $this->constructParent = 
+    $this->constructPropertyHolder = null;
     $this->constructDbId = $this->getConstructDbId();
-    $this->topicsCache = $this->assocsCache = null;
+    $this->topicsCache = 
+    $this->assocsCache = null;
     $this->tmSystem = $tmSystem;
   }
   
@@ -247,7 +252,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
           $parent = $this->constructParent instanceof Topic ? $this->constructParent : 
             $this->getNameParent($dbId);
           $this->constructParent = null;
-          return new $className($dbId, $this->mysql, $this->config, $parent, $this);
+          $propertyHolder = $this->constructPropertyHolder;
+          $this->constructPropertyHolder = null;
+          return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
+            $propertyHolder);
           break;
         case self::ASSOC_CLASS_NAME:
           return new $className($dbId, $this->mysql, $this->config, $this);
@@ -256,19 +264,28 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
           $parent = $this->constructParent instanceof Association ? 
             $this->constructParent : $this->getRoleParent($dbId);
           $this->constructParent = null;
-          return new $className($dbId, $this->mysql, $this->config, $parent, $this);
+          $propertyHolder = $this->constructPropertyHolder;
+          $this->constructPropertyHolder = null;
+          return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
+            $propertyHolder);
           break;
         case TopicImpl::OCC_CLASS_NAME:
           $parent = $this->constructParent instanceof Topic ? $this->constructParent : 
             $this->getOccurrenceParent($dbId);
           $this->constructParent = null;
-          return new $className($dbId, $this->mysql, $this->config, $parent, $this);
+          $propertyHolder = $this->constructPropertyHolder;
+          $this->constructPropertyHolder = null;
+          return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
+            $propertyHolder);
           break;
         case NameImpl::VARIANT_CLASS_NAME:
           $parent = $this->constructParent instanceof Name ? $this->constructParent : 
             $this->getVariantParent($dbId);
           $this->constructParent = null;
-          return new $className($dbId, $this->mysql, $this->config, $parent, $this);
+          $propertyHolder = $this->constructPropertyHolder;
+          $this->constructPropertyHolder = null;
+          return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
+            $propertyHolder);
           break;
         case __CLASS__:
           return new $className($dbId, $this->mysql, $this->config, $this->getTopicMapSystem());
@@ -288,8 +305,14 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    *        If the array's length is 0 (default), the association will be in the 
    *        unconstrained scope.
    * @return AssociationImpl The newly created {@link AssociationImpl}.
+   * @throws {@link ModelConstraintException} If <var>type</var> or a theme does not 
+   *        belong to this topic map.
    */
   public function createAssociation(Topic $type, array $scope=array()) {
+    if (!$this->equals($type->topicMap)) {
+      throw new ModelConstraintException($this, __METHOD__ . 
+        parent::SAME_TM_CONSTRAINT_ERR_MSG);
+    }
     $hash = $this->getAssocHash($type, $scope, $roles=array());
     $assocId = $this->hasAssoc($hash);
     if (!$assocId) {
@@ -305,7 +328,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
         ' (' . $lastAssocId . ', '.$this->dbId . ', ' . $this->dbId . ')';
       $this->mysql->execute($query);
       
-      $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope);
+      $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope, $this, $this);
       $query = 'INSERT INTO ' . $this->config['table']['association_scope'] . 
         ' (scope_id, association_id) VALUES' .
         ' (' . $scopeObj->dbId . ', ' . $lastAssocId . ')';
@@ -313,6 +336,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       
       $this->mysql->finishTransaction(true);
       $assoc = $this->getConstructById(self::ASSOC_CLASS_NAME . '-' . $lastAssocId);
+      if (!$this->mysql->hasError()) {
+        $assoc->postInsert();
+        $this->postSave();
+      }
       if (is_null($this->assocsCache)) {
         return $assoc;
       } else {
@@ -486,6 +513,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     }
     $this->mysql->finishTransaction();
     $topic = $this->getConstructById(self::TOPIC_CLASS_NAME . '-' . $lastTopicId);
+    if (!$this->mysql->hasError()) {
+      $topic->postInsert();
+      $this->postSave();
+    }
     if (is_null($this->topicsCache)) {
       return $topic;
     } else {
@@ -583,14 +614,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
   }
 
   /**
-   * Sets the reifier of this topic map.
-   * The specified <var>reifier</var> MUST NOT reify another information item.
-   *
-   * @param TopicImpl|null The topic that should reify this topic map or null
-   *        if an existing reifier should be removed.
-   * @return void
-   * @throws {@link ModelConstraintException} If the specified <var>reifier</var> 
-   *        reifies another construct.
+   * @see ConstructImpl::_setReifier()
    */
   public function setReifier($reifier) {
     $this->_setReifier($reifier);
@@ -604,6 +628,16 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    */
   public function setConstructParent(Construct $parent) {
     $this->constructParent = $parent;
+  }
+  
+  /**
+   * Sets the construct property holder.
+   * 
+   * @param PropertyUtils The property holder.
+   * @return void
+   */
+  public function setConstructPropertyHolder(PropertyUtils $propertyHolder) {
+    $this->constructPropertyHolder = $propertyHolder;
   }
   
   /**
@@ -713,6 +747,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return void
    */
   public function remove() {
+    $this->preDelete();
     $this->mysql->startTransaction();
     
     // topic names
@@ -867,6 +902,24 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
   }
   
   /**
+   * Clears the topics cache.
+   * 
+   * @return void
+   */
+  public function clearTopicsCache() {
+    $this->topicsCache = null;
+  }
+  
+  /**
+   * Clears the associations cache.
+   * 
+   * @return void
+   */
+  public function clearAssociationsCache() {
+    $this->assocsCache = null;
+  }
+  
+  /**
    * Gets the construct's topicmapconstruct table <var>id</var>.
    * 
    * @return int The id.
@@ -888,8 +941,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return boolean
    */
   private function contains($id) {
-    $constituents = explode('-', $id);
-    if (count($constituents)==2) {
+    if (preg_match('/^[a-z]+\-[0-9]+$/i', $id)) {
+      $constituents = explode('-', $id);
       $className = $constituents[0];
       $dbId = $constituents[1];
       $fkColumn = $this->getFkColumn($className);
@@ -904,7 +957,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
             ' AND parent_id IS NULL';
         }
         $mysqlResult = $this->mysql->execute($query);
-        if ($mysqlResult instanceof MysqlResult) {
+        if (!$this->mysql->hasError()) {
           $result = $mysqlResult->fetchArray();
           return (int) $result[0] > 0 ? true : false;
         } else {
@@ -1041,10 +1094,11 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     foreach ($sourceNames as $sourceName) {
       $targetType = $this->copyTopic($sourceName->getType());
       $targetNameScope = $this->copyScope($sourceName->getScope());
-      $targetName = $targetTopic->createTypedName($targetType, 
-                                            $sourceName->getValue(), 
-                                            $targetNameScope
-                                          );
+      $targetName = $targetTopic->createName( 
+                                              $sourceName->getValue(), 
+                                              $targetType, 
+                                              $targetNameScope
+                                            );
       // source name's iids
       $this->copyIids($targetName, $sourceName);
       

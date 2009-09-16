@@ -48,6 +48,7 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    */
   public function __construct(Mysql $mysql, array $config, array $properties, 
     array $features) {
+    
     $this->config = $config;
     $this->mysql = $mysql;
     $this->properties = $properties;
@@ -94,7 +95,7 @@ final class TopicMapSystemImpl implements TopicMapSystem {
         ' WHERE locator = "' . $uri . '"';
       $mysqlResult = $this->mysql->execute($query);
       $result = $mysqlResult->fetchArray();
-      if ($result[0] == 0) {// locator does not exist
+      if ($result[0] == 0) {
         $this->mysql->startTransaction();
         $query = 'INSERT INTO ' . $this->config['table']['topicmap'] . 
           ' (id, locator) VALUES (NULL, "' . $uri . '")';

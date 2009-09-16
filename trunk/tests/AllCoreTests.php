@@ -39,6 +39,7 @@ require_once('NameTest.php');
 require_once('OccurrenceTest.php');
 require_once('ReifiableTest.php');
 require_once('RoleTest.php');
+require_once('SameTopicMapTest.php');
 require_once('ScopedTest.php');
 require_once('TopicTest.php');
 require_once('TopicMapTest.php');
@@ -52,6 +53,9 @@ require_once('VariantTest.php');
 // QuaaxTM specific tests
 require_once('QTMDuplicateRemovalTest.php');
 require_once('QTMGetConstructTest.php');
+require_once('QTMPropertyHolderTest.php');
+require_once('QTMCacheTest.php');
+require_once('QTMMySQLTest.php');
 
 /**
  * Core test suite.
@@ -75,6 +79,7 @@ class AllCoreTests extends PHPUnit_Framework_TestSuite {
     $suite->addTestSuite('OccurrenceTest');
     $suite->addTestSuite('ReifiableTest');
     $suite->addTestSuite('RoleTest');
+    $suite->addTestSuite('SameTopicMapTest');
     $suite->addTestSuite('ScopedTest');
     $suite->addTestSuite('TopicTest');
     $suite->addTestSuite('TopicMapTest');
@@ -88,6 +93,9 @@ class AllCoreTests extends PHPUnit_Framework_TestSuite {
     // QuaaxTM specific tests
     $suite->addTestSuite('QTMDuplicateRemovalTest');
     $suite->addTestSuite('QTMGetConstructTest');
+    $suite->addTestSuite('QTMPropertyHolderTest');
+    $suite->addTestSuite('QTMCacheTest');
+    $suite->addTestSuite('QTMMySQLTest');
     return $suite;
   }
  

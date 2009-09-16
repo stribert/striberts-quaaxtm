@@ -16,25 +16,26 @@ require_once('Construct.interface.php');
  * Indicates that a statement (Topic Maps construct) has a scope.
  * 
  * {@link Association}s, {@link Occurrence}s, {@link Name}s, and 
- * {@link Variant}s are scoped.
+ * {@link IVariant}s are scoped.
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: Scoped.interface.php 9 2008-11-03 20:55:37Z joschmidt $
+ * @version svn:$Id: Scoped.interface.php 47 2009-07-05 21:01:26Z joschmidt $
  */
 interface Scoped extends Construct {
 
   /**
-   * Returns the topics which define the scope.
+   * Returns the {@link Topic}s which define the scope.
    * An empty array represents the unconstrained scope.
+   * 
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing {@link Topic}s which define the scope.
+   * @return array An array containing a set of {@link Topic}s which define the scope.
    */
   public function getScope();
 
   /**
-   * Adds a topic to the scope.
+   * Adds a {@link Topic} to the scope.
    *
    * @param Topic The topic which should be added to the scope.
    * @return void
@@ -42,7 +43,7 @@ interface Scoped extends Construct {
   public function addTheme(Topic $theme);
 
   /**
-   * Removes a topic from the scope.
+   * Removes a {@link Topic} from the scope.
    *
    * @param Topic The topic which should be removed from the scope.
    * @return void

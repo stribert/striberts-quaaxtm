@@ -41,15 +41,17 @@ class CharacteristicUtils {
   /**
    * Canonicalizes a value for storing in a MySQL database.
    * 
-   * @param string $value
-   * @param string $encoding
-   * @param boolean $entities
+   * @param string The value.
+   * @param mysqli The current MySQL connection.
+   * @param string Encoding. Default UTF-8.
+   * @param boolean Create entities or not.
    * @return string
    * @static
-   * @access public
    */
-  public static function canonicalize($value, $encoding=self::UTF8, $entities=false) {
-    $value = mysql_escape_string($value);
+  public static function canonicalize($value, mysqli $connection ,$encoding=self::UTF8, 
+    $entities=false) {
+    
+    $value = mysqli_real_escape_string($connection, $value);
     return $value = $entities ? htmlentities($value, ENT_NOQUOTES, $encoding) : $value;
   }
 }

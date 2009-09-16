@@ -32,7 +32,7 @@ require_once('Construct.interface.php');
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: Topic.interface.php 31 2009-05-19 21:13:23Z joschmidt $
+ * @version svn:$Id: Topic.interface.php 54 2009-07-15 21:59:42Z joschmidt $
  */
 interface Topic extends Construct {
 
@@ -40,7 +40,7 @@ interface Topic extends Construct {
    * Returns the subject identifiers assigned to this topic.
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing URIs representing the subject identifiers.
+   * @return array An array containing a set of URIs representing the subject identifiers.
    */
   public function getSubjectIdentifiers();
 
@@ -74,7 +74,7 @@ interface Topic extends Construct {
    * Returns the subject locators assigned to this topic.
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing URIs representing the subject locators.
+   * @return array An array containing a set of URIs representing the subject locators.
    */
   public function getSubjectLocators();
 
@@ -105,70 +105,47 @@ interface Topic extends Construct {
   public function removeSubjectLocator($subjectLocator);
 
   /**
-   * Returns the names of this topic.
+   * Returns the {@link Name}s of this topic. 
+   * If <var>type</var> is not <var>null</var> all names with the specified <var>type</var> 
+   * are returned.
+   * 
    * The return value may be an empty array but must never be <var>null</var>.
    * 
-   * @return array An array containing {@link Name}s belonging to this topic.
+   * @param Topic The type of the {@link Name}s to be returned. Default <var>null</var>.
+   * @return array An array containing a set of {@link Name}s belonging to this topic.
    */
-  public function getNames();
+  public function getNames(Topic $type=null);
 
   /**
-   * Returns the {@link Name}s of this topic where the name type is <var>type</var>.
-   * The return value may be an empty array but must never be <var>null</var>. 
-   * 
-   * @param Topic The type of the {@link Name}s to be returned.
-   * @return array An array containing {@link Name}s with the specified <var>type</var>.
-   */
-  public function getNamesByType(Topic $type);
-
-  /**
-   * Creates a {@link Name} for this topic with the specified <var>value</var>, 
+   * Creates a {@link Name} for this topic with the specified <var>value</var>, <var>type</var>, 
    * and <var>scope</var>.
-   * The created {@link Name} will have the default name type
-   * (a {@link Topic} with the subject identifier 
+   * If <var>type</var> is <var>null</var> the created {@link Name} will have the default 
+   * name type (a {@link Topic} with the subject identifier 
    * http://psi.topicmaps.org/iso13250/model/topic-name).
    * 
    * @param string The string value of the name; must not be <var>null</var>.
+   * @param Topic The name type. Default <var>null</var>.
    * @param array An array containing {@link Topic}s - each representing a theme. 
    *        If the array's length is 0 (default), the name will be in the 
    *        unconstrained scope.
    * @return Name The newly created {@link Name}.
-   * @throws {@link ModelConstraintException} If the <var>value</var> is <var>null</var>.
+   * @throws {@link ModelConstraintException} If the <var>value</var> is <var>null</var> or
+   *        the <var>type</var> or a theme does not belong to the parent topic map.
    */
-  public function createName($value, array $scope=array());
+  public function createName($value, Topic $type=null, array $scope=array());
 
   /**
-   * Creates a {@link Name} for this topic with the specified <var>type</var>,
-   * <var>value</var>, and <var>scope</var>. 
-   *
-   * @param Topic The name type.
-   * @param string The string value of the name; must not be <var>null</var>.
-   * @param array An array containing {@link Topic}s - each representing a theme.
-   *        If the array's length is 0 (default), the name will be in the 
-   *        unconstrained scope.
-   * @return Name The newly created {@link Name}.
-   * @throws {@link ModelConstraintException} If the <var>value</var> is <var>null</var>.
-   */
-  public function createTypedName(Topic $type, $value, array $scope=array());
-
-  /**
-   * Returns the {@link Occurrence}s of this topic.
+   * Returns the {@link Occurrence}s of this topic. 
+   * If <var>type</var> is not <var>null</var> all occurrences with the specified 
+   * <var>type</var> are returned.
+   * 
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing {@link Occurrence}s belonging to this topic.
+   * @param Topic The type of the {@link Occurrence}s to be returned. Default <var>null</var>.
+   * @return array An array containing a set of {@link Occurrence}s belonging to 
+   *        this topic.
    */
-  public function getOccurrences();
-
-  /**
-   * Returns the {@link Occurrence}s of this topic where the occurrence type 
-   * is <var>type</var>.
-   * The return value may be an empty array but must never be <var>null</var>.
-   *
-   * @param Topic The type of the {@link Occurrence}s to be returned.
-   * @return array An array containing {@link Occurrence}s with the 
-   *        specified <var>type</var>.
-   */
-  public function getOccurrencesByType(Topic $type);
+  public function getOccurrences(Topic $type=null);
 
   /**
    * Creates an {@link Occurrence} for this topic with the specified 
@@ -185,44 +162,30 @@ interface Topic extends Construct {
    *        If the array's length is 0 (default), the occurrence will be in the 
    *        unconstrained scope.
    * @return Occurrence The newly created {@link Occurrence}.
-   * @throws {@link ModelConstraintException} If either the the <var>value</var> or the
-   *        <var>datatype</var> is <var>null</var>.
+   * @throws {@link ModelConstraintException} If either the <var>value</var> or the
+   *        <var>datatype</var> is <var>null</var>; or the <var>type</var> or a theme 
+   *        does not belong to the parent topic map.
    */
   public function createOccurrence(Topic $type, $value, $datatype, array $scope=array());
 
   /**
-   * Returns the roles played by this topic.
+   * Returns the {@link Role}s played by this topic. 
+   * If <var>type</var> is not <var>null</var> all roles played by this topic with the 
+   * specified <var>type</var> are returned. 
+   * If <var>assocType</var> is not <var>null</var> only the {@link Association}s with the 
+   * specified <var>assocType</var> are considered.
+   * 
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing {@link Role}s played by this topic.
-   */
-  public function getRolesPlayed();
-
-  /**
-   * Returns the roles played by this topic where the role type is <var>type</var>.
-   * The return value may be an empty array but must never be <var>null</var>.
-   *
-   * @param Topic The type of the {@link Role}s to be returned.
-   * @return array An array containing {@link Role}s with the specified <var>type</var>.
-   */
-  public function getRolesPlayedByType(Topic $type);
-
-  /**
-   * Returns the {@link Role}s played by this topic where the role type is
-   * <var>type</var> and the {@link Association} type is <var>assocType</var>.
-   * The return value may be an empty array but must never be <var>null</var>.
-   *
-   * @param Topic The type of the {@link Role}s to be returned.
+   * @param Topic The type of the {@link Role}s to be returned. Default <var>null</var>.
    * @param Topic The type of the {@link Association} from which the
-   *        returned roles must be part of.
-   * @return array An array containing {@link Role}s with the specified <var>type</var>
-   *        which are part of {@link Association}s with the specified <var>assocType</var>.
+   *        returned roles must be part of. Default <var>null</var>.
+   * @return array An array containing a set of {@link Role}s played by this topic.
    */
-  public function getRolesPlayedByTypeAssocType(Topic $type, Topic $assocType);
+  public function getRolesPlayed(Topic $type=null, Topic $assocType=null);
 
   /**
    * Returns the types of which this topic is an instance of.
-   * 
    * This method may return only those types which where added by 
    * {@link addType(Topic $type)} and may ignore type-instance relationships 
    * (see {@link http://www.isotopicmaps.org/sam/sam-model/#sect-types}) which are modeled 
@@ -230,7 +193,7 @@ interface Topic extends Construct {
    * 
    * The return value may be an empty array but must never be <var>null</var>.
    *
-   * @return array An array containing {@link Topic}s.
+   * @return array An array containing a set of {@link Topic}s.
    */
   public function getTypes();
 
@@ -242,6 +205,8 @@ interface Topic extends Construct {
    * 
    * @param Topic The type of which this topic should become an instance of.
    * @return void
+   * @throws {@link ModelConstraintException} If the <var>type</var> does not belong 
+   *        to the parent topic map.
    */
   public function addType(Topic $type);
 

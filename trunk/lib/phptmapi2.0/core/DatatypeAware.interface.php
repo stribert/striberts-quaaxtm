@@ -14,14 +14,14 @@ require_once('Reifiable.interface.php');
 require_once('Scoped.interface.php');
 
 /**
- * Common base interface for {@link Occurrence}s and {@link Variant}s.
+ * Common base interface for {@link Occurrence}s and {@link IVariant}s.
  * 
  * See Topic Maps - Data Model (TMDM) section 4.4 "Datatypes"
  * ({@link http://www.isotopicmaps.org/sam/sam-model/#d0e507}) for datatype definition.
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: DatatypeAware.interface.php 18 2009-02-07 23:00:17Z joschmidt $
+ * @version svn:$Id: DatatypeAware.interface.php 43 2009-06-28 20:09:57Z joschmidt $
  */
 interface DatatypeAware extends Reifiable, Scoped {
 
