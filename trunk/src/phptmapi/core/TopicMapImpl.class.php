@@ -851,8 +851,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     
     $this->mysql->finishTransaction();
     
-    $this->id = null;
-    $this->dbId = null;
+    $this->id = $this->dbId = null;
   }
   
   /**
