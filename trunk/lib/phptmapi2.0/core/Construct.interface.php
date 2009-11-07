@@ -90,6 +90,9 @@ interface Construct {
    * of a {@link Typed} construct, or if it is used as theme for a {@link Scoped} 
    * construct, or if it reifies a {@link Reifiable}.
    * 
+   * After invocation of this method, the construct is in an undefined state and 
+   * MUST NOT be used further.
+   * 
    * @return void
    */
   public function remove();
