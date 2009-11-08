@@ -50,11 +50,8 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
     $this->properties = $this->features = $this->fixFeatures = array();
     // URI of feature, value, fix?
     $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_AUTOMERGE, true, true);
-    $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_MODEL_XTM_1_0, false, true);
-    $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_MODEL_XTM_1_1, true, true);
-    $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_MERGE_BY_NAME, false, true);
-    $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_NOTATION_URI, false, true);
     $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_READONLY, false, true);
+    $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_TYPE_INST_ASSOC, false, true);
     $this->setupFeatures(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false, false);
   }
   

@@ -34,12 +34,9 @@ class VocabularyUtils {
         XSD_ANYURI = 'http://www.w3.org/2001/XMLSchema#anyURI',
         
         TMAPI_FEATURE_AUTOMERGE = 'http://tmapi.org/features/automerge/',
-        TMAPI_FEATURE_MODEL_XTM_1_0 = 'http://tmapi.org/features/model/xtm1.0/',
-        TMAPI_FEATURE_MODEL_XTM_1_1 = 'http://tmapi.org/features/model/xtm1.1/',
-        TMAPI_FEATURE_MERGE_BY_NAME = 'http://tmapi.org/features/merge/byTopicName/',
-        TMAPI_FEATURE_NOTATION_URI = 'http://tmapi.org/features/notation/URI/',
         TMAPI_FEATURE_READONLY = 'http://tmapi.org/features/readOnly/',
-        QTM_FEATURE_AUTO_DUPL_REMOVAL = 'http://quaaxtm.sourceforge.net/features/autoDuplRemoval/';
+        TMAPI_FEATURE_TYPE_INST_ASSOC = 'http://tmapi.org/features/type-instance-associations',
+        QTM_FEATURE_AUTO_DUPL_REMOVAL = 'http://quaaxtm.sourceforge.net/features/auto-duplicate-removal/';
 
   /**
    * Constructor.
