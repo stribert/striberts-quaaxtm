@@ -34,6 +34,7 @@ require_once(
 require_once('BasicRunTest.php');
 require_once('AssociationTest.php');
 require_once('ConstructTest.php');
+require_once('FeatureStringTest.php');
 require_once('ItemIdentifierConstraintTest.php');
 require_once('NameTest.php');
 require_once('OccurrenceTest.php');
@@ -74,6 +75,7 @@ class AllCoreTests extends PHPUnit_Framework_TestSuite {
     $suite->addTestSuite('BasicRunTest');
     $suite->addTestSuite('AssociationTest');
     $suite->addTestSuite('ConstructTest');
+    $suite->addTestSuite('FeatureStringTest');
     $suite->addTestSuite('ItemIdentifierConstraintTest');
     $suite->addTestSuite('NameTest');
     $suite->addTestSuite('OccurrenceTest');
