@@ -57,6 +57,7 @@ require_once('QTMGetConstructTest.php');
 require_once('QTMPropertyHolderTest.php');
 require_once('QTMCacheTest.php');
 require_once('QTMMySQLTest.php');
+require_once('QTMFeatureStringTest.php');
 
 /**
  * Core test suite.
@@ -98,6 +99,7 @@ class AllCoreTests extends PHPUnit_Framework_TestSuite {
     $suite->addTestSuite('QTMPropertyHolderTest');
     $suite->addTestSuite('QTMCacheTest');
     $suite->addTestSuite('QTMMySQLTest');
+    $suite->addTestSuite('QTMFeatureStringTest');
     return $suite;
   }
  

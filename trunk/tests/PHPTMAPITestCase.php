@@ -42,9 +42,9 @@ require_once(
  */
 class PHPTMAPITestCase extends PHPUnit_Framework_TestCase {
   
-  protected static $tmLocator = 'http://localhost/tm/1';
-  protected static $dtString = 'http://www.w3.org/2001/XMLSchema#string';
-  protected static $dtUri = 'http://www.w3.org/2001/XMLSchema#anyURI';
+  protected static $tmLocator = 'http://localhost/tm/1',
+  					$dtString = 'http://www.w3.org/2001/XMLSchema#string',
+  					$dtUri = 'http://www.w3.org/2001/XMLSchema#anyURI';
   
   protected $sharedFixture,
             $topicMap;
