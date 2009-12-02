@@ -49,13 +49,14 @@ class QTMFeatureStringTest extends PHPTMAPITestCase {
   }
   
   public function testDuplicateRemoval() {
-    $this->tmSystemFactory->setFeature(self::$duplRemoval, true);
+    // true
+  	$this->tmSystemFactory->setFeature(self::$duplRemoval, true);
     $setting = $this->tmSystemFactory->getFeature(self::$duplRemoval);
     $this->assertTrue($setting, 'Expected feature enabled!');
     $tmSystem = $this->tmSystemFactory->newTopicMapSystem();
     $setting = $tmSystem->getFeature(self::$duplRemoval);
     $this->assertTrue($setting, 'Expected feature enabled!');
-    
+    // false
     $this->tmSystemFactory->setFeature(self::$duplRemoval, false);
     $setting = $this->tmSystemFactory->getFeature(self::$duplRemoval);
     $this->assertFalse($setting, 'Expected feature disabled!');
