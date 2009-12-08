@@ -21,6 +21,7 @@
 $factoryImplLocation = '/home/johannes/workspace/quaaxtm/' .
   'src/phptmapi/core/TopicMapSystemFactoryImpl.class.php';
 $factoryImpl = 'TopicMapSystemFactoryImpl';
+
 // extension for implementation
 $config['db']['host'] = 'localhost';
 $config['db']['user'] = 'root';
