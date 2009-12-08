@@ -3,7 +3,7 @@
  * QuaaxTM is an implementation of PHPTMAPI which uses MySQL with InnoDB as 
  * storage engine.
  * 
- * Copyright (C) 2008 Johannes Schmidt <joschmidt@users.sourceforge.net>
+ * Copyright (C) 2009 Johannes Schmidt <joschmidt@users.sourceforge.net>
  * 
  * This library is free software; you can redistribute it and/or modify it under the 
  * terms of the GNU Lesser General Public License as published by the Free Software 
@@ -44,13 +44,11 @@ class CharacteristicUtils {
    * @param string The value.
    * @param mysqli The current MySQL connection.
    * @param string Encoding. Default UTF-8.
-   * @param boolean Create entities or not.
+   * @param boolean Create HTML entities or not.
    * @return string
    * @static
    */
-  public static function canonicalize($value, mysqli $connection ,$encoding=self::UTF8, 
-    $entities=false) {
-    
+  public static function canonicalize($value, mysqli $connection, $encoding=self::UTF8, $entities=false) {
     $value = mysqli_real_escape_string($connection, $value);
     return $value = $entities ? htmlentities($value, ENT_NOQUOTES, $encoding) : $value;
   }
