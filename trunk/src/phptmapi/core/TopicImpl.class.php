@@ -271,7 +271,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $propertyHolder = new PropertyUtils();
-      $propertyHolder->setTypeId($result['type_id'])
+      $propertyHolder->setTypeId((int)$result['type_id'])
         ->setValue($result['value']);
       $this->parent->setConstructPropertyHolder($propertyHolder);
       
@@ -373,7 +373,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $propertyHolder = new PropertyUtils();
-      $propertyHolder->setTypeId($result['type_id'])
+      $propertyHolder->setTypeId((int)$result['type_id'])
         ->setValue($result['value'])
         ->setDataType($result['datatype']);
       $this->parent->setConstructPropertyHolder($propertyHolder);

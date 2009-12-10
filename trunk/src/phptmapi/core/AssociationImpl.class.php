@@ -71,8 +71,8 @@ final class AssociationImpl extends ScopedImpl implements Association {
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $propertyHolder = new PropertyUtils();
-      $propertyHolder->setTypeId($result['type_id'])
-        ->setPlayerId($result['player_id']);
+      $propertyHolder->setTypeId((int)$result['type_id'])
+        ->setPlayerId((int)$result['player_id']);
       $this->parent->setConstructPropertyHolder($propertyHolder);
       
       $this->parent->setConstructParent($this);
