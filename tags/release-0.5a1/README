@@ -1,0 +1,37 @@
+QuaaxTM is a small Topic Maps engine which implements PHPTMAPI. See 
+http://phptmapi.sourceforge.net/ for details. This version of QuaaxTM implements 
+PHPTMAPI 2.0. 
+QuaaxTM stores topic maps in a MySQL database and uses InnoDB as storage engine.
+
+Installation
+------------
+Prerequisites:
+a) PHP >= 5.1.2 with SPL enabled 
+b) MySQL >= 5.0 with InnoDB enabled
+
+1. Execute src/qtm_schema.sql.
+2. Edit your specific settings in lib/phptmapi2.0/config.php.
+3. If PHPUnit is available (http://www.phpunit.de/) you should be able to run the test
+   suite now: Open a terminal, move to 'tests' and execute phpunit AllCoreTests.php. 
+   Each test can be executed separately. Have a look at AllCoreTests.php how QuaaxTM is 
+   used - you just have to include TopicMapSystemFactory.class.php from PHPTMAPI.
+
+Note: If you compile PHP on your own please be sure to enable "mysqli" for QuaaxTM core and 
+"reflection", "spl", "xml", and "tokenizer" for PHPUnit (thanks Benjamin Bock).
+
+Documentation
+-------------
+Have a look at the project's homepage http://quaaxtm.sourceforge.net/ for API documentation 
+and further information.
+
+Questions and answers
+---------------------
+Use the PHPTMAPI mailing list https://lists.sourceforge.net/lists/listinfo/phptmapi-discuss/ 
+for questions, ideas, and discussion.
+
+License
+-------
+This software is licensed under GNU LESSER GENERAL PUBLIC LICENSE Version 3, see LICENSE for 
+details and/or visit http://www.gnu.org/licenses/lgpl.html.
+As GNU LESSER GENERAL PUBLIC LICENSE incorporates the terms and conditions of version 3 of the 
+GNU General Public License the GNU GPL is provided in GNUGPL.
