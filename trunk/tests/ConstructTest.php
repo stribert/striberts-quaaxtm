@@ -89,6 +89,9 @@ class ConstructTest extends PHPTMAPITestCase {
     $id = $construct->getId();
     $this->assertEquals($construct->getId(), $tm->getConstructById($id)->getId(), 
       'Unexpected construct!');
+    $this->assertTrue($construct->equals($tm->getConstructById($id)), 'Expected identity!');
+    $topic = $tm->createTopic();
+    $this->assertFalse($construct->equals($topic), 'Unexpected identity!');
   }
   
   public function testTopicMap() {
