@@ -54,7 +54,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    */
   public function __construct($dbId, Mysql $mysql, array $config, TopicMapSystem $tmSystem) {
     
-    parent::__construct(__CLASS__ . '-' . $dbId, null, $mysql, $config, $this);
+    parent::__construct(__CLASS__ . '-' . $dbId, null, $mysql, $config, null);
     
     $this->setIid = true;
     $this->constructParent = 
@@ -563,10 +563,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
         }
       }
       
-      // copy item identifiers
       $this->copyIids($this, $other);
       
-      // copy associations
       $this->copyAssociations($other->getAssociations());
       
       $this->mysql->finishTransaction(true);
