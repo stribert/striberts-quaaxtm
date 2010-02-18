@@ -188,14 +188,6 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
       DIRECTORY_SEPARATOR . 
       '..' . 
       DIRECTORY_SEPARATOR . 
-      '..' . 
-      DIRECTORY_SEPARATOR . 
-      '..' . 
-      DIRECTORY_SEPARATOR . 
-      'lib' . 
-      DIRECTORY_SEPARATOR . 
-      'phptmapi2.0' . 
-      DIRECTORY_SEPARATOR . 
       'config.php'
     );
     $mysql = new Mysql($config);
