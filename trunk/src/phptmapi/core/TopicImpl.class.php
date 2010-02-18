@@ -1129,8 +1129,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
             $this->mysql->execute($query);
             if (!$this->mysql->hasError()) {
               $this->parent->removeTopic($this);
-              $this->id = null;
-              $this->dbId = null;
+              $this->id = $this->dbId = null;
             }
           }
         }
