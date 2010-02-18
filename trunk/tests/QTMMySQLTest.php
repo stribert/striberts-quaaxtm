@@ -51,9 +51,9 @@ class QTMMySQLTest extends PHPUnit_Framework_TestCase {
           DIRECTORY_SEPARATOR . 
           '..' . 
           DIRECTORY_SEPARATOR . 
-          'lib' . 
+          'src' . 
           DIRECTORY_SEPARATOR . 
-          'phptmapi2.0' . 
+          'phptmapi' . 
           DIRECTORY_SEPARATOR . 
           'config.php'
     );
