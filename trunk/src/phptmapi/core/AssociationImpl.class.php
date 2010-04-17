@@ -235,12 +235,17 @@ final class AssociationImpl extends ScopedImpl implements Association {
    */
   public function remove() {
     $this->preDelete();
+    $scopeObj = $this->getScopeObject();
     $query = 'DELETE FROM ' . $this->config['table']['association'] . 
       ' WHERE id = ' . $this->dbId;
     $this->mysql->execute($query);
     if (!$this->mysql->hasError()) {
+      if (!$scopeObj->isUnconstrained()) {
+        $this->unsetScope($scopeObj);// triggers clean up routine
+      }
       $this->parent->removeAssociation($this);
-      $this->id = $this->dbId = null;
+      $this->id = 
+      $this->dbId = null;
     }
   }
 }

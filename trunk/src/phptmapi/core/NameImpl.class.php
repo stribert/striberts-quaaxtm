@@ -287,10 +287,14 @@ final class NameImpl extends ScopedImpl implements Name {
    */
   public function remove() {
     $this->preDelete();
+    $scopeObj = $this->getScopeObject();
     $query = 'DELETE FROM ' . $this->config['table']['topicname'] . 
       ' WHERE id = ' . $this->dbId;
     $this->mysql->execute($query);
     if (!$this->mysql->hasError()) {
+      if (!$scopeObj->isUnconstrained()) {
+        $this->unsetScope($scopeObj);// triggers clean up routine
+      }
       $this->id = 
       $this->dbId = 
       $this->propertyHolder = null;
