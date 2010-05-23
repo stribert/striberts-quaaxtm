@@ -230,5 +230,30 @@ class TopicRemovableConstraintTest extends PHPTMAPITestCase {
     $topic->remove();
     $this->assertEquals(count($tm->getTopics()), 3, 'Expected 3 topics!');
   }
+  
+  public function testUsedAsThemeScopeUnused() {
+    $tm = $this->topicMap;
+    $theme = $tm->createTopic();
+    $variant = $this->createVariant();
+    $scope = $variant->getScope();
+    $countThemes = count($scope);
+    $variant->addTheme($theme);
+    $scope = $variant->getScope();
+    $this->assertEquals(count($scope), $countThemes+1, 'Expected 2 themes!');
+    try {
+      $theme->remove();
+      $this->fail('Must not remove topic!');
+    } catch (TopicInUseException $e) {
+      $this->assertEquals($theme->getId(), $e->getReporter()->getId(), 
+        'Expected identity!');
+    }
+    $variant->remove();
+    try {
+      $theme->remove();
+      $this->assertTrue(is_null($theme->getId()), 'Topic must be removed!');
+    } catch (TopicInUseException $e) {
+      $this->fail('Removal of topic must be allowed!');
+    }
+  }
 }
 ?>

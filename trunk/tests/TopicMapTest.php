@@ -227,5 +227,20 @@ class TopicMapTest extends PHPTMAPITestCase {
       // no op.
     }
   }
+  
+  public function testRemove() {
+    $tm = $this->topicMap;
+    $typeTheme = $tm->createTopic();
+    $topic = $tm->createTopic();
+    $variant = $this->createVariant();
+    $variant->addTheme($typeTheme);
+    $topic->addType($typeTheme);
+    try {
+      $tm->remove();
+      $this->assertTrue(is_null($tm->getId()), 'Topic map must be removed!');
+    } catch (PHPTMAPIRuntimeException $e) {
+      $this->fail('Removal of topic map failed!');
+    }
+  }
 }
 ?>
