@@ -350,6 +350,66 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       return $this->getConstructById(self::ASSOC_CLASS_NAME . '-' . $assocId);
     }
   }
+  
+  public function createDeserializedAssociation(Topic $type, array $scope=array(), 
+    array $memoryRoles=array()) {
+      
+    if (!$this->equals($type->topicMap)) {
+      throw new ModelConstraintException($this, __METHOD__ . 
+        parent::SAME_TM_CONSTRAINT_ERR_MSG);
+    }
+    $hash = $this->getAssocHash($type, $scope, $memoryRoles);
+    $assocId = $this->hasAssoc($hash);
+    if (!$assocId) {
+      $this->mysql->startTransaction(true);
+      $query = 'INSERT INTO ' . $this->config['table']['association'] . 
+        ' (id, type_id, topicmap_id, hash) VALUES' .
+        ' (NULL, ' . $type->dbId . ', ' . $this->dbId . ', "' . $hash . '")';
+      $mysqlResult = $this->mysql->execute($query);
+      $lastAssocId = $mysqlResult->getLastId();
+      
+      $query = 'INSERT INTO ' . $this->config['table']['topicmapconstruct'] . 
+        ' (association_id, topicmap_id, parent_id) VALUES' .
+        ' (' . $lastAssocId . ', '.$this->dbId . ', ' . $this->dbId . ')';
+      $this->mysql->execute($query);
+      
+      $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope, $this, $this);
+      $query = 'INSERT INTO ' . $this->config['table']['association_scope'] . 
+        ' (scope_id, association_id) VALUES' .
+        ' (' . $scopeObj->dbId . ', ' . $lastAssocId . ')';
+      $this->mysql->execute($query);
+      
+      $this->mysql->finishTransaction(true);
+      $assoc = $this->getConstructById(self::ASSOC_CLASS_NAME . '-' . $lastAssocId);
+      if (!$this->mysql->hasError()) {
+        $assoc->postInsert();
+        $this->postSave();
+      }
+      
+      foreach ($memoryRoles as $memoryRole) {
+        $role = $assoc->createRole($memoryRole->getType(), $memoryRole->getPlayer());
+        $reifier = $memoryRole->getReifier();
+        if (!is_null($reifier)) {
+          $role->setReifier($reifier);
+        }
+        $iids = $memoryRole->getItemIdentifiers();
+        if (!empty($iids)) {
+          foreach ($iids as $iid) {
+            $role->addItemIdentifier($iid);
+          }
+        }
+      }
+      
+      if (is_null($this->assocsCache)) {
+        return $assoc;
+      } else {
+        $this->assocsCache[] = $assoc;
+        return $assoc;
+      }
+    } else {
+      return $this->getConstructById(self::ASSOC_CLASS_NAME . '-' . $assocId);
+    }
+  }
 
   /**
    * Returns a {@link TopicImpl} instance with the specified item identifier.
@@ -660,7 +720,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     if (count($roles) > 0) {
       $ids = array();
       foreach ($roles as $role) {
-        if ($role instanceof Role) {
+        if ($role instanceof Role || $role instanceof MemoryRole) {
           $ids[$role->getType()->dbId . $role->getPlayer()->dbId] = $role->getType()->dbId . $role->getPlayer()->dbId; 
         }
       }
@@ -743,6 +803,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * 
    * @override
    * @return void
+   * @throws PHPTMAPIRuntimeException If removal failed.
    */
   public function remove() {
     $this->preDelete();
@@ -770,19 +831,19 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $this->mysql->execute($query);
     
     // typed topics (instanceof)
-    $query = 'DELETE t1.*, t2.* FROM ' . $this->config['table']['topicmapconstruct'] . ' t1 ' .
-      'INNER JOIN ' . $this->config['table']['instanceof'] . ' t2 ' .
+    $query = 'DELETE t1.* FROM ' . $this->config['table']['instanceof'] . ' t1 ' .
+      'INNER JOIN ' . $this->config['table']['topicmapconstruct'] . ' t2 ' .
       'ON t2.topic_id = t1.topic_id ' .
-      'WHERE t1.topicmap_id = ' . $this->dbId;
+      'WHERE t2.topicmap_id = ' . $this->dbId;
     $this->mysql->execute($query);
     
     // scope and themes
-    $query = 'DELETE t1.*, t2.*, t3.* FROM ' . $this->config['table']['topicmapconstruct'] . ' t1 ' .
-      'INNER JOIN ' . $this->config['table']['theme'] . ' t2 ' .
-      'ON t2.topic_id = t1.topic_id ' . 
-      'INNER JOIN ' . $this->config['table']['scope'] . ' t3 ' . 
-      'ON t3.id = t2.scope_id ' . 
-      'WHERE t1.topicmap_id = ' . $this->dbId;
+    $query = 'DELETE t1.*, t2.* FROM ' . $this->config['table']['theme'] . ' t1 ' .
+      'INNER JOIN ' . $this->config['table']['scope'] . ' t2 ' .
+      'ON t2.id = t1.scope_id ' . 
+      'INNER JOIN ' . $this->config['table']['topicmapconstruct'] . ' t3 ' . 
+      'ON t3.topic_id = t1.topic_id ' . 
+      'WHERE t3.topicmap_id = ' . $this->dbId;
     $this->mysql->execute($query);
     
     // unset topic map's reifier to prevent fk constraint errors
@@ -849,7 +910,13 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     
     $this->mysql->finishTransaction();
     
-    $this->id = $this->dbId = null;
+    if ($this->mysql->hasError()) {
+      throw new PHPTMAPIRuntimeException('Error in ' . __METHOD__ . ': '. 
+        $this->mysql->getError());
+    }
+    
+    $this->id = 
+    $this->dbId = null;
   }
   
   /**
