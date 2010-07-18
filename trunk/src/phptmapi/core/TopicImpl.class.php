@@ -1079,24 +1079,23 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @return TopicImpl
    */
   private function getDefaultNameType() {
-    if (is_null($this->defaultNameType)) {
-      $sid = VocabularyUtils::TMDM_PSI_DEFAULT_NAME_TYPE;
-      $query = $query = 'SELECT t1.id FROM ' . $this->config['table']['topic'] . ' AS t1' .
-        ' INNER JOIN ' . $this->config['table']['subjectidentifier'] . ' t2' .
-        ' ON t1.id = t2.topic_id' .
-        ' WHERE t2.locator = "' . $sid . '"' .
-        ' AND t1.topicmap_id = ' . $this->parent->dbId;
-      $mysqlResult = $this->mysql->execute($query);
-      $rows = $mysqlResult->getNumRows();
-      if ($rows > 0) {
-        $result = $mysqlResult->fetch();
-        $nameType = $this->parent->getConstructById(__CLASS__ . '-' . $result['id']);
-        return $this->defaultNameType = $nameType;
-      } else {
-        return $this->defaultNameType = $this->parent->createTopicBySubjectIdentifier($sid);
-      }
+    if (!is_null($this->defaultNameType)) {
+      return $this->defaultNameType; 
+    }
+    $sid = VocabularyUtils::TMDM_PSI_DEFAULT_NAME_TYPE;
+    $query = $query = 'SELECT t1.id FROM ' . $this->config['table']['topic'] . ' AS t1' .
+      ' INNER JOIN ' . $this->config['table']['subjectidentifier'] . ' t2' .
+      ' ON t1.id = t2.topic_id' .
+      ' WHERE t2.locator = "' . $sid . '"' .
+      ' AND t1.topicmap_id = ' . $this->parent->dbId;
+    $mysqlResult = $this->mysql->execute($query);
+    $rows = $mysqlResult->getNumRows();
+    if ($rows > 0) {
+      $result = $mysqlResult->fetch();
+      $nameType = $this->parent->getConstructById(__CLASS__ . '-' . $result['id']);
+      return $this->defaultNameType = $nameType;
     } else {
-      return $this->defaultNameType;
+      return $this->defaultNameType = $this->parent->createTopicBySubjectIdentifier($sid);
     }
   }
   
@@ -1112,29 +1111,24 @@ final class TopicImpl extends ConstructImpl implements Topic {
   public function remove() {
     if ($this->isType()) {
       throw new TopicInUseException($this, __METHOD__ . ': Topic is typing one or more constructs!');
-    } else {
-      if ($this->playsRole()) {
-        throw new TopicInUseException($this, __METHOD__ . ': Topic plays one or more roles!');
-      } else {
-        if ($this->isTheme()) {
-          throw new TopicInUseException($this, __METHOD__ . ': Topic is a theme!');
-        } else {
-          if ($this->getReified() instanceof Reifiable) {
-            throw new TopicInUseException($this, __METHOD__ . ': Topic is a reifier!');
-          } else {
-            // all checks have been passed; delete this topic
-            $this->preDelete();
-            $query = 'DELETE FROM ' . $this->config['table']['topic'] . 
-              ' WHERE id = ' . $this->dbId;
-            $this->mysql->execute($query);
-            if (!$this->mysql->hasError()) {
-              $this->parent->removeTopic($this);
-              $this->id = 
-              $this->dbId = null;
-            }
-          }
-        }
-      }
+    }
+    if ($this->playsRole()) {
+      throw new TopicInUseException($this, __METHOD__ . ': Topic plays one or more roles!');
+    }
+    if ($this->isTheme()) {
+      throw new TopicInUseException($this, __METHOD__ . ': Topic is a theme!');
+    }
+    if ($this->getReified() instanceof Reifiable) {
+      throw new TopicInUseException($this, __METHOD__ . ': Topic is a reifier!');
+    }
+    $this->preDelete();
+    $query = 'DELETE FROM ' . $this->config['table']['topic'] . 
+      ' WHERE id = ' . $this->dbId;
+    $this->mysql->execute($query);
+    if (!$this->mysql->hasError()) {
+      $this->parent->removeTopic($this);
+      $this->id = 
+      $this->dbId = null;
     }
   }
   
