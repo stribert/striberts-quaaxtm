@@ -10,7 +10,7 @@
  * any other way you see fit.
  */
 
-$factoryImplLocation = '/home/johannes/workspace/quaaxtm/' .
+$factoryImplLocation = '/home/johannes/workspace/quaaxtm_trunk/' .
   'src/phptmapi/core/TopicMapSystemFactoryImpl.class.php';
 $factoryImpl = 'TopicMapSystemFactoryImpl';
 
