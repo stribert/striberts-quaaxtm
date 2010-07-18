@@ -317,6 +317,8 @@ abstract class ConstructImpl implements Construct {
           ' (' . $this->constructDbId . ', "' . $result['locator'] . '")';
         $this->mysql->execute($query);
       }
+    } else {
+      return;
     }
   }
   
