@@ -1,0 +1,15 @@
+<topicMap xmlns="http://www.topicmaps.org/xtm/" version="2.0">
+  <association>
+    <type>
+      <topicRef href="#assoctype"/>
+    </type>
+    <role reifier="#reifier">
+      <itemIdentity href="#the-role-1"/>
+      <itemIdentity href="#the-role-2"/>
+      <type>
+        <topicRef href="#roletype1"/>
+      </type>
+      <topicRef href="#topic1"/>
+    </role>
+  </association>
+</topicMap>

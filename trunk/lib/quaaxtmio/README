@@ -1,0 +1,48 @@
+QuaaxTMIO is the Topic Maps syntaxes serializer/deserializer library for QuaaxTM.
+QuaaxTM is a small PHP Topic Maps engine with persistent storage. See 
+http://quaaxtm.sourceforge.net/ for details.
+
+Installation
+------------
+No real installation needed. Just some prerequisites have to be noticed.
+
+Prerequisites:
+a) QuaaxTM 0.51 or newer (ready for use)
+b) PEAR Net_URL2 0.3.1 (see http://pear.php.net/package/Net_URL2/)
+
+Deserialization of XTM 2.0:
+1. Once QuaaxTM is ready for use and PHPUnit is available (http://www.phpunit.de/) you 
+   should be able to run the test suite now: Open a terminal, move to 'tests/in/xtm20' 
+   and execute phpunit AllTests.php. 
+   Each test can be executed separately. Have a look at AllTests.php how QuaaxTM is 
+   connected - you just have to include TopicMapSystemFactory.class.php from PHPTMAPI.
+   PHPTMAPI's config.php provides all the information of QuaaxTM's implementation of 
+   TopicMapSystemFactory.
+2. Using the deserializer is quite simple:
+   - $tmSystemFactory = TopicMapSystemFactory::newInstance();
+   - $tmSystem = $tmSystemFactory->newTopicMapSystem();
+   - $tmHandler = new PHPTMAPITopicMapHandler($tmSystem, 'tmlocator');
+   - $reader = new XTM20TopicMapReader($tmHandler);
+   - $reader->readXtmFile('path/to/file.xtm');
+   - $tm = $tmSystem->getTopicMap('tmlocator');// the deserialized topic map
+   The files you need to include are TopicMapSystemFactory.class.php, 
+   PHPTMAPITopicMapHandler.class.php, and XTM20TopicMapReader.class.php.
+
+Questions and answers
+---------------------
+Use the PHPTMAPI mailing list https://lists.sourceforge.net/lists/listinfo/phptmapi-discuss/ 
+for questions, ideas, and discussion.
+
+License
+-------
+This software is licensed under GNU LESSER GENERAL PUBLIC LICENSE Version 3, see LICENSE for 
+details and/or visit http://www.gnu.org/licenses/lgpl.html.
+As GNU LESSER GENERAL PUBLIC LICENSE incorporates the terms and conditions of version 3 of the 
+GNU General Public License the GNU GPL is provided in GNUGPL.
+
+Acknowledgements
+----------------
+The PHPTMAPITopicMapHandlerInterface's API is an implementation of the Streaming Topic Maps
+API originally invented by Lars Heuer <http://www.semagia.com/>.
+The XTM snippets in tests/in/xtm20/xtm20src have been taken from the Topic Maps Test Suite 
+(cxtm-tests). See http://cxtm-tests.sourceforge.net/ for details.
