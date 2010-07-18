@@ -65,7 +65,7 @@ class MemoryAssoc extends MemoryScoped {
   /**
    * Adds an association role.
    * 
-   * @param MemoryRole The association role.
+   * @param MemoryRole The association role. 
    * @return void
    */
   public function addRole(MemoryRole $role) {
