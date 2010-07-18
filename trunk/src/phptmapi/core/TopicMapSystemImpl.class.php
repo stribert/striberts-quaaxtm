@@ -186,13 +186,8 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    * @return void
    */
   public function close() {
-    $locators = $this->getLocators();
-    foreach ($locators as $locator) {
-      $topicMap = $this->getTopicMap($locator);
-      $topicMap->close();
-      unset($topicMap);
-    }
-    $this->properties = array();
+    $this->config = array();
+    $this->mysql = null;
   }
 }
 ?>
