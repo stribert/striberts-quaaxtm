@@ -320,7 +320,7 @@ class XTM20TopicMapReader {
   }
   
   /**
-   * Processes a reifier
+   * Processes a reifier.
    * 
    * @param array The XML element attributes.
    * @return void
