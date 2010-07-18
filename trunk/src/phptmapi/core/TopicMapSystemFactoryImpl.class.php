@@ -37,6 +37,9 @@ spl_autoload_register('TopicMapSystemFactoryImpl::autoload');
 final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
   
   private static $instance = null;
+  
+  private static $pearClasses = array('Net_URL2');
+  
   private $properties,
           $features,
           $fixFeatures;
@@ -47,7 +50,9 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    * @return void
    */
   protected function __construct() {
-    $this->properties = $this->features = $this->fixFeatures = array();
+    $this->properties = 
+    $this->features = 
+    $this->fixFeatures = array();
     // URI of feature, value, fix?
     $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_AUTOMERGE, true, true);
     $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_READONLY, false, true);
@@ -157,8 +162,11 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    * @return void
    */
   public function setProperty($propertyName, $value) {
-    if (!is_null($value)) $this->properties[$propertyName] = $value;
-    else unset($this->properties[$propertyName]);
+    if (!is_null($value)) {
+      $this->properties[$propertyName] = $value;
+    } else {
+      unset($this->properties[$propertyName]);
+    }
   }
 
   /**
@@ -202,6 +210,9 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    * @static
    */
   public static function autoload($className) {
+    if (in_array($className, self::$pearClasses)) {
+      return;
+    }
     $path = get_include_path();
     $thisPath = dirname(__FILE__);
     $qtmPath = $thisPath . 
@@ -238,7 +249,8 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
       'src' . 
       DIRECTORY_SEPARATOR .
       'utils';
-    set_include_path($path . 
+    set_include_path(
+      $path . 
       PATH_SEPARATOR . 
       $phptmapiCorePath . 
       PATH_SEPARATOR . 
@@ -248,7 +260,8 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
       PATH_SEPARATOR . 
       $implIndexPath . 
       PATH_SEPARATOR . 
-      $utilPath);
+      $utilPath
+    );
     $file = $className . self::getFileExtension($className);
     require_once($file);
     set_include_path($path);
@@ -265,7 +278,8 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
         stristr($className, 'utils') ||
         stristr($className, 'mysql') ||
         stristr($className, 'topicmapsystemfactory') ||
-        stristr($className, 'exception')) {
+        stristr($className, 'exception')) 
+    {
       return '.class.php';
     } else {
       return '.interface.php';
