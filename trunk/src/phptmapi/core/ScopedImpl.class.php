@@ -110,7 +110,9 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
       // check the variant scope superset constraint
       $mergedScope = array_merge($scope, $this->parent->getScope());
       $nameScopeObj = $this->parent->getScopeObject();
-      if (!$nameScopeObj->isTrueSubset($mergedScope)) return;
+      if (!$nameScopeObj->isTrueSubset($mergedScope)) {
+        return;
+      }
     }
     $this->mysql->startTransaction(true);
     $this->unsetScope($prevScopeObj);
