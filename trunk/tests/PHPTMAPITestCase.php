@@ -42,9 +42,9 @@ require_once(
  */
 class PHPTMAPITestCase extends PHPUnit_Framework_TestCase {
   
-  protected static $tmLocator = 'http://localhost/tm/1', 
-  					$dtString = 'http://www.w3.org/2001/XMLSchema#string', 
-  					$dtUri = 'http://www.w3.org/2001/XMLSchema#anyURI';
+  protected static  $tmLocator = 'http://localhost/tm/1', 
+  					        $dtString = 'http://www.w3.org/2001/XMLSchema#string', 
+                    $dtUri = 'http://www.w3.org/2001/XMLSchema#anyURI';
   
   protected $sharedFixture,
             $topicMap;
@@ -57,8 +57,7 @@ class PHPTMAPITestCase extends PHPUnit_Framework_TestCase {
       $tmSystemFactory = TopicMapSystemFactory::newInstance();
       // QuaaxTM specific feature
       $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, true);
-      $tmSystem = $tmSystemFactory->newTopicMapSystem();
-      $this->sharedFixture = $tmSystem;
+      $this->sharedFixture = $tmSystemFactory->newTopicMapSystem();
     }
     $this->preservedBaseLocators = $this->sharedFixture->getLocators();
     $this->topicMap = $this->sharedFixture->createTopicMap(self::$tmLocator);

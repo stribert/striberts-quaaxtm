@@ -109,8 +109,7 @@ class AllCoreTests extends PHPUnit_Framework_TestSuite {
     $tmSystemFactory = TopicMapSystemFactory::newInstance();
     // QuaaxTM specific feature
     $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, true);
-    $tmSystem = $tmSystemFactory->newTopicMapSystem();
-    $this->sharedFixture = $tmSystem;
+    $this->sharedFixture = $tmSystemFactory->newTopicMapSystem();
   }
  
   protected function tearDown() {
