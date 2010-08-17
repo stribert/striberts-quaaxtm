@@ -263,7 +263,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
    */
   public function getNames(Topic $type=null) {
     $names = array();
-    $query = 'SELECT id, type_id, value FROM ' . $this->config['table']['topicname'] . 
+    $query = 'SELECT id, type_id, value, hash FROM ' . $this->config['table']['topicname'] . 
       ' WHERE topic_id = ' . $this->dbId;
     if (!is_null($type)) {
       $query .= ' AND type_id = ' . $type->dbId;
@@ -279,7 +279,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
       
       $name = $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . $result['id']);
       
-      $names[$name->getId()] = $name;
+      $names[$result['hash']] = $name;
     }
     return array_values($names);
   }
@@ -365,8 +365,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    */
   public function getOccurrences(Topic $type=null) {
     $occurrences = array();
-    $query = 'SELECT id, type_id, value, datatype FROM ' . $this->config['table']['occurrence'] . 
-      ' WHERE topic_id = ' . $this->dbId;
+    $query = 'SELECT id, type_id, value, datatype, hash 
+    	FROM ' . $this->config['table']['occurrence'] . ' WHERE topic_id = ' . $this->dbId;
     if (!is_null($type)) {
       $query .= ' AND type_id = ' . $type->dbId;
     }
@@ -382,7 +382,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
       
       $occurrence = $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . $result['id']);
       
-      $occurrences[$occurrence->getId()] = $occurrence;
+      $occurrences[$result['hash']] = $occurrence;
     }
     return array_values($occurrences);
   }
@@ -491,21 +491,23 @@ final class TopicImpl extends ConstructImpl implements Topic {
    */
   private function getRolesPlayedUntyped() {
     $roles = array();
-    $query = 'SELECT id FROM ' . $this->config['table']['assocrole'] . 
-      ' WHERE player_id = ' . $this->dbId;
+    $query = 'SELECT t1.id AS role_id, t1.association_id, t1.type_id, t2.hash' .
+    	' FROM ' . $this->config['table']['assocrole'] . ' t1' .
+      ' INNER JOIN ' . $this->config['table']['association'] . ' t2' .
+      ' ON t2.id = t1.association_id' .
+      ' WHERE t1.player_id = ' . $this->dbId;
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       // parent association
-      $query = 'SELECT association_id FROM ' . $this->config['table']['assocrole'] . 
-        ' WHERE id = ' . $result['id'];
-      $_mysqlResult = $this->mysql->execute($query);
-      $_result = $_mysqlResult->fetch();
       $assoc = $this->parent->getConstructById(TopicMapImpl::ASSOC_CLASS_NAME . '-' . 
-        $_result['association_id']);
+        $result['association_id']);
+      if (is_null($assoc)) {
+        continue;
+      }
       $this->parent->setConstructParent($assoc);
       $role = $this->parent->getConstructById(AssociationImpl::ROLE_CLASS_NAME . '-' . 
-        $result['id']);
-      $roles[$role->getId()] = $role;
+        $result['role_id']);
+      $roles[$result['hash'] . $result['type_id'] . $this->dbId] = $role;
     }
     return array_values($roles);
   }
@@ -520,22 +522,23 @@ final class TopicImpl extends ConstructImpl implements Topic {
    */
   private function getRolesPlayedByType(Topic $type) {
     $roles = array();
-    $query = 'SELECT id FROM ' . $this->config['table']['assocrole'] . 
-      ' WHERE type_id = ' . $type->dbId . 
-      ' AND player_id = ' . $this->dbId;
+    $query = 'SELECT t1.id AS role_id, t1.association_id, t1.type_id, t2.hash' .
+    	' FROM ' . $this->config['table']['assocrole'] . ' t1' .
+      ' INNER JOIN ' . $this->config['table']['association'] . ' t2' .
+      ' WHERE t1.type_id = ' . $type->dbId . 
+      ' AND t1.player_id = ' . $this->dbId;
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       // parent association
-      $query = 'SELECT association_id FROM ' . $this->config['table']['assocrole'] . 
-        ' WHERE id = ' . $result['id'];
-      $_mysqlResult = $this->mysql->execute($query);
-      $_result = $_mysqlResult->fetch();
       $assoc = $this->parent->getConstructById(TopicMapImpl::ASSOC_CLASS_NAME . '-' . 
-        $_result['association_id']);
+        $result['association_id']);
+      if (is_null($assoc)) {
+        continue;
+      }
       $this->parent->setConstructParent($assoc);
       $role = $this->parent->getConstructById(AssociationImpl::ROLE_CLASS_NAME . '-' . 
-        $result['id']);
-      $roles[$role->getId()] = $role;
+        $result['role_id']);
+      $roles[$result['hash'] . $result['type_id'] . $this->dbId] = $role;
     }
     return array_values($roles);
   }
@@ -554,7 +557,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    */
   private function getRolesPlayedByTypeAssocType(Topic $type, Topic $assocType) {
     $roles = array();
-    $query = 'SELECT t1.id AS id FROM ' . $this->config['table']['assocrole'] . ' t1' .
+    $query = 'SELECT t1.id AS role_id, t1.association_id, t1.type_id, t2.hash' . 
+    	' FROM ' . $this->config['table']['assocrole'] . ' t1' .
       ' INNER JOIN ' . $this->config['table']['association'] . ' t2' .
       ' ON t2.id = t1.association_id  ' .
       ' WHERE t2.type_id = ' . $assocType->dbId . 
@@ -563,16 +567,15 @@ final class TopicImpl extends ConstructImpl implements Topic {
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       // parent association
-      $query = 'SELECT association_id FROM ' . $this->config['table']['assocrole'] . 
-        ' WHERE id = ' . $result['id'];
-      $_mysqlResult = $this->mysql->execute($query);
-      $_result = $_mysqlResult->fetch();
       $assoc = $this->parent->getConstructById(TopicMapImpl::ASSOC_CLASS_NAME . '-' . 
-        $_result['association_id']);
+        $result['association_id']);
+      if (is_null($assoc)) {
+        continue;
+      }
       $this->parent->setConstructParent($assoc);
       $role = $this->parent->getConstructById(AssociationImpl::ROLE_CLASS_NAME . '-' . 
-        $result['id']);
-      $roles[$role->getId()] = $role;
+        $result['role_id']);
+      $roles[$result['hash'] . $result['type_id'] . $this->dbId] = $role;
     }
     return array_values($roles);
   }
@@ -589,7 +592,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    */
   private function getRolesPlayedByAssocType(Topic $assocType) {
     $roles = array();
-    $query = 'SELECT t1.id AS id FROM ' . $this->config['table']['assocrole'] . ' t1' .
+    $query = 'SELECT t1.id AS role_id, t1.association_id, t1.type_id, t2.hash' . 
+    	' FROM ' . $this->config['table']['assocrole'] . ' t1' .
       ' INNER JOIN ' . $this->config['table']['association'] . ' t2' .
       ' ON t2.id = t1.association_id  ' .
       ' WHERE t2.type_id = ' . $assocType->dbId . 
@@ -597,16 +601,15 @@ final class TopicImpl extends ConstructImpl implements Topic {
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       // parent association
-      $query = 'SELECT association_id FROM ' . $this->config['table']['assocrole'] . 
-        ' WHERE id = ' . $result['id'];
-      $_mysqlResult = $this->mysql->execute($query);
-      $_result = $_mysqlResult->fetch();
       $assoc = $this->parent->getConstructById(TopicMapImpl::ASSOC_CLASS_NAME . '-' . 
-        $_result['association_id']);
+        $result['association_id']);
+      if (is_null($assoc)) {
+        continue;
+      }
       $this->parent->setConstructParent($assoc);
       $role = $this->parent->getConstructById(AssociationImpl::ROLE_CLASS_NAME . '-' . 
-        $result['id']);
-      $roles[$role->getId()] = $role;
+        $result['role_id']);
+      $roles[$result['hash'] . $result['type_id'] . $this->dbId] = $role;
     }
     return array_values($roles);
   }
@@ -928,16 +931,18 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @return string
    */
   public function getNameHash($value, Topic $type, array $scope) {
-    if (count($scope) == 0) {
-      return md5($this->dbId . $value . $type->dbId);
+    if (empty($scope)) {
+      return md5($value . $type->dbId);
     } else {
       $ids = array();
       foreach ($scope as $theme) {
-        if ($theme instanceof Topic) $ids[$theme->dbId] = $theme->dbId;
+        if ($theme instanceof Topic) {
+          $ids[$theme->dbId] = $theme->dbId;
+        }
       }
       ksort($ids);
       $idsImploded = implode('', $ids);
-      return md5($this->dbId . $value . $type->dbId . $idsImploded);
+      return md5($value . $type->dbId . $idsImploded);
     }
   }
   
@@ -951,16 +956,18 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @return string
    */
   public function getOccurrenceHash(Topic $type, $value, $datatype, array $scope) {
-    if (count($scope) == 0) {
-      return md5($this->dbId . $value . $datatype . $type->dbId);
+    if (empty($scope)) {
+      return md5($value . $datatype . $type->dbId);
     } else {
       $ids = array();
       foreach ($scope as $theme) {
-        if ($theme instanceof Topic) $ids[$theme->dbId] = $theme->dbId;
+        if ($theme instanceof Topic) {
+          $ids[$theme->dbId] = $theme->dbId;
+        }
       }
       ksort($ids);
       $idsImploded = implode('', $ids);
-      return md5($this->dbId . $value . $datatype . $type->dbId . $idsImploded);
+      return md5($value . $datatype . $type->dbId . $idsImploded);
     }
   }
   
