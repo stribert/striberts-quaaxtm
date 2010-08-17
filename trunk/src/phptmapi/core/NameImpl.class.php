@@ -124,12 +124,15 @@ final class NameImpl extends ScopedImpl implements Name {
    */
   public function getVariants() {
     $variants = array();
-    $query = 'SELECT id FROM ' . $this->config['table']['variant'] . 
+    $query = 'SELECT id, hash FROM ' . $this->config['table']['variant'] . 
       ' WHERE topicname_id = ' . $this->dbId;
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $this->topicMap->setConstructParent($this);
-      $variant = $this->topicMap->getConstructById(self::VARIANT_CLASS_NAME . '-' . $result['id']);
+      $variant = $this->topicMap->getConstructById(
+        self::VARIANT_CLASS_NAME . '-' . $result['id'],
+        $result['hash']
+      );
       $variants[$variant->getId()] = $variant;
     }
     return array_values($variants);
@@ -314,7 +317,9 @@ final class NameImpl extends ScopedImpl implements Name {
     if (count($scope) > 0) {
       $ids = array();
       foreach ($scope as $theme) {
-        if ($theme instanceof Topic) $ids[$theme->dbId] = $theme->dbId;
+        if ($theme instanceof Topic) {
+          $ids[$theme->dbId] = $theme->dbId;
+        }
       }
       ksort($ids);
       $scopeIdsImploded = implode('', $ids);
