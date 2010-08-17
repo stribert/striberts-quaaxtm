@@ -35,7 +35,8 @@
  */
 final class VariantImpl extends ScopedImpl implements IVariant {
   
-  private $propertyHolder;
+  private $propertyHolder,
+          $hash;
   
   /**
    * Constructor.
@@ -46,14 +47,16 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * @param NameImpl The parent name.
    * @param TopicMapImpl The containing topic map.
    * @param PropertyUtils The property holder.
+   * @param string|null The variant hash.
    * @return void
    */
   public function __construct($dbId, Mysql $mysql, array $config, Name $parent, 
-    TopicMap $topicMap, PropertyUtils $propertyHolder=null) {
+    TopicMap $topicMap, PropertyUtils $propertyHolder=null, $hash) {
     
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $topicMap);
     
     $this->propertyHolder = !is_null($propertyHolder) ? $propertyHolder : new PropertyUtils();
+    $this->hash = $hash;
   }
   
   /**
@@ -195,11 +198,15 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * @return string The hash.
    */
   protected function getHash() {
-    $query = 'SELECT hash FROM ' . $this->config['table']['variant'] . 
-      ' WHERE id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
-    $result = $mysqlResult->fetch();
-    return $result['hash'];
+    if (!is_null($this->hash)) {
+      return $this->hash;
+    } else {
+      $query = 'SELECT hash FROM ' . $this->config['table']['variant'] . 
+        ' WHERE id = ' . $this->dbId;
+      $mysqlResult = $this->mysql->execute($query);
+      $result = $mysqlResult->fetch();
+      return $result['hash'];
+    }
   }
 }
 ?>
