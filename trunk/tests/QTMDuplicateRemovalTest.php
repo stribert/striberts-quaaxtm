@@ -41,9 +41,12 @@ class QTMDuplicateRemovalTest extends PHPTMAPITestCase {
     $type->addSubjectIdentifier(VocabularyUtils::TMDM_PSI_DEFAULT_NAME_TYPE);
     $theme1 = $tm->createTopic();
     $theme2 = $tm->createTopic();
+    $theme3 = $tm->createTopic();
     $this->assertEquals(count($parent->getNames()), 0, 
       'Expected new topic to be created without names!');
     $name1 = $parent->createName('Name1', $type, array($theme1, $theme2));
+    $variant = $name1->createVariant('NAME1', parent::$dtString, array($theme3));
+    $variantId = $variant->getId();
     $name2 = $parent->createName('Name2', $type);
     $this->assertEquals($name1->getParent()->getId(), $parent->getId(), 
       'Unexpected name parent after creation!');
@@ -78,6 +81,11 @@ class QTMDuplicateRemovalTest extends PHPTMAPITestCase {
     $this->assertTrue(count($sids)>0, 'Expected 1 subject identifier minimum!');
     $this->assertTrue(in_array(VocabularyUtils::TMDM_PSI_DEFAULT_NAME_TYPE, $sids, true), 
       'Expected subject identifier for the default name type!');
+    $variants = $name->getVariants();
+    $this->assertEquals(count($variants), 1, 'Expected 1 variant!');
+    $variant = $variants[0];
+    $this->assertEquals($variant->getValue(), 'NAME1', 'Expected identity!');
+    $this->assertEquals($variantId, $variant->getId(), 'Expected identity!');
   }
   
   public function testVariant() {

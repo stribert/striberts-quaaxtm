@@ -234,6 +234,8 @@ class TopicTest extends PHPTMAPITestCase {
     $ids = $this->getIdsOfConstructs($player->getRolesPlayed($roleType2, $assocType1));
     $this->assertTrue(in_array($role2->getId(), $ids, true), 
       'Topic is not part of getRolesPlayed()!');
+    
+    $roles = array($role1->getId(), $role2->getId());
       
     $this->assertEquals(count($player->getRolesPlayed(null, $assocType1)), 
       2, 'Expected topic to play these roles!');
@@ -247,22 +249,21 @@ class TopicTest extends PHPTMAPITestCase {
       0, 'Expected topic not to play this role!');
     $this->assertEquals(count($player->getRolesPlayed($roleType2, $assocType2)), 
       0, 'Expected topic not to play this role!');
+    // make both roles identical
     $role2->setType($roleType1);
     $this->assertEquals(count($player->getRolesPlayed($roleType1, $assocType1)), 
-      2, 'Expected topic to play these roles!');
+      1, 'Expected topic to play these roles!');
     $ids = $this->getIdsOfConstructs($player->getRolesPlayed($roleType1, $assocType1));
-    $this->assertTrue(in_array($role1->getId(), $ids, true), 
+    $this->assertEquals(count($ids), 1, 'Expected 1 id!');
+    $this->assertTrue(in_array($ids[0], $roles, true), 
       'Topic is not part of getRolesPlayed()!');
-    $this->assertTrue(in_array($role2->getId(), $ids, true), 
-      'Role is not part of getRolesPlayed()!');
       
     $this->assertEquals(count($player->getRolesPlayed(null, $assocType1)), 
-      2, 'Expected topic to play these roles!');
+      1, 'Expected topic to play these roles!');
     $ids = $this->getIdsOfConstructs($player->getRolesPlayed(null, $assocType1));
-    $this->assertTrue(in_array($role1->getId(), $ids, true), 
+    $this->assertEquals(count($ids), 1, 'Expected 1 id!');
+    $this->assertTrue(in_array($ids[0], $roles, true), 
       'Topic is not part of getRolesPlayed()!');
-    $this->assertTrue(in_array($role2->getId(), $ids, true), 
-      'Role is not part of getRolesPlayed()!'); 
       
     $this->assertEquals(count($player->getRolesPlayed($roleType1, $assocType2)), 
       0, 'Expected topic not to play this role!');

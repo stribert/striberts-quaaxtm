@@ -197,5 +197,34 @@ class AssociationTest extends PHPTMAPITestCase {
     $this->assertTrue(count($assoc->getRoles($unusedType)) == 0, 
       'Expected 0 roles!');
   }
+  
+  public function testDuplicates() {
+    $tm = $this->topicMap;
+    $player = $tm->createTopic();
+    $assocType = $tm->createTopic();
+    $roleType1 = $tm->createTopic();
+    $roleType2 = $tm->createTopic();
+    
+    $assoc = $tm->createAssociation($assocType);
+    $role1 = $assoc->createRole($roleType1, $player);
+    $role2 = $assoc->createRole($roleType2, $player);
+    
+    $assocDupl = $tm->createAssociation($assocType);
+    $role1 = $assocDupl->createRole($roleType1, $player);
+    $role2 = $assocDupl->createRole($roleType2, $player);
+    
+    $rolesPlayed = $player->getRolesPlayed();
+    $this->assertEquals(count($rolesPlayed), 2);
+    $rolesPlayed = $player->getRolesPlayed(null, $assocType);
+    $this->assertEquals(count($rolesPlayed), 2);
+    $rolesPlayed = $player->getRolesPlayed($roleType1, $assocType);
+    $this->assertEquals(count($rolesPlayed), 1);
+    $rolesPlayed = $player->getRolesPlayed($roleType2, $assocType);
+    $this->assertEquals(count($rolesPlayed), 1);
+    $rolesPlayed = $player->getRolesPlayed($roleType1);
+    $this->assertEquals(count($rolesPlayed), 1);
+    $rolesPlayed = $player->getRolesPlayed($roleType2);
+    $this->assertEquals(count($rolesPlayed), 1);
+  }
 }
 ?>
