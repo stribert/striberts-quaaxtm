@@ -38,7 +38,10 @@ final class AssociationImpl extends ScopedImpl implements Association {
   /**
    * Constructor.
    * 
-   * @return void
+   * @param int The database id.
+   * @param Mysql The Mysql object.
+   * @param array The configuration data.
+   * @param TopicMapImpl The containing topic map.
    */
   public function __construct($dbId, Mysql $mysql, array $config, TopicMap $parent) {
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $parent);
@@ -79,7 +82,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
       
       $role = $this->parent->getConstructById(self::ROLE_CLASS_NAME . '-' . $result['id']);
       
-      $roles[$role->getId()] = $role;
+      $roles[$result['type_id'] . $result['player_id']] = $role;
     }
     return array_values($roles);
   }
