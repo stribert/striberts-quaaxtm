@@ -78,8 +78,7 @@ class AllTests extends PHPUnit_Framework_TestSuite {
     } catch (FeatureNotRecognizedException $e) {
       // no op.
     }
-    $tmSystem = $tmSystemFactory->newTopicMapSystem();
-    $this->sharedFixture = $tmSystem;
+    $this->sharedFixture = $tmSystemFactory->newTopicMapSystem();
   }
  
   protected function tearDown() {
