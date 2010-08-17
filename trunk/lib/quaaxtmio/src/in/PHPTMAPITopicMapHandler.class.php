@@ -73,7 +73,12 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
           $locator,
           $baseLocatorRef,
           $maxMergeMapCount,
-          $mergeMapCount;
+          $mergeMapCount,
+          $assocsIndex,
+          $occsIndex,
+          $namesIndex,
+          $variantsIndex, 
+          $defaultNameType;
   
   /**
    * Constructor.
@@ -107,242 +112,14 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
     }
     $this->maxMergeMapCount = $maxMergeMapCount;
     $this->mergeMapCount = $mergeMapCount;
-    $this->topicMap = null;
+    $this->topicMap = 
+    $this->defaultNameType = null;
     $this->stateChain = 
-    $this->constructs = array();
-  }
-  
-  /**
-   * Enters a new state.
-   * 
-   * @param string The state.
-   * @return void
-   */
-  private function enterState($state) {
-    $this->stateChain[] = $state;
-  }
-  
-  /**
-   * Enters a new state and registers a new Topic Maps construct.
-   * 
-   * @param string The state.
-   * @param object The Topic Maps construct.
-   * @return void
-   */
-  private function enterStateNewConstruct($state, $construct) {
-    $this->stateChain[] = $state;
-    $this->constructs[] = $construct;
-  }
-  
-  /**
-   * Leaves a state.
-   * 
-   * @return void
-   */
-  private function leaveState() {
-    array_pop($this->stateChain);
-  }
-  
-  /**
-   * Leaves a state and drops the last registered Topic Maps construct.
-   * 
-   * @return void
-   */
-  private function leaveStatePopConstruct() {
-    array_pop($this->stateChain);
-    array_pop($this->constructs);
-  }
-  
-  /**
-   * Peeks a registered Topic Maps construct fro the stack.
-   * 
-   * @param mixed The stack index. If <var>null</var> the last registered Topic Maps 
-   * 				construct is returned. Default <var>null</var>.
-   * @return object A Topic Maps construct.
-   */
-  private function peekConstruct($index=null) {
-    if (is_null($index)) {
-      return $this->constructs[count($this->constructs)-1];
-    } else {
-      return $this->constructs[$index];
-    }
-  }
-  
-  /**
-   * Peeks the last registered topic from the stack.
-   * 
-   * @return Topic The last registered topic.
-   * @throws MIOException If the currently processed Topic Maps construct is not a topic.
-   */
-  private function peekTopic() {
-    $construct = $this->peekConstruct();
-    if (!$construct instanceof Topic) {
-      throw new MIOException('Error in ' . __METHOD__ . 
-      	': Topic maps construct is not Topic!'); 
-    }
-    return $construct;
-  }
-  
-  /**
-   * Gets the current state.
-   * 
-   * @return string The state name.
-   */
-  private function getCurrentState() {
-    return $this->stateChain[count($this->stateChain)-1];
-  }
-  
-  /**
-   * Gets the previous state.
-   * 
-   * @return string
-   */
-  private function getPreviousState() {
-    return $this->stateChain[count($this->stateChain)-2];
-  }
-  
-  /**
-   * Processes a topic.
-   * 
-   * @param Topic The topic to process.
-   * @return void
-   */
-  private function handleTopic(Topic $topic) {
-    $state = $this->getCurrentState();
-    switch ($state) {
-      case self::REIFIER:
-        $this->handleReifier($this->peekConstruct(), $topic);
-        break;
-      case self::ISA:
-        $this->peekTopic()->addType($topic);
-        break;
-      case self::TYPE:
-        $this->handleType($this->getPreviousState(), $topic);
-        break;
-      case self::SCOPE:
-        $this->peekConstruct()->addTheme($topic);
-        break;
-      case self::ROLE:
-        $this->peekConstruct()->setPlayer($topic);
-        break;
-      default:
-        break;
-    }
-  }
-  
-  /**
-   * Resolves given reference against base locator.
-   * 
-   * @param string The reference.
-   * @return string A valid URI.
-   */
-  private function getUri($ref) {
-    $baseLocator = new Net_URL2($this->baseLocatorRef);
-    return $baseLocator->resolve($ref)->getUrl();
-  }
-  
-  /**
-   * Creates a topic.
-   * 
-   * @param ReferenceInterface The topic reference.
-   * @throws MIOException If the reference type is invalid.
-   * @return Topic
-   */
-  private function createTopic(ReferenceInterface $topicRef) {
-      $type = $topicRef->getType();
-      if ($type == Reference::ITEM_IDENTIFIER) {
-        return $this->createTopicByItemIdentifier(
-          $this->getUri($topicRef->getReference())
-        );
-      } else if($type == Reference::SUBJECT_IDENTIFIER) {
-        // no op.
-      } else if($type == Reference::SUBJECT_LOCATOR) {
-        // no op.
-      } else {
-        throw new MIOException('Error in ' . __METHOD__ . 
-        	': Provided unexpected reference type!');
-      }
-  }
-  
-  /**
-   * Creates a topic with given item identifier.
-   * 
-   * @param string The item identifier.
-   * @return Topic
-   * @throws MIOException If a Topic Maps construct with the given item identifier - 
-   * 				which does not refer to a topic - already exists in the topic map.
-   */
-  private function createTopicByItemIdentifier($iid) {
-    $construct = $this->topicMap->getConstructByItemIdentifier($iid);
-    if (!is_null($construct)) {
-      if (!$construct instanceof Topic) {
-        throw new MIOException('Error in ' . __METHOD__ . 
-        	': Topic Maps construct is not a topic!');
-      }
-      return $topic = $construct;
-    }
-    // Prevent merging in TM engine and use possibly existing topic with given subject identitifier.
-    $topic = $this->topicMap->getTopicBySubjectIdentifier($iid);
-    if (is_null($topic)) {
-      return $this->topicMap->createTopicByItemIdentifier($iid);
-    } else {
-      $topic->addItemIdentifier($iid);
-      return $topic;
-    }
-  }
-  
-  /**
-   * Creates a topic with given subject identifier.
-   * 
-   * @param string The subject identifier.
-   * @return Topic
-   */
-  private function createTopicBySubjectIdentifier($sid){}
-  
-  /**
-   * Creates a topic with given subject locator.
-   * 
-   * @param The subject locator.
-   * @return Topic
-   */
-  private function createTopicBySubjectLocator($slo){}
-  
-  /**
-   * Handles Topic Map construct's reifiers.
-   * 
-   * @param object The Topic Maps construct.
-   * @param Topic The reifier.
-   * @return void
-   */
-  private function handleReifier($construct, Topic $reifier) {
-    $_reifier = $construct->getReifier();
-    if ($_reifier instanceof Topic) {
-      if (!$_reifier->equals($reifier)) {
-        $_reifier->mergeIn($reifier);
-      }
-    } else {
-      $construct->setReifier($reifier);
-    }
-  }
-  
-  /**
-   * Handles Topic Maps contruct's types.
-   * 
-   * @param string The current state.
-   * @param Topic The type.
-   * @return void
-   */
-  private function handleType($state, Topic $type) {
-    $memoryConstruct = $this->peekConstruct();
-    if (
-        ($state === self::NAME && $memoryConstruct instanceof MemoryName) || 
-        ($state === self::OCCURRENCE && $memoryConstruct instanceof MemoryOccurrence) ||
-        ($state === self::ASSOCIATION && $memoryConstruct instanceof MemoryAssoc) ||
-        ($state === self::ROLE && $memoryConstruct instanceof MemoryRole)
-      ) 
-    {
-      $memoryConstruct->setType($type);
-    }
+    $this->constructs = 
+    $this->assocsIndex = 
+    $this->occsIndex = 
+    $this->namesIndex = 
+    $this->variantsIndex = array();
   }
   
   /**
@@ -404,17 +181,30 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    */
   public function endAssociation() {
     $memoryAssoc = $this->peekConstruct();
-    $assoc = $this->topicMap->createAssociation(
+    $hash = $this->getAssocHash(
       $memoryAssoc->getType(), 
-      $memoryAssoc->getScope()
+      $memoryAssoc->getScope(), 
+      $memoryAssoc->getRoles()
     );
+    if (!$this->hasAssoc($hash)) {
+      $assoc = $this->topicMap->createAssociation(
+        $memoryAssoc->getType(), 
+        $memoryAssoc->getScope()
+      );
+    } else {
+      $id = $this->assocsIndex[$hash];
+      $assoc = $this->topicMap->getConstructById($id);
+    }
     $reifier = $memoryAssoc->getReifier();
-    if ($reifier instanceof Topic) {
+    if ($reifier instanceof Topic && !$this->hasEqualReifier($assoc, $reifier)) {
       $assoc->setReifier($reifier);
     }
     $iids = $memoryAssoc->getItemIdentifiers();
+    $existingIids = $assoc->getItemIdentifiers();
     foreach ($iids as $iid) {
-      $assoc->addItemIdentifier($iid);
+      if (!$this->hasEqualIid($existingIids, $iid)) {
+        $assoc->addItemIdentifier($iid);
+      }
     }
     // the roles
     foreach ($memoryAssoc->getRoles() as $memoryRole) {
@@ -422,15 +212,19 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
         $memoryRole->getType(), $memoryRole->getPlayer()
       );
       $reifier = $memoryRole->getReifier();
-      if ($reifier instanceof Topic) {
+      if ($reifier instanceof Topic && !$this->hasEqualReifier($role, $reifier)) {
         $role->setReifier($reifier);
       }
       $iids = $memoryRole->getItemIdentifiers();
+      $existingIids = $role->getItemIdentifiers();
       foreach ($iids as $iid) {
-        $role->addItemIdentifier($iid);
+        if (!$this->hasEqualIid($existingIids, $iid)) {
+          $role->addItemIdentifier($iid);
+        }
       }
     }
     $this->leaveStatePopConstruct();
+    $this->assocsIndex[$hash] = $assoc->getId();
     $memoryAssoc = 
     $assoc = null;
   }
@@ -470,20 +264,36 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
   public function endOccurrence() {
     $memoryOcc = $this->peekConstruct();
     $this->leaveStatePopConstruct();
-    $occ = $this->peekTopic()->createOccurrence(
+    $hash = $this->getOccurrenceHash(
+      $this->peekTopic(), 
       $memoryOcc->getType(), 
       $memoryOcc->getValue(), 
       $memoryOcc->getDatatype(), 
       $memoryOcc->getScope()
     );
+    if (!$this->hasOccurrence($hash)) {
+      $occ = $this->peekTopic()->createOccurrence(
+        $memoryOcc->getType(), 
+        $memoryOcc->getValue(), 
+        $memoryOcc->getDatatype(), 
+        $memoryOcc->getScope()
+      );
+    } else {
+      $id = $this->occsIndex[$hash];
+      $occ = $this->topicMap->getConstructById($id);
+    }
     $reifier = $memoryOcc->getReifier();
-    if ($reifier instanceof Topic) {
+    if ($reifier instanceof Topic && !$this->hasEqualReifier($occ, $reifier)) {
       $occ->setReifier($reifier);
     }
     $iids = $memoryOcc->getItemIdentifiers();
+    $existingIids = $occ->getItemIdentifiers();
     foreach ($iids as $iid) {
-      $occ->addItemIdentifier($iid);
+      if (!$this->hasEqualIid($existingIids, $iid)) {
+        $occ->addItemIdentifier($iid);
+      }
     }
+    $this->occsIndex[$hash] = $occ->getId();
   }
 
   /**
@@ -501,30 +311,77 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
   public function endName() {
     $memoryName = $this->peekConstruct();
     $this->leaveStatePopConstruct();
-    $name = $this->peekTopic()->createName(
+    $nameType = $memoryName->getType();
+    if (is_null($nameType)) {
+      if (is_null($this->defaultNameType)) {
+        $psi = 'http://psi.topicmaps.org/iso13250/model/topic-name';
+        $this->defaultNameType = $this->topicMap->getTopicBySubjectIdentifier($psi);
+        if (is_null($this->defaultNameType)) {
+          $this->defaultNameType = $this->topicMap->createTopicBySubjectIdentifier(
+            $psi
+          );
+        }
+      }
+      $nameType = $this->defaultNameType;
+    }
+    $hash = $this->getNameHash(
+      $this->peekTopic(), 
       $memoryName->getValue(), 
-      $memoryName->getType(), 
+      $nameType, 
       $memoryName->getScope()
     );
+    if (!$this->hasName($hash)) {
+      $name = $this->peekTopic()->createName(
+        $memoryName->getValue(), 
+        $memoryName->getType(), 
+        $memoryName->getScope()
+      );
+    } else {
+      $id = $this->namesIndex[$hash];
+      $name = $this->topicMap->getConstructById($id);
+    }
     $reifier = $memoryName->getReifier();
-    if ($reifier instanceof Topic) {
+    if ($reifier instanceof Topic && !$this->hasEqualReifier($name, $reifier)) {
       $name->setReifier($reifier);
     }
     $iids = $memoryName->getItemIdentifiers();
+    $existingIids = $name->getItemIdentifiers();
     foreach ($iids as $iid) {
-      $name->addItemIdentifier($iid);
+      if (!$this->hasEqualIid($existingIids, $iid)) {
+        $name->addItemIdentifier($iid);
+      }
     }
+    $this->namesIndex[$hash] = $name->getId();
     $memoryVariants = $memoryName->getVariants();
     foreach ($memoryVariants as $memoryVariant) {
-      $variant = $name->createVariant(
+      $hash = $this->getVariantHash(
+        $name, 
         $memoryVariant->getValue(), 
         $memoryVariant->getDatatype(), 
         $memoryVariant->getScope()
       );
+      if (!$this->hasVariant($hash)) {
+        $variant = $name->createVariant(
+          $memoryVariant->getValue(), 
+          $memoryVariant->getDatatype(), 
+          $memoryVariant->getScope()
+        );
+      } else {
+        $id = $this->variantsIndex[$hash];
+        $variant = $this->topicMap->getConstructById($id);
+      }
       $reifier = $memoryVariant->getReifier();
-      if ($reifier instanceof Topic) {
+      if ($reifier instanceof Topic && !$this->hasEqualReifier($variant, $reifier)) {
         $variant->setReifier($reifier);
       }
+      $iids = $memoryVariant->getItemIdentifiers();
+      $existingIids = $variant->getItemIdentifiers();
+      foreach ($iids as $iid) {
+        if (!$this->hasEqualIid($existingIids, $iid)) {
+          $variant->addItemIdentifier($iid);
+        }
+      }
+      $this->variantsIndex[$hash] = $variant->getId();
     }
     $memoryName = 
     $name = null;
@@ -733,5 +590,420 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
     return $this->baseLocatorRef;
   }
 
+  /**
+   * Enters a new state.
+   * 
+   * @param string The state.
+   * @return void
+   */
+  private function enterState($state) {
+    $this->stateChain[] = $state;
+  }
+  
+  /**
+   * Enters a new state and registers a new Topic Maps construct.
+   * 
+   * @param string The state.
+   * @param object The Topic Maps construct.
+   * @return void
+   */
+  private function enterStateNewConstruct($state, $construct) {
+    $this->stateChain[] = $state;
+    $this->constructs[] = $construct;
+  }
+  
+  /**
+   * Leaves a state.
+   * 
+   * @return void
+   */
+  private function leaveState() {
+    array_pop($this->stateChain);
+  }
+  
+  /**
+   * Leaves a state and drops the last registered Topic Maps construct.
+   * 
+   * @return void
+   */
+  private function leaveStatePopConstruct() {
+    array_pop($this->stateChain);
+    array_pop($this->constructs);
+  }
+  
+  /**
+   * Peeks a registered Topic Maps construct fro the stack.
+   * 
+   * @param mixed The stack index. If <var>null</var> the last registered Topic Maps 
+   * 				construct is returned. Default <var>null</var>.
+   * @return object A Topic Maps construct.
+   */
+  private function peekConstruct($index=null) {
+    if (is_null($index)) {
+      return $this->constructs[count($this->constructs)-1];
+    } else {
+      return $this->constructs[$index];
+    }
+  }
+  
+  /**
+   * Peeks the last registered topic from the stack.
+   * 
+   * @return Topic The last registered topic.
+   * @throws MIOException If the currently processed Topic Maps construct is not a topic.
+   */
+  private function peekTopic() {
+    $construct = $this->peekConstruct();
+    if (!$construct instanceof Topic) {
+      throw new MIOException('Error in ' . __METHOD__ . 
+      	': Topic maps construct is not Topic!'); 
+    }
+    return $construct;
+  }
+  
+  /**
+   * Gets the current state.
+   * 
+   * @return string The state name.
+   */
+  private function getCurrentState() {
+    return $this->stateChain[count($this->stateChain)-1];
+  }
+  
+  /**
+   * Gets the previous state.
+   * 
+   * @return string
+   */
+  private function getPreviousState() {
+    return $this->stateChain[count($this->stateChain)-2];
+  }
+  
+  /**
+   * Processes a topic.
+   * 
+   * @param Topic The topic to process.
+   * @return void
+   */
+  private function handleTopic(Topic $topic) {
+    $state = $this->getCurrentState();
+    switch ($state) {
+      case self::REIFIER:
+        $this->handleReifier($this->peekConstruct(), $topic);
+        break;
+      case self::ISA:
+        $this->peekTopic()->addType($topic);
+        break;
+      case self::TYPE:
+        $this->handleType($this->getPreviousState(), $topic);
+        break;
+      case self::SCOPE:
+        $this->peekConstruct()->addTheme($topic);
+        break;
+      case self::ROLE:
+        $this->peekConstruct()->setPlayer($topic);
+        break;
+      default:
+        break;
+    }
+  }
+  
+  /**
+   * Resolves given reference against base locator.
+   * 
+   * @param string The reference.
+   * @return string A valid URI.
+   */
+  private function getUri($ref) {
+    $baseLocator = new Net_URL2($this->baseLocatorRef);
+    return $baseLocator->resolve($ref)->getUrl();
+  }
+  
+  /**
+   * Creates a topic.
+   * 
+   * @param ReferenceInterface The topic reference.
+   * @throws MIOException If the reference type is invalid.
+   * @return Topic
+   */
+  private function createTopic(ReferenceInterface $topicRef) {
+      $type = $topicRef->getType();
+      if ($type == Reference::ITEM_IDENTIFIER) {
+        return $this->createTopicByItemIdentifier(
+          $this->getUri($topicRef->getReference())
+        );
+      } else if($type == Reference::SUBJECT_IDENTIFIER) {
+        // no op.
+      } else if($type == Reference::SUBJECT_LOCATOR) {
+        // no op.
+      } else {
+        throw new MIOException('Error in ' . __METHOD__ . 
+        	': Provided unexpected reference type!');
+      }
+  }
+  
+  /**
+   * Creates a topic with given item identifier.
+   * 
+   * @param string The item identifier.
+   * @return Topic
+   * @throws MIOException If a Topic Maps construct with the given item identifier - 
+   * 				which does not refer to a topic - already exists in the topic map.
+   */
+  private function createTopicByItemIdentifier($iid) {
+    $construct = $this->topicMap->getConstructByItemIdentifier($iid);
+    if (!is_null($construct)) {
+      if (!$construct instanceof Topic) {
+        throw new MIOException('Error in ' . __METHOD__ . 
+        	': Topic Maps construct is not a topic!');
+      }
+      return $topic = $construct;
+    }
+    // Prevent merging in TM engine and use possibly existing topic with given subject identitifier.
+    $topic = $this->topicMap->getTopicBySubjectIdentifier($iid);
+    if (is_null($topic)) {
+      return $this->topicMap->createTopicByItemIdentifier($iid);
+    } else {
+      $topic->addItemIdentifier($iid);
+      return $topic;
+    }
+  }
+  
+  /**
+   * Creates a topic with given subject identifier.
+   * 
+   * @param string The subject identifier.
+   * @return Topic
+   */
+  private function createTopicBySubjectIdentifier($sid){}
+  
+  /**
+   * Creates a topic with given subject locator.
+   * 
+   * @param The subject locator.
+   * @return Topic
+   */
+  private function createTopicBySubjectLocator($slo){}
+  
+  /**
+   * Handles Topic Map construct's reifiers.
+   * 
+   * @param object The Topic Maps construct.
+   * @param Topic The reifier.
+   * @return void
+   */
+  private function handleReifier($construct, Topic $reifier) {
+    if ($this->mergeMapCount > 0 && $construct instanceof TopicMap) {
+      return;
+    }
+    $_reifier = $construct->getReifier();
+    if ($_reifier instanceof Topic) {
+      if (!$_reifier->equals($reifier)) {
+        $_reifier->mergeIn($reifier);
+      }
+    } else {
+      $construct->setReifier($reifier);
+    }
+  }
+  
+  /**
+   * Handles Topic Maps contruct's types.
+   * 
+   * @param string The current state.
+   * @param Topic The type.
+   * @return void
+   */
+  private function handleType($state, Topic $type) {
+    $memoryConstruct = $this->peekConstruct();
+    if (
+        ($state === self::NAME && $memoryConstruct instanceof MemoryName) || 
+        ($state === self::OCCURRENCE && $memoryConstruct instanceof MemoryOccurrence) ||
+        ($state === self::ASSOCIATION && $memoryConstruct instanceof MemoryAssoc) ||
+        ($state === self::ROLE && $memoryConstruct instanceof MemoryRole)
+      ) 
+    {
+      $memoryConstruct->setType($type);
+    }
+  }
+  
+  /**
+   * TODO
+   */
+  private function hasEqualReifier(Construct $construct, $reifier) {
+    $_reifier = $construct->getReifier();
+    if (!$_reifier instanceof Topic) {
+      return false;
+    }
+    if ($reifier->equals($_reifier)) {
+      return true;
+    }
+    return false;
+  }
+  
+  /**
+   * TODO
+   */
+  private function hasEqualIid(array $iids, $iid) {
+    return in_array($iid, $iids);
+  }
+  
+  /**
+   * Gets the association hash. 
+   * 
+   * Note: This function is also provided by QuaaxTM but in order to preserve 
+   * library's independence this function is duplicated.
+   * 
+   * @param TopicImpl The association type.
+   * @param array The scope.
+   * @param array The roles.
+   * @return string
+   */
+  public function getAssocHash(Topic $type, array $scope, array $roles) {
+    $scopeIdsImploded = null;
+    $roleIdsImploded = null;
+    if (count($scope) > 0) {
+      $ids = array();
+      foreach ($scope as $theme) {
+        if ($theme instanceof Topic) $ids[$theme->getId()] = $theme->getId();
+      }
+      ksort($ids);
+      $scopeIdsImploded = implode('', $ids);
+    }
+    if (count($roles) > 0) {
+      $ids = array();
+      foreach ($roles as $role) {
+        if ($role instanceof MemoryRole) {
+          $ids[$role->getType()->getId() . $role->getPlayer()->getId()] = 
+            $role->getType()->getId() . $role->getPlayer()->getId(); 
+        }
+      }
+      ksort($ids);
+      $roleIdsImploded = implode('', $ids);
+    }
+    return md5($type->getId() . $scopeIdsImploded . $roleIdsImploded);
+  }
+  
+  /**
+   * Checks if certain association has been created.
+   * 
+   * @param string The hash code.
+   * @return boolean
+   */
+  public function hasAssoc($hash) {
+    return array_key_exists($hash, $this->assocsIndex);
+  }
+  
+  /**
+   * Gets an occurrence hash.
+   * 
+   * Note: This function is also provided by QuaaxTM but in order to preserve 
+   * library's independence this function is duplicated.
+   * 
+   * @param TopicImpl The parent topic.
+   * @param TopicImpl The occurrence type.
+   * @param string The occurrence value.
+   * @param string The occurrence datatype.
+   * @param array The scope.
+   * @return string
+   */
+  public function getOccurrenceHash(Topic $parent, Topic $type, $value, $datatype, array $scope) {
+    if (count($scope) == 0) {
+      return md5($parent->getId() . $value . $datatype . $type->getId());
+    } else {
+      $ids = array();
+      foreach ($scope as $theme) {
+        if ($theme instanceof Topic) {
+          $ids[$theme->getId()] = $theme->getId();
+        }
+      }
+      ksort($ids);
+      $idsImploded = implode('', $ids);
+      return md5($parent->getId() . $value . $datatype . $type->getId() . $idsImploded);
+    }
+  }
+  
+  /**
+   * Checks if certain occurrence has been created.
+   * 
+   * @param string The hash code.
+   * @return boolean
+   */
+  public function hasOccurrence($hash) {
+    return array_key_exists($hash, $this->occsIndex);
+  }
+  
+  /**
+   * Gets a name hash.
+   * 
+   * Note: This function is also provided by QuaaxTM but in order to preserve 
+   * library's independence this function is duplicated.
+   * 
+   * @param TopicImpl The parent topic.
+   * @param string The name value.
+   * @param TopicImpl The name type.
+   * @param array The scope.
+   * @return string
+   */
+  public function getNameHash(Topic $parent, $value, Topic $type, array $scope) {
+    if (count($scope) == 0) {
+      return md5($parent->getId() . $value . $type->getId());
+    } else {
+      $ids = array();
+      foreach ($scope as $theme) {
+        if ($theme instanceof Topic) {
+          $ids[$theme->getId()] = $theme->getId();
+        }
+      }
+      ksort($ids);
+      $idsImploded = implode('', $ids);
+      return md5($parent->getId() . $value . $type->getId() . $idsImploded);
+    }
+  }
+  
+  /**
+   * Checks if certain name has been created.
+   * 
+   * @param string The hash code.
+   * @return boolean
+   */
+  public function hasName($hash) {
+    return array_key_exists($hash, $this->namesIndex);
+  }
+  
+  /**
+   * Gets the variant hash.
+   * 
+   * Note: This function is also provided by QuaaxTM but in order to preserve 
+   * library's independence this function is duplicated.
+   * 
+   * @param string The value.
+   * @param string The datatype.
+   * @param array The scope.
+   * @return string
+   */
+  public function getVariantHash(Name $parent, $value, $datatype, array $scope) {
+    $scopeIdsImploded = null;
+    if (count($scope) > 0) {
+      $ids = array();
+      foreach ($scope as $theme) {
+        if ($theme instanceof Topic) {
+          $ids[$theme->getId()] = $theme->getId();
+        }
+      }
+      ksort($ids);
+      $scopeIdsImploded = implode('', $ids);
+    }
+    return md5($parent->getId() . $value . $datatype . $scopeIdsImploded);
+  }
+  
+  /**
+   * Checks if certain variant has been created.
+   * 
+   * @param string The hash code.
+   * @return boolean
+   */
+  public function hasVariant($hash) {
+    return array_key_exists($hash, $this->variantsIndex);
+  }
 }
 ?>
