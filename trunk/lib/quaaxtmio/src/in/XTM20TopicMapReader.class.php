@@ -221,14 +221,13 @@ class XTM20TopicMapReader {
         $this->handleMergeMap($attributes);
         break;
       case self::TAG_TOPIC_MAP:
-        if ($this->isXtm2($attributes[self::ATTR_VERSION])) {
-          $this->state = self::STATE_TOPIC_MAP;
-          $this->tmHandler->startTopicMap();
-          $this->handleReifier($attributes);
-        } else {
+        if (!$this->isXtm2($attributes[self::ATTR_VERSION])) {
           throw new MIOException('Error in ' . __METHOD__ . 
           	': Expect version 2.0! Received version ' . $attributes[self::ATTR_VERSION] . '.');
         }
+        $this->state = self::STATE_TOPIC_MAP;
+        $this->tmHandler->startTopicMap();
+        $this->handleReifier($attributes);
         break;
       default:
         return;
