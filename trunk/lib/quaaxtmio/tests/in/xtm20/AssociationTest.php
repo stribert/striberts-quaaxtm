@@ -73,6 +73,40 @@ class AssociationTest extends TestCase {
     }
     
     $assocs = $tm->getAssociations();
+    $this->assertEquals(count($assocs), 1);
+    
+    $assoc = $assocs[0];
+    
+    $assocType = $assoc->getType();
+    $this->assertTrue($assocType instanceof Topic);
+    
+    $iids = $assocType->getItemIdentifiers();
+    $iid = $iids[0];
+    $fragment = $this->getIidFragment($iid);
+    $this->assertEquals($fragment, '#assoctype');
+    
+    $roles = $assoc->getRoles();
+    $this->assertEquals(count($roles), 2);
+    
+    $iids = array('#roletype1'=>'#roletype1', '#roletype2'=>'#roletype2');
+    foreach ($roles as $role) {
+      $type = $role->getType();
+      $_iids = $type->getItemIdentifiers();
+      $this->assertEquals(count($_iids), 1);
+      $fragment = $this->getIidFragment($_iids[0]);
+      $this->assertTrue(in_array($fragment, $iids));
+      unset($iids[$fragment]);
+    }
+    
+    $iids = array('#topic1'=>'#topic1', '#topic2'=>'#topic2');
+    foreach ($roles as $role) {
+      $player = $role->getPlayer();
+      $_iids = $player->getItemIdentifiers();
+      $this->assertEquals(count($_iids), 1);
+      $fragment = $this->getIidFragment($_iids[0]);
+      $this->assertTrue(in_array($fragment, $iids));
+      unset($iids[$fragment]);
+    }
     
     $count = 2;
     
@@ -87,54 +121,15 @@ class AssociationTest extends TestCase {
       // no op.
     }
     
-    $this->assertEquals(count($assocs), $count);
-    
-    $indexes = $count == 2 ? array(0, 1) : array(0);
-    
-    foreach ($indexes as $index) {
-      $assoc = $assocs[$index];
-      
-      $assocType = $assoc->getType();
-      $this->assertTrue($assocType instanceof Topic);
-      
-      $iids = $assocType->getItemIdentifiers();
-      $iid = $iids[0];
-      $fragment = $this->getIidFragment($iid);
-      $this->assertEquals($fragment, '#assoctype');
-      
-      $roles = $assoc->getRoles();
-      $this->assertEquals(count($roles), 2);
-      
-      $iids = array('#roletype1'=>'#roletype1', '#roletype2'=>'#roletype2');
-      foreach ($roles as $role) {
-        $type = $role->getType();
-        $_iids = $type->getItemIdentifiers();
-        $this->assertEquals(count($_iids), 1);
-        $fragment = $this->getIidFragment($_iids[0]);
-        $this->assertTrue(in_array($fragment, $iids));
-        unset($iids[$fragment]);
-      }
-      
-      $iids = array('#topic1'=>'#topic1', '#topic2'=>'#topic2');
-      foreach ($roles as $role) {
-        $player = $role->getPlayer();
-        $_iids = $player->getItemIdentifiers();
-        $this->assertEquals(count($_iids), 1);
-        $fragment = $this->getIidFragment($_iids[0]);
-        $this->assertTrue(in_array($fragment, $iids));
-        unset($iids[$fragment]);
-      }
-      
-      $construct = $tm->getConstructByItemIdentifier($this->tmLocator . '#topic1');
-      $this->assertTrue($construct instanceof Topic);
-      $roles = $construct->getRolesPlayed();
-      $this->assertEquals(count($roles), $count);
-  
-      $construct = $tm->getConstructByItemIdentifier($this->tmLocator . '#topic2');
-      $this->assertTrue($construct instanceof Topic);
-      $roles = $construct->getRolesPlayed();
-      $this->assertEquals(count($roles), $count);
-    }
+    $construct = $tm->getConstructByItemIdentifier($this->tmLocator . '#topic1');
+    $this->assertTrue($construct instanceof Topic);
+    $roles = $construct->getRolesPlayed();
+    $this->assertEquals(count($roles), 1);
+
+    $construct = $tm->getConstructByItemIdentifier($this->tmLocator . '#topic2');
+    $this->assertTrue($construct instanceof Topic);
+    $roles = $construct->getRolesPlayed();
+    $this->assertEquals(count($roles), 1);
   }
   
   public function testAssocDuplRole() {
