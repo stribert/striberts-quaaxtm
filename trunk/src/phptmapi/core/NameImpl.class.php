@@ -124,16 +124,19 @@ final class NameImpl extends ScopedImpl implements Name {
    */
   public function getVariants() {
     $variants = array();
-    $query = 'SELECT id, hash FROM ' . $this->config['table']['variant'] . 
+    $query = 'SELECT id, value, datatype, hash FROM ' . $this->config['table']['variant'] . 
       ' WHERE topicname_id = ' . $this->dbId;
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
+      $propertyHolder = new PropertyUtils();
+      $propertyHolder->setValue($result['value'])->setDataType($result['datatype']);
+      $this->topicMap->setConstructPropertyHolder($propertyHolder);
       $this->topicMap->setConstructParent($this);
       $variant = $this->topicMap->getConstructById(
         self::VARIANT_CLASS_NAME . '-' . $result['id'],
         $result['hash']
       );
-      $variants[$variant->getId()] = $variant;
+      $variants[$result['hash']] = $variant;
     }
     return array_values($variants);
   }
@@ -160,7 +163,7 @@ final class NameImpl extends ScopedImpl implements Name {
       $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
       $datatype = CharacteristicUtils::canonicalize($datatype, $this->mysql->getConnection());
       $mergedScope = array_merge($scope, $this->getScope());
-      $hash = $this->getVariantHash($value, $datatype, $scope);
+      $hash = $this->getVariantHash($value, $datatype, $mergedScope);
       $variantId = $this->hasVariant($hash);
       if (!$variantId) {
         // check if merged scope is a true superset of the name's scope
