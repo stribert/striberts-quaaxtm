@@ -771,10 +771,121 @@ final class TopicImpl extends ConstructImpl implements Topic {
       ' WHERE topic_id = type_id';
     $this->mysql->execute($query);
     
+    // get the affected scopes in order to be able to update the constructs hashes
+    $affectedScopeIds = array();
+    $query = 'SELECT scope_id FROM ' . $this->config['table']['theme'] .
+      ' WHERE topic_id = ' . $other->dbId;
+    $mysqlResult = $this->mysql->execute($query);
+    while ($result = $mysqlResult->fetch()) {
+      $affectedScopeIds[] = $result['scope_id'];
+    }
+    
     // scope properties (themes)
     $query = 'UPDATE ' . $this->config['table']['theme'] . 
       ' SET topic_id = ' . $this->dbId . ' WHERE topic_id = ' . $other->dbId;
     $this->mysql->execute($query);
+    
+    // update the scoped constructs hashes
+    if (!empty($affectedScopeIds)) {
+      
+      $implodedScopeIds = implode(',', $affectedScopeIds);
+      
+      // occurrences
+      $query = 'SELECT t1.id AS occ_id, t1.type_id, t1.value, t1.datatype 
+      	FROM ' . $this->config['table']['occurrence'] . ' t1
+        INNER JOIN ' . $this->config['table']['occurrence_scope'] . ' t2 
+        ON t1.id = t2.occurrence_id WHERE t2.scope_id IN(' . $implodedScopeIds . ')';
+      $mysqlResult = $this->mysql->execute($query);
+      while ($result = $mysqlResult->fetch()) {
+        $propertyHolder = new PropertyUtils();
+        $propertyHolder->setTypeId((int)$result['type_id'])
+          ->setValue($result['value'])
+          ->setDataType($result['datatype']);
+        $this->parent->setConstructPropertyHolder($propertyHolder);
+        
+        $this->parent->setConstructParent($this);
+        
+        $occurrence = $this->parent->getConstructById(
+          self::OCC_CLASS_NAME . '-' . $result['occ_id']
+        );
+        $hash = $this->getOccurrenceHash(
+          $occurrence->getType(), 
+          $occurrence->getValue(), 
+          $occurrence->getDatatype(), 
+          $occurrence->getScope()
+        );
+        $this->updateOccurrenceHash($occurrence->dbId, $hash);
+      }
+      
+      // names
+      $query = 'SELECT t1.id AS name_id, t1.type_id, t1.value 
+      	FROM ' . $this->config['table']['topicname'] . ' t1
+        INNER JOIN ' . $this->config['table']['topicname_scope'] . ' t2 
+        ON t1.id = t2.topicname_id WHERE t2.scope_id IN(' . $implodedScopeIds . ')';
+      $mysqlResult = $this->mysql->execute($query);
+      while ($result = $mysqlResult->fetch()) {
+        $propertyHolder = new PropertyUtils();
+        $propertyHolder->setTypeId((int)$result['type_id'])->setValue($result['value']);
+        $this->parent->setConstructPropertyHolder($propertyHolder);
+        
+        $this->parent->setConstructParent($this);
+        
+        $name = $this->parent->getConstructById(
+          self::NAME_CLASS_NAME . '-' . $result['name_id']
+        );
+        $hash = $this->getNameHash(
+          $name->getValue(), 
+          $name->getType(), 
+          $name->getScope()
+        );
+        $this->updateNameHash($name->dbId, $hash);
+      }
+      
+      // variants
+      $query = 'SELECT t1.id AS variant_id, t1.value, t1.datatype 
+      	FROM ' . $this->config['table']['variant'] . ' t1
+        INNER JOIN ' . $this->config['table']['variant_scope'] . ' t2 
+        ON t1.id = t2.variant_id WHERE t2.scope_id IN(' . $implodedScopeIds . ')';
+      $mysqlResult = $this->mysql->execute($query);
+      while ($result = $mysqlResult->fetch()) {
+        $propertyHolder = new PropertyUtils();
+        $propertyHolder->setValue($result['value'])->setDataType($result['datatype']);
+        $this->parent->setConstructPropertyHolder($propertyHolder);
+        
+        $variant = $this->parent->getConstructById(
+          NameImpl::VARIANT_CLASS_NAME . '-' . $result['variant_id']
+        );
+        $parent = $variant->getParent();
+        $hash = $parent->getVariantHash(
+          $variant->getValue(), 
+          $variant->getDatatype(), 
+          $variant->getScope()
+        );
+        $parent->updateVariantHash($variant->dbId, $hash);
+      }
+      
+      // associations
+      $query = 'SELECT t1.id AS assoc_id, t1.type_id 
+      	FROM ' . $this->config['table']['association'] . ' t1
+        INNER JOIN ' . $this->config['table']['association_scope'] . ' t2 
+        ON t1.id = t2.association_id WHERE t2.scope_id IN(' . $implodedScopeIds . ')';
+      $mysqlResult = $this->mysql->execute($query);
+      while ($result = $mysqlResult->fetch()) {
+        $propertyHolder = new PropertyUtils();
+        $propertyHolder->setTypeId((int)$result['type_id']);
+        $this->parent->setConstructPropertyHolder($propertyHolder);
+        
+        $assoc = $this->parent->getConstructById(
+          TopicMapImpl::ASSOC_CLASS_NAME . '-' . $result['assoc_id']
+        );
+        $hash = $this->parent->getAssocHash(
+          $assoc->getType(), 
+          $assoc->getScope(), 
+          $assoc->getRoles()
+        );
+        $this->parent->updateAssocHash($assoc->dbId, $hash);
+      }
+    }
     
     // clean up: remove possible duplicates from qtm_theme
     $query = 'SELECT MIN(id) AS protected_id, scope_id, topic_id, COUNT(*)' .
