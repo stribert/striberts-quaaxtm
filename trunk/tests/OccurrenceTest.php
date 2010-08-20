@@ -156,5 +156,21 @@ class OccurrenceTest extends PHPTMAPITestCase {
       'Expected identity!');
     $this->assertEquals($occ->getDataType(), parent::$dtString, 'Expected identity!');
   }
+  
+  public function testMergeScope() {
+    $tm = $this->topicMap;
+    $topic = $tm->createTopic();
+    $occType = $tm->createTopic();
+    $occTheme = $tm->createTopicByItemIdentifier('#english');
+    $topic->createOccurrence($occType, 'Occurrence', parent::$dtString, 
+      array($occTheme));
+    $occTheme = $tm->createTopicByItemIdentifier('#en');
+    $topic->createOccurrence($occType, 'Occurrence', parent::$dtString, 
+      array($occTheme));
+    $mergeTopic = $tm->createTopicByItemIdentifier('#en');
+    $mergeTopic->addItemIdentifier('#english');
+    $occs = $topic->getOccurrences();
+    $this->assertEquals(count($occs), 1, 'Expected 1 occurrence!');
+  }
 }
 ?>

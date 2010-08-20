@@ -226,5 +226,25 @@ class AssociationTest extends PHPTMAPITestCase {
     $rolesPlayed = $player->getRolesPlayed($roleType2);
     $this->assertEquals(count($rolesPlayed), 1);
   }
+  
+  public function testMergeScope() {
+    $tm = $this->topicMap;
+    $player = $tm->createTopic();
+    $assocType = $tm->createTopic();
+    $roleType = $tm->createTopic();
+    
+    $assocTheme = $tm->createTopicByItemIdentifier('#en');
+    $assoc = $tm->createAssociation($assocType, array($assocTheme));
+    $role = $assoc->createRole($roleType, $player);
+    
+    $assocTheme = $tm->createTopicByItemIdentifier('#english');
+    $assoc = $tm->createAssociation($assocType, array($assocTheme));
+    $role = $assoc->createRole($roleType, $player);
+    
+    $mergeTopic = $tm->createTopicByItemIdentifier('#en');
+    $mergeTopic->addItemIdentifier('#english');
+    $assocs = $tm->getAssociations();
+    $this->assertEquals(count($assocs), 1, 'Expected 1 association!');
+  }
 }
 ?>

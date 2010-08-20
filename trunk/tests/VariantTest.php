@@ -338,5 +338,21 @@ class VariantTest extends PHPTMAPITestCase {
     $this->assertEquals($variant->getValue(), 'Variant', 'Expected identity!');
     $this->assertEquals($variant->getDataType(), parent::$dtString, 'Expected identity!');
   }
+  
+  public function testMergeScope() {
+    $tm = $this->topicMap;
+    $topic = $tm->createTopic();
+    $type = $tm->createTopic();
+    $nameTheme = $tm->createTopic();
+    $name = $topic->createName('Name', $type, array($nameTheme));
+    $varTheme = $tm->createTopicByItemIdentifier('#en');
+    $variant = $name->createVariant('Variant', parent::$dtString, array($varTheme));
+    $varTheme = $tm->createTopicByItemIdentifier('#english');
+    $variant = $name->createVariant('Variant', parent::$dtString, array($varTheme));
+    $mergeTopic = $tm->createTopicByItemIdentifier('#en');
+    $mergeTopic->addItemIdentifier('#english');
+    $variants = $name->getVariants();
+    $this->assertEquals(count($variants), 1, 'Expected 1 variant!');
+  }
 }
 ?>

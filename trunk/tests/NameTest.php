@@ -139,5 +139,19 @@ class NameTest extends PHPTMAPITestCase {
     $this->assertTrue(in_array($nameTheme->getId(), $ids, true), 
       'Theme is not part of getScope()!');
   }
+  
+  public function testMergeScope() {
+    $tm = $this->topicMap;
+    $topic = $tm->createTopic();
+    $type = $tm->createTopic();
+    $nameTheme = $tm->createTopicByItemIdentifier('#en');
+    $topic->createName('Name', $type, array($nameTheme));
+    $nameTheme = $tm->createTopicByItemIdentifier('#english');
+    $topic->createName('Name', $type, array($nameTheme));
+    $mergeTopic = $tm->createTopicByItemIdentifier('#en');
+    $mergeTopic->addItemIdentifier('#english');
+    $names = $topic->getNames();
+    $this->assertEquals(count($names), 1, 'Expected 1 name');
+  }
 }
 ?>
