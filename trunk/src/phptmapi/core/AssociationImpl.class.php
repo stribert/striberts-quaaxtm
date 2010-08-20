@@ -35,6 +35,8 @@ final class AssociationImpl extends ScopedImpl implements Association {
 
   const ROLE_CLASS_NAME = 'RoleImpl';
   
+  private $propertyHolder;
+  
   /**
    * Constructor.
    * 
@@ -42,9 +44,14 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * @param Mysql The Mysql object.
    * @param array The configuration data.
    * @param TopicMapImpl The containing topic map.
+   * @param PropertyUtils The property holder.
    */
-  public function __construct($dbId, Mysql $mysql, array $config, TopicMap $parent) {
-    parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $parent);
+  public function __construct($dbId, Mysql $mysql, array $config, TopicMap $parent, 
+    PropertyUtils $propertyHolder=null) {
+    
+      parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $parent);
+      
+      $this->propertyHolder = !is_null($propertyHolder) ? $propertyHolder : new PropertyUtils();
   }
   
   /**
@@ -189,12 +196,17 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * @return TopicImpl
    */
   public function getType() {
-    $query = 'SELECT type_id FROM ' . $this->config['table']['association'] . 
-      ' WHERE id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
-    $result = $mysqlResult->fetch();
-    return $this->parent->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . 
-      $result['type_id']);
+    if (!is_null($this->propertyHolder->getTypeId())) {
+      $typeId = $this->propertyHolder->getTypeId();
+    } else {
+      $query = 'SELECT type_id FROM ' . $this->config['table']['association'] . 
+        ' WHERE id = ' . $this->dbId;
+      $mysqlResult = $this->mysql->execute($query);
+      $result = $mysqlResult->fetch();
+      $typeId = $result['type_id'];
+      $this->propertyHolder->setTypeId($typeId);
+    }
+    return $this->parent->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . $typeId);
   }
 
   /**
@@ -223,6 +235,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
       $this->mysql->finishTransaction();
       
       if (!$this->mysql->hasError()) {
+        $this->propertyHolder->setTypeId($type->dbId);
         $this->postSave();
       }
     } else {
