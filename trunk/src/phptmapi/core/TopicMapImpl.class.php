@@ -122,10 +122,13 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
   public function getAssociations() {
     $assocs = array();
     if (is_null($this->assocsCache)) {
-      $query = 'SELECT id, hash FROM ' . $this->config['table']['association'] . 
+      $query = 'SELECT id, type_id, hash FROM ' . $this->config['table']['association'] . 
         ' WHERE topicmap_id = ' . $this->dbId;
       $mysqlResult = $this->mysql->execute($query);
       while ($result = $mysqlResult->fetch()) {    
+        $propertyHolder = new PropertyUtils();
+        $propertyHolder->setTypeId($result['type_id']);
+        $this->setConstructPropertyHolder($propertyHolder);
         $assoc = $this->getConstructById(self::ASSOC_CLASS_NAME . '-' . $result['id']);
         $assocs[$result['hash']] = $assoc;
       }
@@ -146,13 +149,16 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    */
   public function getAssociationsByType(Topic $type) {
     $assocs = array();
-    $query = 'SELECT id FROM ' . $this->config['table']['association'] . 
+    $query = 'SELECT id, type_id, hash FROM ' . $this->config['table']['association'] . 
       ' WHERE type_id = ' . $type->dbId  . 
       ' AND topicmap_id = ' . $this->dbId;
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {    
+      $propertyHolder = new PropertyUtils();
+      $propertyHolder->setTypeId($result['type_id']);
+      $this->setConstructPropertyHolder($propertyHolder);
       $assoc = $this->getConstructById(self::ASSOC_CLASS_NAME . '-' . $result['id']);
-      $assocs[$assoc->getId()] = $assoc;
+      $assocs[$result['hash']] = $assoc;
     }
     return array_values($assocs);
   }
@@ -263,7 +269,9 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
           $propertyHolder);
         break;
       case self::ASSOC_CLASS_NAME:
-        return new $className($dbId, $this->mysql, $this->config, $this);
+        $propertyHolder = $this->constructPropertyHolder;
+        $this->constructPropertyHolder = null;
+        return new $className($dbId, $this->mysql, $this->config, $this, $propertyHolder);
         break;
       case AssociationImpl::ROLE_CLASS_NAME:
         $parent = $this->constructParent instanceof Association ? 
