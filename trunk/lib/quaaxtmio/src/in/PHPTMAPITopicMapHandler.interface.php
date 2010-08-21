@@ -218,10 +218,11 @@ interface PHPTMAPITopicMapHandlerInterface {
    * Notifies the start of a merge map.
    *
    * @param string The XTM document's locator.
+   * @param string The reader class name.
    * @return void
    * @throws MIOException If the max. allowed count of merge map operations is exceeded.
    */
-  public function startMergeMap($locator);
+  public function startMergeMap($locator, $readerClassName);
   
   /**
    * Notifies the end of a merge map.
