@@ -128,13 +128,14 @@ class XTM20TopicMapReader {
    * @return void
    * @throws MIOException If parse error occurs.
    */
-  public function readXtmFile($file) {
+  public function readFile($file) {
     $xtm = MIOUtil::readFile($file);
     if (!xml_parse($this->sax, $xtm)) { 
       $error = xml_error_string (xml_get_error_code($this->sax));
       $line = xml_get_current_line_number($this->sax);
-      throw new MIOException('Error in ' . __METHOD__ . 
-      	': Parse error "' . $error . '" on line ' . $line . '.');
+      throw new MIOException(
+      	'Error in ' . __METHOD__ . ': Parse error "' . $error . '" on line ' . $line . '.'
+      );
     }
   }
 
@@ -383,7 +384,7 @@ class XTM20TopicMapReader {
    * @return void
    */
   private function handleMergeMap(array $attributes) {
-    $this->tmHandler->startMergeMap($attributes[self::ATTR_HREF]);
+    $this->tmHandler->startMergeMap($attributes[self::ATTR_HREF], __CLASS__);
   }
 }
 ?>
