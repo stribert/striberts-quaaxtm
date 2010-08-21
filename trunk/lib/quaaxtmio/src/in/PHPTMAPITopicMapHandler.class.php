@@ -74,6 +74,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
           $baseLocatorRef,
           $maxMergeMapCount,
           $mergeMapCount,
+          $mergeMapLocators,
           $assocsIndex,
           $occsIndex,
           $namesIndex,
@@ -86,7 +87,8 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @param TopicMapSystem The Topic Maps system instance.
    * @param string The topic map's base locator.
    * @param int The max. allowed number of merge map processing.
-   * @param int The merge map processing count.
+   * @param int The merge map processing count. Will be set in startMergeMap().
+   * @param array The base locators of the merged topic maps. Will be set in startMergeMap().
    * @return void
    * @throws MIOException If topic map's base locator is not absolute or base 
    * 				locator in use.
@@ -95,7 +97,8 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
     TopicMapSystem $tmSystem, 
     $baseLocator, 
     $maxMergeMapCount=2, 
-    $mergeMapCount=0
+    $mergeMapCount=0, 
+    $mergeMapLocators=array()
   ) {
     
     $this->locator = new Net_URL2($baseLocator);
@@ -112,6 +115,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
     }
     $this->maxMergeMapCount = $maxMergeMapCount;
     $this->mergeMapCount = $mergeMapCount;
+    $this->mergeMapLocators = $mergeMapLocators;
     $this->topicMap = 
     $this->defaultNameType = null;
     $this->stateChain = 
@@ -545,23 +549,30 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
   
   /**
    * (non-PHPdoc)
-   * @see src/in/PHPTMAPITopicMapHandlerInterface#startMergeMap($document)
+   * @see src/in/PHPTMAPITopicMapHandlerInterface#startMergeMap($locator, $readerClassName)
    */
-  public function startMergeMap($locator) {
+  public function startMergeMap($locator, $readerClassName) {
     if ($this->mergeMapCount > $this->maxMergeMapCount) {
       throw new MIOException('Error in ' . __METHOD__ . ': Exceeded merge map count!');
     }
-    $currentTopicMap = $this->topicMap;
     $baseLocator = $this->locator->resolve($locator)->getUrl();
+    if ($this->mergeMapCount == 0) {
+      $this->mergeMapLocators[] = $this->locator->getUrl();
+    }
+    if (in_array($baseLocator, $this->mergeMapLocators)) {
+      return;// prevent "merge ping pong"
+    }
+    $this->mergeMapLocators[] = $baseLocator;
     $mapHandler = new self(
       $this->tmSystem, 
       $baseLocator, 
       $this->maxMergeMapCount, 
-      $this->mergeMapCount+1
+      $this->mergeMapCount+1, 
+      $this->mergeMapLocators
     );
-    $parser = new XTM20TopicMapReader($mapHandler);
-    $parser->readXtmFile($baseLocator);
-    $currentTopicMap->mergeIn($mapHandler->getTopicMap());
+    $reader = new $readerClassName($mapHandler);
+    $reader->readFile($baseLocator);
+    $this->topicMap->mergeIn($mapHandler->getTopicMap());
   }
   
   /**
@@ -827,7 +838,11 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
   }
   
   /**
-   * TODO
+   * Checks if given Topic Maps construct is already reified by given reifier.
+   * 
+   * @param Construct The Topic Maps construct.
+   * @param Topic|null The reifier or <var>null</var>.
+   * @return boolean
    */
   private function hasEqualReifier(Construct $construct, $reifier) {
     $_reifier = $construct->getReifier();
@@ -841,7 +856,11 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
   }
   
   /**
-   * TODO
+   * Checks if given item identifier is contained in given set of item identifiers.
+   * 
+   * @param array The set of item identifiers.
+   * @param string The item identifier.
+   * @return boolean
    */
   private function hasEqualIid(array $iids, $iid) {
     return in_array($iid, $iids);
