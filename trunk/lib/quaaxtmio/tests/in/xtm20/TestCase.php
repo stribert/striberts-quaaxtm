@@ -122,7 +122,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
     $tmHandler = new PHPTMAPITopicMapHandler($this->sharedFixture, $tmLocator);
     $this->tmLocator = $tmHandler->getBaseLocator();
     $reader = new XTM20TopicMapReader($tmHandler);
-    $reader->readXtmFile($file);
+    $reader->readFile($file);
   }
   
   protected function getIidFragment($iid) {
