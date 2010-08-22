@@ -154,7 +154,7 @@ class PHPTMAPICXTMWriter {
     $this->writeItemIdentifiers($topic);
       
     $names = $topic->getNames();
-    usort($names, array('PHPTMAPICXTMWriter', 'compareNamesIgnoreParent'));
+    usort($names, array(__CLASS__, 'compareNamesIgnoreParent'));
     $number = 1;
     foreach ($names as $name) {
       $this->writeName($name, $number);
@@ -162,7 +162,7 @@ class PHPTMAPICXTMWriter {
     }
     
     $occs = $topic->getOccurrences();
-    usort($occs, array('PHPTMAPICXTMWriter', 'compareDatatypeAwareIgnoreParent'));
+    usort($occs, array(__CLASS__, 'compareDatatypeAwareIgnoreParent'));
     $number = 1;
     foreach ($occs as $occ) {
       $this->writeOccurrence($occ, $number);
@@ -216,7 +216,7 @@ class PHPTMAPICXTMWriter {
     $this->writeScope($name);
     
     $variants = $name->getVariants();
-    usort($variants, array('PHPTMAPICXTMWriter', 'compareDatatypeAwareIgnoreParent'));
+    usort($variants, array(__CLASS__, 'compareDatatypeAwareIgnoreParent'));
     $number = 1;
     foreach ($variants as $variant) {
       $this->writer->startElement('variant');
@@ -272,7 +272,7 @@ class PHPTMAPICXTMWriter {
     $this->writeType($assoc);
     
     $roles = $assoc->getRoles();
-    usort($roles, array('PHPTMAPICXTMWriter', 'compareRolesIgnoreParent'));
+    usort($roles, array(__CLASS__, 'compareRolesIgnoreParent'));
     $number = 1;
     foreach ($roles as $role) {
       $this->writer->startElement('role');
@@ -331,7 +331,7 @@ class PHPTMAPICXTMWriter {
       return;
     }
     
-    usort($scope, array('PHPTMAPICXTMWriter', 'compareTopics'));
+    usort($scope, array(__CLASS__, 'compareTopics'));
     
     $this->writer->startElement('scope');
     $this->writer->writeNewLine();
@@ -398,7 +398,7 @@ class PHPTMAPICXTMWriter {
     if (empty($locs)) {
       return;
     }
-    usort($locs, array('PHPTMAPICXTMWriter', 'compareLocators'));
+    usort($locs, array(__CLASS__, 'compareLocators'));
     $this->writer->startElement($elementName);
     $this->writer->writeNewLine();
     foreach ($locs as $loc) {
@@ -454,7 +454,7 @@ class PHPTMAPICXTMWriter {
     }
     unset($instances);
     $topics = $this->topicMap->getTopics();
-    usort($topics, array('PHPTMAPICXTMWriter', 'compareTopics'));
+    usort($topics, array(__CLASS__, 'compareTopics'));
     $i=1;
     foreach ($topics as $topic) {
       $this->topicsToNumbersIndex[$topic->getId()] = $i;
@@ -471,7 +471,7 @@ class PHPTMAPICXTMWriter {
    */
   private function prepareAssociations() {
     $assocs = $this->topicMap->getAssociations();
-    usort($assocs, array('PHPTMAPICXTMWriter', 'compareAssociations'));
+    usort($assocs, array(__CLASS__, 'compareAssociations'));
     // build $playersToAssocsIndex (example in JSON):
     // {
     //   "TopicImpl-1": [
@@ -482,7 +482,7 @@ class PHPTMAPICXTMWriter {
     $i=1;
     foreach ($assocs as $assoc) {
       $roles = $assoc->getRoles();
-      usort($roles, array('PHPTMAPICXTMWriter', 'compareRolesIgnoreParent'));
+      usort($roles, array(__CLASS__, 'compareRolesIgnoreParent'));
       $z=1;
       foreach ($roles as $role) {
         $playerId = $role->getPlayer()->getId();
@@ -588,7 +588,7 @@ class PHPTMAPICXTMWriter {
     $count1 = count($arr1);
     $count2 = count($arr2);
     if ($count1 == $count2) {
-      return call_user_func(array('PHPTMAPICXTMWriter', $functionName), $arr1, $arr2, $count1);
+      return call_user_func(array(__CLASS__, $functionName), $arr1, $arr2, $count1);
     } else {
       return $count1 < $count2 ? -1 : 1;
     }
@@ -605,8 +605,8 @@ class PHPTMAPICXTMWriter {
    */
   private static function compareLocatorContent(array $locs1, array $locs2, $count) {
     $res = 0;
-    usort($locs1, array('PHPTMAPICXTMWriter', 'compareLocators'));
-    usort($locs1, array('PHPTMAPICXTMWriter', 'compareLocators'));
+    usort($locs1, array(__CLASS__, 'compareLocators'));
+    usort($locs1, array(__CLASS__, 'compareLocators'));
     for ($i=0; $i < $count && $res == 0; $i++) {
       $res = self::compareLocators($locs1[$i], $locs2[$i]);
     }
@@ -624,8 +624,8 @@ class PHPTMAPICXTMWriter {
    */
   private static function compareScopeContent(array $themes1, array $themes2, $count) {
     $res = 0;
-    usort($themes1, array('PHPTMAPICXTMWriter', 'compareTopics'));
-    usort($themes2, array('PHPTMAPICXTMWriter', 'compareTopics'));
+    usort($themes1, array(__CLASS__, 'compareTopics'));
+    usort($themes2, array(__CLASS__, 'compareTopics'));
     for ($i=0; $i < $count && $res == 0; $i++) {
       $res = self::compareTopics($themes1[$i], $themes2[$i]);
     }
@@ -643,8 +643,8 @@ class PHPTMAPICXTMWriter {
    */
   private static function compareRolesContentIgnoreParent(array $roles1, array $roles2, $count) {
     $res = 0;
-    usort($roles1, array('PHPTMAPICXTMWriter', 'compareRolesIgnoreParent'));
-    usort($roles2, array('PHPTMAPICXTMWriter', 'compareRolesIgnoreParent'));
+    usort($roles1, array(__CLASS__, 'compareRolesIgnoreParent'));
+    usort($roles2, array(__CLASS__, 'compareRolesIgnoreParent'));
     for ($i=0; $i < $count && $res == 0; $i++) {
       $res = self::compareRolesIgnoreParent($roles1[$i], $roles2[$i]);
     }
@@ -956,7 +956,7 @@ class PHPTMAPICXTMWriter {
   }
   
   /**
-   * Cleans up, e.g. removes all associations created in 
+   * Cleans up: Removes all associations created in 
    * {@link createTypeInstanceAssociation()}.
    * 
    * @return void
