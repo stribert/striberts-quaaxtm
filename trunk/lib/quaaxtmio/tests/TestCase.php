@@ -61,6 +61,17 @@ require_once(
   DIRECTORY_SEPARATOR . 
   'out' . 
   DIRECTORY_SEPARATOR . 
+  'PHPTMAPIXTM20Writer.class.php'
+);
+require_once(
+  dirname(__FILE__) . 
+  DIRECTORY_SEPARATOR . 
+  '..' . 
+  DIRECTORY_SEPARATOR . 
+  'src' . 
+  DIRECTORY_SEPARATOR . 
+  'out' . 
+  DIRECTORY_SEPARATOR . 
   'PHPTMAPICXTMWriter.class.php'
 );
 
@@ -114,6 +125,12 @@ class TestCase extends PHPUnit_Framework_TestCase {
     $this->tmLocator = $tmHandler->getBaseLocator();
     $reader = new $reader($tmHandler);
     $reader->readFile($file);
+  }
+  
+  protected function readXtm($xtm, $reader) {
+    $tmHandler = new PHPTMAPITopicMapHandler($this->sharedFixture, $this->tmLocator);
+    $reader = new $reader($tmHandler);
+    $reader->readXtm($xtm);
   }
   
   protected function readCxtmFile($file) {
