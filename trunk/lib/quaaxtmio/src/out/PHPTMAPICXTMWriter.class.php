@@ -53,18 +53,15 @@ class PHPTMAPICXTMWriter {
           $instance,
           $typeInstanceAssocs,
           $topicMap,
-          $writer;
+          $writer,
+          $filterTopicIidPattern;
   
   /**
    * Constructor.
    * 
-   * @param string The base locator.
-   * @param boolean XML source indication. Default <var>true</var>.
    * @return void
    */
-  public function __construct($baseLocator, $srcXml=true) {
-    self::$normBaseLoc = $this->normalizeBaseLocator($baseLocator);
-    self::$srcXml = $srcXml;
+  public function __construct() {
     $this->playersToAssocsIndex = 
     $this->typeInstanceAssocs = 
     $this->topicsToNumbersIndex = array();
@@ -72,7 +69,8 @@ class PHPTMAPICXTMWriter {
     $this->type = 
     $this->instance = 
     $this->topicMap = 
-    $this->writer = null;
+    $this->writer = 
+    $this->filterTopicIidPattern = null;
   }
   
   /**
@@ -95,10 +93,26 @@ class PHPTMAPICXTMWriter {
    * Creates and returns the CXTM.
    * 
    * @param TopicMap The topic map to write.
+   * @param string The base locator. Default <var>null</var>.
+   * @param boolean XML source indication. Default <var>true</var>.
+   * @param string Pattern which allows filtering of Topic Maps engine specific item 
+   * 				identifiers attached to topics if union of subject identifiers and subject locators 
+   * 				is > 0. E.g. QuaaxTM's item identifier pattern for topics is "TopicImpl-". 
    * @return string The CXTM.
    */
-  public function write(TopicMap $topicMap) {
+  public function write(
+    TopicMap $topicMap, 
+    $baseLocator=null, 
+    $srcXml=true, 
+    $filterTopicIidPattern=null
+  ) {
     $this->topicMap = $topicMap;
+    $baseLocator = !is_null($baseLocator) 
+      ? $baseLocator 
+      : $topicMap->getLocator();
+    self::$normBaseLoc = $this->normalizeBaseLocator($baseLocator);
+    self::$srcXml = $srcXml;
+    $this->filterTopicIidPattern = $filterTopicIidPattern;
     
     $topics = $this->prepareTopics();
     $assocs = $this->prepareAssociations();
@@ -415,7 +429,12 @@ class PHPTMAPICXTMWriter {
    * @return void
    */
   private function writeItemIdentifiers(Construct $construct) {
-    $this->writeLocators('itemIdentifiers', $construct->getItemIdentifiers());
+    if (!is_null($this->filterTopicIidPattern) && $construct instanceof Topic) {
+      $iids = $this->getFilteredTopicIids($construct);
+    } else {
+      $iids = $construct->getItemIdentifiers();
+    }
+    $this->writeLocators('itemIdentifiers', $iids);
   }
   
   /**
@@ -965,6 +984,35 @@ class PHPTMAPICXTMWriter {
     foreach ($this->typeInstanceAssocs as $assoc) {
       $assoc->remove();
     }
+  }
+  
+  /**
+   * Returns the topic's item identifiers filtered of the Topic Maps engine specific 
+   * item identifiers if pattern is defined. See also {@link write()}.
+   * This is needed to pass the CXTM-tests suite in an XTM import-export-import procedure.
+   * 
+   * @param Topic The topic to be filtered.
+   * @return array An array containing the topic's item identifiers. The array may also
+   * 				be empty.
+   */
+  private function getFilteredTopicIids(Topic $topic) {
+    $iids = $topic->getItemIdentifiers();
+    $filteredIids = array();
+    foreach ($iids as $iid) {
+      if (strpos($iid, $this->filterTopicIidPattern) === false) {
+        $filteredIids[] = $iid;
+      }
+    }
+    if (count($filteredIids > 0)) {
+      $iids = $filteredIids;
+    } else {// $filteredIids is an empty array
+      $sids = $topic->getSubjectIdentifiers();
+      $slos = $topic->getSubjectLocators();
+      if (count(array_merge($sids, $slos)) > 0) {
+        $iids = array();
+      }
+    }
+    return $iids;
   }
 }
 ?>
