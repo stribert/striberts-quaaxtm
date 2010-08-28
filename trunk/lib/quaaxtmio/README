@@ -7,27 +7,43 @@ Installation
 No real installation needed. Just some prerequisites have to be considered.
 
 Prerequisites:
-a) Latest QuaaxTM from SVN (ready for use)
-b) PEAR Net_URL2 0.3.1 (see http://pear.php.net/package/Net_URL2/)
-c) PHP Normalizer class (see http://www.php.net/manual/en/class.normalizer.php)
+1) QuaaxTM 0.52 or latest QuaaxTM from SVN (ready for use)
+2) PEAR Net_URL2 0.3.1 (see http://pear.php.net/package/Net_URL2/)
+3) PHP Normalizer class (see http://www.php.net/manual/en/class.normalizer.php)
 
-Example: Deserialization of XTM 2.0:
-1. Once QuaaxTM is ready for use and PHPUnit is available (http://www.phpunit.de/) you 
-   should be able to run the tests now: Open a terminal, move to 'tests/in', and execute 
-   phpunit Xtm20Test.php. 
+Examples
+--------
+QuaaxTM must be ready for use (see QuaaxTM's README) and PHPUnit (http://www.phpunit.de/) 
+must be available.
+
+Deserialization of XTM 2.0:
+1) To check the setup run the CXTM based tests: Open a terminal, move to 'tests/in', and execute 
+   phpunit Xtm20Test.php.
    Have a look at tests/TestCase.php how QuaaxTM is connected - you just have to include 
    TopicMapSystemFactory.class.php from PHPTMAPI.
    Once QuaaxTM is set up correctly PHPTMAPI's config.php provides all the information of 
    QuaaxTM's implementation of TopicMapSystemFactory.
-2. Using the deserializer is quite simple:
+2) Using the deserializer is quite simple:
    - $tmSystemFactory = TopicMapSystemFactory::newInstance();
    - $tmSystem = $tmSystemFactory->newTopicMapSystem();
    - $tmHandler = new PHPTMAPITopicMapHandler($tmSystem, 'tmlocator');
    - $reader = new XTM20TopicMapReader($tmHandler);
-   - $reader->readXtmFile('path/to/file.xtm');
-   - $tm = $tmSystem->getTopicMap('tmlocator');// the deserialized topic map
+   - $reader->readXtmFile('path/to/file.xtm');// or use $reader->readXtm($xtm)
+   - $topicMap = $tmSystem->getTopicMap('tmlocator');// the deserialized topic map
    The files you need to include are TopicMapSystemFactory.class.php, 
    PHPTMAPITopicMapHandler.class.php, and XTM20TopicMapReader.class.php.
+   
+XTM 2.0 serialization:
+1) To check the setup run the CXTM based tests: Open a terminal, move to 'tests/out', and execute 
+   phpunit Xtm20Test.php.
+2) Using the serializer is also simple:
+   - $tmSystemFactory = TopicMapSystemFactory::newInstance();
+   - $tmSystem = $tmSystemFactory->newTopicMapSystem();
+   - $topicMap = $tmSystem->getTopicMap('tmlocator');
+   - $xtmWriter = new PHPTMAPIXTM20Writer();
+   - $xtm = $xtmWriter->write($topicMap, 'tmlocator');
+   The files you need to include are TopicMapSystemFactory.class.php, 
+   PHPTMAPITopicMapHandler.class.php, and PHPTMAPIXTM20Writer.class.php.
 
 Questions and answers
 ---------------------
