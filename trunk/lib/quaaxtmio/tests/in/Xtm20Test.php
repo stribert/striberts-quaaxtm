@@ -50,9 +50,8 @@ class Xtm20Test extends TestCase {
     $this->readSrcFile($xtmDir . DIRECTORY_SEPARATOR . $xtmFile, self::$reader);
     $cxtmBase = $this->readCxtmFile($cxtmDir . DIRECTORY_SEPARATOR . $xtmFile . '.cxtm');
     $topicMap = $this->sharedFixture->getTopicMap($this->tmLocator);
-    $writer = new PHPTMAPICXTMWriter($this->tmLocator);
-    $cxtm = $writer->write($topicMap);
-    //var_dump($cxtm);
+    $writer = new PHPTMAPICXTMWriter();
+    $cxtm = $writer->write($topicMap, $this->tmLocator);
     $this->assertEquals($cxtm, $cxtmBase);
   }
 
