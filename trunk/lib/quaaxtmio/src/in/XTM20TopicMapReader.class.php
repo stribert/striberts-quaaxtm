@@ -122,14 +122,25 @@ class XTM20TopicMapReader {
   }
 
   /**
-   * Reads and parses given XTM file.
+   * Reads given XTM file and parses contained XTM.
    * 
-   * @param string The XTM file.
+   * @param string The XTM file locator.
    * @return void
    * @throws MIOException If parse error occurs.
    */
   public function readFile($file) {
     $xtm = MIOUtil::readFile($file);
+    $this->readXtm($xtm);
+  }
+  
+  /**
+   * Parses given XTM.
+   * 
+   * @param string The XTM.
+   * @return void
+   * @throws MIOException If parse error occurs.
+   */
+  public function readXtm($xtm) {
     if (!xml_parse($this->sax, $xtm)) { 
       $error = xml_error_string (xml_get_error_code($this->sax));
       $line = xml_get_current_line_number($this->sax);
