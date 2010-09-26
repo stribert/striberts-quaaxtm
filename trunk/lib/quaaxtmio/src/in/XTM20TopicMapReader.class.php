@@ -130,7 +130,7 @@ class XTM20TopicMapReader {
    */
   public function readFile($file) {
     $xtm = MIOUtil::readFile($file);
-    $this->readXtm($xtm);
+    $this->read($xtm);
   }
   
   /**
@@ -140,7 +140,7 @@ class XTM20TopicMapReader {
    * @return void
    * @throws MIOException If parse error occurs.
    */
-  public function readXtm($xtm) {
+  public function read($xtm) {
     if (!xml_parse($this->sax, $xtm)) { 
       $error = xml_error_string (xml_get_error_code($this->sax));
       $line = xml_get_current_line_number($this->sax);
