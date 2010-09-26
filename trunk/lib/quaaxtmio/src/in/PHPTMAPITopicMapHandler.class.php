@@ -744,9 +744,13 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
           $this->getUri($topicRef->getReference())
         );
       } else if($type == Reference::SUBJECT_IDENTIFIER) {
-        // no op.
+        return $this->topicMap->createTopicBySubjectIdentifier(
+          $topicRef->getReference()
+        );
       } else if($type == Reference::SUBJECT_LOCATOR) {
-        // no op.
+        return $this->topicMap->createTopicBySubjectLocator(
+          $topicRef->getReference()
+        );
       } else {
         throw new MIOException('Error in ' . __METHOD__ . 
         	': Provided unexpected reference type!');
@@ -779,22 +783,6 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
       return $topic;
     }
   }
-  
-  /**
-   * Creates a topic with given subject identifier.
-   * 
-   * @param string The subject identifier.
-   * @return Topic
-   */
-  private function createTopicBySubjectIdentifier($sid){}
-  
-  /**
-   * Creates a topic with given subject locator.
-   * 
-   * @param The subject locator.
-   * @return Topic
-   */
-  private function createTopicBySubjectLocator($slo){}
   
   /**
    * Handles Topic Map construct's reifiers.
