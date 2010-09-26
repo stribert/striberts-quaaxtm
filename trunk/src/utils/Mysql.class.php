@@ -35,7 +35,8 @@ class Mysql {
           $connection,
           $trnx,
           $delayTrnx,
-          $commit;
+          $commit,
+          $connOpen;
 	
   /**
    * Constructor.
@@ -65,16 +66,17 @@ class Mysql {
    */
   private function connect(array $config) {
     $this->connection = mysqli_connect(
-                                      $config['db']['host'], 
-                                      $config['db']['user'], 
-                                      $config['db']['pass'], 
-                                      $config['db']['name'], 
-                                      $config['db']['port']
-                                    );
+      $config['db']['host'], 
+      $config['db']['user'], 
+      $config['db']['pass'], 
+      $config['db']['name'], 
+      $config['db']['port']
+    );
     $error = mysqli_connect_error();
     if (!empty($error)) {
       throw new RuntimeException(__METHOD__ . ': ' . $error);
     }
+    $this->connOpen = true;
   }
   
   /**
@@ -92,7 +94,9 @@ class Mysql {
    * @return void
    */
   public function close() {
-    mysqli_close($this->connection);
+    if (mysqli_close($this->connection)) {
+      $this->connOpen = false;
+    }
   }
 
   /**
@@ -102,6 +106,9 @@ class Mysql {
    * @return MysqlResult|false
    */
   public function execute($query) {
+    if (!$this->connOpen) {
+      return false;
+    }
     $this->sql = trim($query);
     $this->result = mysqli_query($this->connection, $this->sql);
     if (!$this->result) {
