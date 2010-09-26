@@ -100,9 +100,7 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
     }
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $topic = $this->topicMap->getConstructById(
-        TopicMapImpl::TOPIC_CLASS_NAME . '-' . $result['id']
-      );
+      $topic = $this->topicMap->getConstructById('TopicImpl-' . $result['id']);
       $topics[] = $topic;
     }
     return $topics;
