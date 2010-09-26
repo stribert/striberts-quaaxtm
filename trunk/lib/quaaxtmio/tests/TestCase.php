@@ -70,6 +70,28 @@ require_once(
   DIRECTORY_SEPARATOR . 
   'src' . 
   DIRECTORY_SEPARATOR . 
+  'in' . 
+  DIRECTORY_SEPARATOR . 
+  'JTM10TopicMapReader.class.php'
+);
+require_once(
+  dirname(__FILE__) . 
+  DIRECTORY_SEPARATOR . 
+  '..' . 
+  DIRECTORY_SEPARATOR . 
+  'src' . 
+  DIRECTORY_SEPARATOR . 
+  'out' . 
+  DIRECTORY_SEPARATOR . 
+  'PHPTMAPIJTM10Writer.class.php'
+);
+require_once(
+  dirname(__FILE__) . 
+  DIRECTORY_SEPARATOR . 
+  '..' . 
+  DIRECTORY_SEPARATOR . 
+  'src' . 
+  DIRECTORY_SEPARATOR . 
   'out' . 
   DIRECTORY_SEPARATOR . 
   'PHPTMAPICXTMWriter.class.php'
@@ -85,20 +107,22 @@ require_once(
  */
 class TestCase extends PHPUnit_Framework_TestCase {
   
-  protected $sharedFixture,
-            $topicMap;
+  protected $sharedFixture;
   
   private $preservedBaseLocators;
   
   protected function setUp() {
-    $tmSystemFactory = TopicMapSystemFactory::newInstance();
-    // QuaaxTM specific feature
-    try {
-      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
-    } catch (FactoryConfigurationException $e) {
-      // no op.
+    // allow all extending tests being stand alone
+    if (!$this->sharedFixture instanceof TopicMapSystem) {
+      $tmSystemFactory = TopicMapSystemFactory::newInstance();
+      // QuaaxTM specific feature
+      try {
+        $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
+      } catch (FactoryConfigurationException $e) {
+        // no op.
+      }
+      $this->sharedFixture = $tmSystemFactory->newTopicMapSystem();
     }
-    $this->sharedFixture = $tmSystemFactory->newTopicMapSystem();
     $this->preservedBaseLocators = $this->sharedFixture->getLocators();
     $this->tmLocator = null;
     $this->cxtmIncPath = dirname(__FILE__) . 
@@ -108,6 +132,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
   }
   
   protected function tearDown() {
+    $this->tmLocator = null;
     $locators = $this->sharedFixture->getLocators();
     foreach ($locators as $locator) {
       if (!in_array($locator, $this->preservedBaseLocators)) {
@@ -116,7 +141,6 @@ class TestCase extends PHPUnit_Framework_TestCase {
         $tm->remove();
       }
     }
-    $this->tmLocator = null;
   }
   
   protected function readSrcFile($file, $reader) {
@@ -127,10 +151,10 @@ class TestCase extends PHPUnit_Framework_TestCase {
     $reader->readFile($file);
   }
   
-  protected function readXtm($xtm, $reader) {
+  protected function read($xtm, $reader) {
     $tmHandler = new PHPTMAPITopicMapHandler($this->sharedFixture, $this->tmLocator);
     $reader = new $reader($tmHandler);
-    $reader->readXtm($xtm);
+    $reader->read($xtm);
   }
   
   protected function readCxtmFile($file) {
