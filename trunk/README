@@ -12,7 +12,7 @@ b) MySQL >= 5.0 with InnoDB enabled
 1. Execute src/qtm_schema.sql.
 2. Edit your specific settings in lib/phptmapi2.0/config.php and src/phptmapi/config.php.
 3. If PHPUnit is available (http://www.phpunit.de/) you should be able to run the test
-   suite now: Open a terminal, move to 'tests' and execute phpunit AllCoreTests.php. 
+   suite now: Open a terminal, move to 'tests', and execute phpunit AllCoreTests.php. 
    Each test can be executed separately. Have a look at AllCoreTests.php how QuaaxTM is 
    used - you just have to include TopicMapSystemFactory.class.php from PHPTMAPI.
 
