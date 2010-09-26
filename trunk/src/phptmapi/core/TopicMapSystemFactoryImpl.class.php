@@ -36,9 +36,8 @@ spl_autoload_register('TopicMapSystemFactoryImpl::autoload');
  */
 final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
   
-  private static $instance = null;
-  
-  private static $pearClasses = array('Net_URL2');
+  private static $instance = null,
+                  $pearClasses = array('Net_URL2');
   
   private $properties,
           $features,
