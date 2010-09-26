@@ -66,8 +66,7 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
       ' WHERE t2.' . $this->fkColumn . ' = ' . $this->dbId;
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $theme = $this->topicMap->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . 
-        $result['topic_id']);
+      $theme = $this->topicMap->getConstructById('TopicImpl-' . $result['topic_id']);
       $scope[$theme->getId()] = $theme;
     }
     return array_values($scope);
@@ -200,13 +199,13 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    */
   private function getBindingTable() {
     switch ($this->className) {
-      case TopicImpl::NAME_CLASS_NAME:
+      case 'NameImpl':
         return $this->config['table']['topicname_scope'];
-      case TopicImpl::OCC_CLASS_NAME:
+      case 'OccurrenceImpl':
         return $this->config['table']['occurrence_scope'];
-      case TopicMapImpl::ASSOC_CLASS_NAME:
+      case 'AssociationImpl':
         return $this->config['table']['association_scope'];
-      case NameImpl::VARIANT_CLASS_NAME:
+      case 'VariantImpl':
         return $this->config['table']['variant_scope'];
       default:
         return null;
@@ -235,20 +234,20 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    */
   protected function updateScopedPropertyHash(array $scope) {
     switch ($this->className) {
-      case TopicImpl::NAME_CLASS_NAME:
+      case 'NameImpl':
         $hash = $this->parent->getNameHash($this->getValue(), $this->getType(), $scope);
         $this->parent->updateNameHash($this->dbId, $hash);
         break;
-      case TopicImpl::OCC_CLASS_NAME:
+      case 'OccurrenceImpl':
         $hash = $this->parent->getOccurrenceHash($this->getType(), $this->getValue(), 
           $this->getDatatype(), $scope);
         $this->parent->updateOccurrenceHash($this->dbId, $hash);
         break;
-      case TopicMapImpl::ASSOC_CLASS_NAME:
+      case 'AssociationImpl':
         $hash = $this->parent->getAssocHash($this->getType(), $scope, $this->getRoles());
         $this->parent->updateAssocHash($this->dbId, $hash);
         break;
-      case NameImpl::VARIANT_CLASS_NAME:
+      case 'VariantImpl':
         $hash = $this->parent->getVariantHash($this->getValue(), 
           $this->getDatatype(), $scope);
         $this->parent->updateVariantHash($this->dbId, $hash);

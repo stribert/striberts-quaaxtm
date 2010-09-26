@@ -60,8 +60,12 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    * @return void
    */
   public function __destruct() {
-    if ($this->topicMap->getTopicMapSystem()->getFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL) && 
-      !is_null($this->dbId) && !is_null($this->parent->dbId)) $this->parent->finished($this);
+    $featureIsSet = $this->topicMap->getTopicMapSystem()->getFeature(
+      VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL
+    );
+    if ($featureIsSet && !is_null($this->dbId) && !is_null($this->parent->dbId)) {
+      $this->parent->finished($this);
+    }
   }
   
   /**
@@ -153,7 +157,7 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
       $typeId = $result['type_id'];
       $this->propertyHolder->setTypeId($typeId);
     }
-    return $this->topicMap->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . $typeId);
+    return $this->topicMap->getConstructById('TopicImpl-' . $typeId);
   }
 
   /**

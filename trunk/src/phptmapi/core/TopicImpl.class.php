@@ -43,10 +43,7 @@
  */
 final class TopicImpl extends ConstructImpl implements Topic {
 
-  const NAME_CLASS_NAME = 'NameImpl',
-        OCC_CLASS_NAME = 'OccurrenceImpl',
-        
-        IDENTITY_NULL_ERR_MSG = ': Identity locator must not be null!';
+  const IDENTITY_NULL_ERR_MSG = ': Identity locator must not be null!';
   
   private $defaultNameType;
   
@@ -277,7 +274,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
       
       $this->parent->setConstructParent($this);
       
-      $name = $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . $result['id']);
+      $name = $this->parent->getConstructById('NameImpl-' . $result['id']);
       
       $names[$result['hash']] = $name;
     }
@@ -338,7 +335,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
         $this->parent->setConstructPropertyHolder($propertyHolder);
         $this->parent->setConstructParent($this);
         
-        $name = $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . $lastNameId);
+        $name = $this->parent->getConstructById('NameImpl-' . $lastNameId);
         if (!$this->mysql->hasError()) {
           $name->postInsert();
           $this->postSave();
@@ -346,7 +343,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
         return $name;
       } else {
         $this->parent->setConstructParent($this);
-        return $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . $propertyId);
+        return $this->parent->getConstructById('NameImpl-' . $propertyId);
       }
     } else {
       throw new ModelConstraintException($this, __METHOD__ . 
@@ -380,7 +377,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
       
       $this->parent->setConstructParent($this);
       
-      $occurrence = $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . $result['id']);
+      $occurrence = $this->parent->getConstructById('OccurrenceImpl-' . $result['id']);
       
       $occurrences[$result['hash']] = $occurrence;
     }
@@ -444,7 +441,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
         $this->parent->setConstructPropertyHolder($propertyHolder);
         $this->parent->setConstructParent($this);
         
-        $occ = $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . 
+        $occ = $this->parent->getConstructById('OccurrenceImpl-' . 
           $lastOccurrenceId);
         if (!$this->mysql->hasError()) {
           $occ->postInsert();
@@ -453,7 +450,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
         return $occ;
       } else {
         $this->parent->setConstructParent($this);
-        return $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . $propertyId);
+        return $this->parent->getConstructById('OccurrenceImpl-' . $propertyId);
       }
     } else {
       throw new ModelConstraintException($this, __METHOD__ . 
@@ -499,14 +496,14 @@ final class TopicImpl extends ConstructImpl implements Topic {
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       // parent association
-      $assoc = $this->parent->getConstructById(TopicMapImpl::ASSOC_CLASS_NAME . '-' . 
-        $result['association_id']);
+      $assoc = $this->parent->getConstructById(
+      	'AssociationImpl-' . $result['association_id']
+      );
       if (is_null($assoc)) {
         continue;
       }
       $this->parent->setConstructParent($assoc);
-      $role = $this->parent->getConstructById(AssociationImpl::ROLE_CLASS_NAME . '-' . 
-        $result['role_id']);
+      $role = $this->parent->getConstructById('RoleImpl-' . $result['role_id']);
       $roles[$result['hash'] . $result['type_id'] . $this->dbId] = $role;
     }
     return array_values($roles);
@@ -530,14 +527,14 @@ final class TopicImpl extends ConstructImpl implements Topic {
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       // parent association
-      $assoc = $this->parent->getConstructById(TopicMapImpl::ASSOC_CLASS_NAME . '-' . 
-        $result['association_id']);
+      $assoc = $this->parent->getConstructById(
+      	'AssociationImpl-' . $result['association_id']
+      );
       if (is_null($assoc)) {
         continue;
       }
       $this->parent->setConstructParent($assoc);
-      $role = $this->parent->getConstructById(AssociationImpl::ROLE_CLASS_NAME . '-' . 
-        $result['role_id']);
+      $role = $this->parent->getConstructById('RoleImpl-' . $result['role_id']);
       $roles[$result['hash'] . $result['type_id'] . $this->dbId] = $role;
     }
     return array_values($roles);
@@ -567,14 +564,14 @@ final class TopicImpl extends ConstructImpl implements Topic {
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       // parent association
-      $assoc = $this->parent->getConstructById(TopicMapImpl::ASSOC_CLASS_NAME . '-' . 
-        $result['association_id']);
+      $assoc = $this->parent->getConstructById(
+      	'AssociationImpl-' . $result['association_id']
+      );
       if (is_null($assoc)) {
         continue;
       }
       $this->parent->setConstructParent($assoc);
-      $role = $this->parent->getConstructById(AssociationImpl::ROLE_CLASS_NAME . '-' . 
-        $result['role_id']);
+      $role = $this->parent->getConstructById('RoleImpl-' . $result['role_id']);
       $roles[$result['hash'] . $result['type_id'] . $this->dbId] = $role;
     }
     return array_values($roles);
@@ -601,14 +598,14 @@ final class TopicImpl extends ConstructImpl implements Topic {
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       // parent association
-      $assoc = $this->parent->getConstructById(TopicMapImpl::ASSOC_CLASS_NAME . '-' . 
-        $result['association_id']);
+      $assoc = $this->parent->getConstructById(
+      	'AssociationImpl-' . $result['association_id']
+      );
       if (is_null($assoc)) {
         continue;
       }
       $this->parent->setConstructParent($assoc);
-      $role = $this->parent->getConstructById(AssociationImpl::ROLE_CLASS_NAME . '-' . 
-        $result['role_id']);
+      $role = $this->parent->getConstructById('RoleImpl-' . $result['role_id']);
       $roles[$result['hash'] . $result['type_id'] . $this->dbId] = $role;
     }
     return array_values($roles);
@@ -806,7 +803,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
         $this->parent->setConstructParent($this);
         
         $occurrence = $this->parent->getConstructById(
-          self::OCC_CLASS_NAME . '-' . $result['occ_id']
+        	'OccurrenceImpl-' . $result['occ_id']
         );
         $hash = $this->getOccurrenceHash(
           $occurrence->getType(), 
@@ -830,9 +827,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
         
         $this->parent->setConstructParent($this);
         
-        $name = $this->parent->getConstructById(
-          self::NAME_CLASS_NAME . '-' . $result['name_id']
-        );
+        $name = $this->parent->getConstructById('NameImpl-' . $result['name_id']);
         $hash = $this->getNameHash(
           $name->getValue(), 
           $name->getType(), 
@@ -852,9 +847,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
         $propertyHolder->setValue($result['value'])->setDataType($result['datatype']);
         $this->parent->setConstructPropertyHolder($propertyHolder);
         
-        $variant = $this->parent->getConstructById(
-          NameImpl::VARIANT_CLASS_NAME . '-' . $result['variant_id']
-        );
+        $variant = $this->parent->getConstructById('VariantImpl-' . $result['variant_id']);
         $parent = $variant->getParent();
         $hash = $parent->getVariantHash(
           $variant->getValue(), 
@@ -876,7 +869,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
         $this->parent->setConstructPropertyHolder($propertyHolder);
         
         $assoc = $this->parent->getConstructById(
-          TopicMapImpl::ASSOC_CLASS_NAME . '-' . $result['assoc_id']
+          'AssociationImpl-' . $result['assoc_id']
         );
         $hash = $this->parent->getAssocHash(
           $assoc->getType(), 
@@ -1161,7 +1154,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
    */
   public function finished(Construct $property) {
     $className = get_class($property);
-    $table = $className == self::NAME_CLASS_NAME ? 'topicname' : 'occurrence';
+    $table = $className == 'NameImpl' ? 'topicname' : 'occurrence';
     // get the hash of the finished property
     $query = 'SELECT hash FROM ' . $this->config['table'][$table] . 
       ' WHERE id = ' . $property->dbId;
@@ -1317,8 +1310,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
     while ($result = $mysqlResult->fetch()) {
       $parent = $this->parent->getConstructById(__CLASS__ . '-' . $result['topic_id']);
       $this->parent->setConstructParent($parent);
-      $occurrence = $this->parent->getConstructById(self::OCC_CLASS_NAME . '-' . 
-        $result['occ_id']);
+      $occurrence = $this->parent->getConstructById('OccurrenceImpl-' . $result['occ_id']);
       $occurrences[] = $occurrence;
     }
     return $occurrences;
@@ -1342,8 +1334,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
     while ($result = $mysqlResult->fetch()) {
       $parent = $this->parent->getConstructById(__CLASS__ . '-' . $result['topic_id']);
       $this->parent->setConstructParent($parent);
-      $name = $this->parent->getConstructById(self::NAME_CLASS_NAME . '-' . 
-        $result['name_id']);
+      $name = $this->parent->getConstructById('NameImpl-' . $result['name_id']);
       $names[] = $name;
     }
     return $names;

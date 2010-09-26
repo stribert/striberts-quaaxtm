@@ -32,10 +32,6 @@
  */
 final class TopicMapImpl extends ConstructImpl implements TopicMap {
 
-  const TOPICMAP_CLASS_NAME = __CLASS__,
-        TOPIC_CLASS_NAME = 'TopicImpl',
-        ASSOC_CLASS_NAME = 'AssociationImpl';
-
   private $setIid,
           $constructParent,
           $constructPropertyHolder,
@@ -103,7 +99,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
         ' WHERE topicmap_id = ' . $this->dbId;
       $mysqlResult = $this->mysql->execute($query);
       while ($result = $mysqlResult->fetch()) {    
-        $topic = $this->getConstructById(self::TOPIC_CLASS_NAME . '-' . $result['id']);
+        $topic = $this->getConstructById('TopicImpl-' . $result['id']);
         $topics[$topic->getId()] = $topic;
       }
       $this->topicsCache = $topics;
@@ -129,7 +125,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
         $propertyHolder = new PropertyUtils();
         $propertyHolder->setTypeId($result['type_id']);
         $this->setConstructPropertyHolder($propertyHolder);
-        $assoc = $this->getConstructById(self::ASSOC_CLASS_NAME . '-' . $result['id']);
+        $assoc = $this->getConstructById('AssociationImpl-' . $result['id']);
         $assocs[$result['hash']] = $assoc;
       }
       $this->assocsCache = $assocs;
@@ -157,7 +153,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       $propertyHolder = new PropertyUtils();
       $propertyHolder->setTypeId($result['type_id']);
       $this->setConstructPropertyHolder($propertyHolder);
-      $assoc = $this->getConstructById(self::ASSOC_CLASS_NAME . '-' . $result['id']);
+      $assoc = $this->getConstructById('AssociationImpl-' . $result['id']);
       $assocs[$result['hash']] = $assoc;
     }
     return array_values($assocs);
@@ -182,7 +178,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {
       $result = $mysqlResult->fetch();
-      return $this->getConstructById(self::TOPIC_CLASS_NAME . '-' . $result['id']);
+      return $this->getConstructById('TopicImpl-' . $result['id']);
     } else {
       return null;
     }
@@ -207,7 +203,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {
       $result = $mysqlResult->fetch();
-      return $this->getConstructById(self::TOPIC_CLASS_NAME . '-' . $result['id']);
+      return $this->getConstructById('TopicImpl-' . $result['id']);
     } else {
       return null;
     }
@@ -256,10 +252,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $className = $constituents[0];
     $dbId = $constituents[1];
     switch ($className) {
-      case self::TOPIC_CLASS_NAME:
+      case 'TopicImpl':
         return new $className($dbId, $this->mysql, $this->config, $this);
         break;
-      case TopicImpl::NAME_CLASS_NAME:
+      case 'NameImpl':
         $parent = $this->constructParent instanceof Topic ? $this->constructParent : 
           $this->getNameParent($dbId);
         $this->constructParent = null;
@@ -268,12 +264,12 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
         return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
           $propertyHolder);
         break;
-      case self::ASSOC_CLASS_NAME:
+      case 'AssociationImpl':
         $propertyHolder = $this->constructPropertyHolder;
         $this->constructPropertyHolder = null;
         return new $className($dbId, $this->mysql, $this->config, $this, $propertyHolder);
         break;
-      case AssociationImpl::ROLE_CLASS_NAME:
+      case 'RoleImpl':
         $parent = $this->constructParent instanceof Association ? 
           $this->constructParent : $this->getRoleParent($dbId);
         $this->constructParent = null;
@@ -282,7 +278,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
         return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
           $propertyHolder);
         break;
-      case TopicImpl::OCC_CLASS_NAME:
+      case 'OccurrenceImpl':
         $parent = $this->constructParent instanceof Topic ? $this->constructParent : 
           $this->getOccurrenceParent($dbId);
         $this->constructParent = null;
@@ -291,7 +287,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
         return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
           $propertyHolder);
         break;
-      case NameImpl::VARIANT_CLASS_NAME:
+      case 'VariantImpl':
         $parent = $this->constructParent instanceof Name ? $this->constructParent : 
           $this->getVariantParent($dbId);
         $this->constructParent = null;
@@ -326,7 +322,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $hash = $this->getAssocHash($type, $scope, $roles=array());
     $assocId = $this->hasAssoc($hash);
     if ($assocId) {
-      return $this->getConstructById(self::ASSOC_CLASS_NAME . '-' . $assocId);
+      return $this->getConstructById('AssociationImpl-' . $assocId);
     }
     $this->mysql->startTransaction(true);
     $query = 'INSERT INTO ' . $this->config['table']['association'] . 
@@ -347,7 +343,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $this->mysql->execute($query);
     
     $this->mysql->finishTransaction(true);
-    $assoc = $this->getConstructById(self::ASSOC_CLASS_NAME . '-' . $lastAssocId);
+    $assoc = $this->getConstructById('AssociationImpl-' . $lastAssocId);
     if (!$this->mysql->hasError()) {
       $assoc->postInsert();
       $this->postSave();
@@ -518,7 +514,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       $this->mysql->execute($query);
     }
     $this->mysql->finishTransaction();
-    $topic = $this->getConstructById(self::TOPIC_CLASS_NAME . '-' . $lastTopicId);
+    $topic = $this->getConstructById('TopicImpl-' . $lastTopicId);
     if (!$this->mysql->hasError()) {
       $topic->postInsert();
       $this->postSave();
@@ -736,8 +732,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {// there exist duplicates
       while ($result = $mysqlResult->fetch()) {
-        $duplicate = $this->getConstructById(self::ASSOC_CLASS_NAME . '-' . 
-          $result['id']);
+        $duplicate = $this->getConstructById('AssociationImpl-' . $result['id']);
         // gain duplicate's item identities
         $assoc->gainItemIdentifiers($duplicate);
         // gain duplicate's reifier
@@ -989,7 +984,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       ' WHERE topicname_id = ' . $nameId;
     $mysqlResult = $this->mysql->execute($query);
     $result = $mysqlResult->fetch();
-    return $this->getConstructById(self::TOPIC_CLASS_NAME . '-' . $result['parent_id']);
+    return $this->getConstructById('TopicImpl-' . $result['parent_id']);
   }
   
   /**
@@ -1003,7 +998,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       ' WHERE occurrence_id = ' . $occId;
     $mysqlResult = $this->mysql->execute($query);
     $result = $mysqlResult->fetch();
-    return $this->getConstructById(self::TOPIC_CLASS_NAME . '-' . $result['parent_id']);
+    return $this->getConstructById('TopicImpl-' . $result['parent_id']);
   }
   
   /**
@@ -1017,7 +1012,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       ' WHERE assocrole_id = ' . $roleId;
     $mysqlResult = $this->mysql->execute($query);
     $result = $mysqlResult->fetch();
-    return $this->getConstructById(self::ASSOC_CLASS_NAME . '-' . $result['parent_id']);
+    return $this->getConstructById('AssociationImpl-' . $result['parent_id']);
   }
   
   /**
@@ -1034,8 +1029,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $nameId = $result['parent_id'];
     $parentTopic = $this->getNameParent($nameId);
     $this->setConstructParent($parentTopic);
-    return $this->getConstructById(TopicImpl::NAME_CLASS_NAME . '-' . 
-      $result['parent_id']);
+    return $this->getConstructById('NameImpl-' . $result['parent_id']);
   }
   
   /**

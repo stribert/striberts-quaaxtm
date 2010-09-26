@@ -33,8 +33,7 @@
  */
 final class NameImpl extends ScopedImpl implements Name {
   
-  const VARIANT_CLASS_NAME = 'VariantImpl',
-        SCOPE_NO_SUPERSET_ERR_MSG = ': Variant\'s scope is not a true superset of the name\'s scope!';
+  const SCOPE_NO_SUPERSET_ERR_MSG = ': Variant\'s scope is not a true superset of the name\'s scope!';
         
   private $propertyHolder;
   
@@ -63,8 +62,12 @@ final class NameImpl extends ScopedImpl implements Name {
    * @return void
    */
   public function __destruct() {
-    if ($this->topicMap->getTopicMapSystem()->getFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL) && 
-      !is_null($this->dbId) && !is_null($this->parent->dbId)) $this->parent->finished($this);
+    $featureIsSet = $this->topicMap->getTopicMapSystem()->getFeature(
+      VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL
+    );
+    if ($featureIsSet && !is_null($this->dbId) && !is_null($this->parent->dbId)) {
+      $this->parent->finished($this);
+    }
   }
 
   /**
@@ -133,7 +136,7 @@ final class NameImpl extends ScopedImpl implements Name {
       $this->topicMap->setConstructPropertyHolder($propertyHolder);
       $this->topicMap->setConstructParent($this);
       $variant = $this->topicMap->getConstructById(
-        self::VARIANT_CLASS_NAME . '-' . $result['id'],
+        'VariantImpl-' . $result['id'],
         $result['hash']
       );
       $variants[$result['hash']] = $variant;
@@ -195,7 +198,7 @@ final class NameImpl extends ScopedImpl implements Name {
           $this->topicMap->setConstructPropertyHolder($propertyHolder);
           $this->topicMap->setConstructParent($this);
           
-          $variant = $this->topicMap->getConstructById(self::VARIANT_CLASS_NAME . '-' . $lastVariantId);
+          $variant = $this->topicMap->getConstructById('VariantImpl-' . $lastVariantId);
           if (!$this->mysql->hasError()) {
             $variant->postInsert();
             $this->postSave();
@@ -207,7 +210,7 @@ final class NameImpl extends ScopedImpl implements Name {
         }
       } else {
         $this->topicMap->setConstructParent($this);
-        return $this->topicMap->getConstructById(self::VARIANT_CLASS_NAME . '-' . $variantId);
+        return $this->topicMap->getConstructById('VariantImpl-' . $variantId);
       }
     } else {
       throw new ModelConstraintException($this, __METHOD__ . 
@@ -248,7 +251,7 @@ final class NameImpl extends ScopedImpl implements Name {
       $typeId = $result['type_id'];
       $this->propertyHolder->setTypeId($typeId);
     }
-    return $this->topicMap->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . $typeId);
+    return $this->topicMap->getConstructById('TopicImpl-' . $typeId);
   }
 
   /**
@@ -388,8 +391,7 @@ final class NameImpl extends ScopedImpl implements Name {
     if ($rows > 0) {// there exist duplicates
       while ($result = $mysqlResult->fetch()) {
         $this->topicMap->setConstructParent($this);
-        $duplicate = $this->topicMap->getConstructById(self::VARIANT_CLASS_NAME . '-' . 
-          $result['id']);
+        $duplicate = $this->topicMap->getConstructById('VariantImpl-' . $result['id']);
         // gain duplicate's item identities
         $variant->gainItemIdentifiers($duplicate);
         // gain duplicate's reifier

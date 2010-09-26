@@ -175,8 +175,9 @@ abstract class ConstructImpl implements Construct {
             }
           } else {// merge
             $result = $mysqlResult->fetch();
-            $existingTopic = $this->getTopicMap()
-              ->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . $result['id']);
+            $existingTopic = $this->getTopicMap()->getConstructById(
+            	'TopicImpl-' . $result['id']
+            );
             $this->mergeIn($existingTopic);
           }
         } else {
@@ -275,19 +276,19 @@ abstract class ConstructImpl implements Construct {
    */
   protected function getFkColumn($className) {
     switch ($className) {
-      case TopicMapImpl::ASSOC_CLASS_NAME:
+      case 'AssociationImpl':
         return self::ASSOC_FK_COL;
-      case AssociationImpl::ROLE_CLASS_NAME:
+      case 'RoleImpl':
         return self::ROLE_FK_COL;
-      case TopicImpl::OCC_CLASS_NAME:
+      case 'OccurrenceImpl':
         return self::OCC_FK_COL;
-      case TopicMapImpl::TOPIC_CLASS_NAME:
+      case 'TopicImpl':
         return self::TOPIC_FK_COL;
-      case TopicMapImpl::TOPICMAP_CLASS_NAME:
+      case 'TopicMapImpl':
         return self::TOPICMAP_FK_COL;
-      case TopicImpl::NAME_CLASS_NAME:
+      case 'NameImpl':
         return self::NAME_FK_COL;
-      case NameImpl::VARIANT_CLASS_NAME:
+      case 'VariantImpl':
         return self::VARIANT_FK_COL;
       default:
         return null;
@@ -383,7 +384,7 @@ abstract class ConstructImpl implements Construct {
           }
         } else {// only gain variant's iids and reifier
           $this->getTopicMap()->setConstructParent($this);
-          $variant = $this->getTopicMap()->getConstructById(NameImpl::VARIANT_CLASS_NAME . '-' . $variantId);
+          $variant = $this->getTopicMap()->getConstructById('VariantImpl-' . $variantId);
           $variant->gainItemIdentifiers($otherVariant);
           $variant->gainReifier($otherVariant);
           $variant->postSave();
@@ -405,42 +406,30 @@ abstract class ConstructImpl implements Construct {
     $topicMap = $this->getTopicMap();
     $result = $mysqlResult->fetch();
     if (!is_null($result['topic_id'])) {
-      return $topicMap->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . 
-        $result['topic_id']);
+      return $topicMap->getConstructById('TopicImpl-' . $result['topic_id']);
     } elseif (!is_null($result['occurrence_id'])) {
-      $parentTopic = $topicMap->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . 
-        '-' . $result['parent_id']);
+      $parentTopic = $topicMap->getConstructById('TopicImpl-' . $result['parent_id']);
       $topicMap->setConstructParent($parentTopic);
-      return $topicMap->getConstructById(TopicImpl::OCC_CLASS_NAME . '-' . 
-        $result['occurrence_id']);
+      return $topicMap->getConstructById('OccurrenceImpl-' . $result['occurrence_id']);
     } elseif (!is_null($result['topicname_id'])) {
-      $parentTopic = $topicMap->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . 
-        '-' . $result['parent_id']);
+      $parentTopic = $topicMap->getConstructById('TopicImpl-' . $result['parent_id']);
       $topicMap->setConstructParent($parentTopic);
-      return $topicMap->getConstructById(TopicImpl::NAME_CLASS_NAME . '-' . 
-        $result['topicname_id']);
+      return $topicMap->getConstructById('NameImpl-' . $result['topicname_id']);
     } elseif (!is_null($result['association_id'])) {
-      return $topicMap->getConstructById(TopicMapImpl::ASSOC_CLASS_NAME . '-' . 
-        $result['association_id']);
+      return $topicMap->getConstructById('AssociationImpl-' . $result['association_id']);
     } elseif (!is_null($result['assocrole_id'])) {
-      $parentAssoc = $topicMap->getConstructById(TopicMapImpl::ASSOC_CLASS_NAME . 
-        '-' . $result['parent_id']);
+      $parentAssoc = $topicMap->getConstructById('AssociationImpl-' . $result['parent_id']);
       $topicMap->setConstructParent($parentAssoc);
-      return $topicMap->getConstructById(AssociationImpl::ROLE_CLASS_NAME . '-' . 
-        $result['assocrole_id']);
+      return $topicMap->getConstructById('RoleImpl-' . $result['assocrole_id']);
     } elseif (!is_null($result['variant_id'])) {
       $parentTopicId = $this->getNameparentId($result['parent_id']);
-      $parentTopic = $topicMap->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . 
-        '-' . $parentTopicId);
+      $parentTopic = $topicMap->getConstructById('TopicImpl-' . $parentTopicId);
       $topicMap->setConstructParent($parentTopic);
-      $parentName = $topicMap->getConstructById(TopicImpl::NAME_CLASS_NAME . 
-        '-' . $result['parent_id']);
+      $parentName = $topicMap->getConstructById('NameImpl-' . $result['parent_id']);
       $topicMap->setConstructParent($parentName);
-      return $topicMap->getConstructById(NameImpl::VARIANT_CLASS_NAME . '-' . 
-        $result['variant_id']);
+      return $topicMap->getConstructById('VariantImpl-' . $result['variant_id']);
     } elseif (!is_null($result['topicmap_id'])) {
-      return $topicMap->getConstructById(TopicMapImpl::TOPICMAP_CLASS_NAME . '-' . 
-        $result['topicmap_id']);
+      return $topicMap->getConstructById('TopicMapImpl-' . $result['topicmap_id']);
     } else {
       return null;
     }
@@ -458,8 +447,7 @@ abstract class ConstructImpl implements Construct {
     $mysqlResult = $this->mysql->execute($query);
     $result = $mysqlResult->fetch();
     if (!is_null($result['reifier_id'])) {
-      return $this->getTopicMap()->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . 
-        $result['reifier_id']);
+      return $this->getTopicMap()->getConstructById('TopicImpl-' . $result['reifier_id']);
     } else {
       return null;
     }

@@ -65,8 +65,12 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * @return void
    */
   public function __destruct() {
-    if ($this->topicMap->getTopicMapSystem()->getFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL) && 
-      !is_null($this->dbId) && !is_null($this->parent->dbId)) $this->parent->finished($this);
+    $featureIsSet = $this->topicMap->getTopicMapSystem()->getFeature(
+      VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL
+    );
+    if ($featureIsSet && !is_null($this->dbId) && !is_null($this->parent->dbId)) {
+      $this->parent->finished($this);
+    }
   }
   
   /**

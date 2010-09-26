@@ -32,8 +32,6 @@
  * @version $Id$
  */
 final class AssociationImpl extends ScopedImpl implements Association {
-
-  const ROLE_CLASS_NAME = 'RoleImpl';
   
   private $propertyHolder;
   
@@ -60,8 +58,12 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * @return void
    */
   public function __destruct() {
-    if ($this->topicMap->getTopicMapSystem()->getFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL) && 
-      !is_null($this->dbId) && !is_null($this->parent->dbId)) $this->parent->finished($this);
+    $featureIsSet = $this->topicMap->getTopicMapSystem()->getFeature(
+      VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL
+    );
+    if ($featureIsSet && !is_null($this->dbId) && !is_null($this->parent->dbId)) {
+      $this->parent->finished($this);
+    }
   }
 
   /**
@@ -87,7 +89,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
       
       $this->parent->setConstructParent($this);
       
-      $role = $this->parent->getConstructById(self::ROLE_CLASS_NAME . '-' . $result['id']);
+      $role = $this->parent->getConstructById('RoleImpl-' . $result['id']);
       
       $roles[$result['type_id'] . $result['player_id']] = $role;
     }
@@ -140,7 +142,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
       $this->parent->setConstructPropertyHolder($propertyHolder);
       $this->parent->setConstructParent($this);
       
-      $role = $this->parent->getConstructById(self::ROLE_CLASS_NAME . '-' . $lastRoleId);
+      $role = $this->parent->getConstructById('RoleImpl-' . $lastRoleId);
       if (!$this->mysql->hasError()) {
         $role->postInsert();
         $this->postSave();
@@ -149,7 +151,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
     } else {
       $result = $mysqlResult->fetch();
       $this->parent->setConstructParent($this);
-      return $this->parent->getConstructById(self::ROLE_CLASS_NAME . '-' . $result['id']);
+      return $this->parent->getConstructById('RoleImpl-' . $result['id']);
     }
   }
 
@@ -166,8 +168,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
       ' WHERE association_id = ' . $this->dbId;
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $type = $this->parent->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . 
-        $result['type_id']);
+      $type = $this->parent->getConstructById('TopicImpl-' . $result['type_id']);
       $types[$type->getId()] = $type;
     }
     return array_values($types);
@@ -206,7 +207,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
       $typeId = $result['type_id'];
       $this->propertyHolder->setTypeId($typeId);
     }
-    return $this->parent->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . $typeId);
+    return $this->parent->getConstructById('TopicImpl-' . $typeId);
   }
 
   /**

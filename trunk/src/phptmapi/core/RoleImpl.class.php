@@ -70,8 +70,7 @@ final class RoleImpl extends ConstructImpl implements Role {
       $playerId = $result['player_id'];
       $this->propertyHolder->setPlayerId($playerId);
     }
-    return $this->topicMap->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . 
-      $playerId);
+    return $this->topicMap->getConstructById('TopicImpl-' . $playerId);
   }
 
   /**
@@ -140,8 +139,7 @@ final class RoleImpl extends ConstructImpl implements Role {
       $typeId = $result['type_id'];
       $this->propertyHolder->setTypeId($typeId);
     }
-    return $this->topicMap->getConstructById(TopicMapImpl::TOPIC_CLASS_NAME . '-' . 
-      $typeId);
+    return $this->topicMap->getConstructById('TopicImpl-' . $typeId);
   }
 
   /**
