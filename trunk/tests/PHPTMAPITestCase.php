@@ -19,18 +19,18 @@
  */
 
 require_once(
-              dirname(__FILE__) . 
-              DIRECTORY_SEPARATOR . 
-              '..' . 
-              DIRECTORY_SEPARATOR . 
-              'lib' . 
-              DIRECTORY_SEPARATOR . 
-              'phptmapi2.0' . 
-              DIRECTORY_SEPARATOR . 
-              'core' . 
-              DIRECTORY_SEPARATOR . 
-              'TopicMapSystemFactory.class.php'
-            );
+  dirname(__FILE__) . 
+  DIRECTORY_SEPARATOR . 
+  '..' . 
+  DIRECTORY_SEPARATOR . 
+  'lib' . 
+  DIRECTORY_SEPARATOR . 
+  'phptmapi2.0' . 
+  DIRECTORY_SEPARATOR . 
+  'core' . 
+  DIRECTORY_SEPARATOR . 
+  'TopicMapSystemFactory.class.php'
+);
 
 /**
  * Provides common functions for tests.
