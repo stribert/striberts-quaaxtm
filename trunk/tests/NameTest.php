@@ -67,6 +67,9 @@ class NameTest extends PHPTMAPITestCase {
     $name->setType($type2);
     $nameType = $name->getType();
     $this->assertEquals($nameType->getId(), $type2->getId());
+    $name->setType($nameType);
+    $nameType = $name->getType();
+    $this->assertEquals($nameType->getId(), $type2->getId());
   }
   
   public function testValue() {
