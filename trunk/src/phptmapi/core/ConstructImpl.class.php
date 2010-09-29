@@ -187,16 +187,20 @@ abstract class ConstructImpl implements Construct {
           }
         }
       } else {// the given item identifier already exists
-        $existing = $this->factory($mysqlResult);
-        if ($existing instanceof Topic && $this instanceof Topic) {
-          if (!$existing->equals($this)) {
-            $this->mergeIn($existing);
+        $existingConstruct = $this->factory($mysqlResult);
+        if ($existingConstruct instanceof Topic && $this instanceof Topic) {
+          if (!$existingConstruct->equals($this)) {
+            $this->mergeIn($existingConstruct);
           } else {
             return;
           }
         } else {
-          throw new IdentityConstraintException($this, $existing, $iid, __METHOD__ . 
-            self::ITEM_IDENTIFIER_EXISTS_ERR_MSG);
+          throw new IdentityConstraintException(
+            $this, 
+            $existingConstruct, 
+            $iid, 
+            __METHOD__ . self::ITEM_IDENTIFIER_EXISTS_ERR_MSG
+          );
         }
       }
     } else {
@@ -213,14 +217,13 @@ abstract class ConstructImpl implements Construct {
    * @return void
    */
   public function removeItemIdentifier($iid) {
-    if (!is_null($iid)) {
-      $query = 'DELETE FROM ' . $this->config['table']['itemidentifier'] . 
-        ' WHERE topicmapconstruct_id = ' . $this->constructDbId . 
-        ' AND locator = "' . $iid . '"';
-      $this->mysql->execute($query);
-    } else {
+    if (is_null($iid)) {
       return;
     }
+    $query = 'DELETE FROM ' . $this->config['table']['itemidentifier'] . 
+      ' WHERE topicmapconstruct_id = ' . $this->constructDbId . 
+      ' AND locator = "' . $iid . '"';
+    $this->mysql->execute($query);
   }
 
   /**
@@ -306,20 +309,19 @@ abstract class ConstructImpl implements Construct {
    * @return void
    */
   protected function gainItemIdentifiers(Construct $other) {
-    if ($this->className === $other->className) {
-      // get other's item identifiers
-      $query = $query = 'SELECT locator FROM ' . $this->config['table']['itemidentifier'] . 
-        ' WHERE topicmapconstruct_id = ' . $other->constructDbId;
-      $mysqlResult = $this->mysql->execute($query);
-      while ($result = $mysqlResult->fetch()) {
-        // assign other's item identifiers
-        $query = 'INSERT INTO ' . $this->config['table']['itemidentifier'] . 
-          ' (topicmapconstruct_id, locator) VALUES' .
-          ' (' . $this->constructDbId . ', "' . $result['locator'] . '")';
-        $this->mysql->execute($query);
-      }
-    } else {
+    if ($this->className != $other->className) {
       return;
+    }
+    // get other's item identifiers
+    $query = $query = 'SELECT locator FROM ' . $this->config['table']['itemidentifier'] . 
+      ' WHERE topicmapconstruct_id = ' . $other->constructDbId;
+    $mysqlResult = $this->mysql->execute($query);
+    while ($result = $mysqlResult->fetch()) {
+      // assign other's item identifiers
+      $query = 'INSERT INTO ' . $this->config['table']['itemidentifier'] . 
+        ' (topicmapconstruct_id, locator) VALUES' .
+        ' (' . $this->constructDbId . ', "' . $result['locator'] . '")';
+      $this->mysql->execute($query);
     }
   }
   
@@ -335,24 +337,22 @@ abstract class ConstructImpl implements Construct {
    * @throws {@link ModelConstraintException} If the two constructs have different reifiers.
    */
   protected function gainReifier(Construct $other) {
-    if ($this->className === $other->className) {
-      if (!is_null($other->getReifier())) {
-        if (is_null($this->getReifier())) {
-          $query = 'UPDATE ' . $this->config['table']['topicmapconstruct'] . 
-            ' SET reifier_id = ' . $other->getReifier()->dbId . 
-            ' WHERE id = ' . $this->constructDbId;
-          $this->mysql->execute($query);
-        } else {// both constructs have reifiers
-          $otherReifier = $other->getReifier();
-          // prevent MCE, the other construct will be removed afterwards
-          $other->setReifier(null);
-          $this->getReifier()->mergeIn($otherReifier);
-        }
-      } else {
-        return;
-      }
-    } else {
+    if ($this->className != $other->className) {
       return;
+    }
+    if (is_null($other->getReifier())) {
+      return;
+    }
+    if (is_null($this->getReifier())) {
+      $query = 'UPDATE ' . $this->config['table']['topicmapconstruct'] . 
+        ' SET reifier_id = ' . $other->getReifier()->dbId . 
+        ' WHERE id = ' . $this->constructDbId;
+      $this->mysql->execute($query);
+    } else {// both constructs have reifiers
+      $otherReifier = $other->getReifier();
+      // prevent MCE, the other construct will be removed afterwards
+      $other->setReifier(null);
+      $this->getReifier()->mergeIn($otherReifier);
     }
   }
   
@@ -363,35 +363,34 @@ abstract class ConstructImpl implements Construct {
    * @return void
    */
   protected function gainVariants(Name $other) {
-    if ($this instanceof Name) {
-      $otherVariants = $other->getVariants();
-      foreach ($otherVariants as $otherVariant) {
-        $variantId = $this->hasVariant($otherVariant->getHash());
-        if (!$variantId) {// gain the variant
-          $this->mysql->startTransaction();
-          $query = 'UPDATE ' . $this->config['table']['variant'] . 
-            ' SET topicname_id = ' . $this->dbId  .
-            ' WHERE id = ' . $otherVariant->dbId;
-          $this->mysql->execute($query);
-          
-          $query = 'UPDATE ' . $this->config['table']['topicmapconstruct'] . 
-            ' SET parent_id = ' . $this->dbId  .
-            ' WHERE variant_id = ' . $otherVariant->dbId;
-          $this->mysql->execute($query);
-          $this->mysql->finishTransaction();
-          if (!$this->mysql->hasError()) {
-            $this->postSave();
-          }
-        } else {// only gain variant's iids and reifier
-          $this->getTopicMap()->setConstructParent($this);
-          $variant = $this->getTopicMap()->getConstructById('VariantImpl-' . $variantId);
-          $variant->gainItemIdentifiers($otherVariant);
-          $variant->gainReifier($otherVariant);
-          $variant->postSave();
-        }
-      }
-    } else {
+    if (!$this instanceof Name) {
       return;
+    }
+    $otherVariants = $other->getVariants();
+    foreach ($otherVariants as $otherVariant) {
+      $variantId = $this->hasVariant($otherVariant->getHash());
+      if (!$variantId) {// gain the variant
+        $this->mysql->startTransaction();
+        $query = 'UPDATE ' . $this->config['table']['variant'] . 
+          ' SET topicname_id = ' . $this->dbId  .
+          ' WHERE id = ' . $otherVariant->dbId;
+        $this->mysql->execute($query);
+        
+        $query = 'UPDATE ' . $this->config['table']['topicmapconstruct'] . 
+          ' SET parent_id = ' . $this->dbId  .
+          ' WHERE variant_id = ' . $otherVariant->dbId;
+        $this->mysql->execute($query);
+        $this->mysql->finishTransaction();
+        if (!$this->mysql->hasError()) {
+          $this->postSave();
+        }
+      } else {// only gain variant's iids and reifier
+        $this->getTopicMap()->setConstructParent($this);
+        $variant = $this->getTopicMap()->getConstructById('VariantImpl-' . $variantId);
+        $variant->gainItemIdentifiers($otherVariant);
+        $variant->gainReifier($otherVariant);
+        $variant->postSave();
+      }
     }
   }
   

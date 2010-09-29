@@ -44,12 +44,17 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * @param TopicMapImpl The containing topic map.
    * @param PropertyUtils The property holder.
    */
-  public function __construct($dbId, Mysql $mysql, array $config, TopicMap $parent, 
-    PropertyUtils $propertyHolder=null) {
-    
-      parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $parent);
-      
-      $this->propertyHolder = !is_null($propertyHolder) ? $propertyHolder : new PropertyUtils();
+  public function __construct(
+    $dbId, 
+    Mysql $mysql, 
+    array $config, 
+    TopicMap $parent, 
+    PropertyUtils $propertyHolder=null
+  ) {  
+      parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $parent); 
+      $this->propertyHolder = !is_null($propertyHolder) 
+        ? $propertyHolder 
+        : new PropertyUtils();
   }
   
   /**
@@ -107,9 +112,12 @@ final class AssociationImpl extends ScopedImpl implements Association {
    */
   public function createRole(Topic $type, Topic $player) {
     if (!$this->topicMap->equals($type->topicMap) || 
-      !$this->topicMap->equals($player->topicMap)) {
-      throw new ModelConstraintException($this, __METHOD__ . 
-        parent::SAME_TM_CONSTRAINT_ERR_MSG);
+      !$this->topicMap->equals($player->topicMap)
+    ) {
+      throw new ModelConstraintException(
+        $this, 
+        __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+      );
     }
     // duplicate suppression
     $query = 'SELECT id FROM ' . $this->config['table']['assocrole'] . 
@@ -199,15 +207,15 @@ final class AssociationImpl extends ScopedImpl implements Association {
   public function getType() {
     if (!is_null($this->propertyHolder->getTypeId())) {
       $typeId = $this->propertyHolder->getTypeId();
+      return $this->parent->getConstructById('TopicImpl-' . $typeId);
     } else {
       $query = 'SELECT type_id FROM ' . $this->config['table']['association'] . 
         ' WHERE id = ' . $this->dbId;
       $mysqlResult = $this->mysql->execute($query);
       $result = $mysqlResult->fetch();
-      $typeId = $result['type_id'];
-      $this->propertyHolder->setTypeId($typeId);
+      $this->propertyHolder->setTypeId($result['type_id']);
+      return $this->parent->getConstructById('TopicImpl-' . $result['type_id']);
     }
-    return $this->parent->getConstructById('TopicImpl-' . $typeId);
   }
 
   /**
@@ -222,8 +230,10 @@ final class AssociationImpl extends ScopedImpl implements Association {
   public function setType(Topic $type) {
     if (!$this->getType()->equals($type)) {
       if (!$this->topicMap->equals($type->topicMap)) {
-        throw new ModelConstraintException($this, __METHOD__ . 
-          parent::SAME_TM_CONSTRAINT_ERR_MSG);
+        throw new ModelConstraintException(
+          $this, 
+          __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+        );
       }
       $this->mysql->startTransaction();
       $query = 'UPDATE ' . $this->config['table']['association'] . 

@@ -57,9 +57,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @return void
    */
   public function __construct($dbId, Mysql $mysql, array $config, TopicMap $parent) {
-    
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $parent);
-    
     $this->defaultNameType = null;
   }
 
@@ -141,8 +139,10 @@ final class TopicImpl extends ConstructImpl implements Topic {
         return;
       }
     } else {
-      throw new ModelConstraintException($this, __METHOD__ . 
-        self::IDENTITY_NULL_ERR_MSG);
+      throw new ModelConstraintException(
+        $this, 
+        __METHOD__ . self::IDENTITY_NULL_ERR_MSG
+      );
     }
   }
 
@@ -154,14 +154,15 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @return void
    */
   public function removeSubjectIdentifier($sid) {
-    if (!is_null($sid)) {
-      $query = 'DELETE FROM ' . $this->config['table']['subjectidentifier'] . 
-        ' WHERE topic_id = ' . $this->dbId . 
-        ' AND locator = "' . $sid . '"';
-      $this->mysql->execute($query);
-      if (!$this->mysql->hasError()) {
-        $this->postSave();
-      }
+    if (is_null($sid)) {
+      return;
+    }
+    $query = 'DELETE FROM ' . $this->config['table']['subjectidentifier'] . 
+      ' WHERE topic_id = ' . $this->dbId . 
+      ' AND locator = "' . $sid . '"';
+    $this->mysql->execute($query);
+    if (!$this->mysql->hasError()) {
+      $this->postSave();
     }
   }
 
@@ -200,35 +201,36 @@ final class TopicImpl extends ConstructImpl implements Topic {
   public function addSubjectLocator($slo) {
     if (!is_null($slo)) {
       $slos = $this->getSubjectLocators();
-      if (!in_array($slo, $slos, true)) {
-        // check others' subject locators
-        $query = 'SELECT t2.id' .
-          ' FROM ' . $this->config['table']['subjectlocator'] . ' t1' .
-          ' INNER JOIN ' . $this->config['table']['topic'] . ' t2' .
-          ' ON t2.id = t1.topic_id' .
-          ' WHERE t1.locator = "' . $slo . '"' .
-          ' AND t2.topicmap_id = ' . $this->topicMap->dbId . 
-          ' AND t2.id <> ' . $this->dbId;
-        $mysqlResult = $this->mysql->execute($query);
-        $rows = $mysqlResult->getNumRows();
-        if ($rows == 0) {// insert subject locator
-          $query = 'INSERT INTO ' . $this->config['table']['subjectlocator'] . 
-            ' (topic_id, locator) VALUES (' . $this->dbId . ', "' . $slo .'")';
-          $this->mysql->execute($query);
-          if (!$this->mysql->hasError()) {
-            $this->postSave();
-          }
-        } else {// merge
-          $result = $mysqlResult->fetch();
-          $existingTopic = $this->parent->getConstructById(__CLASS__ . '-' . $result['id']);
-          $this->mergeIn($existingTopic);
-        }
-      } else {
+      if (in_array($slo, $slos, true)) {
         return;
       }
+      // check others' subject locators
+      $query = 'SELECT t2.id' .
+        ' FROM ' . $this->config['table']['subjectlocator'] . ' t1' .
+        ' INNER JOIN ' . $this->config['table']['topic'] . ' t2' .
+        ' ON t2.id = t1.topic_id' .
+        ' WHERE t1.locator = "' . $slo . '"' .
+        ' AND t2.topicmap_id = ' . $this->topicMap->dbId . 
+        ' AND t2.id <> ' . $this->dbId;
+      $mysqlResult = $this->mysql->execute($query);
+      $rows = $mysqlResult->getNumRows();
+      if ($rows == 0) {// insert subject locator
+        $query = 'INSERT INTO ' . $this->config['table']['subjectlocator'] . 
+          ' (topic_id, locator) VALUES (' . $this->dbId . ', "' . $slo .'")';
+        $this->mysql->execute($query);
+        if (!$this->mysql->hasError()) {
+          $this->postSave();
+        }
+      } else {// merge
+        $result = $mysqlResult->fetch();
+        $existingTopic = $this->parent->getConstructById(__CLASS__ . '-' . $result['id']);
+        $this->mergeIn($existingTopic);
+      }
     } else {
-      throw new ModelConstraintException($this, __METHOD__ . 
-        self::IDENTITY_NULL_ERR_MSG);
+      throw new ModelConstraintException(
+        $this, 
+        __METHOD__ . self::IDENTITY_NULL_ERR_MSG
+      );
     }
   }
 
@@ -240,14 +242,15 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @return void
    */
   public function removeSubjectLocator($slo) {
-    if (!is_null($slo)) {
-      $query = 'DELETE FROM ' . $this->config['table']['subjectlocator'] . 
-        ' WHERE topic_id = ' . $this->dbId . 
-        ' AND locator = "' . $slo . '"';
-      $this->mysql->execute($query);
-      if (!$this->mysql->hasError()) {
-        $this->postSave();
-      }
+    if (is_null($slo)) {
+      return;
+    }
+    $query = 'DELETE FROM ' . $this->config['table']['subjectlocator'] . 
+      ' WHERE topic_id = ' . $this->dbId . 
+      ' AND locator = "' . $slo . '"';
+    $this->mysql->execute($query);
+    if (!$this->mysql->hasError()) {
+      $this->postSave();
     }
   }
 
@@ -303,8 +306,10 @@ final class TopicImpl extends ConstructImpl implements Topic {
       $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
       $type = is_null($type) ? $this->getDefaultNameType() : $type;
       if (!$this->topicMap->equals($type->topicMap)) {
-        throw new ModelConstraintException($this, 
-          __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG);
+        throw new ModelConstraintException(
+          $this, 
+          __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+        );
       }
       $hash = $this->getNameHash($value, $type, $scope);
       $propertyId = $this->hasName($hash);
@@ -346,8 +351,10 @@ final class TopicImpl extends ConstructImpl implements Topic {
         return $this->parent->getConstructById('NameImpl-' . $propertyId);
       }
     } else {
-      throw new ModelConstraintException($this, __METHOD__ . 
-        parent::VALUE_NULL_ERR_MSG);
+      throw new ModelConstraintException(
+        $this, 
+        __METHOD__ . parent::VALUE_NULL_ERR_MSG
+      );
     }
   }
 
@@ -406,8 +413,10 @@ final class TopicImpl extends ConstructImpl implements Topic {
   public function createOccurrence(Topic $type, $value, $datatype, array $scope=array()) {
     if (!is_null($value) && !is_null($datatype)) {
       if (!$this->topicMap->equals($type->topicMap)) {
-        throw new ModelConstraintException($this, 
-          __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG);
+        throw new ModelConstraintException(
+          $this, 
+          __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+        );
       }
       $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
       $datatype = CharacteristicUtils::canonicalize($datatype, $this->mysql->getConnection());
@@ -453,8 +462,10 @@ final class TopicImpl extends ConstructImpl implements Topic {
         return $this->parent->getConstructById('OccurrenceImpl-' . $propertyId);
       }
     } else {
-      throw new ModelConstraintException($this, __METHOD__ . 
-        parent::VALUE_DATATYPE_NULL_ERR_MSG);
+      throw new ModelConstraintException(
+        $this, 
+        __METHOD__ . parent::VALUE_DATATYPE_NULL_ERR_MSG
+      );
     }
   }
   
@@ -647,28 +658,26 @@ final class TopicImpl extends ConstructImpl implements Topic {
    *        to the parent topic map.
    */
   public function addType(Topic $type) {
-    if (!$this->equals($type)) {
-      if (!$this->topicMap->equals($type->topicMap)) {
-        throw new ModelConstraintException($this, __METHOD__ . 
-          parent::SAME_TM_CONSTRAINT_ERR_MSG);
+    if (!$this->topicMap->equals($type->topicMap)) {
+      throw new ModelConstraintException(
+        $this, 
+        __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+      );
+    }
+    // duplicate suppression
+    $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['instanceof'] . 
+      ' WHERE topic_id = ' . $this->dbId . 
+      ' AND type_id = ' . $type->dbId;
+    $mysqlResult = $this->mysql->execute($query);
+    $result = $mysqlResult->fetchArray();
+    if ($result[0] == 0) {
+      $query = 'INSERT INTO ' . $this->config['table']['instanceof'] . 
+        ' (topic_id, type_id) VALUES' .
+        ' (' . $this->dbId . ', ' . $type->dbId . ')';
+      $this->mysql->execute($query);
+      if (!$this->mysql->hasError()) {
+        $this->postSave();
       }
-      // duplicate suppression
-      $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['instanceof'] . 
-        ' WHERE topic_id = ' . $this->dbId . 
-        ' AND type_id = ' . $type->dbId;
-      $mysqlResult = $this->mysql->execute($query);
-      $result = $mysqlResult->fetchArray();
-      if ($result[0] == 0) {
-        $query = 'INSERT INTO ' . $this->config['table']['instanceof'] . 
-          ' (topic_id, type_id) VALUES' .
-          ' (' . $this->dbId . ', ' . $type->dbId . ')';
-        $this->mysql->execute($query);
-        if (!$this->mysql->hasError()) {
-          $this->postSave();
-        }
-      }
-    } else {
-      return;
     }
   }
 
@@ -727,15 +736,19 @@ final class TopicImpl extends ConstructImpl implements Topic {
    *        Topic Maps constructs.
    */
   public function mergeIn(Topic $other) {
-    if ($this->equals($other)) return;
+    if ($this->equals($other)) {
+      return;
+    }
     if (!$this->parent->equals($other->parent)) {
-      throw new InvalidArgumentException(__METHOD__ . 
-        ': Both topics must belong to the same topic map!');
+      throw new InvalidArgumentException(
+        __METHOD__ . ': Both topics must belong to the same topic map!'
+      );
     }
     if (!is_null($this->getReified()) && !is_null($other->getReified())) {
       if (!$this->getReified()->equals($other->getReified())) {
-        throw new ModelConstraintException($this, 
-          __METHOD__ . ': Topics reify different Topic Maps constructs!');
+        throw new ModelConstraintException(
+          $this, __METHOD__ . ': Topics reify different Topic Maps constructs!'
+        );
       }
     }
     
@@ -1110,7 +1123,6 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @return false|int The name id or <var>false</var> otherwise.
    */
   public function hasName($hash) {
-    $return = false;
     $query = 'SELECT id FROM ' . $this->config['table']['topicname'] . 
       ' WHERE topic_id = ' . $this->dbId . 
       ' AND hash = "' . $hash . '"';
@@ -1118,9 +1130,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {
       $result = $mysqlResult->fetch();
-      $return = (int) $result['id'];
+      return (int) $result['id'];
     }
-    return $return;
+    return false;
   }
   
   /**
@@ -1130,7 +1142,6 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @return false|int The occurrence id or <var>false</var> otherwise.
    */
   public function hasOccurrence($hash) {
-    $return = false;
     $query = 'SELECT id FROM ' . $this->config['table']['occurrence'] . 
       ' WHERE topic_id = ' . $this->dbId . 
       ' AND hash = "' . $hash . '"';
@@ -1138,9 +1149,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {
       $result = $mysqlResult->fetch();
-      $return = (int) $result['id'];
+      return (int) $result['id'];
     }
-    return $return;
+    return false;
   }
   
   /**
@@ -1263,12 +1274,12 @@ final class TopicImpl extends ConstructImpl implements Topic {
    */
   private function isType() {
     $tableNames = array(
-                    'instanceof',
-                    'association',
-                    'assocrole',
-                    'occurrence',
-                    'topicname'
-                  );
+      'instanceof',
+      'association',
+      'assocrole',
+      'occurrence',
+      'topicname'
+    );
     foreach ($tableNames as $tableName) {
       $query = 'SELECT COUNT(*) FROM ' . $this->config['table'][$tableName] . 
         ' WHERE type_id = ' . $this->dbId;

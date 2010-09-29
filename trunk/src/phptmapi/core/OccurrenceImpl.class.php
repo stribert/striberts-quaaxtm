@@ -46,12 +46,18 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    * @param PropertyUtils The property holder.
    * @return void
    */
-  public function __construct($dbId, Mysql $mysql, array $config, Topic $parent, 
-    TopicMap $topicMap, PropertyUtils $propertyHolder=null) {
-    
+  public function __construct(
+    $dbId, 
+    Mysql $mysql, 
+    array $config, 
+    Topic $parent, 
+    TopicMap $topicMap, 
+    PropertyUtils $propertyHolder=null
+  ) {  
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $topicMap);
-    
-    $this->propertyHolder = !is_null($propertyHolder) ? $propertyHolder : new PropertyUtils();
+    $this->propertyHolder = !is_null($propertyHolder) 
+      ? $propertyHolder 
+      : new PropertyUtils();
   }
   
   /**
@@ -136,8 +142,10 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
         $this->postSave();
       }
     } else {
-      throw new ModelConstraintException($this, __METHOD__ . 
-        ConstructImpl::VALUE_DATATYPE_NULL_ERR_MSG);
+      throw new ModelConstraintException(
+        $this, 
+        __METHOD__ . ConstructImpl::VALUE_DATATYPE_NULL_ERR_MSG
+      );
     }
   }
   
@@ -149,15 +157,15 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
   public function getType() {
     if (!is_null($this->propertyHolder->getTypeId())) {
       $typeId = $this->propertyHolder->getTypeId();
+      return $this->topicMap->getConstructById('TopicImpl-' . $typeId);
     } else {
       $query = 'SELECT type_id FROM ' . $this->config['table']['occurrence'] . 
         ' WHERE id = ' . $this->dbId;
       $mysqlResult = $this->mysql->execute($query);
       $result = $mysqlResult->fetch();
-      $typeId = $result['type_id'];
-      $this->propertyHolder->setTypeId($typeId);
+      $this->propertyHolder->setTypeId($result['type_id']);
+      return $this->topicMap->getConstructById('TopicImpl-' . $result['type_id']);
     }
-    return $this->topicMap->getConstructById('TopicImpl-' . $typeId);
   }
 
   /**
@@ -170,28 +178,26 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    *        to the parent topic map.
    */
   public function setType(Topic $type) {
-    if (!$this->getType()->equals($type)) {
-      if (!$this->topicMap->equals($type->topicMap)) {
-        throw new ModelConstraintException($this, __METHOD__ . 
-          parent::SAME_TM_CONSTRAINT_ERR_MSG);
-      }
-      $this->mysql->startTransaction();
-      $query = 'UPDATE ' . $this->config['table']['occurrence'] . 
-        ' SET type_id = ' . $type->dbId . 
-        ' WHERE id = ' . $this->dbId;
-      $this->mysql->execute($query);
-      
-      $hash = $this->parent->getOccurrenceHash($type, $this->getValue(), $this->getDatatype(), 
-        $this->getScope());
-      $this->parent->updateOccurrenceHash($this->dbId, $hash);
-      $this->mysql->finishTransaction();
-      
-      if (!$this->mysql->hasError()) {
-        $this->propertyHolder->setTypeId($type->dbId);
-        $this->postSave();
-      }
-    } else {
-      return;
+    if (!$this->topicMap->equals($type->topicMap)) {
+      throw new ModelConstraintException(
+        $this, 
+        __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+      );
+    }
+    $this->mysql->startTransaction();
+    $query = 'UPDATE ' . $this->config['table']['occurrence'] . 
+      ' SET type_id = ' . $type->dbId . 
+      ' WHERE id = ' . $this->dbId;
+    $this->mysql->execute($query);
+    
+    $hash = $this->parent->getOccurrenceHash($type, $this->getValue(), $this->getDatatype(), 
+      $this->getScope());
+    $this->parent->updateOccurrenceHash($this->dbId, $hash);
+    $this->mysql->finishTransaction();
+    
+    if (!$this->mysql->hasError()) {
+      $this->propertyHolder->setTypeId($type->dbId);
+      $this->postSave();
     }
   }
   

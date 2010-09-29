@@ -316,8 +316,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    */
   public function createAssociation(Topic $type, array $scope=array()) {
     if (!$this->equals($type->topicMap)) {
-      throw new ModelConstraintException($this, __METHOD__ . 
-        parent::SAME_TM_CONSTRAINT_ERR_MSG);
+      throw new ModelConstraintException(
+        $this, 
+        __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+      );
     }
     $hash = $this->getAssocHash($type, $scope, $roles=array());
     $assocId = $this->hasAssoc($hash);
@@ -378,16 +380,22 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    */
   public function createTopicByItemIdentifier($iid) {
     if (is_null($iid)) {
-      throw new ModelConstraintException($this, __METHOD__ .
-        TopicImpl::IDENTITY_NULL_ERR_MSG);
+      throw new ModelConstraintException(
+        $this, 
+        __METHOD__ . TopicImpl::IDENTITY_NULL_ERR_MSG
+      );
     }
     $construct = $this->getConstructByItemIdentifier($iid);
     if (!is_null($construct)) {
       if ($construct instanceof Topic) {
         return $construct;
       } else {
-        throw new IdentityConstraintException($this, $construct, $iid, __METHOD__ . 
-          parent::ITEM_IDENTIFIER_EXISTS_ERR_MSG);
+        throw new IdentityConstraintException(
+          $this, 
+          $construct, 
+          $iid, 
+          __METHOD__ . parent::ITEM_IDENTIFIER_EXISTS_ERR_MSG
+        );
       }
     } else {
       $topic = $this->getTopicBySubjectIdentifier($iid);
@@ -426,8 +434,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    */
   public function createTopicBySubjectIdentifier($sid) {
     if (is_null($sid)) {
-      throw new ModelConstraintException($this, __METHOD__ .
-        TopicImpl::IDENTITY_NULL_ERR_MSG);
+      throw new ModelConstraintException(
+        $this, 
+        __METHOD__ . TopicImpl::IDENTITY_NULL_ERR_MSG
+      );
     }
     $topic = $this->getTopicBySubjectIdentifier($sid);
     if (!is_null($topic)) {
@@ -463,8 +473,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    */
   public function createTopicBySubjectLocator($slo) {
     if (is_null($slo)) {
-      throw new ModelConstraintException($this, __METHOD__ .
-        TopicImpl::IDENTITY_NULL_ERR_MSG);
+      throw new ModelConstraintException(
+        $this, 
+        __METHOD__ . TopicImpl::IDENTITY_NULL_ERR_MSG
+      );
     }
     $topic = $this->getTopicBySubjectLocator($slo);
     if (!is_null($topic)) {
@@ -586,8 +598,9 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     if (in_array($className, self::$supportedIndices)) {
       return new $className($this->mysql, $this->config, $this, $this->dbId);
     } else {
-      throw new FeatureNotSupportedException(__METHOD__ . 
-        ': Index "' . $className . '" is not supported!');
+      throw new FeatureNotSupportedException(
+        __METHOD__ . ': Index "' . $className . '" is not supported!'
+      );
     }
   }
 
@@ -652,7 +665,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return string
    */
   public function getAssocHash(Topic $type, array $scope, array $roles) {
-    $scopeIdsImploded = null;
+    $scopeIdsImploded = 
     $roleIdsImploded = null;
     if (count($scope) > 0) {
       $ids = array();
@@ -695,7 +708,6 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return false|int The association id or <var>false</var> otherwise.
    */
   public function hasAssoc($hash) {
-    $return = false;
     $query = 'SELECT id FROM ' . $this->config['table']['association'] . 
       ' WHERE topicmap_id = ' . $this->dbId . 
       ' AND hash = "' . $hash . '"';
@@ -703,9 +715,9 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {
       $result = $mysqlResult->fetch();
-      $return = (int) $result['id'];
+      return (int) $result['id'];
     }
-    return $return;
+    return false;
   }
   
   /**
@@ -855,8 +867,9 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $this->mysql->finishTransaction();
     
     if ($this->mysql->hasError()) {
-      throw new PHPTMAPIRuntimeException('Error in ' . __METHOD__ . ': '. 
-        $this->mysql->getError());
+      throw new PHPTMAPIRuntimeException(
+      	'Error in ' . __METHOD__ . ': '. $this->mysql->getError()
+      );
     }
     
     $this->id = 
@@ -1102,10 +1115,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       $targetType = $this->copyTopic($sourceName->getType());
       $targetNameScope = $this->copyScope($sourceName->getScope());
       $targetName = $targetTopic->createName( 
-                                              $sourceName->getValue(), 
-                                              $targetType, 
-                                              $targetNameScope
-                                            );
+        $sourceName->getValue(), 
+        $targetType, 
+        $targetNameScope
+      );
       // source name's iids
       $this->copyIids($targetName, $sourceName);
       
@@ -1116,10 +1129,11 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       $sourceVariants = $sourceName->getVariants();
       foreach ($sourceVariants as $sourceVariant) {
         $targetVariantScope = $this->copyScope($sourceVariant->getScope());
-        $targetVariant = $targetName->createVariant($sourceVariant->getValue(), 
-                                          $sourceVariant->getDatatype(), 
-                                          $targetVariantScope
-                                        );
+        $targetVariant = $targetName->createVariant(
+          $sourceVariant->getValue(), 
+          $sourceVariant->getDatatype(), 
+          $targetVariantScope
+        );
         // source variant's iids
         $this->copyIids($targetVariant, $sourceVariant);
         
@@ -1141,11 +1155,12 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     foreach ($sourceOccurrences as $sourceOccurrence) {
       $targetType = $this->copyTopic($sourceOccurrence->getType());
       $targetScope = $this->copyScope($sourceOccurrence->getScope());
-      $targetOccurrence = $targetTopic->createOccurrence($targetType, 
-                                      $sourceOccurrence->getValue(), 
-                                      $sourceOccurrence->getDatatype(), 
-                                      $targetScope
-                                    );
+      $targetOccurrence = $targetTopic->createOccurrence(
+        $targetType, 
+        $sourceOccurrence->getValue(), 
+        $sourceOccurrence->getDatatype(), 
+        $targetScope
+      );
       // source occurrence's iids
       $this->copyIids($targetOccurrence, $sourceOccurrence);
       

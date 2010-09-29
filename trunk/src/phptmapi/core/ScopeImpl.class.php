@@ -51,9 +51,13 @@ final class ScopeImpl implements IScope {
    * @param TopicMapImpl The current topic map.
    * @return void
    */
-  public function __construct(Mysql $mysql, array $config, array $themes, 
-    TopicMap $currentTopicMap, Construct $currentConstruct) {
-    
+  public function __construct(
+    Mysql $mysql, 
+    array $config, 
+    array $themes, 
+    TopicMap $currentTopicMap, 
+    Construct $currentConstruct
+  ) {  
     $this->mysql = $mysql;
     $this->config = $config;
     $this->currentTopicMap = $currentTopicMap;
@@ -86,7 +90,9 @@ final class ScopeImpl implements IScope {
     $otherThemesIds = array_keys($set);
     $intersect = array_intersect($this->themesIds, $otherThemesIds);
     return count($intersect) == count($this->themesIds) && 
-      count($otherThemesIds) > count($this->themesIds) ? true : false;
+      count($otherThemesIds) > count($this->themesIds) 
+      ? true 
+      : false;
   }
   
   /**
@@ -107,7 +113,7 @@ final class ScopeImpl implements IScope {
    * @see IScope::hasTheme()
    */
   public function hasTheme(Topic $theme) {
-    return in_array($theme->getDbId(), $this->themesIds) ? true : false;
+    return in_array($theme->getDbId(), $this->themesIds);
   }
   
   /**
@@ -116,7 +122,6 @@ final class ScopeImpl implements IScope {
    * @return int|false <var>False</var> if scope does not exist, the scope id otherwise.
    */
   private function exists() {
-    $return = false;
     $idsImploded = implode(',', $this->themesIds);
     $query = 'SELECT scope_id FROM ' . $this->config['table']['theme'] . 
       ' WHERE topic_id IN (' . $idsImploded . ')' .
@@ -135,12 +140,11 @@ final class ScopeImpl implements IScope {
         $diff = array_diff($this->themesIds, $_themesIds);
         $diffReverse = array_diff($_themesIds, $this->themesIds);
         if (empty($diff) && empty($diffReverse)) {
-          $return = (int) $result['scope_id'];
-          break;
+          return (int) $result['scope_id'];
         }
       }
     }
-    return $return;
+    return false;
   }
   
   /**

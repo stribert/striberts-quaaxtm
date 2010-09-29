@@ -46,12 +46,18 @@ final class RoleImpl extends ConstructImpl implements Role {
    * @param PropertyUtils The property holder.
    * @return void
    */
-  public function __construct($dbId, Mysql $mysql, array $config, Association $parent, 
-    TopicMap $topicMap, PropertyUtils $propertyHolder=null) {
-    
+  public function __construct(
+    $dbId, 
+    Mysql $mysql, 
+    array $config, 
+    Association $parent, 
+    TopicMap $topicMap, 
+    PropertyUtils $propertyHolder=null
+  ) {  
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $topicMap);
-    
-    $this->propertyHolder = !is_null($propertyHolder) ? $propertyHolder : new PropertyUtils();
+    $this->propertyHolder = !is_null($propertyHolder) 
+      ? $propertyHolder 
+      : new PropertyUtils();
   }
   
   /**
@@ -62,15 +68,15 @@ final class RoleImpl extends ConstructImpl implements Role {
   public function getPlayer() {
     if (!is_null($this->propertyHolder->getPlayerId())) {
       $playerId = $this->propertyHolder->getPlayerId();
+      return $this->topicMap->getConstructById('TopicImpl-' . $playerId);
     } else {
       $query = 'SELECT player_id FROM ' . $this->config['table']['assocrole'] . 
         ' WHERE id = ' . $this->dbId;
       $mysqlResult = $this->mysql->execute($query);
       $result = $mysqlResult->fetch();
-      $playerId = $result['player_id'];
-      $this->propertyHolder->setPlayerId($playerId);
+      $this->propertyHolder->setPlayerId($result['player_id']);
+      return $this->topicMap->getConstructById('TopicImpl-' . $result['player_id']);
     }
-    return $this->topicMap->getConstructById('TopicImpl-' . $playerId);
   }
 
   /**
@@ -83,26 +89,26 @@ final class RoleImpl extends ConstructImpl implements Role {
    *        to the parent topic map.
    */
   public function setPlayer(Topic $player) {
-    if (!$this->getPlayer()->equals($player)) {
-      if (!$this->topicMap->equals($player->topicMap)) {
-        throw new ModelConstraintException($this, __METHOD__ . 
-          parent::SAME_TM_CONSTRAINT_ERR_MSG);
-      }
-      $this->mysql->startTransaction();
-      $query = 'UPDATE ' . $this->config['table']['assocrole'] . 
-        ' SET player_id = ' . $player->dbId . 
-        ' WHERE id = ' . $this->dbId;
-      $this->mysql->execute($query);
-      
-      $hash = $this->topicMap->getAssocHash($this->parent->getType(), 
-        $this->parent->getScope(), $this->parent->getRoles());
-      $this->topicMap->updateAssocHash($this->parent->dbId, $hash);
-      $this->mysql->finishTransaction();
-      
-      if (!$this->mysql->hasError()) {
-        $this->propertyHolder->setPlayerId($player->dbId);
-        $this->postSave();
-      }
+    if (!$this->topicMap->equals($player->topicMap)) {
+      throw new ModelConstraintException(
+        $this, 
+        __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+      );
+    }
+    $this->mysql->startTransaction();
+    $query = 'UPDATE ' . $this->config['table']['assocrole'] . 
+      ' SET player_id = ' . $player->dbId . 
+      ' WHERE id = ' . $this->dbId;
+    $this->mysql->execute($query);
+    
+    $hash = $this->topicMap->getAssocHash($this->parent->getType(), 
+      $this->parent->getScope(), $this->parent->getRoles());
+    $this->topicMap->updateAssocHash($this->parent->dbId, $hash);
+    $this->mysql->finishTransaction();
+    
+    if (!$this->mysql->hasError()) {
+      $this->propertyHolder->setPlayerId($player->dbId);
+      $this->postSave();
     }
   }
   
@@ -131,15 +137,15 @@ final class RoleImpl extends ConstructImpl implements Role {
   public function getType() {
     if (!is_null($this->propertyHolder->getTypeId())) {
       $typeId = $this->propertyHolder->getTypeId();
+      return $this->topicMap->getConstructById('TopicImpl-' . $typeId);
     } else {
       $query = 'SELECT type_id FROM ' . $this->config['table']['assocrole'] . 
         ' WHERE id = ' . $this->dbId;
       $mysqlResult = $this->mysql->execute($query);
       $result = $mysqlResult->fetch();
-      $typeId = $result['type_id'];
-      $this->propertyHolder->setTypeId($typeId);
+      $this->propertyHolder->setTypeId($result['type_id']);
+      return $this->topicMap->getConstructById('TopicImpl-' . $result['type_id']);
     }
-    return $this->topicMap->getConstructById('TopicImpl-' . $typeId);
   }
 
   /**
@@ -152,28 +158,26 @@ final class RoleImpl extends ConstructImpl implements Role {
    *        to the parent topic map.
    */
   public function setType(Topic $type) {
-    if (!$this->getType()->equals($type)) {
-      if (!$this->topicMap->equals($type->topicMap)) {
-        throw new ModelConstraintException($this, __METHOD__ . 
-          parent::SAME_TM_CONSTRAINT_ERR_MSG);
-      }
-      $this->mysql->startTransaction();
-      $query = 'UPDATE ' . $this->config['table']['assocrole'] . 
-        ' SET type_id = ' . $type->dbId . 
-        ' WHERE id = ' . $this->dbId;
-      $this->mysql->execute($query);
-      
-      $hash = $this->topicMap->getAssocHash($this->parent->getType(), 
-        $this->parent->getScope(), $this->parent->getRoles());
-      $this->topicMap->updateAssocHash($this->parent->dbId, $hash);
-      $this->mysql->finishTransaction();
-      
-      if (!$this->mysql->hasError()) {
-        $this->propertyHolder->setTypeId($type->dbId);
-        $this->postSave();
-      }
-    } else {
-      return;
+    if (!$this->topicMap->equals($type->topicMap)) {
+      throw new ModelConstraintException(
+        $this, 
+        __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+      );
+    }
+    $this->mysql->startTransaction();
+    $query = 'UPDATE ' . $this->config['table']['assocrole'] . 
+      ' SET type_id = ' . $type->dbId . 
+      ' WHERE id = ' . $this->dbId;
+    $this->mysql->execute($query);
+    
+    $hash = $this->topicMap->getAssocHash($this->parent->getType(), 
+      $this->parent->getScope(), $this->parent->getRoles());
+    $this->topicMap->updateAssocHash($this->parent->dbId, $hash);
+    $this->mysql->finishTransaction();
+    
+    if (!$this->mysql->hasError()) {
+      $this->propertyHolder->setTypeId($type->dbId);
+      $this->postSave();
     }
   }
   

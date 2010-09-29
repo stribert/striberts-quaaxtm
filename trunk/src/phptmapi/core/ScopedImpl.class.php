@@ -43,11 +43,14 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    * @param TopicMapImpl The containing topic map.
    * @return void
    */
-  public function __construct($id, Construct $parent, Mysql $mysql, array $config, 
-    TopicMap $topicMap) {
-    
+  public function __construct(
+    $id, 
+    Construct $parent, 
+    Mysql $mysql, 
+    array $config, 
+    TopicMap $topicMap
+  ) {  
     parent::__construct($id, $parent, $mysql, $config, $topicMap);
-    
     $this->bindingTable = $this->getBindingTable();
   }
 
@@ -185,11 +188,11 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    */
   private function getBindingTables() {
     return array(
-                  $this->config['table']['topicname_scope'], 
-                  $this->config['table']['occurrence_scope'], 
-                  $this->config['table']['association_scope'], 
-                  $this->config['table']['variant_scope']
-                );
+      $this->config['table']['topicname_scope'], 
+      $this->config['table']['occurrence_scope'], 
+      $this->config['table']['association_scope'], 
+      $this->config['table']['variant_scope']
+    );
   }
   
   /**
@@ -248,8 +251,11 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
         $this->parent->updateAssocHash($this->dbId, $hash);
         break;
       case 'VariantImpl':
-        $hash = $this->parent->getVariantHash($this->getValue(), 
-          $this->getDatatype(), $scope);
+        $hash = $this->parent->getVariantHash(
+          $this->getValue(), 
+          $this->getDatatype(), 
+          $scope
+        );
         $this->parent->updateVariantHash($this->dbId, $hash);
     }
   }

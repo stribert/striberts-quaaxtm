@@ -83,8 +83,9 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
     if (array_key_exists($featureName, $this->features)) {
       return $this->features[$featureName];
     } else {
-      throw new FeatureNotRecognizedException(__METHOD__ . 
-        ': The feature "' . $featureName . '" is not recognized!');
+      throw new FeatureNotRecognizedException(
+        __METHOD__ . ': The feature "' . $featureName . '" is not recognized!'
+      );
     }
   }
 
@@ -105,14 +106,16 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
   public function setFeature($featureName, $enable) {
     if (array_key_exists($featureName, $this->features)) {
       if ($this->fixFeatures[$featureName]) {
-        throw new FeatureNotSupportedException(__METHOD__ . 
-          ': The feature "' . $featureName . '" is fix!');
+        throw new FeatureNotSupportedException(
+          __METHOD__ . ': The feature "' . $featureName . '" is fix!'
+        );
       } else {
         $this->features[$featureName] = $enable;
       }
     } else {
-      throw new FeatureNotRecognizedException(__METHOD__ . 
-        ': The feature "' . $featureName . '" is not recognized!');
+      throw new FeatureNotRecognizedException(
+        __METHOD__ . ': The feature "' . $featureName . '" is not recognized!'
+      );
     }
   }
 
@@ -129,7 +132,7 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    *        otherwise <var>false</var>.
    */
   public function hasFeature($featureName) {
-    return array_key_exists($featureName, $this->features) ? true : false;
+    return array_key_exists($featureName, $this->features);
   }
 
   /**
@@ -144,8 +147,9 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    *        if no value is currently set for the property.
    */
   public function getProperty($propertyName) {
-    return array_key_exists($propertyName, $this->properties) ? 
-      $this->properties[$propertyName] : null;
+    return array_key_exists($propertyName, $this->properties) 
+      ? $this->properties[$propertyName] 
+      : null;
   }
 
   /**

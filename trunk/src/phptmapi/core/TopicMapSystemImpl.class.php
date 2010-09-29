@@ -87,30 +87,30 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    *        {@link TopicMapImpl} under the specified URI.
    */
   public function createTopicMap($uri) {
-    if (!empty($uri)) {
-      // check if locator already exists
-      $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['topicmap'] . 
-        ' WHERE locator = "' . $uri . '"';
-      $mysqlResult = $this->mysql->execute($query);
-      $result = $mysqlResult->fetchArray();
-      if ($result[0] == 0) {
-        $this->mysql->startTransaction();
-        $query = 'INSERT INTO ' . $this->config['table']['topicmap'] . 
-          ' (id, locator) VALUES (NULL, "' . $uri . '")';
-        $this->mysql->execute($query);
-        $lastId = $mysqlResult->getLastId();
-        
-        $query = 'INSERT INTO ' . $this->config['table']['topicmapconstruct'] . 
-          ' (topicmap_id) VALUES (' . $lastId . ')';
-        $this->mysql->execute($query);
-        $this->mysql->finishTransaction();
-        return new TopicMapImpl($lastId, $this->mysql, $this->config, $this);
-      } else {
-        throw new TopicMapExistsException(__METHOD__ . ': Topic map with locator "' . 
-          $uri . '" already exists!');
-      }
+    if (empty($uri)) {
+      return;
+    }
+    // check if locator already exists
+    $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['topicmap'] . 
+      ' WHERE locator = "' . $uri . '"';
+    $mysqlResult = $this->mysql->execute($query);
+    $result = $mysqlResult->fetchArray();
+    if ($result[0] == 0) {
+      $this->mysql->startTransaction();
+      $query = 'INSERT INTO ' . $this->config['table']['topicmap'] . 
+        ' (id, locator) VALUES (NULL, "' . $uri . '")';
+      $this->mysql->execute($query);
+      $lastId = $mysqlResult->getLastId();
+      
+      $query = 'INSERT INTO ' . $this->config['table']['topicmapconstruct'] . 
+        ' (topicmap_id) VALUES (' . $lastId . ')';
+      $this->mysql->execute($query);
+      $this->mysql->finishTransaction();
+      return new TopicMapImpl($lastId, $this->mysql, $this->config, $this);
     } else {
-      return null;
+      throw new TopicMapExistsException(
+        __METHOD__ . ': Topic map with locator "' . $uri . '" already exists!'
+      );
     }
   }
 
@@ -150,8 +150,9 @@ final class TopicMapSystemImpl implements TopicMapSystem {
     if (array_key_exists($featureName, $this->features)) {
       return $this->features[$featureName];
     } else {
-      throw new FeatureNotRecognizedException(__METHOD__ . 
-        ': The feature "' . $featureName . '" is not recognized!');
+      throw new FeatureNotRecognizedException(
+        __METHOD__ . ': The feature "' . $featureName . '" is not recognized!'
+      );
     }
   }
 
@@ -170,8 +171,9 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    *        if no value is set for the specified <var>propertyName</var>.
    */
   public function getProperty($propertyName) {
-    return array_key_exists($propertyName, $this->properties) ? 
-      $this->properties[$propertyName] : null;
+    return array_key_exists($propertyName, $this->properties) 
+      ? $this->properties[$propertyName] 
+      : null;
   }
 
   /**

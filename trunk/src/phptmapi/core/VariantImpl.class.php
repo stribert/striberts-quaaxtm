@@ -50,12 +50,19 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * @param string|null The variant hash.
    * @return void
    */
-  public function __construct($dbId, Mysql $mysql, array $config, Name $parent, 
-    TopicMap $topicMap, PropertyUtils $propertyHolder=null, $hash) {
-    
+  public function __construct(
+    $dbId, 
+    Mysql $mysql, 
+    array $config, 
+    Name $parent, 
+    TopicMap $topicMap, 
+    PropertyUtils $propertyHolder=null, 
+    $hash
+  ) {  
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $topicMap);
-    
-    $this->propertyHolder = !is_null($propertyHolder) ? $propertyHolder : new PropertyUtils();
+    $this->propertyHolder = !is_null($propertyHolder) 
+      ? $propertyHolder 
+      : new PropertyUtils();
     $this->hash = $hash;
   }
   
@@ -141,8 +148,10 @@ final class VariantImpl extends ScopedImpl implements IVariant {
         $this->postSave();
       }
     } else {
-      throw new ModelConstraintException($this, __METHOD__ . 
-        ConstructImpl::VALUE_DATATYPE_NULL_ERR_MSG);
+      throw new ModelConstraintException(
+        $this, 
+        __METHOD__ . ConstructImpl::VALUE_DATATYPE_NULL_ERR_MSG
+      );
     }
   }
   
