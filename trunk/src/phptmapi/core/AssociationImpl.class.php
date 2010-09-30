@@ -228,29 +228,25 @@ final class AssociationImpl extends ScopedImpl implements Association {
    *        to the parent topic map.
    */
   public function setType(Topic $type) {
-    if (!$this->getType()->equals($type)) {
-      if (!$this->topicMap->equals($type->topicMap)) {
-        throw new ModelConstraintException(
-          $this, 
-          __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
-        );
-      }
-      $this->mysql->startTransaction();
-      $query = 'UPDATE ' . $this->config['table']['association'] . 
-        ' SET type_id = ' . $type->dbId . 
-        ' WHERE id = ' . $this->dbId;
-      $this->mysql->execute($query);
-      
-      $hash = $this->parent->getAssocHash($type, $this->getScope(), $this->getRoles());
-      $this->parent->updateAssocHash($this->dbId, $hash);
-      $this->mysql->finishTransaction();
-      
-      if (!$this->mysql->hasError()) {
-        $this->propertyHolder->setTypeId($type->dbId);
-        $this->postSave();
-      }
-    } else {
-      return;
+    if (!$this->topicMap->equals($type->topicMap)) {
+      throw new ModelConstraintException(
+        $this, 
+        __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+      );
+    }
+    $this->mysql->startTransaction();
+    $query = 'UPDATE ' . $this->config['table']['association'] . 
+      ' SET type_id = ' . $type->dbId . 
+      ' WHERE id = ' . $this->dbId;
+    $this->mysql->execute($query);
+    
+    $hash = $this->parent->getAssocHash($type, $this->getScope(), $this->getRoles());
+    $this->parent->updateAssocHash($this->dbId, $hash);
+    $this->mysql->finishTransaction();
+    
+    if (!$this->mysql->hasError()) {
+      $this->propertyHolder->setTypeId($type->dbId);
+      $this->postSave();
     }
   }
   
