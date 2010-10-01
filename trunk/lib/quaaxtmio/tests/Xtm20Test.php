@@ -20,7 +20,7 @@
 require_once('TestCase.php');
 
 /**
- * XTM 2.0 writing tests using CXTM.
+ * XTM 2.0 reading and writing tests using CXTM.
  *
  * @package test
  * @author Johannes Schmidt <joschmidt@users.sourceforge.net>
