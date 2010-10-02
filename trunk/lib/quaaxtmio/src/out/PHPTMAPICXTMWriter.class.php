@@ -24,6 +24,13 @@ require_once(
   DIRECTORY_SEPARATOR . 
   'MIOException.class.php'
 );
+require_once(
+  dirname(__FILE__) . 
+  DIRECTORY_SEPARATOR . 
+	'..' . 
+  DIRECTORY_SEPARATOR . 
+  'MIOUtil.class.php'
+);
 require_once('QTMIOXMLWriter.class.php');
 require_once('Net/URL2.php');
 
@@ -37,10 +44,6 @@ require_once('Net/URL2.php');
  * @version $Id$
  */
 class PHPTMAPICXTMWriter {
-  
-  const PSI_TYPE_INSTANCE = 'http://psi.topicmaps.org/iso13250/model/type-instance',
-        PSI_TYPE = 'http://psi.topicmaps.org/iso13250/model/type',
-        PSI_INSTANCE = 'http://psi.topicmaps.org/iso13250/model/instance';
   
   private static  $normLocs = array(),
                   $normBaseLoc = '',
@@ -939,31 +942,31 @@ class PHPTMAPICXTMWriter {
     foreach ($types as $type) {
       if (is_null($this->typeInstance)) {
         $this->typeInstance = $this->topicMap->getTopicBySubjectIdentifier(
-          self::PSI_TYPE_INSTANCE
+          MIOUtil::PSI_TYPE_INSTANCE
         );
         if (is_null($this->typeInstance)) {
           $this->typeInstance = $this->topicMap->createTopicBySubjectIdentifier(
-            self::PSI_TYPE_INSTANCE
+            MIOUtil::PSI_TYPE_INSTANCE
           );
         }
       }
       if (is_null($this->type)) {
         $this->type = $this->topicMap->getTopicBySubjectIdentifier(
-          self::PSI_TYPE
+          MIOUtil::PSI_TYPE
         );
         if (is_null($this->type)) {
           $this->type = $this->topicMap->createTopicBySubjectIdentifier(
-            self::PSI_TYPE
+            MIOUtil::PSI_TYPE
           );
         }
       }
       if (is_null($this->instance)) {
         $this->instance = $this->topicMap->getTopicBySubjectIdentifier(
-          self::PSI_INSTANCE
+          MIOUtil::PSI_INSTANCE
         );
         if (is_null($this->instance)) {
           $this->instance = $this->topicMap->createTopicBySubjectIdentifier(
-            self::PSI_INSTANCE
+            MIOUtil::PSI_INSTANCE
           );
         }
       }
