@@ -17,6 +17,14 @@
  * Boston, MA 02111-1307 USA
  */
 
+require_once(
+  dirname(__FILE__) . 
+  DIRECTORY_SEPARATOR . 
+	'..' . 
+  DIRECTORY_SEPARATOR . 
+  'MIOUtil.class.php'
+);
+
 /**
  * Creates a topic map serialization which corresponds to decoded JTM 1.0 
  * (see {@link http://www.cerny-online.com/jtm/1.0/}). 
@@ -34,7 +42,8 @@ abstract class PHPTMAPIGenericWriter {
             $tmLocator,
             $topicsIidsIdx,
             $sidsIdx,
-            $slosIdx;
+            $slosIdx,
+            $typeInstanceAssocs;
   
   /**
    * Constructor.
@@ -46,7 +55,8 @@ abstract class PHPTMAPIGenericWriter {
     $this->setup = 
     $this->topicsIidsIdx = 
     $this->sidsIdx = 
-    $this->slosIdx = array();
+    $this->slosIdx = 
+    $this->typeInstanceAssocs = array();
     $this->tmLocator = null;
   }
   
@@ -81,8 +91,9 @@ abstract class PHPTMAPIGenericWriter {
     }
     
     $assocs = $topicMap->getAssociations();
-    if (!empty($assocs)) {
-      $this->struct['associations'] = $this->writeAssociations($assocs);
+    if (!empty($assocs) || !empty($this->typeInstanceAssocs)) {
+      $domainAssocs = $this->writeAssociations($assocs);
+      $this->struct['associations'] = array_merge($domainAssocs, $this->typeInstanceAssocs);
     }
   }
   
@@ -118,6 +129,11 @@ abstract class PHPTMAPIGenericWriter {
         $this->slosIdx[$topicId] = $slos;
       }
       
+      $types = $topic->getTypes();
+      if (!empty($types)) {
+        $this->typeInstanceAssocs = $this->writeTypeInstanceAssocs($types, $topic);
+      }
+      
       $names = $topic->getNames();
       if (!empty($names)) {
         $itemStruct['names'] = $this->writeNames($names);
@@ -131,6 +147,38 @@ abstract class PHPTMAPIGenericWriter {
       $topicsStruct[] = $itemStruct;
     }
     return $topicsStruct;
+  }
+  
+  /**
+   * Writes type instance associations for each topic type.
+   * 
+   * @param array The topic types.
+   * @param Topic The typed topic.
+   * @return array The type instance associations.
+   */
+  private function writeTypeInstanceAssocs(array $types, Topic $topic) {
+    $assocs = array();
+    foreach ($types as $topicType) {
+      $assoc = array();
+      $assoc['type'] = 'si:' . MIOUtil::PSI_TYPE_INSTANCE;
+      
+      $roles = array();
+      
+      $instance = array();
+      $instance['type'] = 'si:' . MIOUtil::PSI_INSTANCE;
+      $instance['player'] = $this->getTopicReference($topic);
+      $roles[] = $instance;
+      
+      $type = array();
+      $type['type'] = 'si:' . MIOUtil::PSI_TYPE;
+      $type['player'] = $this->getTopicReference($topicType);
+      $roles[] = $type;
+      
+      $assoc['roles'] = $roles;
+      
+      $assocs[] = $assoc;
+    }
+    return $assocs;
   }
   
   /**
