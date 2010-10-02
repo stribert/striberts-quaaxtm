@@ -29,7 +29,11 @@ class MIOUtil {
 
   const XSD_ANYTYPE = 'http://www.w3.org/2001/XMLSchema#anyType',
         XSD_STRING = 'http://www.w3.org/2001/XMLSchema#string',
-        XSD_ANYURI = 'http://www.w3.org/2001/XMLSchema#anyURI';
+        XSD_ANYURI = 'http://www.w3.org/2001/XMLSchema#anyURI',
+        
+        PSI_TYPE_INSTANCE = 'http://psi.topicmaps.org/iso13250/model/type-instance',
+        PSI_TYPE = 'http://psi.topicmaps.org/iso13250/model/type',
+        PSI_INSTANCE = 'http://psi.topicmaps.org/iso13250/model/instance';
   
   /**
    * Constructor.
@@ -90,8 +94,10 @@ class MIOUtil {
     $httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
     curl_close($ch);
     if ($httpCode != 200) {
-      throw new MIOException('Error in ' . __METHOD__ . 
-      	': Cannot read ' . $file . '! Retrieved HTTP status code ' . $httpCode . '.');
+      throw new MIOException(
+      	'Error in ' . __METHOD__ . 
+      	': Cannot read ' . $file . '! Retrieved HTTP status code ' . $httpCode . '.'
+      );
     }
     return $content;
   }
