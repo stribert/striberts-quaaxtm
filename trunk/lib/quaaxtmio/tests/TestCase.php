@@ -72,7 +72,7 @@ require_once(
   DIRECTORY_SEPARATOR . 
   'in' . 
   DIRECTORY_SEPARATOR . 
-  'JTM10TopicMapReader.class.php'
+  'JTM101TopicMapReader.class.php'
 );
 require_once(
   dirname(__FILE__) . 

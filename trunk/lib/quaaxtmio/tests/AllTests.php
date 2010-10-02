@@ -17,7 +17,7 @@
  * Boston, MA 02111-1307 USA
  */
 
-require_once('Jtm10Test.php');
+require_once('Jtm101Test.php');
 require_once('Xtm20Test.php');
 
 /**
@@ -32,7 +32,7 @@ class AllTests extends PHPUnit_Framework_TestSuite {
 
   public static function suite() {
     $suite = new AllTests();
-    $suite->addTestSuite('Jtm10Test');
+    $suite->addTestSuite('Jtm101Test');
     $suite->addTestSuite('Xtm20Test');
     return $suite;
   }
