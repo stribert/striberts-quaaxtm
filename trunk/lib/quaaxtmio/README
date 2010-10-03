@@ -1,5 +1,6 @@
 QuaaxTMIO is the Topic Maps syntaxes serializer/deserializer library for QuaaxTM.
-QuaaxTMIO currently supports serialization and deserialization of XTM 2.0 and JTM 1.0.
+QuaaxTMIO currently supports serialization and deserialization of XTM 2.0 and JTM 1.0, 
+and also deserialization of JTM 1.1.
 QuaaxTM is a small PHP Topic Maps engine with persistent storage. See 
 http://quaaxtm.sourceforge.net/ for details.
 
