@@ -1,7 +1,8 @@
-QuaaxTM is a small Topic Maps engine which implements PHPTMAPI. See 
+QuaaxTM is a PHP Topic Maps engine which implements PHPTMAPI. See 
 http://phptmapi.sourceforge.net/ for details. This version of QuaaxTM implements 
 PHPTMAPI 2.0. 
 QuaaxTM stores topic maps in a MySQL database and uses InnoDB as storage engine.
+See lib/quaaxtmio for the Topic Maps syntaxes serializer/deserializer library QuaaxTMIO. 
 
 Installation
 ------------
