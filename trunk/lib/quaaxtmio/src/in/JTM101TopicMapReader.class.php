@@ -56,6 +56,7 @@ class JTM101TopicMapReader {
   public function __construct(PHPTMAPITopicMapHandlerInterface $tmHandler) {
     $this->tmHandler = $tmHandler;
     $this->jtm11 = false;
+    $this->prefixes = array();
   }
   
   /**
@@ -107,8 +108,8 @@ class JTM101TopicMapReader {
     
     if ($version == '1.1') {
       $this->jtm11 = true;
-      $this->prefixes = array('xsd' => 'http://www.w3.org/2001/XMLSchema#');
-      if (isset($struct['prefixes'])) {
+      $this->prefixes['xsd'] = 'http://www.w3.org/2001/XMLSchema#';
+      if (isset($struct['prefixes']) && is_array($struct['prefixes'])) {
         foreach ($struct['prefixes'] as $prefix => $uri) {
           if ($prefix != 'xsd') {
             $this->prefixes[$prefix] = $uri;
