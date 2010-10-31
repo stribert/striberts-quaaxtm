@@ -47,7 +47,8 @@ class PHPTMAPICXTMWriter {
   
   private static  $normLocs = array(),
                   $normBaseLoc = '',
-                  $srcXml = true;
+                  $srcXml = true,
+                  $xsdUri = 'http://www.w3.org/2001/XMLSchema#anyURI';
   
   private $playersToAssocsIndex,
           $topicsToNumbersIndex,
@@ -329,9 +330,14 @@ class PHPTMAPICXTMWriter {
    * @return void
    */
   private function writeDatatyped(DatatypeAware $da) {
-    $this->writer->writeElement('value', $this->escapeString($da->getValue()));
-    $this->writer->writeNewLine();
     $loc = self::normalizeLocator($da->getDatatype());
+    $value = $da->getValue();
+    if ($loc == self::$xsdUri) {
+      $this->writer->writeElement('value', self::normalizeLocator($value));
+    } else {
+      $this->writer->writeElement('value', $this->escapeString($value));
+    }
+    $this->writer->writeNewLine();
     $this->writer->writeElement('datatype', $loc);
     $this->writer->writeNewLine();
   }
