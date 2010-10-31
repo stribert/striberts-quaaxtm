@@ -50,7 +50,7 @@ require_once(
   DIRECTORY_SEPARATOR . 
   'in' . 
   DIRECTORY_SEPARATOR . 
-  'XTM20TopicMapReader.class.php'
+  'XTM201TopicMapReader.class.php'
 );
 require_once(
   dirname(__FILE__) . 
@@ -61,7 +61,7 @@ require_once(
   DIRECTORY_SEPARATOR . 
   'out' . 
   DIRECTORY_SEPARATOR . 
-  'PHPTMAPIXTM20Writer.class.php'
+  'PHPTMAPIXTM201Writer.class.php'
 );
 require_once(
   dirname(__FILE__) . 

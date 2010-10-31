@@ -18,7 +18,7 @@
  */
 
 require_once('Jtm101Test.php');
-require_once('Xtm20Test.php');
+require_once('Xtm201Test.php');
 
 /**
  * Test suite.
@@ -33,7 +33,7 @@ class AllTests extends PHPUnit_Framework_TestSuite {
   public static function suite() {
     $suite = new AllTests();
     $suite->addTestSuite('Jtm101Test');
-    $suite->addTestSuite('Xtm20Test');
+    $suite->addTestSuite('Xtm201Test');
     return $suite;
   }
   
