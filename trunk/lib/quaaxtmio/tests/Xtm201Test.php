@@ -39,7 +39,6 @@ class Xtm201Test extends TestCase {
    * @dataProvider getValid21Files
    */
   public function testValidXtm21($xtmFile) {
-    //if ($xtmFile != 'mergemap-tm-reifier-element.xtm') return;
     $xtmDir = $this->cxtmIncPath . 'xtm21' . DIRECTORY_SEPARATOR . 'in';
     $cxtmDir = $this->cxtmIncPath . 'xtm21' . DIRECTORY_SEPARATOR . 'baseline';
     // read source XTM
