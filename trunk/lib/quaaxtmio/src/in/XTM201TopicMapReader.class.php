@@ -167,7 +167,7 @@ class XTM201TopicMapReader {
    * @param string The XML element name.
    * @param array XML element attributes.
    * @return void
-   * @throws MIOException If XTM version is not 2.0 or 2.1.
+   * @throws MIOException
    */
   private function open($sax, $element, array $attributes) {
     switch ($element) {

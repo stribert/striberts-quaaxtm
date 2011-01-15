@@ -42,7 +42,7 @@ require_once('MemoryVariant.class.php');
 require_once('MemoryOccurrence.class.php');
 
 /**
- * Receives serialized Topic Maps constructs data from an XTM parser and 
+ * Receives serialized Topic Maps constructs data from a Topic Maps syntax parser and  
  * creates Topic Maps constructs via PHPTMAPI.
  * This API was originally invented by Lars Heuer <http://www.semagia.com/>.
  * 
@@ -90,8 +90,8 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @param int The merge map processing count. Will be set in startMergeMap().
    * @param array The base locators of the merged topic maps. Will be set in startMergeMap().
    * @return void
-   * @throws MIOException If topic map's base locator is not absolute or base 
-   * 				locator in use.
+   * @throws MIOException If topic map's base locator is not absolute, or base 
+   * 				locator is in use.
    */
   public function __construct(
     TopicMapSystem $tmSystem, 

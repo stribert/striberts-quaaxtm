@@ -89,7 +89,7 @@ class JTM101TopicMapReader {
    * @return void
    * @throws MIOException If json_decode() returns <var>null</var>.
    * @throws MIOException If key "version" is missing.
-   * @throws MIOException If version is not 1.0.
+   * @throws MIOException If version is neither 1.0 nor 1.1.
    */
   public function read($jtm) {
     $struct = json_decode($jtm, true);

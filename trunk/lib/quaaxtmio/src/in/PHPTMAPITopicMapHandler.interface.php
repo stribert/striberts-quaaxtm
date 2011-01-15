@@ -18,7 +18,7 @@
  */
 
 /**
- * Receives serialized Topic Maps constructs data from an XTM parser and 
+ * Receives serialized Topic Maps constructs data from a Topic Maps syntax parser and 
  * creates Topic Maps constructs via PHPTMAPI.
  * This API was originally invented by Lars Heuer <http://www.semagia.com/>.
  * 
