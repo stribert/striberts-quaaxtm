@@ -63,6 +63,10 @@ class ReifiableTest extends PHPTMAPITestCase {
       'Unexpected reifier property!');
     $this->assertEquals($reifiable->getId(), $reifier->getReified()->getId(), 
       'Unexpected reified property!');
+    // test the default value
+    $reifiable->setReifier();
+    $this->assertNull($reifiable->getReifier(), 'Reifier should be null!');
+    $this->assertNull($reifier->getReified(), 'Reifiable should be null!');
   }
   
   /**

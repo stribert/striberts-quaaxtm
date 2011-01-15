@@ -75,6 +75,39 @@ class VariantTest extends PHPTMAPITestCase {
     } catch (ModelConstraintException $e) {
       // no op.
     }
+    try {
+      $name = $this->createName();
+      $this->assertEquals(count($name->getVariants()), 0);
+      $scope = array($this->topicMap->createTopic());
+      $variant = $name->createVariant('foo', parent::$dtString, $scope);
+      $this->assertEquals(count($name->getVariants()), 1);
+      $variant->setValue(null, parent::$dtString);
+      $this->fail('Variant value must not be null!');
+    } catch (ModelConstraintException $e) {
+      // no op.
+    }
+    try {
+      $name = $this->createName();
+      $this->assertEquals(count($name->getVariants()), 0);
+      $scope = array($this->topicMap->createTopic());
+      $variant = $name->createVariant('foo', parent::$dtString, $scope);
+      $this->assertEquals(count($name->getVariants()), 1);
+      $variant->setValue('foo', null);
+      $this->fail('Variant datatype must not be null!');
+    } catch (ModelConstraintException $e) {
+      // no op.
+    }
+    try {
+      $name = $this->createName();
+      $this->assertEquals(count($name->getVariants()), 0);
+      $scope = array($this->topicMap->createTopic());
+      $variant = $name->createVariant('foo', parent::$dtString, $scope);
+      $this->assertEquals(count($name->getVariants()), 1);
+      $variant->setValue(null, null);
+      $this->fail('Neither variant value nor datatype must be null!');
+    } catch (ModelConstraintException $e) {
+      // no op.
+    }
   }
   
   /**

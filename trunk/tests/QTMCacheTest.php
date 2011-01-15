@@ -30,7 +30,7 @@ require_once('PHPTMAPITestCase.php');
  */
 class QTMCacheTest extends PHPTMAPITestCase {
   
-  public function testTopicMap() {
+  public function _testTopicMap() {
     $this->assertTrue($this->topicMap instanceof TopicMap);
   }
   
@@ -94,6 +94,88 @@ class QTMCacheTest extends PHPTMAPITestCase {
     $tm->clearAssociationsCache();
     $assoc2->remove();
     $this->assertEquals(count($tm->getAssociations()), 2, 'Expected 2 associations!');
+  }
+  
+  public function testTopicMapsLocator() {
+    $loc = 'http://localhost/tm' . uniqid();
+    $tm = $this->sharedFixture->createTopicMap($loc);
+    $this->assertTrue($tm instanceof TopicMap);
+    $locFirst = $tm->getLocator();
+    $this->assertEquals($loc, $locFirst, 'Expected identity!');
+    $locSecond = $tm->getLocator();
+    $this->assertEquals($loc, $locSecond, 'Expected identity!');
+    $tm->remove();
+  }
+  
+  public function testSeenConstructsCache() {
+    $topic = $this->topicMap->createTopic();
+    $id = $topic->getId();
+    $topic = $this->topicMap->getConstructById($id);
+    $this->assertTrue($topic instanceof Topic, 'Expected topic!');
+    $this->assertEquals($topic->getTopicMap(), $this->topicMap, 'Expected identity!');
+    $topic->remove();
+    $topic = $this->topicMap->getConstructById($id);
+    $this->assertTrue(is_null($topic), 'Unexpected topic!');
+    
+    $topic = $this->topicMap->createTopic();
+    
+    $name = $topic->createName('Name');
+    $id = $name->getId();
+    $name = $this->topicMap->getConstructById($id);
+    $this->assertTrue($name instanceof Name, 'Expected topic name!');
+    $this->assertEquals($name->getTopicMap(), $this->topicMap, 'Expected identity!');
+    $name->remove();
+    $name = $this->topicMap->getConstructById($id);
+    $this->assertTrue(is_null($name), 'Unexpected topic name!');
+    
+    $name = $topic->createName('Name');
+    $variant = $name->createVariant(
+    	'Nom', 
+      parent::$dtString, 
+      array($this->topicMap->createTopic())
+    );
+    $id = $variant->getId();
+    $variant = $this->topicMap->getConstructById($id);
+    $this->assertTrue($variant instanceof IVariant, 'Expected variant!');
+    $this->assertEquals($variant->getTopicMap(), $this->topicMap, 'Expected identity!');
+    $variant->remove();
+    $variant = $this->topicMap->getConstructById($id);
+    $this->assertTrue(is_null($variant), 'Unexpected variant!');
+    
+    $occ = $topic->createOccurrence(
+      $this->topicMap->createTopic(), 
+      'http://phptmapi.sourceforge.net/', 
+      parent::$dtUri
+    );
+    $id = $occ->getId();
+    $occ = $this->topicMap->getConstructById($id);
+    $this->assertTrue($occ instanceof Occurrence, 'Expected occurrence!');
+    $this->assertEquals($occ->getTopicMap(), $this->topicMap, 'Expected identity!');
+    $occ->remove();
+    $occ = $this->topicMap->getConstructById($id);
+    $this->assertTrue(is_null($occ), 'Unexpected occurrence!');
+    
+    $assoc = $this->topicMap->createAssociation($this->topicMap->createTopic());
+    $id = $assoc->getId();
+    $assoc = $this->topicMap->getConstructById($id);
+    $this->assertTrue($assoc instanceof Association, 'Expected association!');
+    $this->assertEquals($assoc->getTopicMap(), $this->topicMap, 'Expected identity!');
+    $assoc->remove();
+    $assoc = $this->topicMap->getConstructById($id);
+    $this->assertTrue(is_null($assoc), 'Unexpected association!');
+    
+    $assoc = $this->topicMap->createAssociation($this->topicMap->createTopic());
+    $role = $assoc->createRole(
+      $this->topicMap->createTopic(),
+      $this->topicMap->createTopic()
+    );
+    $id = $role->getId();
+    $role = $this->topicMap->getConstructById($id);
+    $this->assertTrue($role instanceof Role, 'Expected association role!');
+    $this->assertEquals($role->getTopicMap(), $this->topicMap, 'Expected identity!');
+    $role->remove();
+    $role = $this->topicMap->getConstructById($id);
+    $this->assertTrue(is_null($role), 'Unexpected association role!');
   }
 }
 ?>

@@ -33,6 +33,8 @@ require_once(
 );
 require_once('IndexTest.php');
 require_once('TypeInstanceIndexTest.php');
+require_once('LiteralIndexTest.php');
+require_once('ScopedIndexTest.php');
 
 /**
  * Index test suite.
@@ -50,6 +52,8 @@ class AllCoreTests extends PHPUnit_Framework_TestSuite {
     $suite = new AllCoreTests();
     $suite->addTestSuite('IndexTest');
     $suite->addTestSuite('TypeInstanceIndexTest');
+    $suite->addTestSuite('LiteralIndexTest');
+    $suite->addTestSuite('ScopedIndexTest');
     return $suite;
   }
  
