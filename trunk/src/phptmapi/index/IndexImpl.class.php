@@ -39,14 +39,13 @@ abstract class IndexImpl implements Index {
    * @param Mysql The Mysql object.
    * @param array The configuration data.
    * @param TopicMap The topic map the index operates on.
-   * @param int The topic map's database id.
    * @return void
    */
-  public function __construct(Mysql $mysql, array $config, TopicMap $topicMap, $tmDbId) {
+  public function __construct(Mysql $mysql, array $config, TopicMap $topicMap) {
     $this->mysql = $mysql;
     $this->config = $config;
     $this->topicMap = $topicMap;
-    $this->tmDbId = $tmDbId;
+    $this->tmDbId = $topicMap->getDbId();
   }
   
   /**
@@ -100,17 +99,6 @@ abstract class IndexImpl implements Index {
    */
   public function reindex() {
     return;
-  }
-  
-  /**
-   * Returns the database id (primary key).
-   * 
-   * @param Construct The Topic Maps construct.
-   * @return int The database id (primary key).
-   */
-  protected function getConstructDbId(Construct $construct) {
-    $constituents = explode('-', $construct->getId());
-    return (int) $constituents[1];  
   }
 }
 ?>
