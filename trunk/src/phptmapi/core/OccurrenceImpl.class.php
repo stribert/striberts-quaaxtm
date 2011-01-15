@@ -122,30 +122,29 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    *        is <var>null</var>.
    */
   public function setValue($value, $datatype) {
-    if (!is_null($value) && !is_null($datatype)) {
-      $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
-      $datatype = CharacteristicUtils::canonicalize($datatype, $this->mysql->getConnection());
-      $this->mysql->startTransaction();
-      $query = 'UPDATE ' . $this->config['table']['occurrence'] . 
-        ' SET value = "' . $value . '", datatype = "' . $datatype . '"' .
-        ' WHERE id = ' . $this->dbId;
-      $this->mysql->execute($query);
-      
-      $hash = $this->parent->getOccurrenceHash($this->getType(), $value, $datatype, 
-        $this->getScope());
-      $this->parent->updateOccurrenceHash($this->dbId, $hash);
-      $this->mysql->finishTransaction();
-
-      if (!$this->mysql->hasError()) {
-        $this->propertyHolder->setValue($value);
-        $this->propertyHolder->setDatatype($datatype);
-        $this->postSave();
-      }
-    } else {
+    if (is_null($value) || is_null($datatype)) {
       throw new ModelConstraintException(
         $this, 
         __METHOD__ . ConstructImpl::VALUE_DATATYPE_NULL_ERR_MSG
       );
+    }
+    $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
+    $datatype = CharacteristicUtils::canonicalize($datatype, $this->mysql->getConnection());
+    $this->mysql->startTransaction();
+    $query = 'UPDATE ' . $this->config['table']['occurrence'] . 
+      ' SET value = "' . $value . '", datatype = "' . $datatype . '"' .
+      ' WHERE id = ' . $this->dbId;
+    $this->mysql->execute($query);
+    
+    $hash = $this->parent->getOccurrenceHash($this->getType(), $value, $datatype, 
+      $this->getScope());
+    $this->parent->updateOccurrenceHash($this->dbId, $hash);
+    $this->mysql->finishTransaction();
+
+    if (!$this->mysql->hasError()) {
+      $this->propertyHolder->setValue($value);
+      $this->propertyHolder->setDatatype($datatype);
+      $this->postSave();
     }
   }
   
@@ -157,14 +156,14 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
   public function getType() {
     if (!is_null($this->propertyHolder->getTypeId())) {
       $typeId = $this->propertyHolder->getTypeId();
-      return $this->topicMap->getConstructById('TopicImpl-' . $typeId);
+      return $this->topicMap->getConstructByVerifiedId('TopicImpl-' . $typeId);
     } else {
       $query = 'SELECT type_id FROM ' . $this->config['table']['occurrence'] . 
         ' WHERE id = ' . $this->dbId;
       $mysqlResult = $this->mysql->execute($query);
       $result = $mysqlResult->fetch();
       $this->propertyHolder->setTypeId($result['type_id']);
-      return $this->topicMap->getConstructById('TopicImpl-' . $result['type_id']);
+      return $this->topicMap->getConstructByVerifiedId('TopicImpl-' . $result['type_id']);
     }
   }
 
@@ -212,9 +211,10 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
   }
 
   /**
-   * @see ConstructImpl::_setReifier()
+   * (non-PHPdoc)
+   * @see phptmapi/core/ConstructImpl#_setReifier()
    */
-  public function setReifier($reifier) {
+  public function setReifier(Topic $reifier=null) {
     $this->_setReifier($reifier);
   }
   

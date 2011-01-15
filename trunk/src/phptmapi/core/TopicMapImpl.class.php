@@ -32,14 +32,21 @@
  */
 final class TopicMapImpl extends ConstructImpl implements TopicMap {
 
+  protected $seenConstructsCache;
+  
   private $setIid,
           $constructParent,
           $constructPropertyHolder,
           $topicsCache,
           $assocsCache,
-          $tmSystem;
+          $tmSystem,
+          $locator;
           
-  private static $supportedIndices = array('TypeInstanceIndexImpl');
+  private static $supportedIndices = array(
+  	'TypeInstanceIndexImpl', 
+    'LiteralIndexImpl', 
+    'ScopedIndexImpl'
+  );
   
   /**
    * Constructor.
@@ -60,7 +67,9 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $this->constructParent = 
     $this->constructPropertyHolder = 
     $this->topicsCache = 
-    $this->assocsCache = null;
+    $this->assocsCache = 
+    $this->locator = null;
+    $this->seenConstructsCache = array();
   }
   
   /**
@@ -79,11 +88,14 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return string A URI which is the storage address of the {@link TopicMapImpl}.
    */
   public function getLocator() {
+    if (!is_null($this->locator)) {
+      return $this->locator;
+    }
     $query = 'SELECT locator FROM ' . $this->config['table']['topicmap'] . 
       ' WHERE id = ' . $this->dbId;
     $mysqlResult = $this->mysql->execute($query);
     $result = $mysqlResult->fetch();
-    return $result['locator'];
+    return $this->locator = $result['locator'];
   }
 
   /**
@@ -93,20 +105,19 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return array An array containing a set of {@link TopicImpl}s.
    */
   public function getTopics() {
-    $topics = array();
     if (is_null($this->topicsCache)) {
+      $this->topicsCache = array();
       $query = 'SELECT id FROM ' . $this->config['table']['topic'] . 
         ' WHERE topicmap_id = ' . $this->dbId;
       $mysqlResult = $this->mysql->execute($query);
-      while ($result = $mysqlResult->fetch()) {    
-        $topic = $this->getConstructById('TopicImpl-' . $result['id']);
-        $topics[$topic->getId()] = $topic;
+      while ($result = $mysqlResult->fetch()) {
+        $topic = $this->getConstructByVerifiedId('TopicImpl-' . $result['id']);
+        $this->topicsCache[$topic->getId()] = $topic;
       }
-      $this->topicsCache = $topics;
+      return array_values($this->topicsCache);
     } else {
-      $topics = $this->topicsCache;
+      return array_values($this->topicsCache);
     }
-    return array_values($topics);
   }
 
   /**
@@ -116,8 +127,9 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return array An array containing a set of {@link AssociationImpl}s.
    */
   public function getAssociations() {
-    $assocs = array();
     if (is_null($this->assocsCache)) {
+      $this->assocsCache = 
+      $assocsHashes = array();
       $query = 'SELECT id, type_id, hash FROM ' . $this->config['table']['association'] . 
         ' WHERE topicmap_id = ' . $this->dbId;
       $mysqlResult = $this->mysql->execute($query);
@@ -125,14 +137,17 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
         $propertyHolder = new PropertyUtils();
         $propertyHolder->setTypeId($result['type_id']);
         $this->setConstructPropertyHolder($propertyHolder);
-        $assoc = $this->getConstructById('AssociationImpl-' . $result['id']);
-        $assocs[$result['hash']] = $assoc;
+        $assoc = $this->getConstructByVerifiedId('AssociationImpl-' . $result['id']);
+        if (!array_key_exists($result['hash'], $assocsHashes)) {
+          $this->assocsCache[$assoc->getId()] = $assoc;
+        }
+        $assocsHashes[$result['hash']] = null;
       }
-      $this->assocsCache = $assocs;
+      unset($assocsHashes);
+      return array_values($this->assocsCache);
     } else {
-      $assocs = $this->assocsCache;
+      return array_values($this->assocsCache);
     }
-    return array_values($assocs);
   }
   
   /**
@@ -153,7 +168,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       $propertyHolder = new PropertyUtils();
       $propertyHolder->setTypeId($result['type_id']);
       $this->setConstructPropertyHolder($propertyHolder);
-      $assoc = $this->getConstructById('AssociationImpl-' . $result['id']);
+      $assoc = $this->getConstructByVerifiedId('AssociationImpl-' . $result['id']);
       $assocs[$result['hash']] = $assoc;
     }
     return array_values($assocs);
@@ -178,7 +193,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {
       $result = $mysqlResult->fetch();
-      return $this->getConstructById('TopicImpl-' . $result['id']);
+      return $this->getConstructByVerifiedId('TopicImpl-' . $result['id']);
     } else {
       return null;
     }
@@ -203,7 +218,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {
       $result = $mysqlResult->fetch();
-      return $this->getConstructById('TopicImpl-' . $result['id']);
+      return $this->getConstructByVerifiedId('TopicImpl-' . $result['id']);
     } else {
       return null;
     }
@@ -227,11 +242,9 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       ' AND t1.topicmap_id = ' . $this->dbId;
     $mysqlResult = $this->mysql->execute($query);
     $rows = $mysqlResult->getNumRows();
-    if ($rows > 0) {
-      return $this->factory($mysqlResult);
-    } else {
-      return null;
-    }
+    return $rows > 0
+      ? $this->factory($mysqlResult)
+      : null;
   }
 
   /**
@@ -240,66 +253,14 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * returns <var>null</var>.
    *
    * @param string The identifier of the construct to be returned.
-   * @param string The construct hash, if available. Default <var>null</var>.
    * @return ConstructImpl|null The construct with the specified id or <var>null</var> 
    *        if such a construct is unknown.
    */
-  public function getConstructById($id, $hash=null) {
-    if (!$this->contains($id)) {
+  public function getConstructById($id) {
+    if (!$this->verify($id)) {
       return null;
     }
-    $constituents = explode('-', $id);
-    $className = $constituents[0];
-    $dbId = $constituents[1];
-    switch ($className) {
-      case 'TopicImpl':
-        return new $className($dbId, $this->mysql, $this->config, $this);
-        break;
-      case 'NameImpl':
-        $parent = $this->constructParent instanceof Topic ? $this->constructParent : 
-          $this->getNameParent($dbId);
-        $this->constructParent = null;
-        $propertyHolder = $this->constructPropertyHolder;
-        $this->constructPropertyHolder = null;
-        return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
-          $propertyHolder);
-        break;
-      case 'AssociationImpl':
-        $propertyHolder = $this->constructPropertyHolder;
-        $this->constructPropertyHolder = null;
-        return new $className($dbId, $this->mysql, $this->config, $this, $propertyHolder);
-        break;
-      case 'RoleImpl':
-        $parent = $this->constructParent instanceof Association ? 
-          $this->constructParent : $this->getRoleParent($dbId);
-        $this->constructParent = null;
-        $propertyHolder = $this->constructPropertyHolder;
-        $this->constructPropertyHolder = null;
-        return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
-          $propertyHolder);
-        break;
-      case 'OccurrenceImpl':
-        $parent = $this->constructParent instanceof Topic ? $this->constructParent : 
-          $this->getOccurrenceParent($dbId);
-        $this->constructParent = null;
-        $propertyHolder = $this->constructPropertyHolder;
-        $this->constructPropertyHolder = null;
-        return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
-          $propertyHolder);
-        break;
-      case 'VariantImpl':
-        $parent = $this->constructParent instanceof Name ? $this->constructParent : 
-          $this->getVariantParent($dbId);
-        $this->constructParent = null;
-        $propertyHolder = $this->constructPropertyHolder;
-        $this->constructPropertyHolder = null;
-        return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
-          $propertyHolder, $hash);
-        break;
-      case __CLASS__:
-        return new $className($dbId, $this->mysql, $this->config, $this->getTopicMapSystem());
-        break;
-    }
+    return $this->getConstructByVerifiedId($id);
   }
 
   /**
@@ -324,7 +285,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $hash = $this->getAssocHash($type, $scope, $roles=array());
     $assocId = $this->hasAssoc($hash);
     if ($assocId) {
-      return $this->getConstructById('AssociationImpl-' . $assocId);
+      return $this->getConstructByVerifiedId('AssociationImpl-' . $assocId);
     }
     $this->mysql->startTransaction(true);
     $query = 'INSERT INTO ' . $this->config['table']['association'] . 
@@ -345,7 +306,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $this->mysql->execute($query);
     
     $this->mysql->finishTransaction(true);
-    $assoc = $this->getConstructById('AssociationImpl-' . $lastAssocId);
+    $assoc = $this->getConstructByVerifiedId('AssociationImpl-' . $lastAssocId);
     if (!$this->mysql->hasError()) {
       $assoc->postInsert();
       $this->postSave();
@@ -353,7 +314,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     if (is_null($this->assocsCache)) {
       return $assoc;
     } else {
-      $this->assocsCache[] = $assoc;
+      $this->assocsCache[$assoc->getId()] = $assoc;
       return $assoc;
     }
   }
@@ -526,7 +487,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       $this->mysql->execute($query);
     }
     $this->mysql->finishTransaction();
-    $topic = $this->getConstructById('TopicImpl-' . $lastTopicId);
+    $topic = $this->getConstructByVerifiedId('TopicImpl-' . $lastTopicId);
     if (!$this->mysql->hasError()) {
       $topic->postInsert();
       $this->postSave();
@@ -534,7 +495,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     if (is_null($this->topicsCache)) {
       return $topic;
     } else {
-      $this->topicsCache[] = $topic;
+      $this->topicsCache[$topic->getId()] = $topic;
       return $topic;
     }
   }
@@ -596,7 +557,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    */
   public function getIndex($className) {
     if (in_array($className, self::$supportedIndices)) {
-      return new $className($this->mysql, $this->config, $this, $this->dbId);
+      return new $className($this->mysql, $this->config, $this);
     } else {
       throw new FeatureNotSupportedException(
         __METHOD__ . ': Index "' . $className . '" is not supported!'
@@ -630,94 +591,11 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
   }
 
   /**
-   * @see ConstructImpl::_setReifier()
+   * (non-PHPdoc)
+   * @see phptmapi/core/ConstructImpl#_setReifier()
    */
-  public function setReifier($reifier) {
+  public function setReifier(Topic $reifier=null) {
     $this->_setReifier($reifier);
-  }
-  
-  /**
-   * Sets the construct's parent.
-   * 
-   * @param ConstructImpl
-   * @return void
-   */
-  public function setConstructParent(Construct $parent) {
-    $this->constructParent = $parent;
-  }
-  
-  /**
-   * Sets the construct property holder.
-   * 
-   * @param PropertyUtils The property holder.
-   * @return void
-   */
-  public function setConstructPropertyHolder(PropertyUtils $propertyHolder) {
-    $this->constructPropertyHolder = $propertyHolder;
-  }
-  
-  /**
-   * Gets the association hash.
-   * 
-   * @param TopicImpl The association type.
-   * @param array The scope.
-   * @param array The roles.
-   * @return string
-   */
-  public function getAssocHash(Topic $type, array $scope, array $roles) {
-    $scopeIdsImploded = 
-    $roleIdsImploded = null;
-    if (count($scope) > 0) {
-      $ids = array();
-      foreach ($scope as $theme) {
-        if ($theme instanceof Topic) $ids[$theme->dbId] = $theme->dbId;
-      }
-      ksort($ids);
-      $scopeIdsImploded = implode('', $ids);
-    }
-    if (count($roles) > 0) {
-      $ids = array();
-      foreach ($roles as $role) {
-        if ($role instanceof Role || $role instanceof MemoryRole) {
-          $ids[$role->getType()->dbId . $role->getPlayer()->dbId] = $role->getType()->dbId . $role->getPlayer()->dbId; 
-        }
-      }
-      ksort($ids);
-      $roleIdsImploded = implode('', $ids);
-    }
-    return md5($type->dbId . $scopeIdsImploded . $roleIdsImploded);
-  }
-  
-  /**
-   * Updates association hash.
-   * 
-   * @param int The association id.
-   * @param string The association hash.
-   */
-  public function updateAssocHash($assocId, $hash) {
-    $query = 'UPDATE ' . $this->config['table']['association'] . 
-      ' SET hash = "' . $hash . '"' .
-      ' WHERE id = ' . $assocId;
-    $this->mysql->execute($query);
-  }
-  
-  /**
-   * Checks if topic map has a certain association.
-   * 
-   * @param string The hash code.
-   * @return false|int The association id or <var>false</var> otherwise.
-   */
-  public function hasAssoc($hash) {
-    $query = 'SELECT id FROM ' . $this->config['table']['association'] . 
-      ' WHERE topicmap_id = ' . $this->dbId . 
-      ' AND hash = "' . $hash . '"';
-    $mysqlResult = $this->mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
-    if ($rows > 0) {
-      $result = $mysqlResult->fetch();
-      return (int) $result['id'];
-    }
-    return false;
   }
   
   /**
@@ -744,7 +622,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {// there exist duplicates
       while ($result = $mysqlResult->fetch()) {
-        $duplicate = $this->getConstructById('AssociationImpl-' . $result['id']);
+        $duplicate = $this->getConstructByVerifiedId('AssociationImpl-' . $result['id']);
         // gain duplicate's item identities
         $assoc->gainItemIdentifiers($duplicate);
         // gain duplicate's reifier
@@ -877,48 +755,6 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
   }
   
   /**
-   * Removes an association from the associations cache.
-   * 
-   * @param AssociationImpl The association to be removed.
-   * @return void
-   */
-  public function removeAssociation(Association $assoc) {
-    if (!$this->equals($assoc->getParent())) {
-      return;
-    }
-    if (is_null($this->assocsCache)) {
-      return;
-    }
-    $_assocs = array();
-    foreach ($this->assocsCache as $_assoc) {
-      $_assocs[$_assoc->getId()] = $_assoc;
-    }
-    unset($_assocs[$assoc->getId()]);
-    $this->assocsCache = array_values($_assocs);
-  }
-  
-  /**
-   * Removes a topic from the topics cache.
-   * 
-   * @param TopicImpl The topic to be removed.
-   * @return void
-   */
-  public function removeTopic(Topic $topic) {
-    if (!$this->equals($topic->getParent())) {
-      return;
-    }
-    if (is_null($this->topicsCache)) {
-      return;
-    }
-    $_topics = array();
-    foreach ($this->topicsCache as $_topic) {
-      $_topics[$_topic->getId()] = $_topic;
-    }
-    unset($_topics[$topic->getId()]);
-    $this->topicsCache = array_values($_topics);
-  }
-  
-  /**
    * Clears the topics cache.
    * 
    * @return void
@@ -937,6 +773,182 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
   }
   
   /**
+   * Returns a {@link ConstructImpl} by its (system specific) identifier.
+   *
+   * @param string The identifier of the construct to be returned.
+   * @param string The construct's hash.
+   * @return ConstructImpl The construct with the specified id.
+   */
+  protected function getConstructByVerifiedId($id, $hash=null) {
+    $constituents = explode('-', $id);
+    $className = $constituents[0];
+    $dbId = $constituents[1];
+    switch ($className) {
+      case 'TopicImpl':
+        return new $className($dbId, $this->mysql, $this->config, $this);
+        break;
+      case 'NameImpl':
+        $parent = $this->constructParent instanceof Topic ? $this->constructParent : 
+          $this->getNameParent($dbId);
+        $this->constructParent = null;
+        $propertyHolder = $this->constructPropertyHolder;
+        $this->constructPropertyHolder = null;
+        return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
+          $propertyHolder);
+        break;
+      case 'AssociationImpl':
+        $propertyHolder = $this->constructPropertyHolder;
+        $this->constructPropertyHolder = null;
+        return new $className($dbId, $this->mysql, $this->config, $this, $propertyHolder);
+        break;
+      case 'RoleImpl':
+        $parent = $this->constructParent instanceof Association ? 
+          $this->constructParent : $this->getRoleParent($dbId);
+        $this->constructParent = null;
+        $propertyHolder = $this->constructPropertyHolder;
+        $this->constructPropertyHolder = null;
+        return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
+          $propertyHolder);
+        break;
+      case 'OccurrenceImpl':
+        $parent = $this->constructParent instanceof Topic ? $this->constructParent : 
+          $this->getOccurrenceParent($dbId);
+        $this->constructParent = null;
+        $propertyHolder = $this->constructPropertyHolder;
+        $this->constructPropertyHolder = null;
+        return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
+          $propertyHolder);
+        break;
+      case 'VariantImpl':
+        $parent = $this->constructParent instanceof Name ? $this->constructParent : 
+          $this->getVariantParent($dbId);
+        $this->constructParent = null;
+        $propertyHolder = $this->constructPropertyHolder;
+        $this->constructPropertyHolder = null;
+        return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
+          $propertyHolder, $hash);
+        break;
+      case __CLASS__:
+        return new $className($dbId, $this->mysql, $this->config, $this->getTopicMapSystem());
+        break;
+    }
+  }
+  
+  /**
+   * Sets the construct's parent.
+   * 
+   * @param ConstructImpl
+   * @return void
+   */
+  protected function setConstructParent(Construct $parent) {
+    $this->constructParent = $parent;
+  }
+  
+  /**
+   * Sets the construct property holder.
+   * 
+   * @param PropertyUtils The property holder.
+   * @return void
+   */
+  protected function setConstructPropertyHolder(PropertyUtils $propertyHolder) {
+    $this->constructPropertyHolder = $propertyHolder;
+  }
+  
+  /**
+   * Gets the association hash.
+   * 
+   * @param TopicImpl The association type.
+   * @param array The scope.
+   * @param array The roles.
+   * @return string
+   */
+  protected function getAssocHash(Topic $type, array $scope, array $roles) {
+    $scopeIdsImploded = 
+    $roleIdsImploded = null;
+    if (count($scope) > 0) {
+      $ids = array();
+      foreach ($scope as $theme) {
+        if ($theme instanceof Topic) $ids[$theme->dbId] = $theme->dbId;
+      }
+      ksort($ids);
+      $scopeIdsImploded = implode('', $ids);
+    }
+    if (count($roles) > 0) {
+      $ids = array();
+      foreach ($roles as $role) {
+        if ($role instanceof Role || $role instanceof MemoryRole) {
+          $ids[$role->getType()->dbId . $role->getPlayer()->dbId] = $role->getType()->dbId . $role->getPlayer()->dbId; 
+        }
+      }
+      ksort($ids);
+      $roleIdsImploded = implode('', $ids);
+    }
+    return md5($type->dbId . $scopeIdsImploded . $roleIdsImploded);
+  }
+  
+  /**
+   * Updates association hash.
+   * 
+   * @param int The association id.
+   * @param string The association hash.
+   */
+  protected function updateAssocHash($assocId, $hash) {
+    $query = 'UPDATE ' . $this->config['table']['association'] . 
+      ' SET hash = "' . $hash . '"' .
+      ' WHERE id = ' . $assocId;
+    $this->mysql->execute($query);
+  }
+  
+  /**
+   * Checks if topic map has a certain association.
+   * 
+   * @param string The hash code.
+   * @return false|int The association id or <var>false</var> otherwise.
+   */
+  protected function hasAssoc($hash) {
+    $query = 'SELECT id FROM ' . $this->config['table']['association'] . 
+      ' WHERE topicmap_id = ' . $this->dbId . 
+      ' AND hash = "' . $hash . '"';
+    $mysqlResult = $this->mysql->execute($query);
+    $rows = $mysqlResult->getNumRows();
+    if ($rows > 0) {
+      $result = $mysqlResult->fetch();
+      return (int) $result['id'];
+    }
+    return false;
+  }
+  
+  /**
+   * Removes an association from the associations cache.
+   * 
+   * @param string The association id.
+   * @return void
+   */
+  protected function removeAssociationFromCache($assocId) {
+    if (is_null($this->assocsCache)) {
+      return;
+    }
+    if (array_key_exists($assocId, $this->assocsCache)) {
+      unset($this->assocsCache[$assocId]);
+    }
+  }
+  
+  /**
+   * Removes a topic from the topics cache.
+   * 
+   * @param string The topic id.
+   * @return void
+   */
+  protected function removeTopicFromCache($topicId) {
+    if (is_null($this->topicsCache)) {
+      return;
+    }
+    if (array_key_exists($topicId, $this->topicsCache)) {
+      unset($this->topicsCache[$topicId]);
+    }
+  }
+  
+  /**
    * Gets the construct's topicmapconstruct table <var>id</var>.
    * 
    * @return int The id.
@@ -952,14 +964,17 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
   }
   
   /**
-   * Checks if this topic map contains a construct with the given id.
+   * Verifies if this topic map contains a construct with the given id.
    * 
    * @param string The construct's id retrieved by {@link ConstructImpl::getId()}
    * @return boolean
    */
-  private function contains($id) {
+  private function verify($id) {
     if (!preg_match('/^[a-z]+\-[0-9]+$/i', $id)) {
       return false;
+    }
+    if (array_key_exists($id, $this->seenConstructsCache)) {
+      return true;
     }
     $constituents = explode('-', $id);
     $className = $constituents[0];
@@ -980,7 +995,12 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $mysqlResult = $this->mysql->execute($query);
     if (!$this->mysql->hasError()) {
       $result = $mysqlResult->fetchArray();
-      return (int) $result[0] > 0 ? true : false;
+      if ((int)$result[0] > 0) {
+        $this->seenConstructsCache[$id] = $this->id;
+        return true;
+      } else  {
+        return false;
+      }
     } else {
       return false;
     }
@@ -997,7 +1017,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       ' WHERE topicname_id = ' . $nameId;
     $mysqlResult = $this->mysql->execute($query);
     $result = $mysqlResult->fetch();
-    return $this->getConstructById('TopicImpl-' . $result['parent_id']);
+    return $this->getConstructByVerifiedId('TopicImpl-' . $result['parent_id']);
   }
   
   /**
@@ -1011,7 +1031,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       ' WHERE occurrence_id = ' . $occId;
     $mysqlResult = $this->mysql->execute($query);
     $result = $mysqlResult->fetch();
-    return $this->getConstructById('TopicImpl-' . $result['parent_id']);
+    return $this->getConstructByVerifiedId('TopicImpl-' . $result['parent_id']);
   }
   
   /**
@@ -1025,7 +1045,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       ' WHERE assocrole_id = ' . $roleId;
     $mysqlResult = $this->mysql->execute($query);
     $result = $mysqlResult->fetch();
-    return $this->getConstructById('AssociationImpl-' . $result['parent_id']);
+    return $this->getConstructByVerifiedId('AssociationImpl-' . $result['parent_id']);
   }
   
   /**
@@ -1042,7 +1062,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     $nameId = $result['parent_id'];
     $parentTopic = $this->getNameParent($nameId);
     $this->setConstructParent($parentTopic);
-    return $this->getConstructById('NameImpl-' . $result['parent_id']);
+    return $this->getConstructByVerifiedId('NameImpl-' . $result['parent_id']);
   }
   
   /**

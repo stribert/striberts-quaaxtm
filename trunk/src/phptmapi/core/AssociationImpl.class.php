@@ -94,7 +94,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
       
       $this->parent->setConstructParent($this);
       
-      $role = $this->parent->getConstructById('RoleImpl-' . $result['id']);
+      $role = $this->parent->getConstructByVerifiedId('RoleImpl-' . $result['id']);
       
       $roles[$result['type_id'] . $result['player_id']] = $role;
     }
@@ -150,7 +150,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
       $this->parent->setConstructPropertyHolder($propertyHolder);
       $this->parent->setConstructParent($this);
       
-      $role = $this->parent->getConstructById('RoleImpl-' . $lastRoleId);
+      $role = $this->parent->getConstructByVerifiedId('RoleImpl-' . $lastRoleId);
       if (!$this->mysql->hasError()) {
         $role->postInsert();
         $this->postSave();
@@ -159,7 +159,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
     } else {
       $result = $mysqlResult->fetch();
       $this->parent->setConstructParent($this);
-      return $this->parent->getConstructById('RoleImpl-' . $result['id']);
+      return $this->parent->getConstructByVerifiedId('RoleImpl-' . $result['id']);
     }
   }
 
@@ -176,7 +176,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
       ' WHERE association_id = ' . $this->dbId;
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $type = $this->parent->getConstructById('TopicImpl-' . $result['type_id']);
+      $type = $this->parent->getConstructByVerifiedId('TopicImpl-' . $result['type_id']);
       $types[$type->getId()] = $type;
     }
     return array_values($types);
@@ -195,7 +195,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
   /**
    * @see ConstructImpl::_setReifier()
    */
-  public function setReifier($reifier) {
+  public function setReifier(Topic $reifier=null) {
     $this->_setReifier($reifier);
   }
   
@@ -207,14 +207,14 @@ final class AssociationImpl extends ScopedImpl implements Association {
   public function getType() {
     if (!is_null($this->propertyHolder->getTypeId())) {
       $typeId = $this->propertyHolder->getTypeId();
-      return $this->parent->getConstructById('TopicImpl-' . $typeId);
+      return $this->parent->getConstructByVerifiedId('TopicImpl-' . $typeId);
     } else {
       $query = 'SELECT type_id FROM ' . $this->config['table']['association'] . 
         ' WHERE id = ' . $this->dbId;
       $mysqlResult = $this->mysql->execute($query);
       $result = $mysqlResult->fetch();
       $this->propertyHolder->setTypeId($result['type_id']);
-      return $this->parent->getConstructById('TopicImpl-' . $result['type_id']);
+      return $this->parent->getConstructByVerifiedId('TopicImpl-' . $result['type_id']);
     }
   }
 
@@ -266,7 +266,7 @@ final class AssociationImpl extends ScopedImpl implements Association {
       if (!$scopeObj->isUnconstrained()) {
         $this->unsetScope($scopeObj);// triggers clean up routine
       }
-      $this->parent->removeAssociation($this);
+      $this->parent->removeAssociationFromCache($this->getId());
       $this->id = 
       $this->dbId = null;
     }

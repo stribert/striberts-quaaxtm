@@ -68,14 +68,14 @@ final class RoleImpl extends ConstructImpl implements Role {
   public function getPlayer() {
     if (!is_null($this->propertyHolder->getPlayerId())) {
       $playerId = $this->propertyHolder->getPlayerId();
-      return $this->topicMap->getConstructById('TopicImpl-' . $playerId);
+      return $this->topicMap->getConstructByVerifiedId('TopicImpl-' . $playerId);
     } else {
       $query = 'SELECT player_id FROM ' . $this->config['table']['assocrole'] . 
         ' WHERE id = ' . $this->dbId;
       $mysqlResult = $this->mysql->execute($query);
       $result = $mysqlResult->fetch();
       $this->propertyHolder->setPlayerId($result['player_id']);
-      return $this->topicMap->getConstructById('TopicImpl-' . $result['player_id']);
+      return $this->topicMap->getConstructByVerifiedId('TopicImpl-' . $result['player_id']);
     }
   }
 
@@ -123,9 +123,10 @@ final class RoleImpl extends ConstructImpl implements Role {
   }
 
   /**
-   * @see ConstructImpl::_setReifier()
+   * (non-PHPdoc)
+   * @see phptmapi/core/ConstructImpl#_setReifier()
    */
-  public function setReifier($reifier) {
+  public function setReifier(Topic $reifier=null) {
     $this->_setReifier($reifier);
   }
   
@@ -137,14 +138,14 @@ final class RoleImpl extends ConstructImpl implements Role {
   public function getType() {
     if (!is_null($this->propertyHolder->getTypeId())) {
       $typeId = $this->propertyHolder->getTypeId();
-      return $this->topicMap->getConstructById('TopicImpl-' . $typeId);
+      return $this->topicMap->getConstructByVerifiedId('TopicImpl-' . $typeId);
     } else {
       $query = 'SELECT type_id FROM ' . $this->config['table']['assocrole'] . 
         ' WHERE id = ' . $this->dbId;
       $mysqlResult = $this->mysql->execute($query);
       $result = $mysqlResult->fetch();
       $this->propertyHolder->setTypeId($result['type_id']);
-      return $this->topicMap->getConstructById('TopicImpl-' . $result['type_id']);
+      return $this->topicMap->getConstructByVerifiedId('TopicImpl-' . $result['type_id']);
     }
   }
 

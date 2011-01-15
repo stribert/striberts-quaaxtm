@@ -103,27 +103,26 @@ final class NameImpl extends ScopedImpl implements Name {
    * @throws {@link ModelConstraintException} If the the <var>value</var> is <var>null</var>.
    */
   public function setValue($value) {
-    if (!is_null($value)) {
-      $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
-      $this->mysql->startTransaction();
-      $query = 'UPDATE ' . $this->config['table']['topicname'] . 
-        ' SET value = "' . $value . '"' .
-        ' WHERE id = ' . $this->dbId;
-      $this->mysql->execute($query);
-      
-      $hash = $this->parent->getNameHash($value, $this->getType(), $this->getScope());
-      $this->parent->updateNameHash($this->dbId, $hash);
-      $this->mysql->finishTransaction();
-      
-      if (!$this->mysql->hasError()) {
-        $this->propertyHolder->setValue($value);
-        $this->postSave();
-      }
-    } else {
+    if (is_null($value)) {
       throw new ModelConstraintException(
         $this, 
         __METHOD__ . ConstructImpl::VALUE_NULL_ERR_MSG
       );
+    }
+    $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
+    $this->mysql->startTransaction();
+    $query = 'UPDATE ' . $this->config['table']['topicname'] . 
+      ' SET value = "' . $value . '"' .
+      ' WHERE id = ' . $this->dbId;
+    $this->mysql->execute($query);
+    
+    $hash = $this->parent->getNameHash($value, $this->getType(), $this->getScope());
+    $this->parent->updateNameHash($this->dbId, $hash);
+    $this->mysql->finishTransaction();
+    
+    if (!$this->mysql->hasError()) {
+      $this->propertyHolder->setValue($value);
+      $this->postSave();
     }
   }
 
@@ -143,7 +142,7 @@ final class NameImpl extends ScopedImpl implements Name {
       $propertyHolder->setValue($result['value'])->setDataType($result['datatype']);
       $this->topicMap->setConstructPropertyHolder($propertyHolder);
       $this->topicMap->setConstructParent($this);
-      $variant = $this->topicMap->getConstructById(
+      $variant = $this->topicMap->getConstructByVerifiedId(
         'VariantImpl-' . $result['id'],
         $result['hash']
       );
@@ -170,63 +169,60 @@ final class NameImpl extends ScopedImpl implements Name {
    *        true superset of the name's scope.
    */
   public function createVariant($value, $datatype, array $scope) {
-    if (!is_null($value) && !is_null($datatype)) {
-      $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
-      $datatype = CharacteristicUtils::canonicalize($datatype, $this->mysql->getConnection());
-      $mergedScope = array_merge($scope, $this->getScope());
-      $hash = $this->getVariantHash($value, $datatype, $mergedScope);
-      $variantId = $this->hasVariant($hash);
-      if (!$variantId) {
-        // check if merged scope is a true superset of the name's scope
-        $nameScopeObj = $this->getScopeObject();
-        if ($nameScopeObj->isTrueSubset($mergedScope)) {
-          $this->mysql->startTransaction(true);
-          $query = 'INSERT INTO ' . $this->config['table']['variant'] . 
-            ' (id, topicname_id, value, datatype, hash) VALUES' .
-            ' (NULL, ' . $this->dbId . ', "' . $value . '", "' . $datatype . '", "' . $hash . '")';
-          $mysqlResult = $this->mysql->execute($query);
-          $lastVariantId = $mysqlResult->getLastId();
-          
-          $query = 'INSERT INTO ' . $this->config['table']['topicmapconstruct'] . 
-            ' (variant_id, topicmap_id, parent_id) VALUES' .
-            ' (' . $lastVariantId . ', ' . $this->topicMap->dbId . ', ' . $this->dbId . ')';
-          $this->mysql->execute($query);
-          
-          $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope, $this->topicMap, $this);
-          $query = 'INSERT INTO ' . $this->config['table']['variant_scope'] . 
-            ' (scope_id, variant_id) VALUES' .
-            ' (' . $scopeObj->dbId . ', ' . $lastVariantId . ')';
-          $this->mysql->execute($query);
-          
-          $this->mysql->finishTransaction(true);
-          
-          $propertyHolder = new PropertyUtils();
-          $propertyHolder->setValue($value)
-            ->setDataType($datatype);
-          $this->topicMap->setConstructPropertyHolder($propertyHolder);
-          $this->topicMap->setConstructParent($this);
-          
-          $variant = $this->topicMap->getConstructById('VariantImpl-' . $lastVariantId);
-          if (!$this->mysql->hasError()) {
-            $variant->postInsert();
-            $this->postSave();
-          }
-          return $variant;
-        } else {
-          throw new ModelConstraintException(
-            $this, 
-            __METHOD__ . self::SCOPE_NO_SUPERSET_ERR_MSG
-          );
-        }
-      } else {
-        $this->topicMap->setConstructParent($this);
-        return $this->topicMap->getConstructById('VariantImpl-' . $variantId);
-      }
-    } else {
+    if (is_null($value) || is_null($datatype)) {
       throw new ModelConstraintException(
         $this, 
         __METHOD__ . ConstructImpl::VALUE_DATATYPE_NULL_ERR_MSG
-      );
+      ); 
+    }
+    $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
+    $datatype = CharacteristicUtils::canonicalize($datatype, $this->mysql->getConnection());
+    $mergedScope = array_merge($scope, $this->getScope());
+    $hash = $this->getVariantHash($value, $datatype, $mergedScope);
+    $variantId = $this->hasVariant($hash);
+    if (!$variantId) {
+      $nameScopeObj = $this->getScopeObject();
+      if (!$nameScopeObj->isTrueSubset($mergedScope)) {
+        throw new ModelConstraintException(
+          $this, 
+          __METHOD__ . self::SCOPE_NO_SUPERSET_ERR_MSG
+        );
+      }
+      $this->mysql->startTransaction(true);
+      $query = 'INSERT INTO ' . $this->config['table']['variant'] . 
+        ' (id, topicname_id, value, datatype, hash) VALUES' .
+        ' (NULL, ' . $this->dbId . ', "' . $value . '", "' . $datatype . '", "' . $hash . '")';
+      $mysqlResult = $this->mysql->execute($query);
+      $lastVariantId = $mysqlResult->getLastId();
+      
+      $query = 'INSERT INTO ' . $this->config['table']['topicmapconstruct'] . 
+        ' (variant_id, topicmap_id, parent_id) VALUES' .
+        ' (' . $lastVariantId . ', ' . $this->topicMap->dbId . ', ' . $this->dbId . ')';
+      $this->mysql->execute($query);
+      
+      $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope, $this->topicMap, $this);
+      $query = 'INSERT INTO ' . $this->config['table']['variant_scope'] . 
+        ' (scope_id, variant_id) VALUES' .
+        ' (' . $scopeObj->dbId . ', ' . $lastVariantId . ')';
+      $this->mysql->execute($query);
+      
+      $this->mysql->finishTransaction(true);
+      
+      $propertyHolder = new PropertyUtils();
+      $propertyHolder->setValue($value)
+        ->setDataType($datatype);
+      $this->topicMap->setConstructPropertyHolder($propertyHolder);
+      $this->topicMap->setConstructParent($this);
+      
+      $variant = $this->topicMap->getConstructByVerifiedId('VariantImpl-' . $lastVariantId);
+      if (!$this->mysql->hasError()) {
+        $variant->postInsert();
+        $this->postSave();
+      }
+      return $variant;
+    } else {
+      $this->topicMap->setConstructParent($this);
+      return $this->topicMap->getConstructByVerifiedId('VariantImpl-' . $variantId);
     }
   }
   
@@ -241,9 +237,10 @@ final class NameImpl extends ScopedImpl implements Name {
   }
 
   /**
-   * @see ConstructImpl::_setReifier()
+   * (non-PHPdoc)
+   * @see phptmapi/core/ConstructImpl#_setReifier()
    */
-  public function setReifier($reifier) {
+  public function setReifier(Topic $reifier=null) {
     $this->_setReifier($reifier);
   }
   
@@ -255,14 +252,14 @@ final class NameImpl extends ScopedImpl implements Name {
   public function getType() {
     if (!is_null($this->propertyHolder->getTypeId())) {
       $typeId = $this->propertyHolder->getTypeId();
-      return $this->topicMap->getConstructById('TopicImpl-' . $typeId);
+      return $this->topicMap->getConstructByVerifiedId('TopicImpl-' . $typeId);
     } else {
       $query = 'SELECT type_id FROM ' . $this->config['table']['topicname'] . 
         ' WHERE id = ' . $this->dbId;
       $mysqlResult = $this->mysql->execute($query);
       $result = $mysqlResult->fetch();
       $this->propertyHolder->setTypeId($result['type_id']);
-      return $this->topicMap->getConstructById('TopicImpl-' . $result['type_id']);
+      return $this->topicMap->getConstructByVerifiedId('TopicImpl-' . $result['type_id']);
     }
   }
 
@@ -321,62 +318,6 @@ final class NameImpl extends ScopedImpl implements Name {
   }
   
   /**
-   * Gets the variant hash.
-   * 
-   * @param string The value.
-   * @param string The datatype.
-   * @param array The scope.
-   * @return string
-   */
-  public function getVariantHash($value, $datatype, array $scope) {
-    $scopeIdsImploded = null;
-    if (count($scope) > 0) {
-      $ids = array();
-      foreach ($scope as $theme) {
-        if ($theme instanceof Topic) {
-          $ids[$theme->dbId] = $theme->dbId;
-        }
-      }
-      ksort($ids);
-      $scopeIdsImploded = implode('', $ids);
-    }
-    return md5($value . $datatype . $scopeIdsImploded);
-  }
-  
-  /**
-   * Updates variant hash.
-   * 
-   * @param int The variant id.
-   * @param string The variant hash.
-   */
-  public function updateVariantHash($variantId, $hash) {
-    $query = 'UPDATE ' . $this->config['table']['variant'] . 
-      ' SET hash = "' . $hash . '"' .
-      ' WHERE id = ' . $variantId;
-    $this->mysql->execute($query);
-  }
-  
-  /**
-   * Checks if topic name has a certain variant.
-   * 
-   * @param string The hash code.
-   * @return false|int The variant id or <var>false</var> otherwise.
-   */
-  public function hasVariant($hash) {
-    $return = false;
-    $query = 'SELECT id FROM ' . $this->config['table']['variant'] . 
-      ' WHERE topicname_id = ' . $this->dbId . 
-      ' AND hash = "' . $hash . '"';
-    $mysqlResult = $this->mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
-    if ($rows > 0) {
-      $result = $mysqlResult->fetch();
-      $return = (int) $result['id'];
-    }
-    return $return;
-  }
-  
-  /**
    * Tells the topic map system that a variant modification is finished and 
    * duplicate removal can take place.
    * 
@@ -401,7 +342,7 @@ final class NameImpl extends ScopedImpl implements Name {
     if ($rows > 0) {// there exist duplicates
       while ($result = $mysqlResult->fetch()) {
         $this->topicMap->setConstructParent($this);
-        $duplicate = $this->topicMap->getConstructById('VariantImpl-' . $result['id']);
+        $duplicate = $this->topicMap->getConstructByVerifiedId('VariantImpl-' . $result['id']);
         // gain duplicate's item identities
         $variant->gainItemIdentifiers($duplicate);
         // gain duplicate's reifier
@@ -411,6 +352,61 @@ final class NameImpl extends ScopedImpl implements Name {
         $duplicate->remove();
       }
     }
+  }
+  
+  /**
+   * Gets the variant hash.
+   * 
+   * @param string The value.
+   * @param string The datatype.
+   * @param array The scope.
+   * @return string
+   */
+  protected function getVariantHash($value, $datatype, array $scope) {
+    $scopeIdsImploded = null;
+    if (count($scope) > 0) {
+      $ids = array();
+      foreach ($scope as $theme) {
+        if ($theme instanceof Topic) {
+          $ids[$theme->dbId] = $theme->dbId;
+        }
+      }
+      ksort($ids);
+      $scopeIdsImploded = implode('', $ids);
+    }
+    return md5($value . $datatype . $scopeIdsImploded);
+  }
+  
+  /**
+   * Updates variant hash.
+   * 
+   * @param int The variant id.
+   * @param string The variant hash.
+   */
+  protected function updateVariantHash($variantId, $hash) {
+    $query = 'UPDATE ' . $this->config['table']['variant'] . 
+      ' SET hash = "' . $hash . '"' .
+      ' WHERE id = ' . $variantId;
+    $this->mysql->execute($query);
+  }
+  
+  /**
+   * Checks if topic name has a certain variant.
+   * 
+   * @param string The hash code.
+   * @return false|int The variant id or <var>false</var> otherwise.
+   */
+  protected function hasVariant($hash) {
+    $query = 'SELECT id FROM ' . $this->config['table']['variant'] . 
+      ' WHERE topicname_id = ' . $this->dbId . 
+      ' AND hash = "' . $hash . '"';
+    $mysqlResult = $this->mysql->execute($query);
+    $rows = $mysqlResult->getNumRows();
+    if ($rows > 0) {
+      $result = $mysqlResult->fetch();
+      return (int) $result['id'];
+    }
+    return false;
   }
 }
 ?>

@@ -142,70 +142,67 @@ abstract class ConstructImpl implements Construct {
    * @throws {@link ModelConstraintException} If the item identifier is <var>null</var>.
    */
   public function addItemIdentifier($iid) {
-    if (!is_null($iid)) {
-      // define insert stmnt only once
-      $insert = 'INSERT INTO ' . $this->config['table']['itemidentifier'] . 
-        ' (topicmapconstruct_id, locator) VALUES' .
-        ' (' . $this->constructDbId . ', "' . $iid . '")';
-      // check if given item identifier exists in topic map
-      $query = 'SELECT t1.*' . 
-        ' FROM ' . $this->config['table']['topicmapconstruct'] . ' t1' . 
-        ' INNER JOIN ' . $this->config['table']['itemidentifier'] . ' t2' .
-        ' ON t1.id = t2.topicmapconstruct_id' .
-        ' WHERE t2.locator = "' . $iid . '"' . 
-        ' AND t1.topicmap_id = ' . $this->getTopicMap()->dbId;
-      $mysqlResult = $this->mysql->execute($query);
-      $rows = $mysqlResult->getNumRows();
-      if ($rows == 0) {
-        // if construct is a topic check sids too
-        if ($this instanceof Topic) {
-          $query = 'SELECT t2.id' .
-            ' FROM ' . $this->config['table']['subjectidentifier'] . ' t1' .
-            ' INNER JOIN ' . $this->config['table']['topic'] . ' t2' .
-            ' ON t2.id = t1.topic_id' .
-            ' WHERE t1.locator = "' . $iid . '"' .
-            ' AND t2.topicmap_id = ' . $this->getTopicMap()->dbId . 
-            ' AND t1.topic_id <> ' . $this->dbId;
-          $mysqlResult = $this->mysql->execute($query);
-          $rows = $mysqlResult->getNumRows();
-          if ($rows == 0) {
-            $this->mysql->execute($insert);
-            if (!$this->mysql->hasError()) {
-              $this->postSave();
-            }
-          } else {// merge
-            $result = $mysqlResult->fetch();
-            $existingTopic = $this->getTopicMap()->getConstructById(
-            	'TopicImpl-' . $result['id']
-            );
-            $this->mergeIn($existingTopic);
-          }
-        } else {
+    if (is_null($iid)) {
+      throw new ModelConstraintException(
+        $this, __METHOD__ . TopicImpl::IDENTITY_NULL_ERR_MSG
+      );
+    }
+    // define insert stmnt only once
+    $insert = 'INSERT INTO ' . $this->config['table']['itemidentifier'] . 
+      ' (topicmapconstruct_id, locator) VALUES' .
+      ' (' . $this->constructDbId . ', "' . $iid . '")';
+    // check if given item identifier exists in topic map
+    $query = 'SELECT t1.*' . 
+      ' FROM ' . $this->config['table']['topicmapconstruct'] . ' t1' . 
+      ' INNER JOIN ' . $this->config['table']['itemidentifier'] . ' t2' .
+      ' ON t1.id = t2.topicmapconstruct_id' .
+      ' WHERE t2.locator = "' . $iid . '"' . 
+      ' AND t1.topicmap_id = ' . $this->getTopicMap()->dbId;
+    $mysqlResult = $this->mysql->execute($query);
+    $rows = $mysqlResult->getNumRows();
+    if ($rows == 0) {
+      // if construct is a topic check sids too
+      if ($this instanceof Topic) {
+        $query = 'SELECT t2.id' .
+          ' FROM ' . $this->config['table']['subjectidentifier'] . ' t1' .
+          ' INNER JOIN ' . $this->config['table']['topic'] . ' t2' .
+          ' ON t2.id = t1.topic_id' .
+          ' WHERE t1.locator = "' . $iid . '"' .
+          ' AND t2.topicmap_id = ' . $this->getTopicMap()->dbId . 
+          ' AND t1.topic_id <> ' . $this->dbId;
+        $mysqlResult = $this->mysql->execute($query);
+        $rows = $mysqlResult->getNumRows();
+        if ($rows == 0) {
           $this->mysql->execute($insert);
           if (!$this->mysql->hasError()) {
             $this->postSave();
           }
-        }
-      } else {// the given item identifier already exists
-        $existingConstruct = $this->factory($mysqlResult);
-        if ($existingConstruct instanceof Topic && $this instanceof Topic) {
-          if (!$existingConstruct->equals($this)) {
-            $this->mergeIn($existingConstruct);
-          } else {
-            return;
-          }
-        } else {
-          throw new IdentityConstraintException(
-            $this, 
-            $existingConstruct, 
-            $iid, 
-            __METHOD__ . self::ITEM_IDENTIFIER_EXISTS_ERR_MSG
+        } else {// merge
+          $result = $mysqlResult->fetch();
+          $existingTopic = $this->getTopicMap()->getConstructByVerifiedId(
+          	'TopicImpl-' . $result['id']
           );
+          $this->mergeIn($existingTopic);
+        }
+      } else {
+        $this->mysql->execute($insert);
+        if (!$this->mysql->hasError()) {
+          $this->postSave();
         }
       }
-    } else {
-      throw new ModelConstraintException($this, __METHOD__ . 
-        TopicImpl::IDENTITY_NULL_ERR_MSG);
+    } else {// the given item identifier already exists
+      $existingConstruct = $this->factory($mysqlResult);
+      if (!$existingConstruct instanceof Topic || !$this instanceof Topic) {
+        throw new IdentityConstraintException(
+          $this, 
+          $existingConstruct, 
+          $iid, 
+          __METHOD__ . self::ITEM_IDENTIFIER_EXISTS_ERR_MSG
+        );
+      }
+      if (!$existingConstruct->equals($this)) {
+        $this->mergeIn($existingConstruct);
+      }
     }
   }
 
@@ -247,7 +244,7 @@ abstract class ConstructImpl implements Construct {
    * @return boolean
    */
   public function equals(Construct $other) {
-    return $this->getId() === $other->getId();
+    return $this->id === $other->getId();
   }
 
   /**
@@ -258,7 +255,7 @@ abstract class ConstructImpl implements Construct {
    * @return string
    */
   public function hashCode() {
-    return md5($this->getId());
+    return md5($this->id);
   }
   
   /**
@@ -267,7 +264,7 @@ abstract class ConstructImpl implements Construct {
    * @return int The database id.
    */
   public function getDbId() {
-    $constituents = explode('-', $this->getId());
+    $constituents = explode('-', $this->id);
     return (int) $constituents[1];
   }
   
@@ -386,7 +383,7 @@ abstract class ConstructImpl implements Construct {
         }
       } else {// only gain variant's iids and reifier
         $this->getTopicMap()->setConstructParent($this);
-        $variant = $this->getTopicMap()->getConstructById('VariantImpl-' . $variantId);
+        $variant = $this->getTopicMap()->getConstructByVerifiedId('VariantImpl-' . $variantId);
         $variant->gainItemIdentifiers($otherVariant);
         $variant->gainReifier($otherVariant);
         $variant->postSave();
@@ -405,30 +402,30 @@ abstract class ConstructImpl implements Construct {
     $topicMap = $this->getTopicMap();
     $result = $mysqlResult->fetch();
     if (!is_null($result['topic_id'])) {
-      return $topicMap->getConstructById('TopicImpl-' . $result['topic_id']);
+      return $topicMap->getConstructByVerifiedId('TopicImpl-' . $result['topic_id']);
     } elseif (!is_null($result['occurrence_id'])) {
-      $parentTopic = $topicMap->getConstructById('TopicImpl-' . $result['parent_id']);
+      $parentTopic = $topicMap->getConstructByVerifiedId('TopicImpl-' . $result['parent_id']);
       $topicMap->setConstructParent($parentTopic);
-      return $topicMap->getConstructById('OccurrenceImpl-' . $result['occurrence_id']);
+      return $topicMap->getConstructByVerifiedId('OccurrenceImpl-' . $result['occurrence_id']);
     } elseif (!is_null($result['topicname_id'])) {
-      $parentTopic = $topicMap->getConstructById('TopicImpl-' . $result['parent_id']);
+      $parentTopic = $topicMap->getConstructByVerifiedId('TopicImpl-' . $result['parent_id']);
       $topicMap->setConstructParent($parentTopic);
-      return $topicMap->getConstructById('NameImpl-' . $result['topicname_id']);
+      return $topicMap->getConstructByVerifiedId('NameImpl-' . $result['topicname_id']);
     } elseif (!is_null($result['association_id'])) {
-      return $topicMap->getConstructById('AssociationImpl-' . $result['association_id']);
+      return $topicMap->getConstructByVerifiedId('AssociationImpl-' . $result['association_id']);
     } elseif (!is_null($result['assocrole_id'])) {
-      $parentAssoc = $topicMap->getConstructById('AssociationImpl-' . $result['parent_id']);
+      $parentAssoc = $topicMap->getConstructByVerifiedId('AssociationImpl-' . $result['parent_id']);
       $topicMap->setConstructParent($parentAssoc);
-      return $topicMap->getConstructById('RoleImpl-' . $result['assocrole_id']);
+      return $topicMap->getConstructByVerifiedId('RoleImpl-' . $result['assocrole_id']);
     } elseif (!is_null($result['variant_id'])) {
       $parentTopicId = $this->getNameparentId($result['parent_id']);
-      $parentTopic = $topicMap->getConstructById('TopicImpl-' . $parentTopicId);
+      $parentTopic = $topicMap->getConstructByVerifiedId('TopicImpl-' . $parentTopicId);
       $topicMap->setConstructParent($parentTopic);
-      $parentName = $topicMap->getConstructById('NameImpl-' . $result['parent_id']);
+      $parentName = $topicMap->getConstructByVerifiedId('NameImpl-' . $result['parent_id']);
       $topicMap->setConstructParent($parentName);
-      return $topicMap->getConstructById('VariantImpl-' . $result['variant_id']);
+      return $topicMap->getConstructByVerifiedId('VariantImpl-' . $result['variant_id']);
     } elseif (!is_null($result['topicmap_id'])) {
-      return $topicMap->getConstructById('TopicMapImpl-' . $result['topicmap_id']);
+      return $topicMap->getConstructByVerifiedId('TopicMapImpl-' . $result['topicmap_id']);
     } else {
       return null;
     }
@@ -446,7 +443,7 @@ abstract class ConstructImpl implements Construct {
     $mysqlResult = $this->mysql->execute($query);
     $result = $mysqlResult->fetch();
     if (!is_null($result['reifier_id'])) {
-      return $this->getTopicMap()->getConstructById('TopicImpl-' . $result['reifier_id']);
+      return $this->getTopicMap()->getConstructByVerifiedId('TopicImpl-' . $result['reifier_id']);
     } else {
       return null;
     }
@@ -543,7 +540,148 @@ abstract class ConstructImpl implements Construct {
    * @param array Optional parameters.
    * @return void
    */
-  protected function preDelete(array $params=array()) {}
+  protected function preDelete(array $params=array()) {
+    $topicMap = $this->getTopicMap();
+    if (array_key_exists($this->id, $topicMap->seenConstructsCache)) {
+      unset($topicMap->seenConstructsCache[$this->id]);
+    }
+  }
+  
+  /**
+   * (non-PHPdoc)
+   * @see phptmapi/core/TopicMapImpl#getConstructByVerifiedId()
+   */
+  protected function getConstructByVerifiedId($id, $hash=null) {
+    return;
+  }
+  
+  /**
+   * (non-PHPdoc)
+   * @see phptmapi/core/TopicMapImpl#setConstructParent()
+   */
+  protected function setConstructParent(Construct $parent) {
+    return;
+  }
+  
+  /**
+   * (non-PHPdoc)
+   * @see phptmapi/core/TopicMapImpl#setConstructPropertyHolder()
+   */
+  protected function setConstructPropertyHolder(PropertyUtils $propertyHolder) {
+    return;
+  }
+  
+  /**
+   * (non-PHPdoc)
+   * @see phptmapi/core/TopicMapImpl#getAssocHash()
+   */
+  protected function getAssocHash(Topic $type, array $scope, array $roles) {
+    return;
+  }
+  
+  /**
+   * (non-PHPdoc)
+   * @see phptmapi/core/TopicMapImpl#updateAssocHash()
+   */
+  protected function updateAssocHash($assocId, $hash) {
+    return;
+  }
+  
+  /**
+   * (non-PHPdoc)
+   * @see phptmapi/core/TopicMapImpl#hasAssoc()
+   */
+  protected function hasAssoc($hash) {
+    return;
+  }
+  
+  /**
+   * (non-PHPdoc)
+   * @see phptmapi/core/TopicMapImpl#removeAssociationFromCache()
+   */
+  protected function removeAssociationFromCache($assocId) {
+    return;
+  }
+  
+  /**
+   * (non-PHPdoc)
+   * @see phptmapi/core/TopicMapImpl#removeTopicFromCache()
+   */
+  protected function removeTopicFromCache($topicId) {
+    return;
+  }
+  
+  /**
+   * (non-PHPdoc)
+   * @see phptmapi/core/NameImpl#getVariantHash()
+   */
+  protected function getVariantHash($value, $datatype, array $scope) {
+    return;
+  }
+  
+  /**
+   * (non-PHPdoc)
+   * @see phptmapi/core/NameImpl#updateVariantHash()
+   */
+  protected function updateVariantHash($variantId, $hash) {
+    return;
+  }
+  
+  /**
+   * (non-PHPdoc)
+   * @see phptmapi/core/NameImpl#hasVariant()
+   */
+  protected function hasVariant($hash) {
+    return;
+  }
+  
+  /**
+   * (non-PHPdoc)
+   * @see phptmapi/core/TopicImpl#getNameHash()
+   */
+  protected function getNameHash($value, Topic $type, array $scope) {
+    return;
+  }
+  
+  /**
+   * (non-PHPdoc)
+   * @see phptmapi/core/TopicImpl#getOccurrenceHash()
+   */
+  protected function getOccurrenceHash(Topic $type, $value, $datatype, array $scope) {
+    return;
+  }
+  
+  /**
+   * (non-PHPdoc)
+   * @see phptmapi/core/TopicImpl#updateNameHash()
+   */
+  protected function updateNameHash($nameId, $hash) {
+    return;
+  }
+  
+  /**
+   * (non-PHPdoc)
+   * @see phptmapi/core/TopicImpl#updateOccurrenceHash()
+   */
+  protected function updateOccurrenceHash($occId, $hash) {
+    return;
+  }
+  
+  /**
+   * (non-PHPdoc)
+   * @see phptmapi/core/TopicImpl#hasName()
+   */
+  protected function hasName($hash) {
+    return;
+  }
+  
+  /**
+   * (non-PHPdoc)
+   * @see phptmapi/core/TopicImpl#hasOccurrence()
+   */
+  protected function hasOccurrence($hash) {
+    return;
+  }
   
   /**
    * Gets the construct's topicmapconstruct table <var>id</var>.

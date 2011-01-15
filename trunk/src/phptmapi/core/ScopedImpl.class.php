@@ -69,7 +69,7 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
       ' WHERE t2.' . $this->fkColumn . ' = ' . $this->dbId;
     $mysqlResult = $this->mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $theme = $this->topicMap->getConstructById('TopicImpl-' . $result['topic_id']);
+      $theme = $this->topicMap->getConstructByVerifiedId('TopicImpl-' . $result['topic_id']);
       $scope[$theme->getId()] = $theme;
     }
     return array_values($scope);
@@ -182,40 +182,6 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
   }
   
   /**
-   * Gets the scope binding tables.
-   * 
-   * @return array
-   */
-  private function getBindingTables() {
-    return array(
-      $this->config['table']['topicname_scope'], 
-      $this->config['table']['occurrence_scope'], 
-      $this->config['table']['association_scope'], 
-      $this->config['table']['variant_scope']
-    );
-  }
-  
-  /**
-   * Gets the scope binding table.
-   * 
-   * @return string The table name.
-   */
-  private function getBindingTable() {
-    switch ($this->className) {
-      case 'NameImpl':
-        return $this->config['table']['topicname_scope'];
-      case 'OccurrenceImpl':
-        return $this->config['table']['occurrence_scope'];
-      case 'AssociationImpl':
-        return $this->config['table']['association_scope'];
-      case 'VariantImpl':
-        return $this->config['table']['variant_scope'];
-      default:
-        return null;
-    }
-  }
-  
-  /**
    * Builds a scope array where the db id is the key.
    * 
    * @param array The scope returned by {@link ScopedImpl::getScope()}.
@@ -257,6 +223,40 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
           $scope
         );
         $this->parent->updateVariantHash($this->dbId, $hash);
+    }
+  }
+  
+  /**
+   * Gets the scope binding tables.
+   * 
+   * @return array
+   */
+  private function getBindingTables() {
+    return array(
+      $this->config['table']['topicname_scope'], 
+      $this->config['table']['occurrence_scope'], 
+      $this->config['table']['association_scope'], 
+      $this->config['table']['variant_scope']
+    );
+  }
+  
+  /**
+   * Gets the scope binding table.
+   * 
+   * @return string The table name.
+   */
+  private function getBindingTable() {
+    switch ($this->className) {
+      case 'NameImpl':
+        return $this->config['table']['topicname_scope'];
+      case 'OccurrenceImpl':
+        return $this->config['table']['occurrence_scope'];
+      case 'AssociationImpl':
+        return $this->config['table']['association_scope'];
+      case 'VariantImpl':
+        return $this->config['table']['variant_scope'];
+      default:
+        return null;
     }
   }
 }

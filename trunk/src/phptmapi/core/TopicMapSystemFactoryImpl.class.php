@@ -48,7 +48,7 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    * 
    * @return void
    */
-  protected function __construct() {
+  private function __construct() {
     $this->properties = 
     $this->features = 
     $this->fixFeatures = array();
@@ -57,6 +57,8 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
     $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_READONLY, false, true);
     $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_TYPE_INST_ASSOC, false, true);
     $this->setupFeatures(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false, false);
+    
+    self::$instance = $this;
   }
   
   /**
@@ -180,10 +182,9 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    * @static
    */
   public static function newInstance() {
-    if (is_null(self::$instance)) {
-      self::$instance = new self();
-    }
-    return self::$instance;
+    return self::$instance instanceof TopicMapSystemFactory 
+      ? self::$instance
+      : new self();
   }
 
   /**

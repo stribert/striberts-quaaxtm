@@ -88,7 +88,7 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    */
   public function createTopicMap($uri) {
     if (empty($uri)) {
-      return;
+      return null;
     }
     // check if locator already exists
     $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['topicmap'] . 

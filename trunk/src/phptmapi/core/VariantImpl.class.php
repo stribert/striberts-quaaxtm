@@ -128,30 +128,29 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    *        is <var>null</var>.
    */
   public function setValue($value, $datatype) {
-    if (!is_null($value) && !is_null($datatype)) {
-      $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
-      $datatype = CharacteristicUtils::canonicalize($datatype, $this->mysql->getConnection());
-      $this->mysql->startTransaction();
-      $query = 'UPDATE ' . $this->config['table']['variant'] . 
-        ' SET value = "' . $value . '", ' . 
-        'datatype = "' . $datatype . '" ' . 
-        'WHERE id = ' . $this->dbId;
-      $this->mysql->execute($query);
-      
-      $hash = $this->parent->getVariantHash($value, $datatype, $this->getScope());
-      $this->parent->updateVariantHash($this->dbId, $hash);
-      $this->mysql->finishTransaction();
-      
-      if (!$this->mysql->hasError()) {
-        $this->propertyHolder->setValue($value);
-        $this->propertyHolder->setDatatype($datatype);
-        $this->postSave();
-      }
-    } else {
+    if (is_null($value) || is_null($datatype)) {
       throw new ModelConstraintException(
         $this, 
         __METHOD__ . ConstructImpl::VALUE_DATATYPE_NULL_ERR_MSG
       );
+    }
+    $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
+    $datatype = CharacteristicUtils::canonicalize($datatype, $this->mysql->getConnection());
+    $this->mysql->startTransaction();
+    $query = 'UPDATE ' . $this->config['table']['variant'] . 
+      ' SET value = "' . $value . '", ' . 
+      'datatype = "' . $datatype . '" ' . 
+      'WHERE id = ' . $this->dbId;
+    $this->mysql->execute($query);
+    
+    $hash = $this->parent->getVariantHash($value, $datatype, $this->getScope());
+    $this->parent->updateVariantHash($this->dbId, $hash);
+    $this->mysql->finishTransaction();
+    
+    if (!$this->mysql->hasError()) {
+      $this->propertyHolder->setValue($value);
+      $this->propertyHolder->setDatatype($datatype);
+      $this->postSave();
     }
   }
   
@@ -166,9 +165,10 @@ final class VariantImpl extends ScopedImpl implements IVariant {
   }
 
   /**
-   * @see ConstructImpl::_setReifier()
+   * (non-PHPdoc)
+   * @see phptmapi/core/ConstructImpl#_setReifier()
    */
-  public function setReifier($reifier) {
+  public function setReifier(Topic $reifier=null) {
     $this->_setReifier($reifier);
   }
   
@@ -181,8 +181,7 @@ final class VariantImpl extends ScopedImpl implements IVariant {
   public function remove() {
     $this->preDelete();
     $scopeObj = $this->getScopeObject();
-    $query = 'DELETE FROM ' . $this->config['table']['variant'] . 
-      ' WHERE id = ' . $this->dbId;
+    $query = 'DELETE FROM ' . $this->config['table']['variant'] . ' WHERE id = ' . $this->dbId;
     $this->mysql->execute($query);
     if (!$this->mysql->hasError()) {
       if (!$scopeObj->isUnconstrained()) {
