@@ -45,13 +45,13 @@ class Mysql {
    * @return void
    */
   public function __construct(array $config) {
-    $this->sql = '';
+    $this->sql = 
     $this->error = '';
     $this->errno = 0;
     $this->connection = null;
-    $this->result = false;
-    $this->commit = false;
-    $this->trnx = false;
+    $this->result = 
+    $this->commit = 
+    $this->trnx = 
     $this->delayTrnx = false;
     
     $this->connect($config);
@@ -109,15 +109,17 @@ class Mysql {
     if (!$this->connOpen) {
       return false;
     }
-    $this->sql = trim($query);
+    $this->sql = $query;
     $this->result = mysqli_query($this->connection, $this->sql);
-    if (!$this->result) {
+    if ($this->result) {
+      return new MysqlResult($this->result, $this->connection);
+    } else {
       $this->errno = mysqli_errno($this->connection);
       $this->error = mysqli_error($this->connection);
-      if ($this->trnx) $this->commit = false;
+      if ($this->trnx) {
+        $this->commit = false;
+      }
       return false;
-    } else {
-      return new MysqlResult($this->result, $this->connection);
     }
   }
 
@@ -139,11 +141,11 @@ class Mysql {
     if ($this->hasError()) {
       $msg  = 'Query: ' . $this->sql . "\n";
       $msg .= 'Response: ' . $this->error . "\n";
-      $msg .= 'Errorcode: ' . $this->errno;
+      $msg .= 'Error code: ' . $this->errno;
+      return $msg;
     } else {
-      $msg = 'No error.';
+      return 'No error.';
     }
-    return $msg;
   }
   
   /**
@@ -160,7 +162,7 @@ class Mysql {
       if (!$result) {
         throw new RuntimeException($this->getError());
       }
-      $this->trnx = true;
+      $this->trnx = 
       $this->commit = true;
     }
   }
@@ -173,7 +175,9 @@ class Mysql {
    * @throws RuntimeException If the transaction can not be finished.
    */
   public function finishTransaction($forced=false) {
-    if ($forced) $this->delayTrnx = false;
+    if ($forced) {
+      $this->delayTrnx = false;
+    }
     if (!$this->delayTrnx) {
       if ($this->commit) {
         $result = $this->execute('COMMIT');
