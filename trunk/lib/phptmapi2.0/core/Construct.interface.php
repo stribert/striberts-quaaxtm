@@ -15,7 +15,7 @@
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: Construct.interface.php 38 2009-06-28 19:53:07Z joschmidt $
+ * @version svn:$Id: Construct.interface.php 63 2010-02-14 21:17:19Z joschmidt $
  */
 interface Construct {
     

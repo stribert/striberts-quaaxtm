@@ -25,7 +25,7 @@ require_once('Index.interface.php');
  *
  * @package index
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: TypeInstanceIndex.interface.php 27 2009-03-19 00:01:38Z joschmidt $
+ * @version svn:$Id: TypeInstanceIndex.interface.php 68 2011-01-09 13:41:40Z joschmidt $
  */
 interface TypeInstanceIndex extends Index {
 
@@ -49,6 +49,8 @@ interface TypeInstanceIndex extends Index {
    *        an instance of one type at least. If types' length = 1, matchAll 
    *        is interpreted <var>true</var>.
    * @return array An array containing {@link Topic}s.
+   * @throws InvalidArgumentException If <var>types</var> does not exclusively contain 
+   * 				{@link Topic}s.
    */
   public function getTopics(array $types, $matchAll);
 

@@ -23,7 +23,7 @@ require_once('FactoryConfigurationException.class.php');
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: TopicMapSystemFactory.class.php 32 2009-06-19 20:15:37Z joschmidt $
+ * @version svn:$Id: TopicMapSystemFactory.class.php 70 2011-01-15 18:10:11Z joschmidt $
  */
 abstract class TopicMapSystemFactory {
    
@@ -109,13 +109,23 @@ abstract class TopicMapSystemFactory {
    * @static
    */
   public static function newInstance() {
-    $implementation = self::getImplementationClass();
-    if ($implementation instanceof TopicMapSystemFactory) {
-      return $implementation->newInstance();
-    } else {
-      throw new FactoryConfigurationException(__METHOD__ . ': ' .
-        'Implementation is not an instance of TopicMapSystemFactory!');
+    $factoryImplClassName = self::_getImplementationClassName();
+    $factoryImplLocation = null;
+    require(
+      dirname(__FILE__) . 
+      DIRECTORY_SEPARATOR . 
+      '..' . 
+      DIRECTORY_SEPARATOR . 
+      'config.php'
+    );
+    require_once($factoryImplLocation);
+    $factoryImpl = $factoryImplClassName::newInstance();
+    if (!$factoryImpl instanceof TopicMapSystemFactory) {
+      throw new FactoryConfigurationException(
+        __METHOD__ . ': ' . 'Implementation is not an instance of TopicMapSystemFactory!'
+      );
     }
+    return $factoryImpl;
   }
 
   /**
@@ -129,14 +139,13 @@ abstract class TopicMapSystemFactory {
   abstract public function newTopicMapSystem();
   
   /**
-   * Locates the implementation of TopicMapSystemFactory from config.php 
-   * and returns a new instance.
+   * Returns the class name of the TopicMapSystemFactory implementation from config.php.
    * 
-   * @return TopicMapSystemFactory
+   * @return string The class name of the TopicMapSystemFactory implementation.
    * @static
    */
-  private static function getImplementationClass() {
-    $factoryImplLocation = $factoryImpl = null;
+  private static function _getImplementationClassName() {
+    $factoryImpl = null;
     require(
       dirname(__FILE__) . 
       DIRECTORY_SEPARATOR . 
@@ -144,8 +153,7 @@ abstract class TopicMapSystemFactory {
       DIRECTORY_SEPARATOR . 
       'config.php'
     );
-    require_once($factoryImplLocation);
-    return new $factoryImpl;
+    return $factoryImpl;
   }
 }
 ?>

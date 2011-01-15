@@ -21,12 +21,12 @@ require_once('ModelConstraintException.class.php');
  * 
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: IdentityConstraintException.class.php 14 2009-02-06 22:00:16Z joschmidt $
+ * @version svn:$Id: IdentityConstraintException.class.php 73 2011-01-15 18:20:00Z joschmidt $
  */
 class IdentityConstraintException extends ModelConstraintException {
   
-  private $existing,
-          $locator;
+  private $_existing,
+          $_locator;
   
   /**
    * Constructor.
@@ -41,8 +41,8 @@ class IdentityConstraintException extends ModelConstraintException {
    */
   public function __construct(Construct $reporter, Construct $existing, $locator, $msg) {
     parent::__construct($reporter, $msg);
-    $this->existing = $existing;
-    $this->locator = $locator;
+    $this->_existing = $existing;
+    $this->_locator = $locator;
   }
   
   /**
@@ -52,7 +52,7 @@ class IdentityConstraintException extends ModelConstraintException {
    * @return Construct The existing construct.
    */
   public function getExisting() {
-    return $this->existing;
+    return $this->_existing;
   }
 
   /**
@@ -61,7 +61,7 @@ class IdentityConstraintException extends ModelConstraintException {
    * @return string The locator representing the identity that caused the exception.
    */
   public function getLocator() {
-    return $this->locator;
+    return $this->_locator;
   }
 }
 ?>

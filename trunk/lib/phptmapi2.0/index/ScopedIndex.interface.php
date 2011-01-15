@@ -21,27 +21,31 @@ require_once('Index.interface.php');
  *
  * @package index
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: ScopedIndex.interface.php 9 2008-11-03 20:55:37Z joschmidt $
+ * @version svn:$Id: ScopedIndex.interface.php 67 2011-01-09 13:40:25Z joschmidt $
  */
 interface ScopedIndex extends Index {
 
   /**
    * Returns the {@link Association}s in the topic map whose scope property 
    * equals one of those <var>themes</var> at least. If themes' length = 1,
-   * <var>matchAll</var> is interpreted <var>true</var>.
+   * <var>matchAll</var> is interpreted <var>true</var>. If themes' length = 0, 
+   * <var>themes</var> is interpreted as the unconstrained scope.
    * The return value may be an empty array but must never be <var>null</var>.
    * 
-   * @param array Scope of the {@link Association}s to be returned.
+   * @param array Scope of the {@link Association}s to be returned. 
+   * 				If <var>themes</var> is an empty array all {@link Association}s in the 
+   * 				unconstrained scope are returned.
    * @param boolean If true the scope property of an association must match all themes, 
    *        if false one theme must be matched at least. If themes' length = 1, matchAll 
    *        is interpreted true.
    * @return array An array containing {@link Association}s.
-   * @throws InvalidArgumentException If <var>themes</var> is <var>null</var>.
+   * @throws InvalidArgumentException If <var>themes</var> does not exclusively contain 
+   * 				{@link Topic}s.
    */
-  public function getAssociations($themes, $matchAll);
+  public function getAssociations(array $themes, $matchAll);
 
   /**
-   * Returns the topics in the topic map used in the scope property of 
+   * Returns the {@link Topic}s in the topic map used in the scope property of 
    * {@link Association}s.
    * The return value may be an empty array but must never be <var>null</var>.
    * 
@@ -52,20 +56,24 @@ interface ScopedIndex extends Index {
   /**
    * Returns the {@link Name}s in the topic map whose scope property 
    * equals one of those <var>themes</var> at least. If themes' length = 1,
-   * <var>matchAll</var> is interpreted <var>true</var>.
+   * <var>matchAll</var> is interpreted <var>true</var>. If themes' length = 0, 
+   * <var>themes</var> is interpreted as the unconstrained scope.
    * The return value may be an empty array but must never be <var>null</var>.
    * 
    * @param array Scope of the {@link Name}s to be returned.
+   * 				If <var>themes</var> is an empty array all {@link Name}s in the 
+   * 				unconstrained scope are returned.
    * @param boolean If true the scope property of a name must match all themes, 
    *        if false one theme must be matched at least. If themes' length = 1, matchAll 
    *        is interpreted true.
    * @return array An array containing {@link Name}s.
-   * @throws InvalidArgumentException If <var>themes</var> is <var>null</var>.
+   * @throws InvalidArgumentException If <var>themes</var> does not exclusively contain 
+   * 				{@link Topic}s.
    */
-  public function getNames($themes, $matchAll);
+  public function getNames(array $themes, $matchAll);
 
   /**
-   * Returns the topics in the topic map used in the scope property of 
+   * Returns the {@link Topic}s in the topic map used in the scope property of 
    * {@link Name}s.
    * The return value may be an empty array but must never be <var>null</var>.
    * 
@@ -76,20 +84,24 @@ interface ScopedIndex extends Index {
   /**
    * Returns the {@link Occurrence}s in the topic map whose scope property 
    * equals one of those <var>themes</var> at least. If themes' length = 1,
-   * <var>matchAll</var> is interpreted <var>true</var>.
+   * <var>matchAll</var> is interpreted <var>true</var>. If themes' length = 0, 
+   * <var>themes</var> is interpreted as the unconstrained scope.
    * The return value may be an empty array but must never be <var>null</var>.
    * 
    * @param array Scope of the {@link Occurrence}s to be returned.
+   * 				If <var>themes</var> is an empty array all {@link Occurrence}s in the 
+   * 				unconstrained scope are returned.
    * @param boolean If true the scope property of a name must match all themes, 
    *        if false one theme must be matched at least. If themes' length = 1, matchAll 
    *        is interpreted true.
    * @return array An array containing {@link Occurrence}s.
-   * @throws InvalidArgumentException If <var>themes</var> is <var>null</var>.
+   * @throws InvalidArgumentException If <var>themes</var> does not exclusively contain 
+   * 				{@link Topic}s.
    */
-  public function getOccurrences($themes, $matchAll);
+  public function getOccurrences(array $themes, $matchAll);
 
   /**
-   * Returns the topics in the topic map used in the scope property of 
+   * Returns the {@link Topic}s in the topic map used in the scope property of 
    * {@link Occurrence}s.
    * The return value may be an empty array but must never be <var>null</var>.
    * 
@@ -108,12 +120,13 @@ interface ScopedIndex extends Index {
    *        if false one theme must be matched at least. If themes' length = 1, matchAll 
    *        is interpreted true.
    * @return array An array containing {@link Variant}s.
-   * @throws InvalidArgumentException If <var>themes</var> is <var>null</var>.
+   * @throws InvalidArgumentException If <var>themes</var> is an empty array, or if 
+   * 				<var>themes</var> does not exclusively contain {@link Topic}s.
    */
-  public function getVariants($themes, $matchAll);
+  public function getVariants(array $themes, $matchAll);
 
   /**
-   * Returns the topics in the topic map used in the scope property of 
+   * Returns the {@link Topic}s in the topic map used in the scope property of 
    * {@link Variant}s.
    * The return value may be an empty array but must never be <var>null</var>.
    * 
