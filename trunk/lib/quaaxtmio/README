@@ -28,10 +28,10 @@ XTM 2.1 deserialization
 Using the deserializer is quite simple:
 - $tmSystemFactory = TopicMapSystemFactory::newInstance();
 - $tmSystem = $tmSystemFactory->newTopicMapSystem();
-- $tmHandler = new PHPTMAPITopicMapHandler($tmSystem, 'tmlocator');
+- $tmHandler = new PHPTMAPITopicMapHandler($tmSystem, 'http://localhost/topicmaps/1');
 - $reader = new XTM201TopicMapReader($tmHandler);
 - $reader->readFile('path/to/file.xtm');// or use $reader->read($xtm)
-- $topicMap = $tmSystem->getTopicMap('tmlocator');// the deserialized topic map
+- $topicMap = $tmSystem->getTopicMap('http://localhost/topicmaps/1');// the deserialized topic map
 
 The files you need to include are TopicMapSystemFactory.class.php, 
 PHPTMAPITopicMapHandler.class.php, and XTM201TopicMapReader.class.php.
