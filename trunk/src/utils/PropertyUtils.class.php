@@ -29,97 +29,97 @@
  */
 class PropertyUtils {
 
-    private $typeId,
-            $playerId,
-            $value,
-            $datatype;
-            
-    /**
-     * Constructor.
-     * 
-     * @return void
-     */
-    public function __construct() {
-      $this->typeId = 
-      $this->playerId = 
-      $this->value = 
-      $this->datatype = null;
-    }
-    
-    /**
-     * Sets the type id.
-     * 
-     * @return PropertyUtils
-     */
-    public function setTypeId($typeId) {
-      $this->typeId = $typeId;
-      return $this;
-    }
-    
-    /**
-     * Returns the type id.
-     * 
-     * @return int
-     */
-    public function getTypeId() {
-      return $this->typeId;
-    }
-    
-    /**
-     * Sets the player id.
-     * 
-     * @return PropertyUtils
-     */
-    public function setPlayerId($playerId) {
-      $this->playerId = $playerId;
-      return $this;
-    }
-    
-    /**
-     * Returns the player id.
-     * 
-     * @return int
-     */
-    public function getPlayerId() {
-      return $this->playerId;
-    }
-    
-    /**
-     * Sets the value.
-     * 
-     * @return PropertyUtils
-     */
-    public function setValue($value) {
-      $this->value = $value;
-      return $this;
-    }
-    
-    /**
-     * Gets the value.
-     * 
-     * @return string
-     */
-    public function getValue() {
-      return $this->value;
-    }
-    
-    /**
-     * Sets the data type.
-     * 
-     * @return PropertyUtils
-     */
-    public function setDatatype($datatype) {
-      $this->datatype = $datatype;
-      return $this;
-    }
-    
-    /**
-     * Gets the data type.
-     * 
-     * @return string
-     */
-    public function getDatatype() {
-      return $this->datatype;
-    }
+  private $typeId,
+          $playerId,
+          $value,
+          $datatype;
+          
+  /**
+   * Constructor.
+   * 
+   * @return void
+   */
+  public function __construct() {
+    $this->typeId = 
+    $this->playerId = 
+    $this->value = 
+    $this->datatype = null;
+  }
+  
+  /**
+   * Sets the type id.
+   * 
+   * @return PropertyUtils
+   */
+  public function setTypeId($typeId) {
+    $this->typeId = $typeId;
+    return $this;
+  }
+  
+  /**
+   * Returns the type id.
+   * 
+   * @return int
+   */
+  public function getTypeId() {
+    return $this->typeId;
+  }
+  
+  /**
+   * Sets the player id.
+   * 
+   * @return PropertyUtils
+   */
+  public function setPlayerId($playerId) {
+    $this->playerId = $playerId;
+    return $this;
+  }
+  
+  /**
+   * Returns the player id.
+   * 
+   * @return int
+   */
+  public function getPlayerId() {
+    return $this->playerId;
+  }
+  
+  /**
+   * Sets the value.
+   * 
+   * @return PropertyUtils
+   */
+  public function setValue($value) {
+    $this->value = $value;
+    return $this;
+  }
+  
+  /**
+   * Gets the value.
+   * 
+   * @return string
+   */
+  public function getValue() {
+    return $this->value;
+  }
+  
+  /**
+   * Sets the data type.
+   * 
+   * @return PropertyUtils
+   */
+  public function setDatatype($datatype) {
+    $this->datatype = $datatype;
+    return $this;
+  }
+  
+  /**
+   * Gets the data type.
+   * 
+   * @return string
+   */
+  public function getDatatype() {
+    return $this->datatype;
+  }
 }
 ?>
