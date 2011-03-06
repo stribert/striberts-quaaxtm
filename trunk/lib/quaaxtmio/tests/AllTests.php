@@ -36,15 +36,5 @@ class AllTests extends PHPUnit_Framework_TestSuite {
     $suite->addTestSuite('Xtm201Test');
     return $suite;
   }
-  
-  protected function setUp() {
-    $tmSystemFactory = TopicMapSystemFactory::newInstance();
-    $this->sharedFixture = $tmSystemFactory->newTopicMapSystem();
-  }
- 
-  protected function tearDown() {
-    $this->sharedFixture->close();
-    $this->sharedFixture = null;
-  }
 }
 ?>
