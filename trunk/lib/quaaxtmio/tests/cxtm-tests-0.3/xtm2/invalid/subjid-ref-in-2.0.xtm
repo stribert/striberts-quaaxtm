@@ -1,7 +1,0 @@
-<topicMap xmlns="http://www.topicmaps.org/xtm/" version="2.0">
-  <topic id="topic">
-    <instanceOf>
-      <subjectIdentifierRef href="http://psi.example.org/type"/>
-    </instanceOf>
-  </topic>
-</topicMap>

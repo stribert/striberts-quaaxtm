@@ -1,9 +1,0 @@
-{"version": "1.0",
- "item_type": "topicmap",
- "associations":[
-    {"reifier": "sl:#reifier",
-     "type": "ii:#assoctype",
-     "roles": [{"type": "ii:#roletype",
-                "player": "ii:#topic"}]
-    }
-]}
