@@ -119,10 +119,10 @@ abstract class TopicMapSystemFactory {
       'config.php'
     );
     require_once($factoryImplLocation);
-    $factoryImpl = $factoryImplClassName::newInstance();
+    $factoryImpl = call_user_func(array($factoryImplClassName, 'newInstance'));
     if (!$factoryImpl instanceof TopicMapSystemFactory) {
       throw new FactoryConfigurationException(
-        __METHOD__ . ': ' . 'Implementation is not an instance of TopicMapSystemFactory!'
+        __METHOD__ . ': Implementation is not an instance of TopicMapSystemFactory!'
       );
     }
     return $factoryImpl;
