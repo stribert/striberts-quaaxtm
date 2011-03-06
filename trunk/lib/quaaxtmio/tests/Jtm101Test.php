@@ -59,6 +59,19 @@ class Jtm101Test extends TestCase {
   }
   
   /**
+   * @dataProvider getInvalidJtm10Files
+   */
+  public function testInvalidJtm10($jtmFile) {
+    try {
+      $jtmDir = $this->cxtmIncPath . 'jtm' . DIRECTORY_SEPARATOR . 'invalid';
+      $this->readSrcFile($jtmDir . DIRECTORY_SEPARATOR . $jtmFile, self::$reader);
+      $this->fail('Expected MIOException while parsing ' . $jtmFile . '.');
+    } catch (MIOException $e) {
+      // no op.
+    }
+  }
+  
+  /**
    * @dataProvider getJtm11Files
    */
   public function testJtm11($jtmFile) {
@@ -81,12 +94,33 @@ class Jtm101Test extends TestCase {
     $this->assertEquals($cxtm, $cxtmBase);
   }
   
+  /**
+   * @dataProvider getInvalidJtm11Files
+   */
+  public function testInvalidJtm11($jtmFile) {
+    try {
+      $jtmDir = $this->cxtmIncPath . 'jtm' . DIRECTORY_SEPARATOR . 'invalid';
+      $this->readSrcFile($jtmDir . DIRECTORY_SEPARATOR . $jtmFile, self::$reader);
+      $this->fail('Expected MIOException while parsing ' . $jtmFile . '.');
+    } catch (MIOException $e) {
+      // no op.
+    }
+  }
+  
   public function getJtm10Files() {
     return $this->getSrcFiles('jtm' . DIRECTORY_SEPARATOR . 'in');
   }
   
+  public function getInvalidJtm10Files() {
+    return $this->getSrcFiles('jtm' . DIRECTORY_SEPARATOR . 'invalid');
+  }
+  
   public function getJtm11Files() {
     return $this->getSrcFiles('jtm11' . DIRECTORY_SEPARATOR . 'in');
+  }
+  
+  public function getInvalidJtm11Files() {
+    return $this->getSrcFiles('jtm11' . DIRECTORY_SEPARATOR . 'invalid');
   }
   
 }

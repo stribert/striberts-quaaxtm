@@ -59,6 +59,23 @@ class Xtm201Test extends TestCase {
   }
   
   /**
+   * @dataProvider getInvalid21Files
+   */
+  public function testInvalidXtm21($xtmFile) {
+    try {
+      $xtmDir = $this->cxtmIncPath . 'xtm21' . DIRECTORY_SEPARATOR . 'invalid';
+      $this->readSrcFile($xtmDir . DIRECTORY_SEPARATOR . $xtmFile, self::$reader);
+      $this->fail('Expected exception while parsing ' . $xtmFile . '.');
+    } catch (MIOException $e) {
+      // no op.
+    } catch (PHPTMAPIException $e) {
+      // no op.
+    } catch (PHPTMAPIRuntimeException $e) {
+      // no op.
+    }
+  }
+  
+  /**
    * @dataProvider getValid20Files
    */
   public function testValidXtm20($xtmFile) {
@@ -80,13 +97,38 @@ class Xtm201Test extends TestCase {
     $cxtm = $cxtmWriter->write($topicMap, $this->tmLocator, true, 'TopicImpl-');
     $this->assertEquals($cxtm, $cxtmBase);
   }
+  
+  /**
+   * @dataProvider getInvalid20Files
+   */
+  public function testInvalidXtm20($xtmFile) {
+    try {
+      $xtmDir = $this->cxtmIncPath . 'xtm2' . DIRECTORY_SEPARATOR . 'invalid';
+      $this->readSrcFile($xtmDir . DIRECTORY_SEPARATOR . $xtmFile, self::$reader);
+      $this->fail('Expected exception while parsing ' . $xtmFile . '.');
+    } catch (MIOException $e) {
+      // no op.
+    } catch (PHPTMAPIException $e) {
+      // no op.
+    } catch (PHPTMAPIRuntimeException $e) {
+      // no op.
+    }
+  }
 
   public function getValid21Files() {
     return $files = $this->getSrcFiles('xtm21' . DIRECTORY_SEPARATOR . 'in');
   }
   
+  public function getInvalid21Files() {
+    return $files = $this->getSrcFiles('xtm21' . DIRECTORY_SEPARATOR . 'invalid');
+  }
+  
   public function getValid20Files() {
     return $files = $this->getSrcFiles('xtm2' . DIRECTORY_SEPARATOR . 'in');
+  }
+  
+  public function getInvalid20Files() {
+    return $files = $this->getSrcFiles('xtm2' . DIRECTORY_SEPARATOR . 'invalid');
   }
   
 }
