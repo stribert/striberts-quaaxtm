@@ -98,6 +98,15 @@ class Mysql {
       $this->connOpen = false;
     }
   }
+  
+  /**
+   * Checks if a connection to MySQL is established.
+   * 
+   * @return boolean
+   */
+  public function isConnected() {
+    return $this->connOpen;
+  }
 
   /**
    * Executes a query.
