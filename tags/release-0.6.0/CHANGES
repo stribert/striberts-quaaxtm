@@ -1,0 +1,15 @@
+Changes log
+
+0.6.0 (2011/01/16)
+------------------
+- Updated PHPTMAPI to 2.0.1
+- Implemented the PHPTMAPI index package
+- Reduced database reads
+- Cleaned API: declared QuaaxTM specific / internal methods "protected"
+- Added more tests
+
+
+Bugfixes
+--------
+- Bug #3140283 (Missing ON clause in TopicImpl::getRolesPlayedByType(Topic $type))
+               reported by Johannes Schmidt

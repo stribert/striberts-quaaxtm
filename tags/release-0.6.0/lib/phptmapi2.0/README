@@ -1,0 +1,14 @@
+PHPTMAPI 2.0 is the new generation of PHPTMAPI which supports
+the Topic Maps Data Model (TMDM).
+
+See the project's homepage http://phptmapi.sourceforge.net/ for 
+documentation, implementation example, compliance tests, bug reporting, 
+and support. See LICENSE for license information.
+
+PHPTMAPI is NOT a Topic Maps processor! In order to connect 
+PHPTMAPI 2.0 with your implementation you have to specify the 
+path and the class name of your implementation of TopicMapSystemFactory 
+in config.php. 
+Include PHPTMAPI's TopicMapSystemFactory.class.php in your application 
+which then provides your implementation of TopicMapSystemFactory 
+via TopicMapSystemFactory::newInstance().
