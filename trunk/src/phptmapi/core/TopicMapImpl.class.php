@@ -184,8 +184,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    *        if no such topic exists in the topic map.
    */
   public function getTopicBySubjectIdentifier($sid) {
-    $query = 'SELECT t1.id FROM '.$this->config['table']['topic'].' AS t1' .
-      ' INNER JOIN ' . $this->config['table']['subjectidentifier'].' t2' .
+    $query = 'SELECT t1.id FROM ' . $this->config['table']['topic'] . ' AS t1' .
+      ' INNER JOIN ' . $this->config['table']['subjectidentifier'] . ' t2' .
       ' ON t1.id = t2.topic_id' .
       ' WHERE t2.locator = "' . $sid . '"' .
       ' AND t1.topicmap_id = ' . $this->dbId;
@@ -209,8 +209,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    *        if no such topic exists in the topic map.
    */
   public function getTopicBySubjectLocator($slo) {
-    $query = 'SELECT t1.id FROM '.$this->config['table']['topic'].' AS t1' .
-      ' INNER JOIN ' . $this->config['table']['subjectlocator'].' t2' .
+    $query = 'SELECT t1.id FROM '.$this->config['table']['topic'] . ' AS t1' .
+      ' INNER JOIN ' . $this->config['table']['subjectlocator'] . ' t2' .
       ' ON t1.id = t2.topic_id' .
       ' WHERE t2.locator = "' . $slo . '"' .
       ' AND t1.topicmap_id = ' . $this->dbId;
