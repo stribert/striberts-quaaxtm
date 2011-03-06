@@ -1,13 +1,13 @@
 QuaaxTM is a PHP Topic Maps engine which implements PHPTMAPI. See 
 http://phptmapi.sourceforge.net/ for details. This version of QuaaxTM implements 
-PHPTMAPI 2.0. 
+PHPTMAPI 2.0.1. 
 QuaaxTM stores topic maps in a MySQL database and uses InnoDB as storage engine.
 See lib/quaaxtmio for the Topic Maps syntaxes serializer/deserializer library QuaaxTMIO. 
 
 Installation
 ------------
 Prerequisites:
-a) PHP >= 5.1.2 with SPL enabled 
+a) PHP >= 5.2 with SPL enabled (PHP 5.3 is recommended)
 b) MySQL >= 5.0 with InnoDB enabled
 
 1. Execute src/qtm_schema.sql.
@@ -19,7 +19,8 @@ b) MySQL >= 5.0 with InnoDB enabled
    used - you just have to include TopicMapSystemFactory.class.php from PHPTMAPI.
 
 Note: If you compile PHP on your own please be sure to enable "mysqli" for QuaaxTM core and 
-"reflection", "spl", "xml", and "tokenizer" for PHPUnit (thanks Benjamin Bock).
+"reflection", "spl", "xml", and "tokenizer" for PHPUnit (thanks Benjamin Bock). QuaaxTMIO's 
+CXTM writer also needs the "intl" module.
 
 Documentation
 -------------
