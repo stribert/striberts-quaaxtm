@@ -67,7 +67,7 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
       $query = 'SELECT t1.id, t1.type_id FROM ' . $this->config['table']['association'] . ' t1 
       	INNER JOIN ' . $this->config['table']['association_scope'] . ' t2 ON t2.association_id = t1.id 
       	INNER JOIN ' . $this->config['table']['theme'] . ' t3 ON t3.scope_id = t2.scope_id 
-      	WHERE t3.topic_id = ' . $theme->getDbId();
+      	WHERE t1.topicmap_id = ' . $this->tmDbId . ' AND t3.topic_id = ' . $theme->getDbId();
     } else {
       $_themes = array();
       foreach ($themes as $theme) {
@@ -79,11 +79,12 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
         $_themes[$theme->getDbId()] = null;
       }
       $themesDbIds = array_keys($_themes);
-      $ids = implode(',', $themesDbIds);
+      $idsImploded = implode(',', $themesDbIds);
       $query = 'SELECT t1.id, t1.type_id FROM ' . $this->config['table']['association'] . ' t1 
       	INNER JOIN ' . $this->config['table']['association_scope'] . ' t2 ON t2.association_id = t1.id 
       	INNER JOIN ' . $this->config['table']['theme'] . ' t3 ON t3.scope_id = t2.scope_id 
-      	WHERE t3.topic_id IN(' . $ids . ') GROUP BY t1.id';
+      	WHERE t1.topicmap_id = ' . $this->tmDbId . ' AND t3.topic_id IN(' . $idsImploded . ') 
+      	GROUP BY t1.id';
       if ((boolean)$matchAll) {
         $query .= ' HAVING COUNT(*) = ' . count($themesDbIds);
       }
@@ -162,9 +163,10 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
       }
       $query = 'SELECT t1.id, t1.topic_id, t1.type_id, t1.value 
       	FROM ' . $this->config['table']['topicname'] . ' t1 
-      	INNER JOIN ' . $this->config['table']['topicname_scope'] . ' t2 ON t2.topicname_id = t1.id 
-      	INNER JOIN ' . $this->config['table']['theme'] . ' t3 ON t3.scope_id = t2.scope_id 
-      	WHERE t3.topic_id = ' . $theme->getDbId();
+      	INNER JOIN ' . $this->config['table']['topic'] . ' t2 ON t2.id = t1.topic_id 
+      	INNER JOIN ' . $this->config['table']['topicname_scope'] . ' t3 ON t3.topicname_id = t1.id 
+      	INNER JOIN ' . $this->config['table']['theme'] . ' t4 ON t4.scope_id = t3.scope_id 
+      	WHERE t2.topicmap_id = ' . $this->tmDbId . ' AND t4.topic_id = ' . $theme->getDbId();
     } else {
       $_themes = array();
       foreach ($themes as $theme) {
@@ -174,12 +176,13 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
         $_themes[$theme->getDbId()] = null;
       }
       $themesDbIds = array_keys($_themes);
-      $ids = implode(',', $themesDbIds);
+      $idsImploded = implode(',', $themesDbIds);
       $query = 'SELECT t1.id, t1.topic_id, t1.type_id, t1.value 
       	FROM ' . $this->config['table']['topicname'] . ' t1 
-      	INNER JOIN ' . $this->config['table']['topicname_scope'] . ' t2 ON t2.topicname_id = t1.id 
-      	INNER JOIN ' . $this->config['table']['theme'] . ' t3 ON t3.scope_id = t2.scope_id 
-      	WHERE t3.topic_id IN(' . $ids . ') GROUP BY t1.id';
+      	INNER JOIN ' . $this->config['table']['topic'] . ' t2 ON t2.id = t1.topic_id 
+      	INNER JOIN ' . $this->config['table']['topicname_scope'] . ' t3 ON t3.topicname_id = t1.id 
+      	INNER JOIN ' . $this->config['table']['theme'] . ' t4 ON t4.scope_id = t3.scope_id 
+      	WHERE t2.topicmap_id = ' . $this->tmDbId . ' AND t4.topic_id IN(' . $idsImploded . ') GROUP BY t1.id';
       if ((boolean)$matchAll) {
         $query .= ' HAVING COUNT(*) = ' . count($themesDbIds);
       }
@@ -213,7 +216,7 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
    * @return array An array containing {@link TopicImpl}s.
    */
   public function getNameThemes() {
-    return $this->getConstructThemes('topicname');
+    return $this->getCharacteristicThemes('topicname');
   }
 
   /**
@@ -255,11 +258,13 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
       }
       $query = 'SELECT t1.id, t1.topic_id, t1.type_id, t1.value, t1.datatype 
       	FROM ' . $this->config['table']['occurrence'] . ' t1 
-      	INNER JOIN ' . $this->config['table']['occurrence_scope'] . ' t2 
-      	ON t2.occurrence_id = t1.id 
-      	INNER JOIN ' . $this->config['table']['theme'] . ' t3 
-      	ON t3.scope_id = t2.scope_id 
-      	WHERE t3.topic_id = ' . $theme->getDbId();
+      	INNER JOIN ' . $this->config['table']['topic'] . ' t2 
+      	ON t2.id = t1.topic_id 
+      	INNER JOIN ' . $this->config['table']['occurrence_scope'] . ' t3 
+      	ON t3.occurrence_id = t1.id 
+      	INNER JOIN ' . $this->config['table']['theme'] . ' t4 
+      	ON t4.scope_id = t3.scope_id 
+      	WHERE t2.topicmap_id = ' . $this->tmDbId . ' AND t4.topic_id = ' . $theme->getDbId();
     } else {
       $_themes = array();
       foreach ($themes as $theme) {
@@ -271,14 +276,17 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
         $_themes[$theme->getDbId()] = null;
       }
       $themesDbIds = array_keys($_themes);
-      $ids = implode(',', $themesDbIds);
+      $idsImploded = implode(',', $themesDbIds);
       $query = 'SELECT t1.id, t1.topic_id, t1.type_id, t1.value, t1.datatype 
       	FROM ' . $this->config['table']['occurrence'] . ' t1 
-      	INNER JOIN ' . $this->config['table']['occurrence_scope'] . ' t2 
-      	ON t2.occurrence_id = t1.id 
-      	INNER JOIN ' . $this->config['table']['theme'] . ' t3 
-      	ON t3.scope_id = t2.scope_id 
-      	WHERE t3.topic_id IN(' . $ids . ') GROUP BY t1.id';
+      	INNER JOIN ' . $this->config['table']['topic'] . ' t2 
+      	ON t2.id = t1.topic_id 
+      	INNER JOIN ' . $this->config['table']['occurrence_scope'] . ' t3 
+      	ON t3.occurrence_id = t1.id 
+      	INNER JOIN ' . $this->config['table']['theme'] . ' t4 
+      	ON t4.scope_id = t3.scope_id 
+      	WHERE t2.topicmap_id = ' . $this->tmDbId . ' 
+      	AND t4.topic_id IN(' . $idsImploded . ') GROUP BY t1.id';
       if ((boolean)$matchAll) {
         $query .= ' HAVING COUNT(*) = ' . count($themesDbIds);
       }
@@ -314,7 +322,7 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
    * @return array An array containing {@link TopicImpl}s.
    */
   public function getOccurrenceThemes() {
-    return $this->getConstructThemes('occurrence');
+    return $this->getCharacteristicThemes('occurrence');
   }
 
   /**
@@ -349,11 +357,13 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
       	FROM ' . $this->config['table']['variant'] . ' t1 
       	INNER JOIN ' . $this->config['table']['topicname'] . ' t2 
       	ON t2.id = t1.topicname_id 
-      	INNER JOIN ' . $this->config['table']['variant_scope'] . ' t3 
-      	ON t3.variant_id = t1.id 
-      	INNER JOIN ' . $this->config['table']['theme'] . ' t4 
-      	ON t4.scope_id = t3.scope_id 
-      	WHERE t4.topic_id = ' . $theme->getDbId();
+      	INNER JOIN ' . $this->config['table']['topic'] . ' t3 
+      	ON t3.id = t2.topic_id 
+      	INNER JOIN ' . $this->config['table']['variant_scope'] . ' t4 
+      	ON t4.variant_id = t1.id 
+      	INNER JOIN ' . $this->config['table']['theme'] . ' t5 
+      	ON t5.scope_id = t4.scope_id 
+      	WHERE t3.topicmap_id = ' . $this->tmDbId . ' AND t5.topic_id = ' . $theme->getDbId();
     } else {
       $_themes = array();
       foreach ($themes as $theme) {
@@ -365,16 +375,19 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
         $_themes[$theme->getDbId()] = null;
       }
       $themesDbIds = array_keys($_themes);
-      $ids = implode(',', $themesDbIds);
+      $idsImploded = implode(',', $themesDbIds);
       $query = 'SELECT t1.id, t1.topicname_id, t1.value, t1.datatype, t1.hash, t2.topic_id 
       	FROM ' . $this->config['table']['variant'] . ' t1 
       	INNER JOIN ' . $this->config['table']['topicname'] . ' t2 
       	ON t2.id = t1.topicname_id 
-      	INNER JOIN ' . $this->config['table']['variant_scope'] . ' t3 
-      	ON t3.variant_id = t1.id 
-      	INNER JOIN ' . $this->config['table']['theme'] . ' t4 
-      	ON t4.scope_id = t3.scope_id 
-      	WHERE t4.topic_id IN(' . $ids . ') GROUP BY t1.id';
+      	INNER JOIN ' . $this->config['table']['topic'] . ' t3 
+      	ON t3.id = t2.topic_id 
+      	INNER JOIN ' . $this->config['table']['variant_scope'] . ' t4 
+      	ON t4.variant_id = t1.id 
+      	INNER JOIN ' . $this->config['table']['theme'] . ' t5 
+      	ON t5.scope_id = t4.scope_id 
+      	WHERE t3.topicmap_id = ' . $this->tmDbId . ' 
+      	AND t5.topic_id IN(' . $idsImploded . ') GROUP BY t1.id';
       if ((boolean)$matchAll) {
         $query .= ' HAVING COUNT(*) = ' . count($themesDbIds);
       }
@@ -417,7 +430,7 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
    * @return array An array containing {@link TopicImpl}s.
    */
   public function getVariantThemes() {
-    return $this->getConstructThemes('variant');
+    return $this->getCharacteristicThemes('variant');
   }
   
   /**
@@ -428,7 +441,7 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
    * @param string The construct (table) name.
    * @return array An array containing {@link TopicImpl}s.
    */
-  private function getConstructThemes($constructName) {
+  private function getCharacteristicThemes($constructName) {
     $themes = array();
     $query = 'SELECT t1.topic_id FROM ' . $this->config['table']['theme'] . ' t1 
     	INNER JOIN ' . $this->config['table'][$constructName . '_scope'] . ' t2 
