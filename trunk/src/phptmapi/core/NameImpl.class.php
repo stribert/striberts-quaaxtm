@@ -71,7 +71,13 @@ final class NameImpl extends ScopedImpl implements Name {
     $featureIsSet = $this->topicMap->getTopicMapSystem()->getFeature(
       VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL
     );
-    if ($featureIsSet && !is_null($this->dbId) && !is_null($this->parent->dbId)) {
+    if (
+      $featureIsSet && 
+      !is_null($this->dbId) && 
+      !is_null($this->parent->dbId) && 
+      $this->mysql->isConnected()
+      ) 
+    {
       $this->parent->finished($this);
     }
   }
