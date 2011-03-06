@@ -78,6 +78,29 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     
     $topics = $index->getTopics(array($tm->createTopic()), true);
     $this->assertEquals(count($topics), 0);
+    
+    $tm2 = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+    $tm2Type1 = $tm2->createTopic();
+    $tm2Type2 = $tm2->createTopic();
+    $tm2Instance1 = $tm2->createTopic();
+    $tm2Instance2 = $tm2->createTopic();
+    
+    $tm2Instance1->addtype($tm2Type1);
+    $tm2Instance2->addtype($tm2Type1);
+    $tm2Instance2->addtype($tm2Type2);
+    
+    $tm2Topics = $tm2->getTopics();
+    $this->assertEquals(count($tm2Topics), 4);
+    $tm1Topics = $index->getTopics(array($tm2Type1), true);
+    $this->assertEquals(count($tm1Topics), 0);
+    $tm1Topics = $index->getTopics(array($tm2Type1), false);
+    $this->assertEquals(count($tm1Topics), 0);
+    $tm1Topics = $index->getTopics(array($tm2Type1, $tm2Type2), true);
+    $this->assertEquals(count($tm1Topics), 0);
+    $tm1Topics = $index->getTopics(array($tm2Type1, $tm2Type2), false);
+    $this->assertEquals(count($tm1Topics), 0);
+    
+    $tm2->remove();
   }
   
   public function testGetTopicTypes() {
@@ -100,27 +123,36 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
   }
   
   public function testGetAssociations() {
-    $tm = $this->topicMap;
-    $this->assertTrue($tm instanceof TopicMap);
-    $index = $tm->getIndex('TypeInstanceIndexImpl');
+    $tm1 = $this->topicMap;
+    $this->assertTrue($tm1 instanceof TopicMap);
+    $index = $tm1->getIndex('TypeInstanceIndexImpl');
     $this->assertTrue($index instanceof TypeInstanceIndexImpl);
     
-    $assocType = $tm->createTopic();
+    $assocType = $tm1->createTopic();
     
-    $tm->createAssociation($assocType);
-    $tm->createAssociation($assocType);// duplicate
-    $tm->createAssociation($tm->createTopic());
+    $tm1->createAssociation($assocType);
+    $tm1->createAssociation($assocType);// duplicate
+    $tm1->createAssociation($tm1->createTopic());
     
-    $assocs = $tm->getAssociations();
+    $assocs = $tm1->getAssociations();
     $this->assertEquals(count($assocs), 2);
     $assocs = $index->getAssociations($assocType);
     $this->assertEquals(count($assocs), 1);
     $assoc = $assocs[0];
     $this->assertTrue($assoc instanceof Association);
     $this->assertEquals($assoc->getType()->getId(), $assocType->getId());
-    $this->assertEquals($tm->getId(), $assoc->getParent()->getId());
-    $assocs = $index->getAssociations($tm->createTopic());
+    $this->assertEquals($tm1->getId(), $assoc->getParent()->getId());
+    $assocs = $index->getAssociations($tm1->createTopic());
     $this->assertEquals(count($assocs), 0);
+    
+    $tm2 = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+    $tm2AssocType = $tm2->createTopic();
+    $tm2->createAssociation($tm2AssocType);
+    $tm2Assocs = $tm2->getAssociationsByType($tm2AssocType);
+    $this->assertEquals(count($tm2Assocs), 1);
+    $tm1Assocs = $index->getAssociations($tm2AssocType);
+    $this->assertEquals(count($tm1Assocs), 0);
+    $tm2->remove();
   }
   
   public function testGetAssociationTypes() {
@@ -195,6 +227,21 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     }
     $roles = $index->getRoles($tm->createTopic());
     $this->assertEquals(count($roles), 0);
+    
+    $tm2 = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+    $tm2AssocType = $tm2->createTopic();
+    $tm2Assoc = $tm2->createAssociation($tm2AssocType);
+    $tm2RoleType = $tm2->createTopic();
+    $tm2Assoc->createRole($tm2RoleType, $tm2->createTopic());
+    
+    $tm2Assocs = $tm2->getAssociationsByType($tm2AssocType);
+    $this->assertEquals(count($tm2Assocs), 1);
+    $tm2Assoc = $tm2Assocs[0];
+    $tm2Roles = $tm2Assoc->getRoles($tm2RoleType);
+    $this->assertEquals(count($tm2Roles), 1);
+    $tm1Roles = $index->getRoles($tm2RoleType);
+    $this->assertEquals(count($tm1Roles), 0);
+    $tm2->remove();
   }
   
   public function testGetRoleTypes() {
@@ -264,6 +311,16 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     $name = $names[0];
     $this->assertEquals($name->getValue(), 'baz');
     $this->assertEquals($name->getParent()->getId(), $topic->getId());
+    
+    $tm2 = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+    $tm2Topic = $tm2->createTopic();
+    $tm2NameType = $tm2->createTopic();
+    $tm2Topic->createName('baz', $tm2NameType);
+    
+    $tm2TopicNames = $tm2Topic->getNames($tm2NameType);
+    $this->assertEquals(count($tm2TopicNames), 1);
+    $tm1TopicNames = $index->getNames($tm2NameType);
+    $this->assertEquals(count($tm1TopicNames), 0);
   }
   
   public function testGetNameTypes() {
@@ -337,6 +394,16 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     $this->assertEquals($occ->getType()->getId(), $occType2->getId());
     $this->assertEquals($occ->getValue(), 'http://example.org');
     $this->assertEquals($occ->getDatatype(), parent::$dtUri);
+    
+    $tm2 = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+    $tm2Topic = $tm2->createTopic();
+    $tm2OccType = $tm2->createTopic();
+    $tm2Topic->createOccurrence($tm2OccType, 'http://example.org', parent::$dtUri);
+    
+    $tm2Occs = $tm2Topic->getOccurrences($tm2OccType);
+    $this->assertEquals(count($tm2Occs), 1);
+    $tm1Occs = $index->getOccurrences($tm2OccType);
+    $this->assertEquals(count($tm1Occs), 0);
   }
   
   public function testGetOccurrenceTypes() {

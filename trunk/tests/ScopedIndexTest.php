@@ -137,6 +137,32 @@ class ScopedIndexTest extends PHPTMAPITestCase {
     $this->assertEquals(count($assocs), 1);
     $this->assertEquals($assoc3->getId(), $assocs[0]->getId());
     $this->assertEquals($assocs[0]->getType()->getId(), $assocType->getId());
+    
+    $tm2 = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+    
+    $tm2Theme1 = $tm2->createTopic();
+    $tm2Theme2 = $tm2->createTopic();
+    $tm2Theme3 = $tm2->createTopic();
+    $tm2AssocType = $tm2->createTopic();
+    
+    $tm2Assoc = $tm2->createAssociation($tm2AssocType, array($tm2Theme1));
+    $tm2Assocs = $tm2->getAssociations();
+    $this->assertEquals(count($tm2Assocs), 1);
+    
+    $assocs = $index->getAssociations(array($tm2Theme1), false);
+    $this->assertEquals(count($assocs), 0);
+    $assocs = $index->getAssociations(array($tm2Theme1), true);
+    $this->assertEquals(count($assocs), 0);
+    
+    $tm2Assoc->addTheme($tm2Theme2);
+    $tm2Assoc->addTheme($tm2Theme3);
+    
+    $assocs = $index->getAssociations(array($tm2Theme1, $tm2Theme2, $tm2Theme3), false);
+    $this->assertEquals(count($assocs), 0);
+    $assocs = $index->getAssociations(array($tm2Theme1, $tm2Theme2, $tm2Theme3), true);
+    $this->assertEquals(count($assocs), 0);
+    
+    $tm2->remove();
   }
   
   public function testGetAssociationThemes() {
@@ -272,6 +298,33 @@ class ScopedIndexTest extends PHPTMAPITestCase {
     $this->assertTrue($names[0] instanceof Name);
     $this->assertEquals($names[0]->getType()->getId(), $nameType->getId());
     $this->assertEquals($names[0]->getValue(), $name3->getValue());
+    
+    $tm2 = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+    
+    $tm2Theme1 = $tm2->createTopic();
+    $tm2Theme2 = $tm2->createTopic();
+    $tm2Theme3 = $tm2->createTopic();
+    $tm2NameType = $tm2->createTopic();
+    $tm2Topic = $tm2->createTopic();
+    
+    $tm2Name = $tm2Topic->createName('foo', $tm2NameType, array($tm2Theme1));
+    $tm2Names = $tm2Topic->getNames();
+    $this->assertEquals(count($tm2Names), 1);
+    
+    $names = $index->getNames(array($tm2Theme1), false);
+    $this->assertEquals(count($names), 0);
+    $names = $index->getNames(array($tm2Theme1), true);
+    $this->assertEquals(count($names), 0);
+    
+    $tm2Name->addTheme($tm2Theme2);
+    $tm2Name->addTheme($tm2Theme3);
+    
+    $names = $index->getNames(array($tm2Theme1, $tm2Theme2, $tm2Theme3), false);
+    $this->assertEquals(count($names), 0);
+    $names = $index->getNames(array($tm2Theme1, $tm2Theme2, $tm2Theme3), true);
+    $this->assertEquals(count($names), 0);
+    
+    $tm2->remove();
   }
   
   public function testGetNameThemes() {
@@ -424,6 +477,33 @@ class ScopedIndexTest extends PHPTMAPITestCase {
     $this->assertEquals($occs[0]->getType()->getId(), $occType->getId());
     $this->assertEquals($occs[0]->getValue(), $occ3->getValue());
     $this->assertEquals($occs[0]->getDatatype(), $occ3->getDatatype());
+    
+    $tm2 = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+    
+    $tm2Theme1 = $tm2->createTopic();
+    $tm2Theme2 = $tm2->createTopic();
+    $tm2Theme3 = $tm2->createTopic();
+    $tm2OccType = $tm2->createTopic();
+    $tm2Topic = $tm2->createTopic();
+    
+    $tm2Occ = $tm2Topic->createOccurrence($tm2OccType, 'foo', parent::$dtString, array($tm2Theme1));
+    $tm2Occs = $tm2Topic->getOccurrences();
+    $this->assertEquals(count($tm2Occs), 1);
+    
+    $occs = $index->getOccurrences(array($tm2Theme1), false);
+    $this->assertEquals(count($occs), 0);
+    $occs = $index->getOccurrences(array($tm2Theme1), true);
+    $this->assertEquals(count($occs), 0);
+    
+    $tm2Occ->addTheme($tm2Theme2);
+    $tm2Occ->addTheme($tm2Theme3);
+    
+    $occs = $index->getOccurrences(array($tm2Theme1, $tm2Theme2, $tm2Theme3), false);
+    $this->assertEquals(count($occs), 0);
+    $occs = $index->getOccurrences(array($tm2Theme1, $tm2Theme2, $tm2Theme3), true);
+    $this->assertEquals(count($occs), 0);
+    
+    $tm2->remove();
   }
   
   public function testGetOccurrenceThemes() {
@@ -582,6 +662,33 @@ class ScopedIndexTest extends PHPTMAPITestCase {
     $this->assertTrue($variants[0] instanceof IVariant);
     $this->assertEquals($variants[0]->getValue(), $variant3->getValue());
     $this->assertEquals($variants[0]->getDatatype(), $variant3->getDatatype());
+    
+    $tm2 = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+    
+    $tm2Theme1 = $tm2->createTopic();
+    $tm2Theme2 = $tm2->createTopic();
+    $tm2Theme3 = $tm2->createTopic();
+    $tm2Topic = $tm2->createTopic();
+    $tm2Name = $tm2Topic->createName('foo');
+    
+    $tm2Variant = $tm2Name->createVariant('bar', parent::$dtString, array($tm2Theme1));
+    $tm2Variants = $tm2Name->getVariants();
+    $this->assertEquals(count($tm2Variants), 1);
+    
+    $variants = $index->getVariants(array($tm2Theme1), false);
+    $this->assertEquals(count($variants), 0);
+    $variants = $index->getVariants(array($tm2Theme1), true);
+    $this->assertEquals(count($variants), 0);
+    
+    $tm2Variant->addTheme($tm2Theme2);
+    $tm2Variant->addTheme($tm2Theme3);
+    
+    $variants = $index->getVariants(array($tm2Theme1, $tm2Theme2, $tm2Theme3), false);
+    $this->assertEquals(count($variants), 0);
+    $variants = $index->getVariants(array($tm2Theme1, $tm2Theme2, $tm2Theme3), true);
+    $this->assertEquals(count($variants), 0);
+    
+    $tm2->remove();
   }
   
   public function testGetVariantThemes() {
