@@ -188,8 +188,7 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    * @return void
    */
   public function close() {
-    $this->config = array();
-    $this->mysql = null;
+    $this->mysql->close();
   }
 }
 ?>
