@@ -112,27 +112,23 @@ class TestCase extends PHPUnit_Framework_TestCase {
   private $preservedBaseLocators;
   
   protected function setUp() {
-    // allow all extending tests being stand alone
-    if (!$this->sharedFixture instanceof TopicMapSystem) {
-      $tmSystemFactory = TopicMapSystemFactory::newInstance();
-      // QuaaxTM specific feature
-      try {
-        $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
-      } catch (FactoryConfigurationException $e) {
-        // no op.
-      }
-      $this->sharedFixture = $tmSystemFactory->newTopicMapSystem();
+    $tmSystemFactory = TopicMapSystemFactory::newInstance();
+    // QuaaxTM specific feature
+    try {
+      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
+    } catch (FactoryConfigurationException $e) {
+      // no op.
     }
+    $this->sharedFixture = $tmSystemFactory->newTopicMapSystem();
     $this->preservedBaseLocators = $this->sharedFixture->getLocators();
     $this->tmLocator = null;
     $this->cxtmIncPath = dirname(__FILE__) . 
                           DIRECTORY_SEPARATOR . 
-  												'cxtm-tests-0.3' . 
+  												'cxtm-tests-0.4' . 
                           DIRECTORY_SEPARATOR;
   }
   
   protected function tearDown() {
-    $this->tmLocator = null;
     $locators = $this->sharedFixture->getLocators();
     foreach ($locators as $locator) {
       if (!in_array($locator, $this->preservedBaseLocators)) {
@@ -141,6 +137,9 @@ class TestCase extends PHPUnit_Framework_TestCase {
         $tm->remove();
       }
     }
+    $this->sharedFixture->close();
+    $this->sharedFixture = 
+    $this->tmLocator = null;
   }
   
   protected function readSrcFile($file, $reader) {
@@ -166,7 +165,7 @@ class TestCase extends PHPUnit_Framework_TestCase {
     $files = array();
     $cxtmIncPath = dirname(__FILE__) . 
                     DIRECTORY_SEPARATOR . 
-  									'cxtm-tests-0.3' . 
+  									'cxtm-tests-0.4' . 
                     DIRECTORY_SEPARATOR;
     $allFiles = array_diff(scandir($cxtmIncPath . $dir), array('.', '..', '.svn'));
     foreach ($allFiles as $file) {
