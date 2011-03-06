@@ -303,10 +303,17 @@ class XTM201TopicMapReader {
         $this->handleMergeMap($attributes);
         break;
       case self::TAG_TOPIC_MAP:
+        if (!isset($attributes[self::ATTR_VERSION])) {
+          throw new MIOException(
+          	'Error in ' . __METHOD__ . ': Missing attribute "version".'
+          );
+        }
         if (!self::isXtm21($attributes[self::ATTR_VERSION])) {
           if (!self::isXtm2($attributes[self::ATTR_VERSION])) {
-            throw new MIOException('Error in ' . __METHOD__ . 
-              ': Expect version 2.0 or 2.1! Received version ' . $attributes[self::ATTR_VERSION] . '.');
+            throw new MIOException(
+            	'Error in ' . __METHOD__ . 
+              ': Expect version 2.0 or 2.1! Received version ' . $attributes[self::ATTR_VERSION] . '.'
+            );
           } else {
             $this->xtm20 = true;
           }

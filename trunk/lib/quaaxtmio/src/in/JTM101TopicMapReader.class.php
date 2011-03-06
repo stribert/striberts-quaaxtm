@@ -106,6 +106,12 @@ class JTM101TopicMapReader {
       );
     }
     
+    if ($version == '1.0' && isset($struct['prefixes'])) {
+      throw new MIOException(
+      	'Error in ' . __METHOD__ . ': Prefixes are not allowed in JTM 1.0.'
+      );
+    }
+    
     if ($version == '1.1') {
       $this->jtm11 = true;
       $this->prefixes['xsd'] = 'http://www.w3.org/2001/XMLSchema#';
@@ -116,6 +122,10 @@ class JTM101TopicMapReader {
           }
         }
       }
+    }
+    
+    if (!isset($struct['item_type'])) {
+      throw new MIOException('Error in ' . __METHOD__ . ': Missing key "item_type".');
     }
     
     $struct['item_type'] = strtolower($struct['item_type']);
@@ -307,7 +317,13 @@ class JTM101TopicMapReader {
         $this->handleIids($topic['item_identifiers']);
       }
       
-      if ($this->jtm11 && isset($topic['instance_of'])) {
+      if (!$this->jtm11 && isset($topic['instance_of'])) {
+        throw new MIOException(
+        	'Error in ' . __METHOD__ . ': "instance_of" is not allowed in JTM 1.0.'
+        );
+      }
+      
+      if (isset($topic['instance_of'])) {
         $this->tmHandler->startIsa();
         foreach ($topic['instance_of'] as $topicRef) {
           $struct = $this->deconstructTopicReference($topicRef);
@@ -461,6 +477,9 @@ class JTM101TopicMapReader {
       }
       if (!isset($assoc['roles'])) {
         throw new MIOException('Error in ' . __METHOD__ . ': Missing required "roles".');
+      }
+      if (empty($assoc['roles'])) {
+        throw new MIOException('Error in ' . __METHOD__ . ': Roles must not be empty.');
       }
       $this->tmHandler->startAssociation();
       
