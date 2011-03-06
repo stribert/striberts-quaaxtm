@@ -1,5 +1,23 @@
 Changes log
 
+0.6.1 (2011/xx/xx)
+------------------
+PHPTMAPI (lib/phptmapi2.0)
+- Use call_user_func() in PHPTMAPI's TopicMapSystemFactory::newInstance() to retrieve 
+  the implementation of TopicMapSystemFactory (be backward compatible to PHP 5.2)
+
+QuaaxTMIO (lib/quaaxtmio)
+- Added more syntax checks to JTM101TopicMapReader and XTM201TopicMapReader
+- Upgraded CXTM tests from version 0.3 to version 0.4
+- Added test cases for invalid JTM and XTM
+
+QuaaxTM
+- Constrained all Scoped and Type Instance indexes to the topic map the index was created for
+
+Bugfixes
+--------
+- Bug #3174188 (QuaaxTM requires PHP 5.3) reported by Johannes Schmidt
+
 0.6.0 (2011/01/16)
 ------------------
 - Updated PHPTMAPI to 2.0.1
