@@ -1,6 +1,6 @@
 Changes log
 
-0.6.1 (2011/xx/xx)
+0.6.1 (2011/03/09)
 ------------------
 PHPTMAPI (lib/phptmapi2.0)
 - Use call_user_func() in PHPTMAPI's TopicMapSystemFactory::newInstance() to retrieve 
