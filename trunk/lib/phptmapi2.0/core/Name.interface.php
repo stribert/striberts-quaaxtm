@@ -54,7 +54,7 @@ interface Name extends Reifiable, Typed, Scoped {
   public function getVariants();
 
   /**
-   * Creates a {@link IVariant} of this topic name with the specified
+   * Creates an {@link IVariant} of this topic name with the specified
    * <var>value</var>, <var>datatype</var>, and <var>scope</var>. 
    * The newly created {@link IVariant} will have the datatype specified by
    * <var>datatype</var>. 
@@ -65,7 +65,7 @@ interface Name extends Reifiable, Typed, Scoped {
    * @param string A URI indicating the datatype of the <var>value</var>. E.g.
    *        http://www.w3.org/2001/XMLSchema#string indicates a string value.
    * @param array An array (length >= 1) containing {@link Topic}s, each representing a theme.
-   * @return Variant
+   * @return IVariant
    * @throws {@link ModelConstraintException} If the <var>value</var> or <var>datatype</var>
    *        is <var>null</var>, or the scope of the variant would not be a 
    *        true superset of the name's scope.
