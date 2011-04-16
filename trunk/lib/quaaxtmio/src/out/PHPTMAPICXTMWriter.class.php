@@ -634,7 +634,7 @@ class PHPTMAPICXTMWriter {
   private static function compareLocatorContent(array $locs1, array $locs2, $count) {
     $res = 0;
     usort($locs1, array(__CLASS__, 'compareLocators'));
-    usort($locs1, array(__CLASS__, 'compareLocators'));
+    usort($locs2, array(__CLASS__, 'compareLocators'));
     for ($i=0; $i < $count && $res == 0; $i++) {
       $res = self::compareLocators($locs1[$i], $locs2[$i]);
     }
