@@ -59,8 +59,8 @@ $tmSystem = $tmSystemFactory->newTopicMapSystem();
 // create a topic map; see http://phptmapi.sourceforge.net/2.0/docs/core/TopicMap.html 
 // for all topic map features
 $topicMap = $tmSystem->createTopicMap('http://localhost/tm/' . uniqid());
-// create a topic; see http://phptmapi.sourceforge.net/2.0/docs/core/Topic.html for all 
-// topic features
+// create a topic with an automatically generated item identifier; see 
+// http://phptmapi.sourceforge.net/2.0/docs/core/Topic.html for all topic features
 $topic = $topicMap->createTopic();
 // create a topic name with the default name type in the unconstrained scope; 
 // see http://phptmapi.sourceforge.net/2.0/docs/core/Name.html for all topic name features
