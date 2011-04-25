@@ -18,7 +18,7 @@
  * Boston, MA 02111-1307 USA
  */
 
-/**
+/*
  * Notice: Before running the example below please follow the installation instructions 1 and 2 
  * in README.
  * To ensure a proper QuaaxTM installation you SHOULD run the test suites (see README again) - 
