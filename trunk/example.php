@@ -1,22 +1,24 @@
 <?php
 /*
-QuaaxTM is an implementation of PHPTMAPI which uses MySQL with InnoDB as storage engine.
+ * QuaaxTM is an implementation of PHPTMAPI which uses MySQL with InnoDB as 
+ * storage engine.
+ * 
+ * Copyright (C) 2011 Johannes Schmidt <joschmidt@users.sourceforge.net>
+ * 
+ * This library is free software; you can redistribute it and/or modify it under the 
+ * terms of the GNU Lesser General Public License as published by the Free Software 
+ * Foundation; either version 3 of the License, or (at your option) any later version.
+ * 
+ * This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
+ * without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
+ * See the GNU Lesser General Public License for more details.
+ *  
+ * You should have received a copy of the GNU Lesser General Public License along with this 
+ * library; if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, 
+ * Boston, MA 02111-1307 USA
+ */
 
-Copyright (C) 2011 Johannes Schmidt <joschmidt@users.sourceforge.net>
-
-This library is free software; you can redistribute it and/or modify it under the terms 
-of the GNU Lesser General Public License as published by the Free Software Foundation;
-either version 3 of the License, or (at your option) any later version.
-
-This library is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; 
-without even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. 
-See the GNU Lesser General Public License for more details.
-
-You should have received a copy of the GNU Lesser General Public License along with this library; 
-if not, write to the Free Software Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
-*/
-
-/*
+/**
  * Notice: Before running the example below please follow the installation instructions 1 and 2 
  * in README.
  * To ensure a proper QuaaxTM installation you SHOULD run the test suites (see README again) - 
@@ -69,6 +71,6 @@ $name = $topic->createName('foo');
 $xtmWriter = new PHPTMAPIXTM201Writer();
 $xtm = $xtmWriter->write($topicMap);
 var_dump($xtm);
-// remove created topic map
+// remove the created topic map
 $topicMap->remove();
 ?>
