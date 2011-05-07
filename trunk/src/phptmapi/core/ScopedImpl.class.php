@@ -80,8 +80,16 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    *
    * @param TopicImpl The topic which should be added to the scope.
    * @return void
+   * @throws {@link ModelConstraintException} If <var>theme</var> does not belong to 
+   * 				the parent topic map.
    */
   public function addTheme(Topic $theme) {
+    if (!$this->topicMap->equals($theme->topicMap)) {
+      throw new ModelConstraintException(
+        $this, 
+        __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+      );
+    }
     $prevScopeObj = $this->getScopeObject();
     $scope = $this->getScope();
     $scope[] = $theme;
