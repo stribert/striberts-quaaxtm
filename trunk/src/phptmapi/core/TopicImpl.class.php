@@ -295,8 +295,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
    *        If the array's length is 0 (default), the name will be in the 
    *        unconstrained scope.
    * @return NameImpl The newly created {@link NameImpl}.
-   * @throws {@link ModelConstraintException} If the <var>value</var> is <var>null</var> or
-   *        <var>type</var> or a theme does not belong to the parent topic map.
+   * @throws {@link ModelConstraintException} If the <var>value</var> is <var>null</var>, or
+   *        if <var>type</var> or a <var>theme</var> in the scope does not belong to the 
+   *        parent topic map.
    */
   public function createName($value, Topic $type=null, array $scope=array()) {
     if (is_null($value)) {
@@ -312,6 +313,14 @@ final class TopicImpl extends ConstructImpl implements Topic {
         $this, 
         __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
       );
+    }
+    foreach ($scope as $theme) {
+      if ($theme instanceof Topic && !$this->topicMap->equals($theme->topicMap)) {
+        throw new ModelConstraintException(
+          $this, 
+          __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+        );
+      }
     }
     $hash = $this->getNameHash($value, $type, $scope);
     $propertyId = $this->hasName($hash);
@@ -403,21 +412,29 @@ final class TopicImpl extends ConstructImpl implements Topic {
    *        the occurrence will be in the unconstrained scope.
    * @return OccurrenceImpl The newly created {@link OccurrenceImpl}.
    * @throws {@link ModelConstraintException} If either the <var>value</var> or the
-   *        <var>datatype</var> is <var>null</var>; or <var>type</var> or a theme does not 
-   *        belong to the parent topic map.
+   *        <var>datatype</var> is <var>null</var>, or if <var>type</var> or a 
+   *        <var>theme</var> in the scope does not belong to the parent topic map.
    */
   public function createOccurrence(Topic $type, $value, $datatype, array $scope=array()) {
+    if (!$this->topicMap->equals($type->topicMap)) {
+      throw new ModelConstraintException(
+        $this, 
+        __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+      );
+    }
     if (is_null($value) || is_null($datatype)) {
       throw new ModelConstraintException(
         $this, 
         __METHOD__ . parent::VALUE_DATATYPE_NULL_ERR_MSG
       );
     }
-    if (!$this->topicMap->equals($type->topicMap)) {
-      throw new ModelConstraintException(
-        $this, 
-        __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
-      );
+    foreach ($scope as $theme) {
+      if ($theme instanceof Topic && !$this->topicMap->equals($theme->topicMap)) {
+        throw new ModelConstraintException(
+          $this, 
+          __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+        );
+      }
     }
     $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
     $datatype = CharacteristicUtils::canonicalize($datatype, $this->mysql->getConnection());
