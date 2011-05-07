@@ -138,7 +138,7 @@ class Mysql {
    * @return boolean
    */
   public function hasError() {
-    return empty($this->error) ? false : true;
+    return !empty($this->error);
   }
  
   /**
