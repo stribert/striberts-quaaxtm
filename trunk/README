@@ -15,8 +15,8 @@ b) MySQL >= 5.0 with InnoDB enabled
 3. If PHPUnit is available (http://www.phpunit.de/) you should be able to run the test
    suite now: Open a terminal, move to 'tests', and execute phpunit AllCoreTests.php and/or 
    phpunit AllIndexTests.php. 
-   Each test can be executed separately. Have a look at AllCoreTests.php how QuaaxTM is 
-   used - you just have to include TopicMapSystemFactory.class.php from PHPTMAPI.
+   Each test can be executed separately. Have a look at tests/AllCoreTests.php or example.php 
+   how QuaaxTM is used - you just have to include TopicMapSystemFactory.class.php from PHPTMAPI.
 
 Note: If you compile PHP on your own please be sure to enable "mysqli" for QuaaxTM core and 
 "reflection", "spl", "xml", and "tokenizer" for PHPUnit (thanks Benjamin Bock). QuaaxTMIO's 
@@ -25,7 +25,7 @@ CXTM writer also needs the "intl" module.
 Documentation
 -------------
 Have a look at the project's homepage http://quaaxtm.sourceforge.net/ for API documentation 
-and further information.
+and further information. See example.php for a quick start.
 
 Questions and answers
 ---------------------
