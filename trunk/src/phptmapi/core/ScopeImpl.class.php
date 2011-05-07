@@ -152,17 +152,11 @@ final class ScopeImpl implements IScope {
    * Sets the private attributes $themesIds and $themes.
    * 
    * @param array An array containing topics (the themes).
-   * @throws {@link ModelConstraintException} If a theme (topic) does not belong to the
-   *        current topic map.
    */
   private function createSet(array $scope) {
     $set = array();
     foreach ($scope as $theme) {
       if ($theme instanceof Topic) {
-        if (!$this->currentTopicMap->equals($theme->getParent())) {
-          throw new ModelConstraintException($this->currentConstruct, 
-            __METHOD__ . ConstructImpl::SAME_TM_CONSTRAINT_ERR_MSG);
-        }
         $set[$theme->getDbId()] = $theme;
       }
     }
