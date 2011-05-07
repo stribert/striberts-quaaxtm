@@ -272,8 +272,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    *        If the array's length is 0 (default), the association will be in the 
    *        unconstrained scope.
    * @return AssociationImpl The newly created {@link AssociationImpl}.
-   * @throws {@link ModelConstraintException} If <var>type</var> or a theme does not 
-   *        belong to this topic map.
+   * @throws {@link ModelConstraintException} If <var>type</var> or a <var>theme</var> in 
+   * 				the scope does not belong to this topic map.
    */
   public function createAssociation(Topic $type, array $scope=array()) {
     if (!$this->equals($type->topicMap)) {
@@ -281,6 +281,14 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
         $this, 
         __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
       );
+    }
+    foreach ($scope as $theme) {
+      if ($theme instanceof Topic && !$this->equals($theme->topicMap)) {
+        throw new ModelConstraintException(
+          $this, 
+          __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+        );
+      }
     }
     $hash = $this->getAssocHash($type, $scope, $roles=array());
     $assocId = $this->hasAssoc($hash);
