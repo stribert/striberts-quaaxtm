@@ -168,18 +168,28 @@ final class NameImpl extends ScopedImpl implements Name {
    * @param string A string representation of the value.
    * @param string A URI indicating the datatype of the <var>value</var>. E.g.
    *        http://www.w3.org/2001/XMLSchema#string indicates a string value.
-   * @param array An array (length >= 1) containing {@link TopicImpl}s, each representing a theme.
+   * @param array An array (length >= 1) containing {@link TopicImpl}s, each representing a 
+   * 				theme.
    * @return VariantImpl
-   * @throws {@link ModelConstraintException} If the <var>value</var> or <var>datatype</var>
-   *        is <var>null</var>, or the scope of the variant would not be a 
-   *        true superset of the name's scope.
+   * @throws {@link ModelConstraintException} If the <var>value</var> or the <var>datatype</var>
+   *        is <var>null</var>, if the scope of the variant would not be a true superset of 
+   *        the name's scope, or if a <var>theme</var> in the scope does not belong to the 
+   *        parent topic map.
    */
   public function createVariant($value, $datatype, array $scope) {
     if (is_null($value) || is_null($datatype)) {
       throw new ModelConstraintException(
         $this, 
-        __METHOD__ . ConstructImpl::VALUE_DATATYPE_NULL_ERR_MSG
+        __METHOD__ . parent::VALUE_DATATYPE_NULL_ERR_MSG
       ); 
+    }
+    foreach ($scope as $theme) {
+      if ($theme instanceof Topic && !$this->topicMap->equals($theme->topicMap)) {
+        throw new ModelConstraintException(
+          $this, 
+          __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+        );
+      }
     }
     $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
     $datatype = CharacteristicUtils::canonicalize($datatype, $this->mysql->getConnection());
