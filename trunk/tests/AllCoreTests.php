@@ -104,17 +104,5 @@ class AllCoreTests extends PHPUnit_Framework_TestSuite {
     $suite->addTestSuite('QTMScopeTest');
     return $suite;
   }
- 
-  protected function setUp() {
-    $tmSystemFactory = TopicMapSystemFactory::newInstance();
-    // QuaaxTM specific feature
-    $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, true);
-    $this->sharedFixture = $tmSystemFactory->newTopicMapSystem();
-  }
- 
-  protected function tearDown() {
-    $this->sharedFixture->close();
-    $this->sharedFixture = null;
-  }
 }
 ?>
