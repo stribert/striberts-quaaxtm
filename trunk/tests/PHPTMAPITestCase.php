@@ -72,7 +72,9 @@ class PHPTMAPITestCase extends PHPUnit_Framework_TestCase {
         $tm->remove();
       }
     }
-    $this->topicMap = null;
+    $this->sharedFixture->close();
+    $this->topicMap = 
+    $this->sharedFixture = null;
   }
   
   protected function getIdsOfConstructs(array $constructs) {
