@@ -1,5 +1,17 @@
 Changes log
 
+0.6.2 (2011/05/07)
+------------------
+QuaaxTM
+- added example.php
+- moved the checks if themes in passed scopes belong to the parent topic map from ScopeImpl 
+  to the respective implementations of Topic Maps constructs
+
+Bugfixes
+--------
+- Bug #3288234 (Missing usort of second locator array in PHPTMAPICXTMWriter) 
+               reported by Johannes Schmidt
+
 0.6.1 (2011/03/09)
 ------------------
 PHPTMAPI (lib/phptmapi2.0)
