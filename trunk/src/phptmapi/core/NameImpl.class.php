@@ -32,10 +32,8 @@
  * @version $Id$
  */
 final class NameImpl extends ScopedImpl implements Name {
-  
-  const SCOPE_NO_SUPERSET_ERR_MSG = ': Variant\'s scope is not a true superset of the name\'s scope!';
         
-  private $propertyHolder;
+  private $_propertyHolder;
   
   /**
    * Constructor.
@@ -45,7 +43,7 @@ final class NameImpl extends ScopedImpl implements Name {
    * @param array The configuration data.
    * @param TopicImpl The parent topic.
    * @param TopicMapImpl The containing topic map.
-   * @param PropertyUtils The property holder.
+   * @param array The property holder.
    * @return void
    */
   public function __construct(
@@ -54,12 +52,10 @@ final class NameImpl extends ScopedImpl implements Name {
     array $config, 
     Topic $parent, 
     TopicMap $topicMap, 
-    PropertyUtils $propertyHolder=null
+    array $propertyHolder=array()
   ) {  
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $topicMap);
-    $this->propertyHolder = !is_null($propertyHolder) 
-      ? $propertyHolder 
-      : new PropertyUtils();
+    $this->_propertyHolder = $propertyHolder;
   }
   
   /**
@@ -68,17 +64,16 @@ final class NameImpl extends ScopedImpl implements Name {
    * @return void
    */
   public function __destruct() {
-    $featureIsSet = $this->topicMap->getTopicMapSystem()->getFeature(
+    $featureIsSet = $this->_topicMap->getTopicMapSystem()->getFeature(
       VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL
     );
     if (
       $featureIsSet && 
-      !is_null($this->dbId) && 
-      !is_null($this->parent->dbId) && 
-      $this->mysql->isConnected()
-      ) 
-    {
-      $this->parent->finished($this);
+      !is_null($this->_dbId) && 
+      !is_null($this->_parent->_dbId) && 
+      $this->_mysql->isConnected()
+    ) {
+      $this->_parent->finished($this);
     }
   }
 
@@ -88,14 +83,14 @@ final class NameImpl extends ScopedImpl implements Name {
    * @return string
    */
   public function getValue() {
-    if (!is_null($this->propertyHolder->getValue())) {
-      return $this->propertyHolder->getValue();
+    if (isset($this->_propertyHolder['value']) && !empty($this->_propertyHolder['value'])) {
+      return $this->_propertyHolder['value'];
     } else {
-      $query = 'SELECT value FROM ' . $this->config['table']['topicname'] . 
-        ' WHERE id = ' . $this->dbId;
-      $mysqlResult = $this->mysql->execute($query);
+      $query = 'SELECT value FROM ' . $this->_config['table']['topicname'] . 
+        ' WHERE id = ' . $this->_dbId;
+      $mysqlResult = $this->_mysql->execute($query);
       $result = $mysqlResult->fetch();
-      $this->propertyHolder->setValue($result['value']);
+      $this->_propertyHolder['value'] = $result['value'];
       return $result['value'];
     }
   }
@@ -112,23 +107,23 @@ final class NameImpl extends ScopedImpl implements Name {
     if (is_null($value)) {
       throw new ModelConstraintException(
         $this, 
-        __METHOD__ . ConstructImpl::VALUE_NULL_ERR_MSG
+        __METHOD__ . ConstructImpl::$_valueNullErrMsg
       );
     }
-    $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
-    $this->mysql->startTransaction();
-    $query = 'UPDATE ' . $this->config['table']['topicname'] . 
+    $value = CharacteristicUtils::canonicalize($value, $this->_mysql->getConnection());
+    $this->_mysql->startTransaction();
+    $query = 'UPDATE ' . $this->_config['table']['topicname'] . 
       ' SET value = "' . $value . '"' .
-      ' WHERE id = ' . $this->dbId;
-    $this->mysql->execute($query);
+      ' WHERE id = ' . $this->_dbId;
+    $this->_mysql->execute($query);
     
-    $hash = $this->parent->getNameHash($value, $this->getType(), $this->getScope());
-    $this->parent->updateNameHash($this->dbId, $hash);
-    $this->mysql->finishTransaction();
+    $hash = $this->_parent->_getNameHash($value, $this->getType(), $this->getScope());
+    $this->_parent->_updateNameHash($this->_dbId, $hash);
+    $this->_mysql->finishTransaction();
     
-    if (!$this->mysql->hasError()) {
-      $this->propertyHolder->setValue($value);
-      $this->postSave();
+    if (!$this->_mysql->hasError()) {
+      $this->_propertyHolder['value'] = $value;
+      $this->_postSave();
     }
   }
 
@@ -140,18 +135,20 @@ final class NameImpl extends ScopedImpl implements Name {
    */
   public function getVariants() {
     $variants = array();
-    $query = 'SELECT id, value, datatype, hash FROM ' . $this->config['table']['variant'] . 
-      ' WHERE topicname_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT id, value, datatype, hash FROM ' . $this->_config['table']['variant'] . 
+      ' WHERE topicname_id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $propertyHolder = new PropertyUtils();
-      $propertyHolder->setValue($result['value'])->setDataType($result['datatype']);
-      $this->topicMap->setConstructPropertyHolder($propertyHolder);
-      $this->topicMap->setConstructParent($this);
-      $variant = $this->topicMap->getConstructByVerifiedId(
+      $propertyHolder['value'] = $result['value'];
+      $propertyHolder['datatype'] = $result['datatype'];
+      
+      $this->_topicMap->_setConstructPropertyHolder($propertyHolder);
+      $this->_topicMap->_setConstructParent($this);
+      $variant = $this->_topicMap->_getConstructByVerifiedId(
         'VariantImpl-' . $result['id'],
         $result['hash']
       );
+      
       $variants[$result['hash']] = $variant;
     }
     return array_values($variants);
@@ -180,65 +177,64 @@ final class NameImpl extends ScopedImpl implements Name {
     if (is_null($value) || is_null($datatype)) {
       throw new ModelConstraintException(
         $this, 
-        __METHOD__ . parent::VALUE_DATATYPE_NULL_ERR_MSG
+        __METHOD__ . ConstructImpl::$_valueDatatypeNullErrMsg
       ); 
     }
     foreach ($scope as $theme) {
-      if ($theme instanceof Topic && !$this->topicMap->equals($theme->topicMap)) {
+      if ($theme instanceof Topic && !$this->_topicMap->equals($theme->_topicMap)) {
         throw new ModelConstraintException(
           $this, 
-          __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+          __METHOD__ . ConstructImpl::$_sameTmConstraintErrMsg
         );
       }
     }
-    $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
-    $datatype = CharacteristicUtils::canonicalize($datatype, $this->mysql->getConnection());
+    $value = CharacteristicUtils::canonicalize($value, $this->_mysql->getConnection());
+    $datatype = CharacteristicUtils::canonicalize($datatype, $this->_mysql->getConnection());
     $mergedScope = array_merge($scope, $this->getScope());
-    $hash = $this->getVariantHash($value, $datatype, $mergedScope);
-    $variantId = $this->hasVariant($hash);
+    $hash = $this->_getVariantHash($value, $datatype, $mergedScope);
+    $variantId = $this->_hasVariant($hash);
     if (!$variantId) {
-      $nameScopeObj = $this->getScopeObject();
+      $nameScopeObj = $this->_getScopeObject();
       if (!$nameScopeObj->isTrueSubset($mergedScope)) {
         throw new ModelConstraintException(
           $this, 
-          __METHOD__ . self::SCOPE_NO_SUPERSET_ERR_MSG
+          __METHOD__ . ': Variant\'s scope is not a true superset of the name\'s scope!'
         );
       }
-      $this->mysql->startTransaction(true);
-      $query = 'INSERT INTO ' . $this->config['table']['variant'] . 
+      $this->_mysql->startTransaction(true);
+      $query = 'INSERT INTO ' . $this->_config['table']['variant'] . 
         ' (id, topicname_id, value, datatype, hash) VALUES' .
-        ' (NULL, ' . $this->dbId . ', "' . $value . '", "' . $datatype . '", "' . $hash . '")';
-      $mysqlResult = $this->mysql->execute($query);
+        ' (NULL, ' . $this->_dbId . ', "' . $value . '", "' . $datatype . '", "' . $hash . '")';
+      $mysqlResult = $this->_mysql->execute($query);
       $lastVariantId = $mysqlResult->getLastId();
       
-      $query = 'INSERT INTO ' . $this->config['table']['topicmapconstruct'] . 
+      $query = 'INSERT INTO ' . $this->_config['table']['topicmapconstruct'] . 
         ' (variant_id, topicmap_id, parent_id) VALUES' .
-        ' (' . $lastVariantId . ', ' . $this->topicMap->dbId . ', ' . $this->dbId . ')';
-      $this->mysql->execute($query);
+        ' (' . $lastVariantId . ', ' . $this->_topicMap->_dbId . ', ' . $this->_dbId . ')';
+      $this->_mysql->execute($query);
       
-      $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope, $this->topicMap, $this);
-      $query = 'INSERT INTO ' . $this->config['table']['variant_scope'] . 
+      $scopeObj = new ScopeImpl($this->_mysql, $this->_config, $scope, $this->_topicMap, $this);
+      $query = 'INSERT INTO ' . $this->_config['table']['variant_scope'] . 
         ' (scope_id, variant_id) VALUES' .
-        ' (' . $scopeObj->dbId . ', ' . $lastVariantId . ')';
-      $this->mysql->execute($query);
+        ' (' . $scopeObj->_dbId . ', ' . $lastVariantId . ')';
+      $this->_mysql->execute($query);
       
-      $this->mysql->finishTransaction(true);
+      $this->_mysql->finishTransaction(true);
       
-      $propertyHolder = new PropertyUtils();
-      $propertyHolder->setValue($value)
-        ->setDataType($datatype);
-      $this->topicMap->setConstructPropertyHolder($propertyHolder);
-      $this->topicMap->setConstructParent($this);
+      $propertyHolder['value'] = $value;
+      $propertyHolder['datatype'] = $datatype;
+      $this->_topicMap->_setConstructPropertyHolder($propertyHolder);
+      $this->_topicMap->_setConstructParent($this);
       
-      $variant = $this->topicMap->getConstructByVerifiedId('VariantImpl-' . $lastVariantId);
-      if (!$this->mysql->hasError()) {
-        $variant->postInsert();
-        $this->postSave();
+      $variant = $this->_topicMap->_getConstructByVerifiedId('VariantImpl-' . $lastVariantId);
+      if (!$this->_mysql->hasError()) {
+        $variant->_postInsert();
+        $this->_postSave();
       }
       return $variant;
     } else {
-      $this->topicMap->setConstructParent($this);
-      return $this->topicMap->getConstructByVerifiedId('VariantImpl-' . $variantId);
+      $this->_topicMap->_setConstructParent($this);
+      return $this->_topicMap->_getConstructByVerifiedId('VariantImpl-' . $variantId);
     }
   }
   
@@ -266,16 +262,20 @@ final class NameImpl extends ScopedImpl implements Name {
    * @return TopicImpl
    */
   public function getType() {
-    if (!is_null($this->propertyHolder->getTypeId())) {
-      $typeId = $this->propertyHolder->getTypeId();
-      return $this->topicMap->getConstructByVerifiedId('TopicImpl-' . $typeId);
+    if (
+      isset($this->_propertyHolder['type_id']) && 
+      !empty($this->_propertyHolder['type_id'])
+    ) {
+      return $this->_topicMap->_getConstructByVerifiedId(
+      	'TopicImpl-' . $this->_propertyHolder['type_id']
+      );
     } else {
-      $query = 'SELECT type_id FROM ' . $this->config['table']['topicname'] . 
-        ' WHERE id = ' . $this->dbId;
-      $mysqlResult = $this->mysql->execute($query);
+      $query = 'SELECT type_id FROM ' . $this->_config['table']['topicname'] . 
+        ' WHERE id = ' . $this->_dbId;
+      $mysqlResult = $this->_mysql->execute($query);
       $result = $mysqlResult->fetch();
-      $this->propertyHolder->setTypeId($result['type_id']);
-      return $this->topicMap->getConstructByVerifiedId('TopicImpl-' . $result['type_id']);
+      $this->_propertyHolder['type_id'] = $result['type_id'];
+      return $this->_topicMap->_getConstructByVerifiedId('TopicImpl-' . $result['type_id']);
     }
   }
 
@@ -289,25 +289,26 @@ final class NameImpl extends ScopedImpl implements Name {
    *        to the parent topic map.
    */
   public function setType(Topic $type) {
-    if (!$this->topicMap->equals($type->topicMap)) {
+    if (!$this->_topicMap->equals($type->_topicMap)) {
       throw new ModelConstraintException(
         $this, 
-        __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+        __METHOD__ . ConstructImpl::$_sameTmConstraintErrMsg
       );
     }
-    $this->mysql->startTransaction();
-    $query = 'UPDATE ' . $this->config['table']['topicname'] . 
-      ' SET type_id = ' . $type->dbId . 
-      ' WHERE id = ' . $this->dbId;
-    $this->mysql->execute($query);
+    $this->_mysql->startTransaction();
+    $query = 'UPDATE ' . $this->_config['table']['topicname'] . 
+      ' SET type_id = ' . $type->_dbId . 
+      ' WHERE id = ' . $this->_dbId;
+    $this->_mysql->execute($query);
     
-    $hash = $this->parent->getNameHash($this->getValue(), $type, $this->getScope());
-    $this->parent->updateNameHash($this->dbId, $hash);
-    $this->mysql->finishTransaction();
+    $hash = $this->_parent->_getNameHash($this->getValue(), $type, $this->getScope());
+    $this->_parent->_updateNameHash($this->_dbId, $hash);
+    $this->_mysql->finishTransaction();
     
-    if (!$this->mysql->hasError()) {
-      $this->propertyHolder->setTypeId($type->dbId);
-      $this->postSave();
+    if (!$this->_mysql->hasError()) {
+      // reference needed for merging context
+      $this->_propertyHolder['type_id'] =& $type->_dbId;
+      $this->_postSave();
     }
   }
   
@@ -318,18 +319,18 @@ final class NameImpl extends ScopedImpl implements Name {
    * @return void
    */
   public function remove() {
-    $this->preDelete();
-    $scopeObj = $this->getScopeObject();
-    $query = 'DELETE FROM ' . $this->config['table']['topicname'] . 
-      ' WHERE id = ' . $this->dbId;
-    $this->mysql->execute($query);
-    if (!$this->mysql->hasError()) {
+    $this->_preDelete();
+    $scopeObj = $this->_getScopeObject();
+    $query = 'DELETE FROM ' . $this->_config['table']['topicname'] . 
+      ' WHERE id = ' . $this->_dbId;
+    $this->_mysql->execute($query);
+    if (!$this->_mysql->hasError()) {
       if (!$scopeObj->isUnconstrained()) {
-        $this->unsetScope($scopeObj);// triggers clean up routine
+        $this->_unsetScope($scopeObj);// triggers clean up routine
       }
-      $this->id = 
-      $this->dbId = 
-      $this->propertyHolder = null;
+      $this->_id = 
+      $this->_dbId = null;
+      $this->_propertyHolder = array();
     }
   }
   
@@ -344,29 +345,26 @@ final class NameImpl extends ScopedImpl implements Name {
    */
   public function finished(IVariant $variant) {
     // get the hash of the finished variant
-    $query = 'SELECT hash FROM ' . $this->config['table']['variant'] . 
-      ' WHERE id = ' . $variant->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT hash FROM ' . $this->_config['table']['variant'] . 
+      ' WHERE id = ' . $variant->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetch();
     // detect duplicates
-    $query = 'SELECT id FROM ' . $this->config['table']['variant'] . 
+    $query = 'SELECT id FROM ' . $this->_config['table']['variant'] . 
       ' WHERE hash = "' . $result['hash'] . '"' .
-      ' AND id <> ' . $variant->dbId . 
-      ' AND topicname_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
-    if ($rows > 0) {// there exist duplicates
-      while ($result = $mysqlResult->fetch()) {
-        $this->topicMap->setConstructParent($this);
-        $duplicate = $this->topicMap->getConstructByVerifiedId('VariantImpl-' . $result['id']);
-        // gain duplicate's item identities
-        $variant->gainItemIdentifiers($duplicate);
-        // gain duplicate's reifier
-        $variant->gainReifier($duplicate);
-        
-        $variant->postSave();
-        $duplicate->remove();
-      }
+      ' AND id <> ' . $variant->_dbId . 
+      ' AND topicname_id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
+    while ($result = $mysqlResult->fetch()) {
+      $this->_topicMap->_setConstructParent($this);
+      $duplicate = $this->_topicMap->_getConstructByVerifiedId('VariantImpl-' . $result['id']);
+      // gain duplicate's item identities
+      $variant->_gainItemIdentifiers($duplicate);
+      // gain duplicate's reifier
+      $variant->_gainReifier($duplicate);
+      
+      $variant->_postSave();
+      $duplicate->remove();
     }
   }
   
@@ -378,13 +376,13 @@ final class NameImpl extends ScopedImpl implements Name {
    * @param array The scope.
    * @return string
    */
-  protected function getVariantHash($value, $datatype, array $scope) {
+  protected function _getVariantHash($value, $datatype, array $scope) {
     $scopeIdsImploded = null;
     if (count($scope) > 0) {
       $ids = array();
       foreach ($scope as $theme) {
         if ($theme instanceof Topic) {
-          $ids[$theme->dbId] = $theme->dbId;
+          $ids[$theme->_dbId] = $theme->_dbId;
         }
       }
       ksort($ids);
@@ -399,11 +397,11 @@ final class NameImpl extends ScopedImpl implements Name {
    * @param int The variant id.
    * @param string The variant hash.
    */
-  protected function updateVariantHash($variantId, $hash) {
-    $query = 'UPDATE ' . $this->config['table']['variant'] . 
+  protected function _updateVariantHash($variantId, $hash) {
+    $query = 'UPDATE ' . $this->_config['table']['variant'] . 
       ' SET hash = "' . $hash . '"' .
       ' WHERE id = ' . $variantId;
-    $this->mysql->execute($query);
+    $this->_mysql->execute($query);
   }
   
   /**
@@ -412,11 +410,11 @@ final class NameImpl extends ScopedImpl implements Name {
    * @param string The hash code.
    * @return false|int The variant id or <var>false</var> otherwise.
    */
-  protected function hasVariant($hash) {
-    $query = 'SELECT id FROM ' . $this->config['table']['variant'] . 
-      ' WHERE topicname_id = ' . $this->dbId . 
+  protected function _hasVariant($hash) {
+    $query = 'SELECT id FROM ' . $this->_config['table']['variant'] . 
+      ' WHERE topicname_id = ' . $this->_dbId . 
       ' AND hash = "' . $hash . '"';
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {
       $result = $mysqlResult->fetch();
