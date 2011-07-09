@@ -32,17 +32,18 @@
  */
 final class TopicMapImpl extends ConstructImpl implements TopicMap {
 
-  protected $seenConstructsCache;
+  protected $_seenConstructsCache;
   
-  private $setIid,
-          $constructParent,
-          $constructPropertyHolder,
-          $topicsCache,
-          $assocsCache,
-          $tmSystem,
-          $locator;
+  private $_setIid,
+          $_constructParent,
+          $_constructPropertyHolder,
+          $_topicsCache,
+          $_assocsCache,
+          $_tmSystem,
+          $_locator,
+          $_topicMapState;
           
-  private static $supportedIndices = array(
+  private static $_supportedIndices = array(
   	'TypeInstanceIndexImpl', 
     'LiteralIndexImpl', 
     'ScopedIndexImpl'
@@ -61,15 +62,16 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     
     parent::__construct(__CLASS__ . '-' . $dbId, null, $mysql, $config, null);
     
-    $this->setIid = true;
-    $this->constructDbId = $this->getConstructDbId();
-    $this->tmSystem = $tmSystem;
-    $this->constructParent = 
-    $this->constructPropertyHolder = 
-    $this->topicsCache = 
-    $this->assocsCache = 
-    $this->locator = null;
-    $this->seenConstructsCache = array();
+    $this->_setIid = true;
+    $this->_constructDbId = $this->_getConstructDbId();
+    $this->_tmSystem = $tmSystem;
+    $this->_constructParent = 
+    $this->_constructPropertyHolder = 
+    $this->_topicsCache = 
+    $this->_assocsCache = 
+    $this->_locator = null;
+    $this->_seenConstructsCache = array();
+    $this->_topicMapState = VocabularyUtils::QTM_STATE_REGULAR;
   }
   
   /**
@@ -78,7 +80,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return TopicMapSystemImpl
    */
   public function getTopicMapSystem() {
-    return $this->tmSystem;
+    return $this->_tmSystem;
   }
   
   /**
@@ -88,14 +90,14 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return string A URI which is the storage address of the {@link TopicMapImpl}.
    */
   public function getLocator() {
-    if (!is_null($this->locator)) {
-      return $this->locator;
+    if (!is_null($this->_locator)) {
+      return $this->_locator;
     }
-    $query = 'SELECT locator FROM ' . $this->config['table']['topicmap'] . 
-      ' WHERE id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT locator FROM ' . $this->_config['table']['topicmap'] . 
+      ' WHERE id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetch();
-    return $this->locator = $result['locator'];
+    return $this->_locator = $result['locator'];
   }
 
   /**
@@ -105,18 +107,18 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return array An array containing a set of {@link TopicImpl}s.
    */
   public function getTopics() {
-    if (is_null($this->topicsCache)) {
-      $this->topicsCache = array();
-      $query = 'SELECT id FROM ' . $this->config['table']['topic'] . 
-        ' WHERE topicmap_id = ' . $this->dbId;
-      $mysqlResult = $this->mysql->execute($query);
+    if (is_null($this->_topicsCache)) {
+      $this->_topicsCache = array();
+      $query = 'SELECT id FROM ' . $this->_config['table']['topic'] . 
+        ' WHERE topicmap_id = ' . $this->_dbId;
+      $mysqlResult = $this->_mysql->execute($query);
       while ($result = $mysqlResult->fetch()) {
-        $topic = $this->getConstructByVerifiedId('TopicImpl-' . $result['id']);
-        $this->topicsCache[$topic->getId()] = $topic;
+        $topic = $this->_getConstructByVerifiedId('TopicImpl-' . $result['id']);
+        $this->_topicsCache[$topic->getId()] = $topic;
       }
-      return array_values($this->topicsCache);
+      return array_values($this->_topicsCache);
     } else {
-      return array_values($this->topicsCache);
+      return array_values($this->_topicsCache);
     }
   }
 
@@ -127,26 +129,25 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return array An array containing a set of {@link AssociationImpl}s.
    */
   public function getAssociations() {
-    if (is_null($this->assocsCache)) {
-      $this->assocsCache = 
+    if (is_null($this->_assocsCache)) {
+      $this->_assocsCache = 
       $assocsHashes = array();
-      $query = 'SELECT id, type_id, hash FROM ' . $this->config['table']['association'] . 
-        ' WHERE topicmap_id = ' . $this->dbId;
-      $mysqlResult = $this->mysql->execute($query);
+      $query = 'SELECT id, type_id, hash FROM ' . $this->_config['table']['association'] . 
+        ' WHERE topicmap_id = ' . $this->_dbId;
+      $mysqlResult = $this->_mysql->execute($query);
       while ($result = $mysqlResult->fetch()) {    
-        $propertyHolder = new PropertyUtils();
-        $propertyHolder->setTypeId($result['type_id']);
-        $this->setConstructPropertyHolder($propertyHolder);
-        $assoc = $this->getConstructByVerifiedId('AssociationImpl-' . $result['id']);
+        $propertyHolder['type_id'] = $result['type_id'];
+        $this->_setConstructPropertyHolder($propertyHolder);
+        $assoc = $this->_getConstructByVerifiedId('AssociationImpl-' . $result['id']);
         if (!array_key_exists($result['hash'], $assocsHashes)) {
-          $this->assocsCache[$assoc->getId()] = $assoc;
+          $this->_assocsCache[$assoc->getId()] = $assoc;
         }
         $assocsHashes[$result['hash']] = null;
       }
       unset($assocsHashes);
-      return array_values($this->assocsCache);
+      return array_values($this->_assocsCache);
     } else {
-      return array_values($this->assocsCache);
+      return array_values($this->_assocsCache);
     }
   }
   
@@ -160,15 +161,14 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    */
   public function getAssociationsByType(Topic $type) {
     $assocs = array();
-    $query = 'SELECT id, type_id, hash FROM ' . $this->config['table']['association'] . 
-      ' WHERE type_id = ' . $type->dbId  . 
-      ' AND topicmap_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT id, type_id, hash FROM ' . $this->_config['table']['association'] . 
+      ' WHERE type_id = ' . $type->_dbId  . 
+      ' AND topicmap_id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {    
-      $propertyHolder = new PropertyUtils();
-      $propertyHolder->setTypeId($result['type_id']);
-      $this->setConstructPropertyHolder($propertyHolder);
-      $assoc = $this->getConstructByVerifiedId('AssociationImpl-' . $result['id']);
+      $propertyHolder['type_id'] = $result['type_id'];
+      $this->_setConstructPropertyHolder($propertyHolder);
+      $assoc = $this->_getConstructByVerifiedId('AssociationImpl-' . $result['id']);
       $assocs[$result['hash']] = $assoc;
     }
     return array_values($assocs);
@@ -184,16 +184,16 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    *        if no such topic exists in the topic map.
    */
   public function getTopicBySubjectIdentifier($sid) {
-    $query = 'SELECT t1.id FROM ' . $this->config['table']['topic'] . ' AS t1' .
-      ' INNER JOIN ' . $this->config['table']['subjectidentifier'] . ' t2' .
+    $query = 'SELECT t1.id FROM ' . $this->_config['table']['topic'] . ' AS t1' .
+      ' INNER JOIN ' . $this->_config['table']['subjectidentifier'] . ' t2' .
       ' ON t1.id = t2.topic_id' .
       ' WHERE t2.locator = "' . $sid . '"' .
-      ' AND t1.topicmap_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+      ' AND t1.topicmap_id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {
       $result = $mysqlResult->fetch();
-      return $this->getConstructByVerifiedId('TopicImpl-' . $result['id']);
+      return $this->_getConstructByVerifiedId('TopicImpl-' . $result['id']);
     } else {
       return null;
     }
@@ -209,16 +209,16 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    *        if no such topic exists in the topic map.
    */
   public function getTopicBySubjectLocator($slo) {
-    $query = 'SELECT t1.id FROM '.$this->config['table']['topic'] . ' AS t1' .
-      ' INNER JOIN ' . $this->config['table']['subjectlocator'] . ' t2' .
+    $query = 'SELECT t1.id FROM '.$this->_config['table']['topic'] . ' AS t1' .
+      ' INNER JOIN ' . $this->_config['table']['subjectlocator'] . ' t2' .
       ' ON t1.id = t2.topic_id' .
       ' WHERE t2.locator = "' . $slo . '"' .
-      ' AND t1.topicmap_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+      ' AND t1.topicmap_id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {
       $result = $mysqlResult->fetch();
-      return $this->getConstructByVerifiedId('TopicImpl-' . $result['id']);
+      return $this->_getConstructByVerifiedId('TopicImpl-' . $result['id']);
     } else {
       return null;
     }
@@ -235,15 +235,15 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    */
   public function getConstructByItemIdentifier($iid) {
     $query = 'SELECT t1.*' .
-      ' FROM ' . $this->config['table']['topicmapconstruct'] . ' t1' .
-      ' INNER JOIN ' . $this->config['table']['itemidentifier'] . ' t2' .
+      ' FROM ' . $this->_config['table']['topicmapconstruct'] . ' t1' .
+      ' INNER JOIN ' . $this->_config['table']['itemidentifier'] . ' t2' .
       ' ON t1.id = t2.topicmapconstruct_id' .
       ' WHERE t2.locator = "' . $iid . '"' .
-      ' AND t1.topicmap_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+      ' AND t1.topicmap_id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     $rows = $mysqlResult->getNumRows();
     return $rows > 0
-      ? $this->factory($mysqlResult)
+      ? $this->_factory($mysqlResult)
       : null;
   }
 
@@ -257,10 +257,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    *        if such a construct is unknown.
    */
   public function getConstructById($id) {
-    if (!$this->verify($id)) {
+    if (!$this->_verify($id)) {
       return null;
     }
-    return $this->getConstructByVerifiedId($id);
+    return $this->_getConstructByVerifiedId($id);
   }
 
   /**
@@ -276,53 +276,57 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * 				the scope does not belong to this topic map.
    */
   public function createAssociation(Topic $type, array $scope=array()) {
-    if (!$this->equals($type->topicMap)) {
+    if (!$this->equals($type->_topicMap)) {
       throw new ModelConstraintException(
         $this, 
-        __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+        __METHOD__ . ConstructImpl::$_sameTmConstraintErrMsg
       );
     }
     foreach ($scope as $theme) {
-      if ($theme instanceof Topic && !$this->equals($theme->topicMap)) {
+      if ($theme instanceof Topic && !$this->equals($theme->_topicMap)) {
         throw new ModelConstraintException(
           $this, 
-          __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+          __METHOD__ . ConstructImpl::$_sameTmConstraintErrMsg
         );
       }
     }
-    $hash = $this->getAssocHash($type, $scope, $roles=array());
-    $assocId = $this->hasAssoc($hash);
+    $hash = $this->_getAssocHash($type, $scope, $roles=array());
+    $assocId = $this->_hasAssoc($hash);
     if ($assocId) {
-      return $this->getConstructByVerifiedId('AssociationImpl-' . $assocId);
+      return $this->_getConstructByVerifiedId('AssociationImpl-' . $assocId);
     }
-    $this->mysql->startTransaction(true);
-    $query = 'INSERT INTO ' . $this->config['table']['association'] . 
+    $this->_mysql->startTransaction(true);
+    $query = 'INSERT INTO ' . $this->_config['table']['association'] . 
       ' (id, type_id, topicmap_id, hash) VALUES' .
-      ' (NULL, ' . $type->dbId . ', ' . $this->dbId . ', "' . $hash . '")';
-    $mysqlResult = $this->mysql->execute($query);
+      ' (NULL, ' . $type->_dbId . ', ' . $this->_dbId . ', "' . $hash . '")';
+    $mysqlResult = $this->_mysql->execute($query);
     $lastAssocId = $mysqlResult->getLastId();
     
-    $query = 'INSERT INTO ' . $this->config['table']['topicmapconstruct'] . 
+    $query = 'INSERT INTO ' . $this->_config['table']['topicmapconstruct'] . 
       ' (association_id, topicmap_id, parent_id) VALUES' .
-      ' (' . $lastAssocId . ', '.$this->dbId . ', ' . $this->dbId . ')';
-    $this->mysql->execute($query);
+      ' (' . $lastAssocId . ', '.$this->_dbId . ', ' . $this->_dbId . ')';
+    $this->_mysql->execute($query);
     
-    $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope, $this, $this);
-    $query = 'INSERT INTO ' . $this->config['table']['association_scope'] . 
+    $scopeObj = new ScopeImpl($this->_mysql, $this->_config, $scope, $this, $this);
+    $query = 'INSERT INTO ' . $this->_config['table']['association_scope'] . 
       ' (scope_id, association_id) VALUES' .
-      ' (' . $scopeObj->dbId . ', ' . $lastAssocId . ')';
-    $this->mysql->execute($query);
+      ' (' . $scopeObj->_dbId . ', ' . $lastAssocId . ')';
+    $this->_mysql->execute($query);
     
-    $this->mysql->finishTransaction(true);
-    $assoc = $this->getConstructByVerifiedId('AssociationImpl-' . $lastAssocId);
-    if (!$this->mysql->hasError()) {
-      $assoc->postInsert();
-      $this->postSave();
+    $this->_mysql->finishTransaction(true);
+    
+    $propertyHolder['type_id']=$type->_dbId;
+    $this->_setConstructPropertyHolder($propertyHolder);
+    $assoc = $this->_getConstructByVerifiedId('AssociationImpl-' . $lastAssocId);
+    
+    if (!$this->_mysql->hasError()) {
+      $assoc->_postInsert();
+      $this->_postSave();
     }
-    if (is_null($this->assocsCache)) {
+    if (is_null($this->_assocsCache)) {
       return $assoc;
     } else {
-      $this->assocsCache[$assoc->getId()] = $assoc;
+      $this->_assocsCache[$assoc->getId()] = $assoc;
       return $assoc;
     }
   }
@@ -351,7 +355,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     if (is_null($iid)) {
       throw new ModelConstraintException(
         $this, 
-        __METHOD__ . TopicImpl::IDENTITY_NULL_ERR_MSG
+        __METHOD__ . ConstructImpl::$_identityNullErrMsg
       );
     }
     $construct = $this->getConstructByItemIdentifier($iid);
@@ -363,7 +367,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
           $this, 
           $construct, 
           $iid, 
-          __METHOD__ . parent::ITEM_IDENTIFIER_EXISTS_ERR_MSG
+          __METHOD__ . ConstructImpl::$_iidExistsErrMsg
         );
       }
     } else {
@@ -372,12 +376,12 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
         $topic->addItemIdentifier($iid);
         return $topic;
       } else {
-        $this->setIid = false;
-        $this->mysql->startTransaction(true);
+        $this->_setIid = false;
+        $this->_mysql->startTransaction(true);
         $topic = $this->createTopic();
         $topic->addItemIdentifier($iid);
-        $this->mysql->finishTransaction(true);
-        $this->setIid = true;
+        $this->_mysql->finishTransaction(true);
+        $this->_setIid = true;
         return $topic;
       }
     }
@@ -405,7 +409,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     if (is_null($sid)) {
       throw new ModelConstraintException(
         $this, 
-        __METHOD__ . TopicImpl::IDENTITY_NULL_ERR_MSG
+        __METHOD__ . ConstructImpl::$_identityNullErrMsg
       );
     }
     $topic = $this->getTopicBySubjectIdentifier($sid);
@@ -418,13 +422,13 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
         $construct->addSubjectIdentifier($sid);
         return $construct;
       } else {// create new topic
-        $this->setIid = false;
-        $this->mysql->startTransaction(true);
+        $this->_setIid = false;
+        $this->_mysql->startTransaction(true);
         $topic = $this->createTopic();
         // add subject identifier to this topic
         $topic->addSubjectIdentifier($sid);
-        $this->mysql->finishTransaction(true);
-        $this->setIid = true;
+        $this->_mysql->finishTransaction(true);
+        $this->_setIid = true;
         return $topic;
       }
     }
@@ -444,20 +448,20 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     if (is_null($slo)) {
       throw new ModelConstraintException(
         $this, 
-        __METHOD__ . TopicImpl::IDENTITY_NULL_ERR_MSG
+        __METHOD__ . ConstructImpl::$_identityNullErrMsg
       );
     }
     $topic = $this->getTopicBySubjectLocator($slo);
     if (!is_null($topic)) {
       return $topic;
     } else {// create new topic
-      $this->setIid = false;
-      $this->mysql->startTransaction(true);
+      $this->_setIid = false;
+      $this->_mysql->startTransaction(true);
       $topic = $this->createTopic();
       // add subject locator to this topic
       $topic->addSubjectLocator($slo);
-      $this->mysql->finishTransaction(true);
-      $this->setIid = true;
+      $this->_mysql->finishTransaction(true);
+      $this->_setIid = true;
       return $topic;
     }
   }
@@ -474,36 +478,36 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    *        generated item identifier.
    */
   public function createTopic() {
-    $this->mysql->startTransaction();
-    $query = 'INSERT INTO ' . $this->config['table']['topic'] . 
-      ' (id, topicmap_id) VALUES (NULL, ' . $this->dbId . ')';
-    $mysqlResult = $this->mysql->execute($query);
+    $this->_mysql->startTransaction();
+    $query = 'INSERT INTO ' . $this->_config['table']['topic'] . 
+      ' (id, topicmap_id) VALUES (NULL, ' . $this->_dbId . ')';
+    $mysqlResult = $this->_mysql->execute($query);
     $lastTopicId = $mysqlResult->getLastId();
     
-    $query = 'INSERT INTO ' . $this->config['table']['topicmapconstruct'] . 
+    $query = 'INSERT INTO ' . $this->_config['table']['topicmapconstruct'] . 
       ' (topic_id, topicmap_id, parent_id) VALUES' .
-      ' (' . $lastTopicId . ', ' . $this->dbId . ', ' . $this->dbId . ')';
-    $this->mysql->execute($query);
+      ' (' . $lastTopicId . ', ' . $this->_dbId . ', ' . $this->_dbId . ')';
+    $this->_mysql->execute($query);
     $lastConstructId = $mysqlResult->getLastId();
     
-    if ($this->setIid) {
+    if ($this->_setIid) {
       $iidFragment = '#TopicImpl-' . $lastTopicId;
       $iid = $this->getLocator() . $iidFragment;
-      $query = 'INSERT INTO ' . $this->config['table']['itemidentifier'] . 
+      $query = 'INSERT INTO ' . $this->_config['table']['itemidentifier'] . 
         ' (topicmapconstruct_id, locator) VALUES' .
         ' (' . $lastConstructId . ', "' . $iid . '")';
-      $this->mysql->execute($query);
+      $this->_mysql->execute($query);
     }
-    $this->mysql->finishTransaction();
-    $topic = $this->getConstructByVerifiedId('TopicImpl-' . $lastTopicId);
-    if (!$this->mysql->hasError()) {
-      $topic->postInsert();
-      $this->postSave();
+    $this->_mysql->finishTransaction();
+    $topic = $this->_getConstructByVerifiedId('TopicImpl-' . $lastTopicId);
+    if (!$this->_mysql->hasError()) {
+      $topic->_postInsert();
+      $this->_postSave();
     }
-    if (is_null($this->topicsCache)) {
+    if (is_null($this->_topicsCache)) {
       return $topic;
     } else {
-      $this->topicsCache[$topic->getId()] = $topic;
+      $this->_topicsCache[$topic->getId()] = $topic;
       return $topic;
     }
   }
@@ -529,30 +533,32 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     if ($this->equals($other)) {
       return;
     }
-    $this->mysql->startTransaction(true);
+    $this->_setState(VocabularyUtils::QTM_STATE_MERGING);
+    $this->_mysql->startTransaction(true);
     
     $otherTopics = $other->getTopics();
     foreach ($otherTopics as $otherTopic) {
-      $this->copyTopic($otherTopic);
+      $this->_copyTopic($otherTopic);
     }
     
     // set or merge reifier
     $otherReifier = $other->getReifier();
     if (!is_null($otherReifier)) {
       if (is_null($this->getReifier())) {
-        $reifier = $this->copyTopic($otherReifier);
+        $reifier = $this->_copyTopic($otherReifier);
         $this->setReifier($reifier);
       } else {
-        $reifierToMerge = $this->copyTopic($otherReifier);
+        $reifierToMerge = $this->_copyTopic($otherReifier);
         $this->getReifier()->mergeIn($reifierToMerge);
       }
     }
     
-    $this->copyIids($this, $other);
+    $this->_copyIids($this, $other);
     
-    $this->copyAssociations($other->getAssociations());
+    $this->_copyAssociations($other->getAssociations());
     
-    $this->mysql->finishTransaction(true);
+    $this->_mysql->finishTransaction(true);
+    $this->_setState(VocabularyUtils::QTM_STATE_REGULAR);
   }
 
   /**
@@ -564,8 +570,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    *        if the specified index is unsupported, or if the specified index does not exist.
    */
   public function getIndex($className) {
-    if (in_array($className, self::$supportedIndices)) {
-      return new $className($this->mysql, $this->config, $this);
+    if (in_array($className, self::$_supportedIndices)) {
+      return new $className($this->_mysql, $this->_config, $this);
     } else {
       throw new FeatureNotSupportedException(
         __METHOD__ . ': Index "' . $className . '" is not supported!'
@@ -584,8 +590,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return void
    */
   public function close() {
-    $this->topicsCache = 
-    $this->assocsCache = null;
+    $this->_topicsCache = 
+    $this->_assocsCache = null;
   }
   
   /**
@@ -617,26 +623,23 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    */
   public function finished(Association $assoc) {
     // get the hash of the finished association
-    $query = 'SELECT hash FROM ' . $this->config['table']['association'] . 
-      ' WHERE id = ' . $assoc->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT hash FROM ' . $this->_config['table']['association'] . 
+      ' WHERE id = ' . $assoc->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetch();
     // detect duplicates
-    $query = 'SELECT id FROM ' . $this->config['table']['association'] . 
+    $query = 'SELECT id FROM ' . $this->_config['table']['association'] . 
       ' WHERE hash = "' . $result['hash'] . '"' .
-      ' AND id <> ' . $assoc->dbId . 
-      ' AND topicmap_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
-    if ($rows > 0) {// there exist duplicates
-      while ($result = $mysqlResult->fetch()) {
-        $duplicate = $this->getConstructByVerifiedId('AssociationImpl-' . $result['id']);
-        // gain duplicate's item identities
-        $assoc->gainItemIdentifiers($duplicate);
-        // gain duplicate's reifier
-        $assoc->gainReifier($duplicate);
-        $duplicate->remove();
-      }
+      ' AND id <> ' . $assoc->_dbId . 
+      ' AND topicmap_id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
+    while ($result = $mysqlResult->fetch()) {
+      $duplicate = $this->_getConstructByVerifiedId('AssociationImpl-' . $result['id']);
+      // gain duplicate's item identities
+      $assoc->_gainItemIdentifiers($duplicate);
+      // gain duplicate's reifier
+      $assoc->_gainReifier($duplicate);
+      $duplicate->remove();
     }
   }
   
@@ -648,118 +651,118 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @throws PHPTMAPIRuntimeException If removal failed.
    */
   public function remove() {
-    $this->preDelete();
-    $this->mysql->startTransaction();
+    $this->_preDelete();
+    $this->_mysql->startTransaction();
     
     // topic names
-    $query = 'DELETE t1.*, t2.* FROM ' . $this->config['table']['topicmapconstruct'] . ' t1 ' .
-      'INNER JOIN ' . $this->config['table']['topicname'] . ' t2 ' .
+    $query = 'DELETE t1.*, t2.* FROM ' . $this->_config['table']['topicmapconstruct'] . ' t1 ' .
+      'INNER JOIN ' . $this->_config['table']['topicname'] . ' t2 ' .
       'ON t2.id = t1.topicname_id ' .
-      'WHERE t1.topicmap_id = ' . $this->dbId;
-    $this->mysql->execute($query);
+      'WHERE t1.topicmap_id = ' . $this->_dbId;
+    $this->_mysql->execute($query);
     
     // occurrences
-    $query = 'DELETE t1.*, t2.* FROM ' . $this->config['table']['topicmapconstruct'] . ' t1 ' .
-      'INNER JOIN ' . $this->config['table']['occurrence'] . ' t2 ' .
+    $query = 'DELETE t1.*, t2.* FROM ' . $this->_config['table']['topicmapconstruct'] . ' t1 ' .
+      'INNER JOIN ' . $this->_config['table']['occurrence'] . ' t2 ' .
       'ON t2.id = t1.occurrence_id ' .
-      'WHERE t1.topicmap_id = ' . $this->dbId;
-    $this->mysql->execute($query);
+      'WHERE t1.topicmap_id = ' . $this->_dbId;
+    $this->_mysql->execute($query);
     
     // associations; cascades to roles
-    $query = 'DELETE t1.*, t2.* FROM ' . $this->config['table']['topicmapconstruct'] . ' t1 ' .
-      'INNER JOIN ' . $this->config['table']['association'] . ' t2 ' .
+    $query = 'DELETE t1.*, t2.* FROM ' . $this->_config['table']['topicmapconstruct'] . ' t1 ' .
+      'INNER JOIN ' . $this->_config['table']['association'] . ' t2 ' .
       'ON t2.id = t1.association_id ' .
-      'WHERE t1.topicmap_id = ' . $this->dbId;
-    $this->mysql->execute($query);
+      'WHERE t1.topicmap_id = ' . $this->_dbId;
+    $this->_mysql->execute($query);
     
     // typed topics (instanceof)
-    $query = 'DELETE t1.* FROM ' . $this->config['table']['instanceof'] . ' t1 ' .
-      'INNER JOIN ' . $this->config['table']['topicmapconstruct'] . ' t2 ' .
+    $query = 'DELETE t1.* FROM ' . $this->_config['table']['instanceof'] . ' t1 ' .
+      'INNER JOIN ' . $this->_config['table']['topicmapconstruct'] . ' t2 ' .
       'ON t2.topic_id = t1.topic_id ' .
-      'WHERE t2.topicmap_id = ' . $this->dbId;
-    $this->mysql->execute($query);
+      'WHERE t2.topicmap_id = ' . $this->_dbId;
+    $this->_mysql->execute($query);
     
     // scope and themes
-    $query = 'DELETE t1.*, t2.* FROM ' . $this->config['table']['theme'] . ' t1 ' .
-      'INNER JOIN ' . $this->config['table']['scope'] . ' t2 ' .
+    $query = 'DELETE t1.*, t2.* FROM ' . $this->_config['table']['theme'] . ' t1 ' .
+      'INNER JOIN ' . $this->_config['table']['scope'] . ' t2 ' .
       'ON t2.id = t1.scope_id ' . 
-      'INNER JOIN ' . $this->config['table']['topicmapconstruct'] . ' t3 ' . 
+      'INNER JOIN ' . $this->_config['table']['topicmapconstruct'] . ' t3 ' . 
       'ON t3.topic_id = t1.topic_id ' . 
-      'WHERE t3.topicmap_id = ' . $this->dbId;
-    $this->mysql->execute($query);
+      'WHERE t3.topicmap_id = ' . $this->_dbId;
+    $this->_mysql->execute($query);
     
     // unset topic map's reifier to prevent fk constraint errors
-    $query = 'UPDATE ' . $this->config['table']['topicmapconstruct'] . 
+    $query = 'UPDATE ' . $this->_config['table']['topicmapconstruct'] . 
       ' SET reifier_id = NULL' . 
-      ' WHERE topicmap_id = ' . $this->dbId . 
+      ' WHERE topicmap_id = ' . $this->_dbId . 
       ' AND parent_id IS NULL';
-    $this->mysql->execute($query);
+    $this->_mysql->execute($query);
     
     // topics; cascades to identifiers
-    $query = 'DELETE t1.*, t2.* FROM ' . $this->config['table']['topicmapconstruct'] . ' t1 ' .
-      'INNER JOIN ' . $this->config['table']['topic'] . ' t2 ' .
+    $query = 'DELETE t1.*, t2.* FROM ' . $this->_config['table']['topicmapconstruct'] . ' t1 ' .
+      'INNER JOIN ' . $this->_config['table']['topic'] . ' t2 ' .
       'ON t2.id = t1.topic_id ' .
-      'WHERE t1.topicmap_id = ' . $this->dbId;
-    $this->mysql->execute($query);
+      'WHERE t1.topicmap_id = ' . $this->_dbId;
+    $this->_mysql->execute($query);
     
     // the topic map
-    $query = 'DELETE FROM ' . $this->config['table']['topicmap'] .
-      ' WHERE id = ' . $this->dbId;
-    $this->mysql->execute($query);
+    $query = 'DELETE FROM ' . $this->_config['table']['topicmap'] .
+      ' WHERE id = ' . $this->_dbId;
+    $this->_mysql->execute($query);
     
     // clean up scope (an ucs may be left) and truncate all tables if no topic map exists anymore
-    $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['topicmap'];
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT COUNT(*) FROM ' . $this->_config['table']['topicmap'];
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetchArray();
     if ($result[0] == 0) {
-      $query = 'TRUNCATE TABLE ' . $this->config['table']['scope'];
-      $this->mysql->execute($query);
-      $query = 'TRUNCATE TABLE ' . $this->config['table']['association'];
-      $this->mysql->execute($query);
-      $query = 'TRUNCATE TABLE ' . $this->config['table']['association_scope'];
-      $this->mysql->execute($query);
-      $query = 'TRUNCATE TABLE ' . $this->config['table']['assocrole'];
-      $this->mysql->execute($query);
-      $query = 'TRUNCATE TABLE ' . $this->config['table']['instanceof'];
-      $this->mysql->execute($query);
-      $query = 'TRUNCATE TABLE ' . $this->config['table']['occurrence'];
-      $this->mysql->execute($query);
-      $query = 'TRUNCATE TABLE ' . $this->config['table']['occurrence_scope'];
-      $this->mysql->execute($query);
-      $query = 'TRUNCATE TABLE ' . $this->config['table']['theme'];
-      $this->mysql->execute($query);
-      $query = 'TRUNCATE TABLE ' . $this->config['table']['subjectidentifier'];
-      $this->mysql->execute($query);
-      $query = 'TRUNCATE TABLE ' . $this->config['table']['subjectlocator'];
-      $this->mysql->execute($query);
-      $query = 'TRUNCATE TABLE ' . $this->config['table']['topic'];
-      $this->mysql->execute($query);
-      $query = 'TRUNCATE TABLE ' . $this->config['table']['topicmap'];
-      $this->mysql->execute($query);
-      $query = 'TRUNCATE TABLE ' . $this->config['table']['topicmapconstruct'];
-      $this->mysql->execute($query);
-      $query = 'TRUNCATE TABLE ' . $this->config['table']['itemidentifier'];
-      $this->mysql->execute($query);
-      $query = 'TRUNCATE TABLE ' . $this->config['table']['topicname'];
-      $this->mysql->execute($query);
-      $query = 'TRUNCATE TABLE ' . $this->config['table']['topicname_scope'];
-      $this->mysql->execute($query);
-      $query = 'TRUNCATE TABLE ' . $this->config['table']['variant'];
-      $this->mysql->execute($query);
-      $query = 'TRUNCATE TABLE ' . $this->config['table']['variant_scope'];
-      $this->mysql->execute($query);
+      $query = 'TRUNCATE TABLE ' . $this->_config['table']['scope'];
+      $this->_mysql->execute($query);
+      $query = 'TRUNCATE TABLE ' . $this->_config['table']['association'];
+      $this->_mysql->execute($query);
+      $query = 'TRUNCATE TABLE ' . $this->_config['table']['association_scope'];
+      $this->_mysql->execute($query);
+      $query = 'TRUNCATE TABLE ' . $this->_config['table']['assocrole'];
+      $this->_mysql->execute($query);
+      $query = 'TRUNCATE TABLE ' . $this->_config['table']['instanceof'];
+      $this->_mysql->execute($query);
+      $query = 'TRUNCATE TABLE ' . $this->_config['table']['occurrence'];
+      $this->_mysql->execute($query);
+      $query = 'TRUNCATE TABLE ' . $this->_config['table']['occurrence_scope'];
+      $this->_mysql->execute($query);
+      $query = 'TRUNCATE TABLE ' . $this->_config['table']['theme'];
+      $this->_mysql->execute($query);
+      $query = 'TRUNCATE TABLE ' . $this->_config['table']['subjectidentifier'];
+      $this->_mysql->execute($query);
+      $query = 'TRUNCATE TABLE ' . $this->_config['table']['subjectlocator'];
+      $this->_mysql->execute($query);
+      $query = 'TRUNCATE TABLE ' . $this->_config['table']['topic'];
+      $this->_mysql->execute($query);
+      $query = 'TRUNCATE TABLE ' . $this->_config['table']['topicmap'];
+      $this->_mysql->execute($query);
+      $query = 'TRUNCATE TABLE ' . $this->_config['table']['topicmapconstruct'];
+      $this->_mysql->execute($query);
+      $query = 'TRUNCATE TABLE ' . $this->_config['table']['itemidentifier'];
+      $this->_mysql->execute($query);
+      $query = 'TRUNCATE TABLE ' . $this->_config['table']['topicname'];
+      $this->_mysql->execute($query);
+      $query = 'TRUNCATE TABLE ' . $this->_config['table']['topicname_scope'];
+      $this->_mysql->execute($query);
+      $query = 'TRUNCATE TABLE ' . $this->_config['table']['variant'];
+      $this->_mysql->execute($query);
+      $query = 'TRUNCATE TABLE ' . $this->_config['table']['variant_scope'];
+      $this->_mysql->execute($query);
     }
     
-    $this->mysql->finishTransaction();
+    $this->_mysql->finishTransaction();
     
-    if ($this->mysql->hasError()) {
+    if ($this->_mysql->hasError()) {
       throw new PHPTMAPIRuntimeException(
-      	'Error in ' . __METHOD__ . ': '. $this->mysql->getError()
+      	'Error in ' . __METHOD__ . ': '. $this->_mysql->getError()
       );
     }
     
-    $this->id = 
-    $this->dbId = null;
+    $this->_id = 
+    $this->_dbId = null;
   }
   
   /**
@@ -768,7 +771,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return void
    */
   public function clearTopicsCache() {
-    $this->topicsCache = null;
+    $this->_topicsCache = null;
   }
   
   /**
@@ -777,7 +780,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return void
    */
   public function clearAssociationsCache() {
-    $this->assocsCache = null;
+    $this->_assocsCache = null;
   }
   
   /**
@@ -787,57 +790,86 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param string The construct's hash.
    * @return ConstructImpl The construct with the specified id.
    */
-  protected function getConstructByVerifiedId($id, $hash=null) {
+  protected function _getConstructByVerifiedId($id, $hash=null) {
     $constituents = explode('-', $id);
     $className = $constituents[0];
     $dbId = $constituents[1];
     switch ($className) {
       case 'TopicImpl':
-        return new $className($dbId, $this->mysql, $this->config, $this);
+        return new $className($dbId, $this->_mysql, $this->_config, $this);
         break;
       case 'NameImpl':
-        $parent = $this->constructParent instanceof Topic ? $this->constructParent : 
-          $this->getNameParent($dbId);
-        $this->constructParent = null;
-        $propertyHolder = $this->constructPropertyHolder;
-        $this->constructPropertyHolder = null;
-        return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
-          $propertyHolder);
+        $parent = $this->_constructParent instanceof Topic 
+          ? $this->_constructParent 
+          : $this->_getNameParent($dbId);
+        $this->_constructParent = null;
+        $propertyHolder = $this->_constructPropertyHolder;
+        $this->_constructPropertyHolder = array();
+        return new $className(
+          $dbId, 
+          $this->_mysql, 
+          $this->_config, 
+          $parent, 
+          $this, 
+          $propertyHolder
+        );
         break;
       case 'AssociationImpl':
-        $propertyHolder = $this->constructPropertyHolder;
-        $this->constructPropertyHolder = null;
-        return new $className($dbId, $this->mysql, $this->config, $this, $propertyHolder);
+        $propertyHolder = $this->_constructPropertyHolder;
+        $this->_constructPropertyHolder = array();
+        return new $className($dbId, $this->_mysql, $this->_config, $this, $propertyHolder);
         break;
       case 'RoleImpl':
-        $parent = $this->constructParent instanceof Association ? 
-          $this->constructParent : $this->getRoleParent($dbId);
-        $this->constructParent = null;
-        $propertyHolder = $this->constructPropertyHolder;
-        $this->constructPropertyHolder = null;
-        return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
-          $propertyHolder);
+        $parent = $this->_constructParent instanceof Association 
+          ? $this->_constructParent 
+          : $this->_getRoleParent($dbId);
+        $this->_constructParent = null;
+        $propertyHolder = $this->_constructPropertyHolder;
+        $this->_constructPropertyHolder = array();
+        return new $className(
+          $dbId, 
+          $this->_mysql, 
+          $this->_config, 
+          $parent, 
+          $this, 
+          $propertyHolder
+        );
         break;
       case 'OccurrenceImpl':
-        $parent = $this->constructParent instanceof Topic ? $this->constructParent : 
-          $this->getOccurrenceParent($dbId);
-        $this->constructParent = null;
-        $propertyHolder = $this->constructPropertyHolder;
-        $this->constructPropertyHolder = null;
-        return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
-          $propertyHolder);
+        $parent = $this->_constructParent instanceof Topic 
+          ? $this->_constructParent 
+          : $this->_getOccurrenceParent($dbId);
+        $this->_constructParent = null;
+        $propertyHolder = $this->_constructPropertyHolder;
+        $this->_constructPropertyHolder = array();
+        return new $className(
+          $dbId, 
+          $this->_mysql, 
+          $this->_config, 
+          $parent, 
+          $this, 
+          $propertyHolder
+        );
         break;
       case 'VariantImpl':
-        $parent = $this->constructParent instanceof Name ? $this->constructParent : 
-          $this->getVariantParent($dbId);
-        $this->constructParent = null;
-        $propertyHolder = $this->constructPropertyHolder;
-        $this->constructPropertyHolder = null;
-        return new $className($dbId, $this->mysql, $this->config, $parent, $this, 
-          $propertyHolder, $hash);
+        $parent = $this->_constructParent instanceof Name 
+          ? $this->_constructParent 
+          : $this->_getVariantParent($dbId);
+        $this->_constructParent = null;
+        $propertyHolder = $this->_constructPropertyHolder;
+        $this->_constructPropertyHolder = array();
+        return new $className(
+          $dbId, 
+          $this->_mysql, 
+          $this->_config, 
+          $parent, 
+          $this, 
+          $propertyHolder, 
+          $hash
+        );
         break;
       case __CLASS__:
-        return new $className($dbId, $this->mysql, $this->config, $this->getTopicMapSystem());
+        return new $className($dbId, $this->_mysql, $this->_config, $this->getTopicMapSystem());
         break;
     }
   }
@@ -848,18 +880,18 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param ConstructImpl
    * @return void
    */
-  protected function setConstructParent(Construct $parent) {
-    $this->constructParent = $parent;
+  protected function _setConstructParent(Construct $parent) {
+    $this->_constructParent = $parent;
   }
   
   /**
    * Sets the construct property holder.
    * 
-   * @param PropertyUtils The property holder.
+   * @param array The property holder.
    * @return void
    */
-  protected function setConstructPropertyHolder(PropertyUtils $propertyHolder) {
-    $this->constructPropertyHolder = $propertyHolder;
+  protected function _setConstructPropertyHolder(array $propertyHolder) {
+    $this->_constructPropertyHolder = $propertyHolder;
   }
   
   /**
@@ -870,13 +902,13 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param array The roles.
    * @return string
    */
-  protected function getAssocHash(Topic $type, array $scope, array $roles) {
+  protected function _getAssocHash(Topic $type, array $scope, array $roles) {
     $scopeIdsImploded = 
     $roleIdsImploded = null;
     if (count($scope) > 0) {
       $ids = array();
       foreach ($scope as $theme) {
-        if ($theme instanceof Topic) $ids[$theme->dbId] = $theme->dbId;
+        if ($theme instanceof Topic) $ids[$theme->_dbId] = $theme->_dbId;
       }
       ksort($ids);
       $scopeIdsImploded = implode('', $ids);
@@ -885,13 +917,13 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
       $ids = array();
       foreach ($roles as $role) {
         if ($role instanceof Role || $role instanceof MemoryRole) {
-          $ids[$role->getType()->dbId . $role->getPlayer()->dbId] = $role->getType()->dbId . $role->getPlayer()->dbId; 
+          $ids[$role->getType()->_dbId . $role->getPlayer()->_dbId] = $role->getType()->_dbId . $role->getPlayer()->_dbId; 
         }
       }
       ksort($ids);
       $roleIdsImploded = implode('', $ids);
     }
-    return md5($type->dbId . $scopeIdsImploded . $roleIdsImploded);
+    return md5($type->_dbId . $scopeIdsImploded . $roleIdsImploded);
   }
   
   /**
@@ -900,11 +932,11 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param int The association id.
    * @param string The association hash.
    */
-  protected function updateAssocHash($assocId, $hash) {
-    $query = 'UPDATE ' . $this->config['table']['association'] . 
+  protected function _updateAssocHash($assocId, $hash) {
+    $query = 'UPDATE ' . $this->_config['table']['association'] . 
       ' SET hash = "' . $hash . '"' .
       ' WHERE id = ' . $assocId;
-    $this->mysql->execute($query);
+    $this->_mysql->execute($query);
   }
   
   /**
@@ -913,11 +945,11 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param string The hash code.
    * @return false|int The association id or <var>false</var> otherwise.
    */
-  protected function hasAssoc($hash) {
-    $query = 'SELECT id FROM ' . $this->config['table']['association'] . 
-      ' WHERE topicmap_id = ' . $this->dbId . 
+  protected function _hasAssoc($hash) {
+    $query = 'SELECT id FROM ' . $this->_config['table']['association'] . 
+      ' WHERE topicmap_id = ' . $this->_dbId . 
       ' AND hash = "' . $hash . '"';
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {
       $result = $mysqlResult->fetch();
@@ -932,12 +964,12 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param string The association id.
    * @return void
    */
-  protected function removeAssociationFromCache($assocId) {
-    if (is_null($this->assocsCache)) {
+  protected function _removeAssociationFromCache($assocId) {
+    if (is_null($this->_assocsCache)) {
       return;
     }
-    if (array_key_exists($assocId, $this->assocsCache)) {
-      unset($this->assocsCache[$assocId]);
+    if (array_key_exists($assocId, $this->_assocsCache)) {
+      unset($this->_assocsCache[$assocId]);
     }
   }
   
@@ -947,13 +979,35 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param string The topic id.
    * @return void
    */
-  protected function removeTopicFromCache($topicId) {
-    if (is_null($this->topicsCache)) {
+  protected function _removeTopicFromCache($topicId) {
+    if (is_null($this->_topicsCache)) {
       return;
     }
-    if (array_key_exists($topicId, $this->topicsCache)) {
-      unset($this->topicsCache[$topicId]);
+    if (array_key_exists($topicId, $this->_topicsCache)) {
+      unset($this->_topicsCache[$topicId]);
     }
+  }
+  
+  /**
+   * Sets the state of the topic map: <var>Merging</var> or <var>regular</var>.
+   * The states are identified by URIs <var> http://quaaxtm.sourceforge.net/state/merging/</var>
+   * and <var>http://quaaxtm.sourceforge.net/state/regular/</var>.
+   * 
+   * @param string The state URI.
+   * @return void
+   */
+  protected function _setState($state) {
+    $this->_topicMapState = $state;
+  }
+  
+  /**
+   * Gets the URI representing the state of the topic map.
+   * 
+   * @see {@link TopicMapImpl::setState()}
+   * @return string The state URI.
+   */
+  protected function _getState() {
+    return $this->_topicMapState;
   }
   
   /**
@@ -962,11 +1016,11 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return int The id.
    * @override
    */
-  private function getConstructDbId() {
-    $query = 'SELECT id FROM ' . $this->config['table']['topicmapconstruct'] . 
-      ' WHERE topicmap_id = ' . $this->dbId . 
+  private function _getConstructDbId() {
+    $query = 'SELECT id FROM ' . $this->_config['table']['topicmapconstruct'] . 
+      ' WHERE topicmap_id = ' . $this->_dbId . 
       ' AND parent_id IS NULL';
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetch();
     return (int) $result['id'];
   }
@@ -975,43 +1029,42 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * Verifies if this topic map contains a construct with the given id.
    * 
    * @param string The construct's id retrieved by {@link ConstructImpl::getId()}
-   * @return boolean
+   * @return boolean <var>True</var> if the id is valid in the current topic map;
+   * 				<var>false</var> otherwise.
    */
-  private function verify($id) {
+  private function _verify($id) {
     if (!preg_match('/^[a-z]+\-[0-9]+$/i', $id)) {
       return false;
     }
-    if (array_key_exists($id, $this->seenConstructsCache)) {
+    if (array_key_exists($id, $this->_seenConstructsCache)) {
       return true;
     }
     $constituents = explode('-', $id);
     $className = $constituents[0];
     $dbId = $constituents[1];
-    $fkColumn = $this->getFkColumn($className);
+    $fkColumn = $this->_getFkColumn($className);
     if (is_null($fkColumn)) {
       return false;
     }
     if ($fkColumn != parent::TOPICMAP_FK_COL) {
-      $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['topicmapconstruct'] . 
+      $query = 'SELECT COUNT(*) FROM ' . $this->_config['table']['topicmapconstruct'] . 
         ' WHERE ' . $fkColumn . ' = ' . $dbId . 
-        ' AND topicmap_id = ' . $this->dbId;
+        ' AND topicmap_id = ' . $this->_dbId;
     } else {
-      $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['topicmapconstruct'] . 
+      $query = 'SELECT COUNT(*) FROM ' . $this->_config['table']['topicmapconstruct'] . 
         ' WHERE topicmap_id = ' . $dbId . 
         ' AND parent_id IS NULL';
     }
-    $mysqlResult = $this->mysql->execute($query);
-    if (!$this->mysql->hasError()) {
-      $result = $mysqlResult->fetchArray();
-      if ((int)$result[0] > 0) {
-        $this->seenConstructsCache[$id] = $this->id;
-        return true;
-      } else  {
-        return false;
-      }
-    } else {
+    $mysqlResult = $this->_mysql->execute($query);
+    if ($this->_mysql->hasError()) {
       return false;
     }
+    $result = $mysqlResult->fetchArray();
+    if ((int)$result[0] > 0) {
+      $this->_seenConstructsCache[$id] = $this->_id;
+      return true;
+    }
+    return false;
   }
   
   /**
@@ -1020,12 +1073,12 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param int The name id in database.
    * @return TopicImpl
    */
-  private function getNameParent($nameId) {
-    $query = 'SELECT parent_id FROM ' . $this->config['table']['topicmapconstruct'] . 
+  private function _getNameParent($nameId) {
+    $query = 'SELECT parent_id FROM ' . $this->_config['table']['topicmapconstruct'] . 
       ' WHERE topicname_id = ' . $nameId;
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetch();
-    return $this->getConstructByVerifiedId('TopicImpl-' . $result['parent_id']);
+    return $this->_getConstructByVerifiedId('TopicImpl-' . $result['parent_id']);
   }
   
   /**
@@ -1034,12 +1087,12 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param int The occurrence id in database.
    * @return TopicImpl
    */
-  private function getOccurrenceParent($occId) {
-    $query = 'SELECT parent_id FROM ' . $this->config['table']['topicmapconstruct'] . 
+  private function _getOccurrenceParent($occId) {
+    $query = 'SELECT parent_id FROM ' . $this->_config['table']['topicmapconstruct'] . 
       ' WHERE occurrence_id = ' . $occId;
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetch();
-    return $this->getConstructByVerifiedId('TopicImpl-' . $result['parent_id']);
+    return $this->_getConstructByVerifiedId('TopicImpl-' . $result['parent_id']);
   }
   
   /**
@@ -1048,12 +1101,12 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param int The role id in database.
    * @return AssociationImpl
    */
-  private function getRoleParent($roleId) {
-    $query = 'SELECT parent_id FROM ' . $this->config['table']['topicmapconstruct'] . 
+  private function _getRoleParent($roleId) {
+    $query = 'SELECT parent_id FROM ' . $this->_config['table']['topicmapconstruct'] . 
       ' WHERE assocrole_id = ' . $roleId;
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetch();
-    return $this->getConstructByVerifiedId('AssociationImpl-' . $result['parent_id']);
+    return $this->_getConstructByVerifiedId('AssociationImpl-' . $result['parent_id']);
   }
   
   /**
@@ -1062,15 +1115,15 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param int The variant name id in database.
    * @return NameImpl
    */
-  private function getVariantParent($variantId) {
-    $query = 'SELECT parent_id FROM ' . $this->config['table']['topicmapconstruct'] . 
+  private function _getVariantParent($variantId) {
+    $query = 'SELECT parent_id FROM ' . $this->_config['table']['topicmapconstruct'] . 
       ' WHERE variant_id = ' . $variantId;
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetch();
     $nameId = $result['parent_id'];
-    $parentTopic = $this->getNameParent($nameId);
-    $this->setConstructParent($parentTopic);
-    return $this->getConstructByVerifiedId('NameImpl-' . $result['parent_id']);
+    $parentTopic = $this->_getNameParent($nameId);
+    $this->_setConstructParent($parentTopic);
+    return $this->_getConstructByVerifiedId('NameImpl-' . $result['parent_id']);
   }
   
   /**
@@ -1079,14 +1132,14 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param TopicImpl The source topic.
    * @return TopicImpl
    */
-  private function copyTopic(Topic $sourceTopic) {
-    $existingTopic = $this->getTopicByOthersIdentities($sourceTopic);
+  private function _copyTopic(Topic $sourceTopic) {
+    $existingTopic = $this->_getTopicByOthersIdentities($sourceTopic);
     if ($existingTopic instanceof Topic) {
       $targetTopic = $existingTopic;
     } else {
-      $this->setIid = false;
+      $this->_setIid = false;
       $targetTopic = $this->createTopic();
-      $this->setIid = true;
+      $this->_setIid = true;
     }
     
     // copy identities
@@ -1104,13 +1157,13 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
     }
 
     // copy types
-    $this->copyTopicTypes($targetTopic, $sourceTopic);
+    $this->_copyTopicTypes($targetTopic, $sourceTopic);
     
     // copy names
-    $this->copyNames($targetTopic, $sourceTopic);
+    $this->_copyNames($targetTopic, $sourceTopic);
     
     // copy occurrences
-    $this->copyOccurrences($targetTopic, $sourceTopic);
+    $this->_copyOccurrences($targetTopic, $sourceTopic);
     
     return $targetTopic;
   }
@@ -1122,10 +1175,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param TopicImpl The source topic.
    * @return void
    */
-  private function copyTopicTypes(Topic $targetTopic, Topic $sourceTopic) {
+  private function _copyTopicTypes(Topic $targetTopic, Topic $sourceTopic) {
     $sourceTypes = $sourceTopic->getTypes();
     foreach ($sourceTypes as $sourceType) {
-      $targetType = $this->copyTopic($sourceType);
+      $targetType = $this->_copyTopic($sourceType);
       $targetTopic->addType($targetType);
     }
   }
@@ -1137,36 +1190,36 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param TopicImpl The source topic.
    * @return void
    */
-  private function copyNames(Topic $targetTopic, Topic $sourceTopic) {
+  private function _copyNames(Topic $targetTopic, Topic $sourceTopic) {
     $sourceNames = $sourceTopic->getNames();
     foreach ($sourceNames as $sourceName) {
-      $targetType = $this->copyTopic($sourceName->getType());
-      $targetNameScope = $this->copyScope($sourceName->getScope());
+      $targetType = $this->_copyTopic($sourceName->getType());
+      $targetNameScope = $this->_copyScope($sourceName->getScope());
       $targetName = $targetTopic->createName( 
         $sourceName->getValue(), 
         $targetType, 
         $targetNameScope
       );
       // source name's iids
-      $this->copyIids($targetName, $sourceName);
+      $this->_copyIids($targetName, $sourceName);
       
       // source name's reifier
-      $this->copyReifier($targetName, $sourceName);
+      $this->_copyReifier($targetName, $sourceName);
 
       // other's name's variants
       $sourceVariants = $sourceName->getVariants();
       foreach ($sourceVariants as $sourceVariant) {
-        $targetVariantScope = $this->copyScope($sourceVariant->getScope());
+        $targetVariantScope = $this->_copyScope($sourceVariant->getScope());
         $targetVariant = $targetName->createVariant(
           $sourceVariant->getValue(), 
           $sourceVariant->getDatatype(), 
           $targetVariantScope
         );
         // source variant's iids
-        $this->copyIids($targetVariant, $sourceVariant);
+        $this->_copyIids($targetVariant, $sourceVariant);
         
         // source variant's reifier
-        $this->copyReifier($targetVariant, $sourceVariant);
+        $this->_copyReifier($targetVariant, $sourceVariant);
       }
     }
   }
@@ -1178,11 +1231,11 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param TopicImpl The source topic.
    * @return void
    */
-  private function copyOccurrences(Topic $targetTopic, Topic $sourceTopic) {
+  private function _copyOccurrences(Topic $targetTopic, Topic $sourceTopic) {
     $sourceOccurrences = $sourceTopic->getOccurrences();
     foreach ($sourceOccurrences as $sourceOccurrence) {
-      $targetType = $this->copyTopic($sourceOccurrence->getType());
-      $targetScope = $this->copyScope($sourceOccurrence->getScope());
+      $targetType = $this->_copyTopic($sourceOccurrence->getType());
+      $targetScope = $this->_copyScope($sourceOccurrence->getScope());
       $targetOccurrence = $targetTopic->createOccurrence(
         $targetType, 
         $sourceOccurrence->getValue(), 
@@ -1190,10 +1243,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
         $targetScope
       );
       // source occurrence's iids
-      $this->copyIids($targetOccurrence, $sourceOccurrence);
+      $this->_copyIids($targetOccurrence, $sourceOccurrence);
       
       // source occurrence's reifier
-      $this->copyReifier($targetOccurrence, $sourceOccurrence);
+      $this->_copyReifier($targetOccurrence, $sourceOccurrence);
     }
   }
   
@@ -1203,31 +1256,31 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param array The source topic map's associations.
    * @return void
    */
-  private function copyAssociations(array $sourceAssocs) {
+  private function _copyAssociations(array $sourceAssocs) {
     foreach ($sourceAssocs as $sourceAssoc) {
-      $targetAssocType = $this->copyTopic($sourceAssoc->getType());
-      $targetScope = $this->copyScope($sourceAssoc->getScope());
+      $targetAssocType = $this->_copyTopic($sourceAssoc->getType());
+      $targetScope = $this->_copyScope($sourceAssoc->getScope());
       $targetAssoc = $this->createAssociation($targetAssocType, $targetScope);
       
       // copy roles
       $sourceRoles = $sourceAssoc->getRoles();
       foreach ($sourceRoles as $sourceRole) {
-        $targetRoleType = $this->copyTopic($sourceRole->getType());
-        $targetPlayer = $this->copyTopic($sourceRole->getPlayer());
+        $targetRoleType = $this->_copyTopic($sourceRole->getType());
+        $targetPlayer = $this->_copyTopic($sourceRole->getPlayer());
         $targetRole = $targetAssoc->createRole($targetRoleType, $targetPlayer);
         
         // source role's iids
-        $this->copyIids($targetRole, $sourceRole);
+        $this->_copyIids($targetRole, $sourceRole);
         
         // source role's reifier
-        $this->copyReifier($targetRole, $sourceRole);
+        $this->_copyReifier($targetRole, $sourceRole);
       }
       
       // source associations's iids
-      $this->copyIids($targetAssoc, $sourceAssoc);
+      $this->_copyIids($targetAssoc, $sourceAssoc);
       
       // source associations's reifier
-      $this->copyReifier($targetAssoc, $sourceAssoc);
+      $this->_copyReifier($targetAssoc, $sourceAssoc);
     }
   }
   
@@ -1238,7 +1291,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param ConstructImpl The source construct.
    * @return void
    */
-  private function copyIids(Construct $targetConstruct, Construct $sourceConstruct) {
+  private function _copyIids(Construct $targetConstruct, Construct $sourceConstruct) {
     $iids = $sourceConstruct->getItemIdentifiers();
     foreach ($iids as $iid) {
       $targetConstruct->addItemIdentifier($iid);
@@ -1252,10 +1305,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param Reifiable The source reifiable.
    * @return void
    */
-  private function copyReifier(Reifiable $targetReifiable, Reifiable $sourceReifiable) {
+  private function _copyReifier(Reifiable $targetReifiable, Reifiable $sourceReifiable) {
     $sourceReifier = $sourceReifiable->getReifier();
     if (!is_null($sourceReifier)) {
-      $reifier = $this->copyTopic($sourceReifier);
+      $reifier = $this->_copyTopic($sourceReifier);
       $targetReifiable->setReifier($reifier);
     }
   }
@@ -1266,10 +1319,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param array The source scope.
    * @return array The target scope.
    */
-  private function copyScope(array $sourceScope) {
+  private function _copyScope(array $sourceScope) {
     $targetScope = array();
     foreach ($sourceScope as $sourceTheme) {
-      $targetTheme = $this->copyTopic($sourceTheme);
+      $targetTheme = $this->_copyTopic($sourceTheme);
       $targetScope[] = $targetTheme;
     }
     return $targetScope;
@@ -1282,7 +1335,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param TopicImpl The source topic.
    * @return TopicImpl|null
    */
-  private function getTopicByOthersIdentities(Topic $sourceTopic) {
+  private function _getTopicByOthersIdentities(Topic $sourceTopic) {
     $iids = $sourceTopic->getItemIdentifiers();
     foreach ($iids as $iid) {
       $construct = $this->getConstructByItemIdentifier($iid);
