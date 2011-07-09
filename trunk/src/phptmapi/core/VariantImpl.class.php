@@ -35,8 +35,8 @@
  */
 final class VariantImpl extends ScopedImpl implements IVariant {
   
-  private $propertyHolder,
-          $hash;
+  private $_propertyHolder,
+          $_hash;
   
   /**
    * Constructor.
@@ -46,7 +46,7 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * @param array The configuration data.
    * @param NameImpl The parent name.
    * @param TopicMapImpl The containing topic map.
-   * @param PropertyUtils The property holder.
+   * @param array The property holder.
    * @param string|null The variant hash.
    * @return void
    */
@@ -56,14 +56,12 @@ final class VariantImpl extends ScopedImpl implements IVariant {
     array $config, 
     Name $parent, 
     TopicMap $topicMap, 
-    PropertyUtils $propertyHolder=null, 
-    $hash
+    array $propertyHolder=array(), 
+    $hash = null
   ) {  
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $topicMap);
-    $this->propertyHolder = !is_null($propertyHolder) 
-      ? $propertyHolder 
-      : new PropertyUtils();
-    $this->hash = $hash;
+    $this->_propertyHolder = $propertyHolder;
+    $this->_hash = $hash;
   }
   
   /**
@@ -72,17 +70,17 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * @return void
    */
   public function __destruct() {
-    $featureIsSet = $this->topicMap->getTopicMapSystem()->getFeature(
+    $featureIsSet = $this->_topicMap->getTopicMapSystem()->getFeature(
       VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL
     );
     if (
       $featureIsSet && 
-      !is_null($this->dbId) && 
-      !is_null($this->parent->dbId) && 
-      $this->mysql->isConnected()
+      !is_null($this->_dbId) && 
+      !is_null($this->_parent->_dbId) && 
+      $this->_mysql->isConnected()
       ) 
     {
-      $this->parent->finished($this);
+      $this->_parent->finished($this);
     }
   }
   
@@ -92,14 +90,14 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * @return string The string representation of the value (never <var>null</var>).
    */
   public function getValue() {
-    if (!is_null($this->propertyHolder->getValue())) {
-      return $this->propertyHolder->getValue();
+    if (isset($this->_propertyHolder['value']) && !empty($this->_propertyHolder['value'])) {
+      return $this->_propertyHolder['value'];
     } else {
-      $query = 'SELECT value FROM ' . $this->config['table']['variant'] . 
-        ' WHERE id = ' . $this->dbId;
-      $mysqlResult = $this->mysql->execute($query);
+      $query = 'SELECT value FROM ' . $this->_config['table']['variant'] . 
+        ' WHERE id = ' . $this->_dbId;
+      $mysqlResult = $this->_mysql->execute($query);
       $result = $mysqlResult->fetch();
-      $this->propertyHolder->setValue($result['value']);
+      $this->_propertyHolder['value'] = $result['value'];
       return $result['value'];
     }
   }
@@ -111,14 +109,17 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * @return string The datatype of this construct (never <var>null</var>).
    */
   public function getDatatype() {
-    if (!is_null($this->propertyHolder->getDatatype())) {
-      return $this->propertyHolder->getDatatype();
+    if (
+      isset($this->_propertyHolder['datatype']) && 
+      !empty($this->_propertyHolder['datatype'])
+    ) {
+      return $this->_propertyHolder['datatype'];
     } else {
-      $query = 'SELECT datatype FROM ' . $this->config['table']['variant'] . 
-        ' WHERE id = ' . $this->dbId;
-      $mysqlResult = $this->mysql->execute($query);
+      $query = 'SELECT datatype FROM ' . $this->_config['table']['variant'] . 
+        ' WHERE id = ' . $this->_dbId;
+      $mysqlResult = $this->_mysql->execute($query);
       $result = $mysqlResult->fetch();
-      $this->propertyHolder->setDatatype($result['datatype']);
+      $this->_propertyHolder['datatype'] = $result['datatype'];
       return $result['datatype'];
     }
   }
@@ -137,26 +138,27 @@ final class VariantImpl extends ScopedImpl implements IVariant {
     if (is_null($value) || is_null($datatype)) {
       throw new ModelConstraintException(
         $this, 
-        __METHOD__ . ConstructImpl::VALUE_DATATYPE_NULL_ERR_MSG
+        __METHOD__ . ConstructImpl::$_valueDatatypeNullErrMsg
       );
     }
-    $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
-    $datatype = CharacteristicUtils::canonicalize($datatype, $this->mysql->getConnection());
-    $this->mysql->startTransaction();
-    $query = 'UPDATE ' . $this->config['table']['variant'] . 
+    $value = CharacteristicUtils::canonicalize($value, $this->_mysql->getConnection());
+    $datatype = CharacteristicUtils::canonicalize($datatype, $this->_mysql->getConnection());
+    $this->_mysql->startTransaction();
+    $query = 'UPDATE ' . $this->_config['table']['variant'] . 
       ' SET value = "' . $value . '", ' . 
       'datatype = "' . $datatype . '" ' . 
-      'WHERE id = ' . $this->dbId;
-    $this->mysql->execute($query);
+      'WHERE id = ' . $this->_dbId;
+    $this->_mysql->execute($query);
     
-    $hash = $this->parent->getVariantHash($value, $datatype, $this->getScope());
-    $this->parent->updateVariantHash($this->dbId, $hash);
-    $this->mysql->finishTransaction();
+    $hash = $this->_parent->_getVariantHash($value, $datatype, $this->getScope());
+    $this->_parent->_updateVariantHash($this->_dbId, $hash);
     
-    if (!$this->mysql->hasError()) {
-      $this->propertyHolder->setValue($value);
-      $this->propertyHolder->setDatatype($datatype);
-      $this->postSave();
+    $this->_mysql->finishTransaction();
+    
+    if (!$this->_mysql->hasError()) {
+      $this->_propertyHolder['value'] = $value;
+      $this->_propertyHolder['datatype'] = $datatype;
+      $this->_postSave();
     }
   }
   
@@ -185,17 +187,17 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * @return void
    */
   public function remove() {
-    $this->preDelete();
-    $scopeObj = $this->getScopeObject();
-    $query = 'DELETE FROM ' . $this->config['table']['variant'] . ' WHERE id = ' . $this->dbId;
-    $this->mysql->execute($query);
-    if (!$this->mysql->hasError()) {
+    $this->_preDelete();
+    $scopeObj = $this->_getScopeObject();
+    $query = 'DELETE FROM ' . $this->_config['table']['variant'] . ' WHERE id = ' . $this->_dbId;
+    $this->_mysql->execute($query);
+    if (!$this->_mysql->hasError()) {
       if (!$scopeObj->isUnconstrained()) {
-        $this->unsetScope($scopeObj);// triggers clean up routine
+        $this->_unsetScope($scopeObj);// triggers clean up routine
       }
-      $this->id = 
-      $this->dbId = 
-      $this->propertyHolder = null;
+      $this->_id = 
+      $this->_dbId = null;
+      $this->_propertyHolder = array();
     }
   }
   
@@ -206,8 +208,8 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * @override
    */
   public function getScope() {
-    $scope = array_merge(parent::getScope(), $this->parent->getScope());
-    return $this->arrayToSet($scope);
+    $scope = array_merge(parent::getScope(), $this->_parent->getScope());
+    return $this->_arrayToSet($scope);
   }
   
   /**
@@ -215,15 +217,15 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * 
    * @return string The hash.
    */
-  protected function getHash() {
-    if (!is_null($this->hash)) {
-      return $this->hash;
+  protected function _getHash() {
+    if (!is_null($this->_hash)) {
+      return $this->_hash;
     } else {
-      $query = 'SELECT hash FROM ' . $this->config['table']['variant'] . 
-        ' WHERE id = ' . $this->dbId;
-      $mysqlResult = $this->mysql->execute($query);
+      $query = 'SELECT hash FROM ' . $this->_config['table']['variant'] . 
+        ' WHERE id = ' . $this->_dbId;
+      $mysqlResult = $this->_mysql->execute($query);
       $result = $mysqlResult->fetch();
-      return $result['hash'];
+      return $this->_hash = $result['hash'];
     }
   }
 }
