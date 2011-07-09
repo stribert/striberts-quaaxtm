@@ -36,7 +36,12 @@ class VocabularyUtils {
         TMAPI_FEATURE_AUTOMERGE = 'http://tmapi.org/features/automerge/',
         TMAPI_FEATURE_READONLY = 'http://tmapi.org/features/readOnly/',
         TMAPI_FEATURE_TYPE_INST_ASSOC = 'http://tmapi.org/features/type-instance-associations',
-        QTM_FEATURE_AUTO_DUPL_REMOVAL = 'http://quaaxtm.sourceforge.net/features/auto-duplicate-removal/';
+        
+        QTM_FEATURE_AUTO_DUPL_REMOVAL = 'http://quaaxtm.sourceforge.net/features/auto-duplicate-removal/',
+        QTM_FEATURE_RESULT_CACHE = 'http://quaaxtm.sourceforge.net/features/result-cache/',
+        
+        QTM_STATE_REGULAR = 'http://quaaxtm.sourceforge.net/state/regular/',
+        QTM_STATE_MERGING = 'http://quaaxtm.sourceforge.net/state/merging/';
 
   /**
    * Constructor.
