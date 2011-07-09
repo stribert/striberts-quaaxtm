@@ -33,7 +33,7 @@
  */
 final class AssociationImpl extends ScopedImpl implements Association {
   
-  private $propertyHolder;
+  private $_propertyHolder;
   
   /**
    * Constructor.
@@ -42,19 +42,17 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * @param Mysql The Mysql object.
    * @param array The configuration data.
    * @param TopicMapImpl The containing topic map.
-   * @param PropertyUtils The property holder.
+   * @param array The property holder.
    */
   public function __construct(
     $dbId, 
     Mysql $mysql, 
     array $config, 
     TopicMap $parent, 
-    PropertyUtils $propertyHolder=null
+    array $propertyHolder=array()
   ) {  
       parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $parent); 
-      $this->propertyHolder = !is_null($propertyHolder) 
-        ? $propertyHolder 
-        : new PropertyUtils();
+      $this->_propertyHolder = $propertyHolder;
   }
   
   /**
@@ -63,17 +61,16 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * @return void
    */
   public function __destruct() {
-    $featureIsSet = $this->topicMap->getTopicMapSystem()->getFeature(
+    $featureIsSet = $this->_topicMap->getTopicMapSystem()->getFeature(
       VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL
     );
     if (
       $featureIsSet && 
-      !is_null($this->dbId) && 
-      !is_null($this->parent->dbId) && 
-      $this->mysql->isConnected()
-      ) 
-    {
-      $this->parent->finished($this);
+      !is_null($this->_dbId) && 
+      !is_null($this->_parent->_dbId) && 
+      $this->_mysql->isConnected()
+    ) {
+      $this->_parent->finished($this);
     }
   }
 
@@ -86,23 +83,29 @@ final class AssociationImpl extends ScopedImpl implements Association {
    */
   public function getRoles(Topic $type=null) {
     $roles = array();
-    $query = 'SELECT id, type_id, player_id FROM ' . $this->config['table']['assocrole'] . 
-      ' WHERE association_id = ' . $this->dbId;
+    $query = 'SELECT id, type_id, player_id FROM ' . $this->_config['table']['assocrole'] . 
+      ' WHERE association_id = ' . $this->_dbId;
     if (!is_null($type)) {
-      $query .= ' AND type_id = ' . $type->dbId;
+      $query .= ' AND type_id = ' . $type->_dbId;
     }
-    $mysqlResult = $this->mysql->execute($query);
-    while ($result = $mysqlResult->fetch()) {
-      $propertyHolder = new PropertyUtils();
-      $propertyHolder->setTypeId((int)$result['type_id'])
-        ->setPlayerId((int)$result['player_id']);
-      $this->parent->setConstructPropertyHolder($propertyHolder);
-      
-      $this->parent->setConstructParent($this);
-      
-      $role = $this->parent->getConstructByVerifiedId('RoleImpl-' . $result['id']);
-      
-      $roles[$result['type_id'] . $result['player_id']] = $role;
+    $resultCachePerm = $this->_getResultCachePermission();
+    $results = $this->_mysql->fetch(
+      $query, 
+      $resultCachePerm, 
+      $this->_config['resultcache']['expiration']
+    );
+    if (is_array($results)) {
+      foreach ($results as $result) {
+        $propertyHolder['type_id'] = $result['type_id'];
+        $propertyHolder['player_id'] = $result['player_id'];
+        $this->_parent->_setConstructPropertyHolder($propertyHolder);
+        
+        $this->_parent->_setConstructParent($this);
+        
+        $role = $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $result['id']);
+        
+        $roles[$result['type_id'] . $result['player_id']] = $role;
+      }
     }
     return array_values($roles);
   }
@@ -117,55 +120,57 @@ final class AssociationImpl extends ScopedImpl implements Association {
    *        <var>player</var> does not belong to the parent topic map.
    */
   public function createRole(Topic $type, Topic $player) {
-    if (!$this->topicMap->equals($type->topicMap) || 
-      !$this->topicMap->equals($player->topicMap)
+    if (
+      !$this->_topicMap->equals($type->_topicMap) || 
+      !$this->_topicMap->equals($player->_topicMap)
     ) {
       throw new ModelConstraintException(
         $this, 
-        __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+        __METHOD__ . ConstructImpl::$_sameTmConstraintErrMsg
       );
     }
     // duplicate suppression
-    $query = 'SELECT id FROM ' . $this->config['table']['assocrole'] . 
-      ' WHERE association_id = ' . $this->dbId . 
-      ' AND type_id = ' . $type->dbId . 
-      ' AND player_id = ' . $player->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT id FROM ' . $this->_config['table']['assocrole'] . 
+      ' WHERE association_id = ' . $this->_dbId . 
+      ' AND type_id = ' . $type->_dbId . 
+      ' AND player_id = ' . $player->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     $rows = $mysqlResult->getNumRows();
     if ($rows == 0) {
-      $this->mysql->startTransaction();
-      $query = 'INSERT INTO ' . $this->config['table']['assocrole'] . 
+      $this->_mysql->startTransaction();
+      $query = 'INSERT INTO ' . $this->_config['table']['assocrole'] . 
         ' (id, association_id, type_id, player_id) VALUES' .
-        ' (NULL, ' . $this->dbId . ', ' . $type->dbId . ', ' . $player->dbId . ')';
-      $mysqlResult = $this->mysql->execute($query);
+        ' (NULL, ' . $this->_dbId . ', ' . $type->_dbId . ', ' . $player->_dbId . ')';
+      $mysqlResult = $this->_mysql->execute($query);
       $lastRoleId = $mysqlResult->getLastId();
       
-      $query = 'INSERT INTO ' . $this->config['table']['topicmapconstruct'] . 
+      $query = 'INSERT INTO ' . $this->_config['table']['topicmapconstruct'] . 
         ' (assocrole_id, topicmap_id, parent_id) VALUES' .
-        ' (' . $lastRoleId . ', ' . $this->parent->dbId . ', ' . $this->dbId . ')';
-      $this->mysql->execute($query);
+        ' (' . $lastRoleId . ', ' . $this->_parent->_dbId . ', ' . $this->_dbId . ')';
+      $this->_mysql->execute($query);
       
-      $hash = $this->parent->getAssocHash($this->getType(), $this->getScope(), 
+      $hash = $this->_parent->_getAssocHash($this->getType(), $this->getScope(), 
         $this->getRoles());
-      $this->parent->updateAssocHash($this->dbId, $hash);
-      $this->mysql->finishTransaction();
+      $this->_parent->_updateAssocHash($this->_dbId, $hash);
+      $this->_mysql->finishTransaction();
       
-      $propertyHolder = new PropertyUtils();
-      $propertyHolder->setTypeId($type->dbId)
-        ->setPlayerId($player->dbId);
-      $this->parent->setConstructPropertyHolder($propertyHolder);
-      $this->parent->setConstructParent($this);
+      $propertyHolder['type_id'] = $type->_dbId;
+      $propertyHolder['player_id'] = $player->_dbId;
+      $this->_parent->_setConstructPropertyHolder($propertyHolder);
       
-      $role = $this->parent->getConstructByVerifiedId('RoleImpl-' . $lastRoleId);
-      if (!$this->mysql->hasError()) {
-        $role->postInsert();
-        $this->postSave();
+      $this->_parent->_setConstructParent($this);
+      
+      $role = $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $lastRoleId);
+      
+      if (!$this->_mysql->hasError()) {
+        $role->_postInsert();
+        $this->_postSave();
       }
       return $role;
     } else {
       $result = $mysqlResult->fetch();
-      $this->parent->setConstructParent($this);
-      return $this->parent->getConstructByVerifiedId('RoleImpl-' . $result['id']);
+      $this->_parent->_setConstructParent($this);
+      return $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $result['id']);
     }
   }
 
@@ -178,11 +183,11 @@ final class AssociationImpl extends ScopedImpl implements Association {
    */
   public function getRoleTypes() {
     $types = array();
-    $query = 'SELECT type_id FROM ' . $this->config['table']['assocrole'] . 
-      ' WHERE association_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT type_id FROM ' . $this->_config['table']['assocrole'] . 
+      ' WHERE association_id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $type = $this->parent->getConstructByVerifiedId('TopicImpl-' . $result['type_id']);
+      $type = $this->_parent->_getConstructByVerifiedId('TopicImpl-' . $result['type_id']);
       $types[$type->getId()] = $type;
     }
     return array_values($types);
@@ -211,16 +216,20 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * @return TopicImpl
    */
   public function getType() {
-    if (!is_null($this->propertyHolder->getTypeId())) {
-      $typeId = $this->propertyHolder->getTypeId();
-      return $this->parent->getConstructByVerifiedId('TopicImpl-' . $typeId);
+    if (
+      isset($this->_propertyHolder['type_id']) && 
+      !empty($this->_propertyHolder['type_id'])
+    ) {
+      return $this->_parent->_getConstructByVerifiedId(
+      	'TopicImpl-' . $this->_propertyHolder['type_id']
+      );
     } else {
-      $query = 'SELECT type_id FROM ' . $this->config['table']['association'] . 
-        ' WHERE id = ' . $this->dbId;
-      $mysqlResult = $this->mysql->execute($query);
+      $query = 'SELECT type_id FROM ' . $this->_config['table']['association'] . 
+        ' WHERE id = ' . $this->_dbId;
+      $mysqlResult = $this->_mysql->execute($query);
       $result = $mysqlResult->fetch();
-      $this->propertyHolder->setTypeId($result['type_id']);
-      return $this->parent->getConstructByVerifiedId('TopicImpl-' . $result['type_id']);
+      $this->_propertyHolder['type_id'] = $result['type_id'];
+      return $this->_parent->_getConstructByVerifiedId('TopicImpl-' . $result['type_id']);
     }
   }
 
@@ -234,25 +243,26 @@ final class AssociationImpl extends ScopedImpl implements Association {
    *        to the parent topic map.
    */
   public function setType(Topic $type) {
-    if (!$this->topicMap->equals($type->topicMap)) {
+    if (!$this->_topicMap->equals($type->_topicMap)) {
       throw new ModelConstraintException(
         $this, 
-        __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+        __METHOD__ . ConstructImpl::$_sameTmConstraintErrMsg
       );
     }
-    $this->mysql->startTransaction();
-    $query = 'UPDATE ' . $this->config['table']['association'] . 
-      ' SET type_id = ' . $type->dbId . 
-      ' WHERE id = ' . $this->dbId;
-    $this->mysql->execute($query);
+    $this->_mysql->startTransaction();
+    $query = 'UPDATE ' . $this->_config['table']['association'] . 
+      ' SET type_id = ' . $type->_dbId . 
+      ' WHERE id = ' . $this->_dbId;
+    $this->_mysql->execute($query);
     
-    $hash = $this->parent->getAssocHash($type, $this->getScope(), $this->getRoles());
-    $this->parent->updateAssocHash($this->dbId, $hash);
-    $this->mysql->finishTransaction();
+    $hash = $this->_parent->_getAssocHash($type, $this->getScope(), $this->getRoles());
+    $this->_parent->_updateAssocHash($this->_dbId, $hash);
+    $this->_mysql->finishTransaction();
     
-    if (!$this->mysql->hasError()) {
-      $this->propertyHolder->setTypeId($type->dbId);
-      $this->postSave();
+    if (!$this->_mysql->hasError()) {
+      // reference needed for merging context
+      $this->_propertyHolder['type_id'] =& $type->_dbId;
+      $this->_postSave();
     }
   }
   
@@ -263,18 +273,18 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * @return void
    */
   public function remove() {
-    $this->preDelete();
-    $scopeObj = $this->getScopeObject();
-    $query = 'DELETE FROM ' . $this->config['table']['association'] . 
-      ' WHERE id = ' . $this->dbId;
-    $this->mysql->execute($query);
-    if (!$this->mysql->hasError()) {
+    $this->_preDelete();
+    $scopeObj = $this->_getScopeObject();
+    $query = 'DELETE FROM ' . $this->_config['table']['association'] . 
+      ' WHERE id = ' . $this->_dbId;
+    $this->_mysql->execute($query);
+    if (!$this->_mysql->hasError()) {
       if (!$scopeObj->isUnconstrained()) {
-        $this->unsetScope($scopeObj);// triggers clean up routine
+        $this->_unsetScope($scopeObj);// triggers clean up routine
       }
-      $this->parent->removeAssociationFromCache($this->getId());
-      $this->id = 
-      $this->dbId = null;
+      $this->_parent->_removeAssociationFromCache($this->getId());
+      $this->_id = 
+      $this->_dbId = null;
     }
   }
 }
