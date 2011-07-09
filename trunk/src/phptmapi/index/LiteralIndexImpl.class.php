@@ -45,24 +45,24 @@ final class LiteralIndexImpl extends IndexImpl implements LiteralIndex {
     }
     $names = array();
     $query = 'SELECT t1.id, t1.topic_id, t1.type_id 
-    	FROM ' . $this->config['table']['topicname'] . ' t1  
-      INNER JOIN ' . $this->config['table']['topic'] . ' t2 ON t1.topic_id = t2.id
-			WHERE t1.value = "' . $value . '" AND t2.topicmap_id = ' . $this->tmDbId;
-    $mysqlResult = $this->mysql->execute($query);
+    	FROM ' . $this->_config['table']['topicname'] . ' t1  
+      INNER JOIN ' . $this->_config['table']['topic'] . ' t2 ON t1.topic_id = t2.id
+			WHERE t1.value = "' . $value . '" AND t2.topicmap_id = ' . $this->_tmDbId;
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $propertyHolder = new PropertyUtils();
-      $propertyHolder->setTypeId((int)$result['type_id'])->setValue($value);
+      $propertyHolder['type_id'] = $result['type_id'];
+      $propertyHolder['value'] = $value;
       
       $parent = new TopicImpl(
-        $result['topic_id'], $this->mysql, $this->config, $this->topicMap
+        $result['topic_id'], $this->_mysql, $this->_config, $this->_topicMap
       );
       
       $names[] = new NameImpl(
         $result['id'], 
-        $this->mysql, 
-        $this->config, 
+        $this->_mysql, 
+        $this->_config, 
         $parent, 
-        $this->topicMap, 
+        $this->_topicMap, 
         $propertyHolder
       );
     }
@@ -88,28 +88,27 @@ final class LiteralIndexImpl extends IndexImpl implements LiteralIndex {
     }
     $occs = array();
     $query = 'SELECT t1.id, t1.topic_id, t1.type_id 
-    	FROM ' . $this->config['table']['occurrence'] . ' t1  
-      INNER JOIN ' . $this->config['table']['topic'] . ' t2 ON t1.topic_id = t2.id
+    	FROM ' . $this->_config['table']['occurrence'] . ' t1  
+      INNER JOIN ' . $this->_config['table']['topic'] . ' t2 ON t1.topic_id = t2.id
 			WHERE t1.value = "' . $value . '" 
 			AND t1.datatype = "' . $datatype . '" 
-			AND t2.topicmap_id = ' . $this->tmDbId;
-    $mysqlResult = $this->mysql->execute($query);
+			AND t2.topicmap_id = ' . $this->_tmDbId;
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $propertyHolder = new PropertyUtils();
-      $propertyHolder->setTypeId((int)$result['type_id'])
-        ->setValue($value)
-        ->setDataType($datatype);
+      $propertyHolder['type_id'] = $result['type_id'];
+      $propertyHolder['value'] = $value;
+      $propertyHolder['datatype'] = $datatype;
       
       $parent = new TopicImpl(
-        $result['topic_id'], $this->mysql, $this->config, $this->topicMap
+        $result['topic_id'], $this->_mysql, $this->_config, $this->_topicMap
       );
       
       $occs[] = new OccurrenceImpl(
         $result['id'], 
-        $this->mysql, 
-        $this->config, 
+        $this->_mysql, 
+        $this->_config, 
         $parent, 
-        $this->topicMap, 
+        $this->_topicMap, 
         $propertyHolder
       );
     }
@@ -134,36 +133,42 @@ final class LiteralIndexImpl extends IndexImpl implements LiteralIndex {
       );
     }
     $variants = array();
-    $query = 'SELECT t1.id, t1.topicname_id, t1.hash, t2.topic_id 
-    	FROM ' . $this->config['table']['variant'] . ' t1  
-      INNER JOIN ' . $this->config['table']['topicname'] . ' t2 ON t1.topicname_id = t2.id
-    	INNER JOIN ' . $this->config['table']['topic'] . ' t3 ON t2.topic_id = t3.id
+    $query = 'SELECT t1.id, t1.topicname_id, t1.hash, t2.topic_id, t2.type_id, t2.value  
+    	FROM ' . $this->_config['table']['variant'] . ' t1  
+      INNER JOIN ' . $this->_config['table']['topicname'] . ' t2 ON t1.topicname_id = t2.id
+    	INNER JOIN ' . $this->_config['table']['topic'] . ' t3 ON t2.topic_id = t3.id
 			WHERE t1.value = "' . $value . '" 
 			AND t1.datatype = "' . $datatype . '" 
-			AND t3.topicmap_id = ' . $this->tmDbId;
-    $mysqlResult = $this->mysql->execute($query);
+			AND t3.topicmap_id = ' . $this->_tmDbId;
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $propertyHolder = new PropertyUtils();
-      $propertyHolder->setValue($value)->setDataType($datatype);
-
       $parentTopic = new TopicImpl(
-        $result['topic_id'], $this->mysql, $this->config, $this->topicMap
+        $result['topic_id'], $this->_mysql, $this->_config, $this->_topicMap
       );
+      
+      $propertyHolder['type_id'] = $result['type_id'];
+      $propertyHolder['value'] = $result['value'];
       
       $parentName = new NameImpl(
         $result['topicname_id'], 
-        $this->mysql, 
-        $this->config, 
+        $this->_mysql, 
+        $this->_config, 
         $parentTopic, 
-        $this->topicMap
+        $this->_topicMap, 
+        $propertyHolder
       );
+      
+      $propertyHolder = array();
+      
+      $propertyHolder['value'] = $value;
+      $propertyHolder['datatype'] = $datatype;
       
       $variants[] = new VariantImpl(
         $result['id'], 
-        $this->mysql, 
-        $this->config, 
+        $this->_mysql, 
+        $this->_config, 
         $parentName, 
-        $this->topicMap, 
+        $this->_topicMap, 
         $propertyHolder, 
         $result['hash']
       );

@@ -28,10 +28,10 @@
  */
 abstract class IndexImpl implements Index {
   
-  protected $mysql,
-            $config,
-            $topicMap,
-            $tmDbId;
+  protected $_mysql,
+            $_config,
+            $_topicMap,
+            $_tmDbId;
   
   /**
    * Constructor.
@@ -42,10 +42,10 @@ abstract class IndexImpl implements Index {
    * @return void
    */
   public function __construct(Mysql $mysql, array $config, TopicMap $topicMap) {
-    $this->mysql = $mysql;
-    $this->config = $config;
-    $this->topicMap = $topicMap;
-    $this->tmDbId = $topicMap->getDbId();
+    $this->_mysql = $mysql;
+    $this->_config = $config;
+    $this->_topicMap = $topicMap;
+    $this->_tmDbId = $topicMap->getDbId();
   }
   
   /**

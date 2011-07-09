@@ -53,10 +53,10 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
     $assocs = array();
     $count = count($themes);
     if ($count == 0) {
-      $query = 'SELECT t1.id, t1.type_id FROM ' . $this->config['table']['association'] . ' t1 
-      	INNER JOIN ' . $this->config['table']['association_scope'] . ' t2 ON t2.association_id = t1.id 
-      	LEFT JOIN ' . $this->config['table']['theme'] . ' t3 ON t3.scope_id = t2.scope_id 
-      	WHERE t1.topicmap_id = ' . $this->tmDbId . ' AND t3.scope_id IS NULL';
+      $query = 'SELECT t1.id, t1.type_id FROM ' . $this->_config['table']['association'] . ' t1 
+      	INNER JOIN ' . $this->_config['table']['association_scope'] . ' t2 ON t2.association_id = t1.id 
+      	LEFT JOIN ' . $this->_config['table']['theme'] . ' t3 ON t3.scope_id = t2.scope_id 
+      	WHERE t1.topicmap_id = ' . $this->_tmDbId . ' AND t3.scope_id IS NULL';
     } elseif ($count == 1) {
       $theme = $themes[0];
       if (!$theme instanceof Topic) {
@@ -64,10 +64,10 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
         	'Error in ' . __METHOD__ . ': Theme must be a topic.'
         );
       }
-      $query = 'SELECT t1.id, t1.type_id FROM ' . $this->config['table']['association'] . ' t1 
-      	INNER JOIN ' . $this->config['table']['association_scope'] . ' t2 ON t2.association_id = t1.id 
-      	INNER JOIN ' . $this->config['table']['theme'] . ' t3 ON t3.scope_id = t2.scope_id 
-      	WHERE t1.topicmap_id = ' . $this->tmDbId . ' AND t3.topic_id = ' . $theme->getDbId();
+      $query = 'SELECT t1.id, t1.type_id FROM ' . $this->_config['table']['association'] . ' t1 
+      	INNER JOIN ' . $this->_config['table']['association_scope'] . ' t2 ON t2.association_id = t1.id 
+      	INNER JOIN ' . $this->_config['table']['theme'] . ' t3 ON t3.scope_id = t2.scope_id 
+      	WHERE t1.topicmap_id = ' . $this->_tmDbId . ' AND t3.topic_id = ' . $theme->getDbId();
     } else {
       $_themes = array();
       foreach ($themes as $theme) {
@@ -80,25 +80,24 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
       }
       $themesDbIds = array_keys($_themes);
       $idsImploded = implode(',', $themesDbIds);
-      $query = 'SELECT t1.id, t1.type_id FROM ' . $this->config['table']['association'] . ' t1 
-      	INNER JOIN ' . $this->config['table']['association_scope'] . ' t2 ON t2.association_id = t1.id 
-      	INNER JOIN ' . $this->config['table']['theme'] . ' t3 ON t3.scope_id = t2.scope_id 
-      	WHERE t1.topicmap_id = ' . $this->tmDbId . ' AND t3.topic_id IN(' . $idsImploded . ') 
+      $query = 'SELECT t1.id, t1.type_id FROM ' . $this->_config['table']['association'] . ' t1 
+      	INNER JOIN ' . $this->_config['table']['association_scope'] . ' t2 ON t2.association_id = t1.id 
+      	INNER JOIN ' . $this->_config['table']['theme'] . ' t3 ON t3.scope_id = t2.scope_id 
+      	WHERE t1.topicmap_id = ' . $this->_tmDbId . ' AND t3.topic_id IN(' . $idsImploded . ') 
       	GROUP BY t1.id';
       if ((boolean)$matchAll) {
         $query .= ' HAVING COUNT(*) = ' . count($themesDbIds);
       }
     }
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $propertyHolder = new PropertyUtils();
-      $propertyHolder->setTypeId($result['type_id']);
+      $propertyHolder['type_id'] = $result['type_id'];
       
       $assocs[] = new AssociationImpl(
         $result['id'], 
-        $this->mysql, 
-        $this->config, 
-        $this->topicMap, 
+        $this->_mysql, 
+        $this->_config, 
+        $this->_topicMap, 
         $propertyHolder
       );
     }
@@ -114,14 +113,14 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
    */
   public function getAssociationThemes() {
     $themes = array();
-    $query = 'SELECT t1.topic_id FROM ' . $this->config['table']['theme'] . ' t1 
-    	INNER JOIN ' . $this->config['table']['association_scope'] . ' t2 ON t2.scope_id = t1.scope_id 
-    	INNER JOIN ' . $this->config['table']['association'] . ' t3 ON t3.id = t2.association_id 
-    	WHERE t3.topicmap_id = ' . $this->tmDbId . ' GROUP BY t1.topic_id';
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT t1.topic_id FROM ' . $this->_config['table']['theme'] . ' t1 
+    	INNER JOIN ' . $this->_config['table']['association_scope'] . ' t2 ON t2.scope_id = t1.scope_id 
+    	INNER JOIN ' . $this->_config['table']['association'] . ' t3 ON t3.id = t2.association_id 
+    	WHERE t3.topicmap_id = ' . $this->_tmDbId . ' GROUP BY t1.topic_id';
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $themes[] = new TopicImpl(
-        $result['topic_id'], $this->mysql, $this->config, $this->topicMap
+        $result['topic_id'], $this->_mysql, $this->_config, $this->_topicMap
       );
     }
     return $themes;
@@ -149,11 +148,11 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
     $count = count($themes);
     if ($count == 0) {
       $query = 'SELECT t1.id, t1.topic_id, t1.type_id, t1.value 
-      	FROM ' . $this->config['table']['topicname'] . ' t1 
-      	INNER JOIN ' . $this->config['table']['topic'] . ' t2 ON t2.id = t1.topic_id
-      	INNER JOIN ' . $this->config['table']['topicname_scope'] . ' t3 ON t3.topicname_id = t1.id 
-      	LEFT JOIN ' . $this->config['table']['theme'] . ' t4 ON t4.scope_id = t3.scope_id 
-      	WHERE t2.topicmap_id = ' . $this->tmDbId . ' AND t4.scope_id IS NULL';
+      	FROM ' . $this->_config['table']['topicname'] . ' t1 
+      	INNER JOIN ' . $this->_config['table']['topic'] . ' t2 ON t2.id = t1.topic_id
+      	INNER JOIN ' . $this->_config['table']['topicname_scope'] . ' t3 ON t3.topicname_id = t1.id 
+      	LEFT JOIN ' . $this->_config['table']['theme'] . ' t4 ON t4.scope_id = t3.scope_id 
+      	WHERE t2.topicmap_id = ' . $this->_tmDbId . ' AND t4.scope_id IS NULL';
     } elseif ($count == 1) {
       $theme = $themes[0];
       if (!$theme instanceof Topic) {
@@ -162,11 +161,11 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
         );
       }
       $query = 'SELECT t1.id, t1.topic_id, t1.type_id, t1.value 
-      	FROM ' . $this->config['table']['topicname'] . ' t1 
-      	INNER JOIN ' . $this->config['table']['topic'] . ' t2 ON t2.id = t1.topic_id 
-      	INNER JOIN ' . $this->config['table']['topicname_scope'] . ' t3 ON t3.topicname_id = t1.id 
-      	INNER JOIN ' . $this->config['table']['theme'] . ' t4 ON t4.scope_id = t3.scope_id 
-      	WHERE t2.topicmap_id = ' . $this->tmDbId . ' AND t4.topic_id = ' . $theme->getDbId();
+      	FROM ' . $this->_config['table']['topicname'] . ' t1 
+      	INNER JOIN ' . $this->_config['table']['topic'] . ' t2 ON t2.id = t1.topic_id 
+      	INNER JOIN ' . $this->_config['table']['topicname_scope'] . ' t3 ON t3.topicname_id = t1.id 
+      	INNER JOIN ' . $this->_config['table']['theme'] . ' t4 ON t4.scope_id = t3.scope_id 
+      	WHERE t2.topicmap_id = ' . $this->_tmDbId . ' AND t4.topic_id = ' . $theme->getDbId();
     } else {
       $_themes = array();
       foreach ($themes as $theme) {
@@ -178,30 +177,30 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
       $themesDbIds = array_keys($_themes);
       $idsImploded = implode(',', $themesDbIds);
       $query = 'SELECT t1.id, t1.topic_id, t1.type_id, t1.value 
-      	FROM ' . $this->config['table']['topicname'] . ' t1 
-      	INNER JOIN ' . $this->config['table']['topic'] . ' t2 ON t2.id = t1.topic_id 
-      	INNER JOIN ' . $this->config['table']['topicname_scope'] . ' t3 ON t3.topicname_id = t1.id 
-      	INNER JOIN ' . $this->config['table']['theme'] . ' t4 ON t4.scope_id = t3.scope_id 
-      	WHERE t2.topicmap_id = ' . $this->tmDbId . ' AND t4.topic_id IN(' . $idsImploded . ') GROUP BY t1.id';
+      	FROM ' . $this->_config['table']['topicname'] . ' t1 
+      	INNER JOIN ' . $this->_config['table']['topic'] . ' t2 ON t2.id = t1.topic_id 
+      	INNER JOIN ' . $this->_config['table']['topicname_scope'] . ' t3 ON t3.topicname_id = t1.id 
+      	INNER JOIN ' . $this->_config['table']['theme'] . ' t4 ON t4.scope_id = t3.scope_id 
+      	WHERE t2.topicmap_id = ' . $this->_tmDbId . ' AND t4.topic_id IN(' . $idsImploded . ') GROUP BY t1.id';
       if ((boolean)$matchAll) {
         $query .= ' HAVING COUNT(*) = ' . count($themesDbIds);
       }
     }
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $propertyHolder = new PropertyUtils();
-      $propertyHolder->setTypeId((int)$result['type_id'])->setValue($result['value']);
+      $propertyHolder['type_id'] = $result['type_id'];
+      $propertyHolder['value'] = $result['value'];
       
       $parent = new TopicImpl(
-        $result['topic_id'], $this->mysql, $this->config, $this->topicMap
+        $result['topic_id'], $this->_mysql, $this->_config, $this->_topicMap
       );
       
       $names[] = new NameImpl(
         $result['id'], 
-        $this->mysql, 
-        $this->config, 
+        $this->_mysql, 
+        $this->_config, 
         $parent, 
-        $this->topicMap, 
+        $this->_topicMap, 
         $propertyHolder
       );
     }
@@ -216,7 +215,7 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
    * @return array An array containing {@link TopicImpl}s.
    */
   public function getNameThemes() {
-    return $this->getCharacteristicThemes('topicname');
+    return $this->_getCharacteristicThemes('topicname');
   }
 
   /**
@@ -241,14 +240,14 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
     $count = count($themes);
     if ($count == 0) {
       $query = 'SELECT t1.id, t1.topic_id, t1.type_id, t1.value, t1.datatype 
-      	FROM ' . $this->config['table']['occurrence'] . ' t1 
-      	INNER JOIN ' . $this->config['table']['topic'] . ' t2 
+      	FROM ' . $this->_config['table']['occurrence'] . ' t1 
+      	INNER JOIN ' . $this->_config['table']['topic'] . ' t2 
       	ON t2.id = t1.topic_id
-      	INNER JOIN ' . $this->config['table']['occurrence_scope'] . ' t3 
+      	INNER JOIN ' . $this->_config['table']['occurrence_scope'] . ' t3 
       	ON t3.occurrence_id = t1.id 
-      	LEFT JOIN ' . $this->config['table']['theme'] . ' t4 
+      	LEFT JOIN ' . $this->_config['table']['theme'] . ' t4 
       	ON t4.scope_id = t3.scope_id 
-      	WHERE t2.topicmap_id = ' . $this->tmDbId . ' AND t4.scope_id IS NULL';
+      	WHERE t2.topicmap_id = ' . $this->_tmDbId . ' AND t4.scope_id IS NULL';
     } elseif ($count == 1) {
       $theme = $themes[0];
       if (!$theme instanceof Topic) {
@@ -257,14 +256,14 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
         );
       }
       $query = 'SELECT t1.id, t1.topic_id, t1.type_id, t1.value, t1.datatype 
-      	FROM ' . $this->config['table']['occurrence'] . ' t1 
-      	INNER JOIN ' . $this->config['table']['topic'] . ' t2 
+      	FROM ' . $this->_config['table']['occurrence'] . ' t1 
+      	INNER JOIN ' . $this->_config['table']['topic'] . ' t2 
       	ON t2.id = t1.topic_id 
-      	INNER JOIN ' . $this->config['table']['occurrence_scope'] . ' t3 
+      	INNER JOIN ' . $this->_config['table']['occurrence_scope'] . ' t3 
       	ON t3.occurrence_id = t1.id 
-      	INNER JOIN ' . $this->config['table']['theme'] . ' t4 
+      	INNER JOIN ' . $this->_config['table']['theme'] . ' t4 
       	ON t4.scope_id = t3.scope_id 
-      	WHERE t2.topicmap_id = ' . $this->tmDbId . ' AND t4.topic_id = ' . $theme->getDbId();
+      	WHERE t2.topicmap_id = ' . $this->_tmDbId . ' AND t4.topic_id = ' . $theme->getDbId();
     } else {
       $_themes = array();
       foreach ($themes as $theme) {
@@ -278,36 +277,35 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
       $themesDbIds = array_keys($_themes);
       $idsImploded = implode(',', $themesDbIds);
       $query = 'SELECT t1.id, t1.topic_id, t1.type_id, t1.value, t1.datatype 
-      	FROM ' . $this->config['table']['occurrence'] . ' t1 
-      	INNER JOIN ' . $this->config['table']['topic'] . ' t2 
+      	FROM ' . $this->_config['table']['occurrence'] . ' t1 
+      	INNER JOIN ' . $this->_config['table']['topic'] . ' t2 
       	ON t2.id = t1.topic_id 
-      	INNER JOIN ' . $this->config['table']['occurrence_scope'] . ' t3 
+      	INNER JOIN ' . $this->_config['table']['occurrence_scope'] . ' t3 
       	ON t3.occurrence_id = t1.id 
-      	INNER JOIN ' . $this->config['table']['theme'] . ' t4 
+      	INNER JOIN ' . $this->_config['table']['theme'] . ' t4 
       	ON t4.scope_id = t3.scope_id 
-      	WHERE t2.topicmap_id = ' . $this->tmDbId . ' 
+      	WHERE t2.topicmap_id = ' . $this->_tmDbId . ' 
       	AND t4.topic_id IN(' . $idsImploded . ') GROUP BY t1.id';
       if ((boolean)$matchAll) {
         $query .= ' HAVING COUNT(*) = ' . count($themesDbIds);
       }
     }
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $propertyHolder = new PropertyUtils();
-      $propertyHolder->setTypeId((int)$result['type_id'])
-        ->setValue($result['value'])
-        ->setDatatype($result['datatype']);
+      $propertyHolder['type_id'] = $result['type_id'];
+      $propertyHolder['value'] = $result['value'];
+      $propertyHolder['datatype'] = $result['datatype'];
       
       $parent = new TopicImpl(
-        $result['topic_id'], $this->mysql, $this->config, $this->topicMap
+        $result['topic_id'], $this->_mysql, $this->_config, $this->_topicMap
       );
       
       $occs[] = new OccurrenceImpl(
         $result['id'], 
-        $this->mysql, 
-        $this->config, 
+        $this->_mysql, 
+        $this->_config, 
         $parent, 
-        $this->topicMap, 
+        $this->_topicMap, 
         $propertyHolder
       );
     }
@@ -322,7 +320,7 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
    * @return array An array containing {@link TopicImpl}s.
    */
   public function getOccurrenceThemes() {
-    return $this->getCharacteristicThemes('occurrence');
+    return $this->_getCharacteristicThemes('occurrence');
   }
 
   /**
@@ -353,17 +351,18 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
         	'Error in ' . __METHOD__ . ': Theme must be a topic.'
         );
       }
-      $query = 'SELECT t1.id, t1.topicname_id, t1.value, t1.datatype, t1.hash, t2.topic_id 
-      	FROM ' . $this->config['table']['variant'] . ' t1 
-      	INNER JOIN ' . $this->config['table']['topicname'] . ' t2 
+      $query = 'SELECT t1.id, t1.topicname_id, t1.value AS variant_value, 
+      	t1.datatype, t1.hash, t2.topic_id, t2.type_id, t2.value AS name_value 
+      	FROM ' . $this->_config['table']['variant'] . ' t1 
+      	INNER JOIN ' . $this->_config['table']['topicname'] . ' t2 
       	ON t2.id = t1.topicname_id 
-      	INNER JOIN ' . $this->config['table']['topic'] . ' t3 
+      	INNER JOIN ' . $this->_config['table']['topic'] . ' t3 
       	ON t3.id = t2.topic_id 
-      	INNER JOIN ' . $this->config['table']['variant_scope'] . ' t4 
+      	INNER JOIN ' . $this->_config['table']['variant_scope'] . ' t4 
       	ON t4.variant_id = t1.id 
-      	INNER JOIN ' . $this->config['table']['theme'] . ' t5 
+      	INNER JOIN ' . $this->_config['table']['theme'] . ' t5 
       	ON t5.scope_id = t4.scope_id 
-      	WHERE t3.topicmap_id = ' . $this->tmDbId . ' AND t5.topic_id = ' . $theme->getDbId();
+      	WHERE t3.topicmap_id = ' . $this->_tmDbId . ' AND t5.topic_id = ' . $theme->getDbId();
     } else {
       $_themes = array();
       foreach ($themes as $theme) {
@@ -376,45 +375,52 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
       }
       $themesDbIds = array_keys($_themes);
       $idsImploded = implode(',', $themesDbIds);
-      $query = 'SELECT t1.id, t1.topicname_id, t1.value, t1.datatype, t1.hash, t2.topic_id 
-      	FROM ' . $this->config['table']['variant'] . ' t1 
-      	INNER JOIN ' . $this->config['table']['topicname'] . ' t2 
+      $query = 'SELECT t1.id, t1.topicname_id, t1.value AS variant_value, 
+      	t1.datatype, t1.hash, t2.topic_id, t2.type_id, t2.value AS name_value 
+      	FROM ' . $this->_config['table']['variant'] . ' t1 
+      	INNER JOIN ' . $this->_config['table']['topicname'] . ' t2 
       	ON t2.id = t1.topicname_id 
-      	INNER JOIN ' . $this->config['table']['topic'] . ' t3 
+      	INNER JOIN ' . $this->_config['table']['topic'] . ' t3 
       	ON t3.id = t2.topic_id 
-      	INNER JOIN ' . $this->config['table']['variant_scope'] . ' t4 
+      	INNER JOIN ' . $this->_config['table']['variant_scope'] . ' t4 
       	ON t4.variant_id = t1.id 
-      	INNER JOIN ' . $this->config['table']['theme'] . ' t5 
+      	INNER JOIN ' . $this->_config['table']['theme'] . ' t5 
       	ON t5.scope_id = t4.scope_id 
-      	WHERE t3.topicmap_id = ' . $this->tmDbId . ' 
+      	WHERE t3.topicmap_id = ' . $this->_tmDbId . ' 
       	AND t5.topic_id IN(' . $idsImploded . ') GROUP BY t1.id';
       if ((boolean)$matchAll) {
         $query .= ' HAVING COUNT(*) = ' . count($themesDbIds);
       }
     }
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $propertyHolder = new PropertyUtils();
-      $propertyHolder->setValue($result['value'])->setDataType($result['datatype']);
-
       $parentTopic = new TopicImpl(
-        $result['topic_id'], $this->mysql, $this->config, $this->topicMap
+        $result['topic_id'], $this->_mysql, $this->_config, $this->_topicMap
       );
+      
+      $propertyHolder['type_id'] = $result['type_id'];
+      $propertyHolder['value'] = $result['name_value'];
       
       $parentName = new NameImpl(
         $result['topicname_id'], 
-        $this->mysql, 
-        $this->config, 
+        $this->_mysql, 
+        $this->_config, 
         $parentTopic, 
-        $this->topicMap
+        $this->_topicMap, 
+        $propertyHolder
       );
+      
+      $propertyHolder = array();
+      
+      $propertyHolder['value'] = $result['variant_value'];
+      $propertyHolder['datatype'] = $result['datatype'];
       
       $variants[] = new VariantImpl(
         $result['id'], 
-        $this->mysql, 
-        $this->config, 
+        $this->_mysql, 
+        $this->_config, 
         $parentName, 
-        $this->topicMap, 
+        $this->_topicMap, 
         $propertyHolder, 
         $result['hash']
       );
@@ -430,7 +436,7 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
    * @return array An array containing {@link TopicImpl}s.
    */
   public function getVariantThemes() {
-    return $this->getCharacteristicThemes('variant');
+    return $this->_getCharacteristicThemes('variant');
   }
   
   /**
@@ -441,19 +447,19 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
    * @param string The construct (table) name.
    * @return array An array containing {@link TopicImpl}s.
    */
-  private function getCharacteristicThemes($constructName) {
+  private function _getCharacteristicThemes($constructName) {
     $themes = array();
-    $query = 'SELECT t1.topic_id FROM ' . $this->config['table']['theme'] . ' t1 
-    	INNER JOIN ' . $this->config['table'][$constructName . '_scope'] . ' t2 
+    $query = 'SELECT t1.topic_id FROM ' . $this->_config['table']['theme'] . ' t1 
+    	INNER JOIN ' . $this->_config['table'][$constructName . '_scope'] . ' t2 
     	ON t2.scope_id = t1.scope_id 
-    	INNER JOIN ' . $this->config['table']['topicmapconstruct'] . ' t3 
+    	INNER JOIN ' . $this->_config['table']['topicmapconstruct'] . ' t3 
     	ON t3.' . $constructName . '_id = t2.' . $constructName . '_id 
-    	WHERE t3.topicmap_id = ' . $this->tmDbId . 
+    	WHERE t3.topicmap_id = ' . $this->_tmDbId . 
     	' GROUP BY t1.topic_id';
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $themes[] = new TopicImpl(
-        $result['topic_id'], $this->mysql, $this->config, $this->topicMap
+        $result['topic_id'], $this->_mysql, $this->_config, $this->_topicMap
       );
     }
     return $themes;

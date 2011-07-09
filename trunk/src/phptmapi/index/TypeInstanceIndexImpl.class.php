@@ -63,17 +63,17 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
     $topics = array();
     $count = count($types);
     if ($count == 0) {
-      $query = 'SELECT t1.id FROM ' . $this->config['table']['topic'] . ' t1  
-        INNER JOIN ' . $this->config['table']['instanceof'] . ' t2 ON t1.id = t2.topic_id
-				WHERE t1.topicmap_id = ' . $this->tmDbId . ' GROUP BY t1.id';
+      $query = 'SELECT t1.id FROM ' . $this->_config['table']['topic'] . ' t1  
+        INNER JOIN ' . $this->_config['table']['instanceof'] . ' t2 ON t1.id = t2.topic_id
+				WHERE t1.topicmap_id = ' . $this->_tmDbId . ' GROUP BY t1.id';
     } elseif ($count == 1) {
       if (!$types[0] instanceof Topic) {
         throw new InvalidArgumentException('Type must be a topic.');
       }
-      $query = 'SELECT t1.id FROM ' . $this->config['table']['topic'] . ' t1 
-      	INNER JOIN ' . $this->config['table']['instanceof'] . ' t2 
+      $query = 'SELECT t1.id FROM ' . $this->_config['table']['topic'] . ' t1 
+      	INNER JOIN ' . $this->_config['table']['instanceof'] . ' t2 
       	ON t1.id = t2.topic_id  
-				WHERE t1.topicmap_id = ' . $this->tmDbId . ' AND t2.type_id = ' . $types[0]->getDbId();
+				WHERE t1.topicmap_id = ' . $this->_tmDbId . ' AND t2.type_id = ' . $types[0]->getDbId();
     } else {
       $_types = array();
       foreach ($types as $type) {
@@ -84,19 +84,19 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
       }
       $typesDbIds = array_keys($_types);
       $idsImploded = implode(',', $typesDbIds);
-      $query = 'SELECT t1.id FROM ' . $this->config['table']['topic'] . ' t1 
-      	INNER JOIN ' . $this->config['table']['instanceof'] . ' t2 
+      $query = 'SELECT t1.id FROM ' . $this->_config['table']['topic'] . ' t1 
+      	INNER JOIN ' . $this->_config['table']['instanceof'] . ' t2 
       	ON t1.id = t2.topic_id  
-				WHERE t1.topicmap_id = ' . $this->tmDbId . ' AND t2.type_id IN (' . $idsImploded . ') 
+				WHERE t1.topicmap_id = ' . $this->_tmDbId . ' AND t2.type_id IN (' . $idsImploded . ') 
 				GROUP BY t1.id';
       if ((boolean)$matchAll) {
         $query .= ' HAVING COUNT(*) = ' . count($typesDbIds);
       }
     }
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $topics[] = new TopicImpl(
-        $result['id'], $this->mysql, $this->config, $this->topicMap
+        $result['id'], $this->_mysql, $this->_config, $this->_topicMap
       );
     }
     return $topics;
@@ -119,13 +119,13 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
    */
   public function getTopicTypes() {
     $types = array();
-    $query = 'SELECT t1.id FROM ' . $this->config['table']['topic'] . ' t1  
-      INNER JOIN ' . $this->config['table']['instanceof'] . ' t2 ON t1.id = t2.type_id
-			WHERE t1.topicmap_id = ' . $this->tmDbId . ' GROUP BY t1.id';
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT t1.id FROM ' . $this->_config['table']['topic'] . ' t1  
+      INNER JOIN ' . $this->_config['table']['instanceof'] . ' t2 ON t1.id = t2.type_id
+			WHERE t1.topicmap_id = ' . $this->_tmDbId . ' GROUP BY t1.id';
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $types[] = new TopicImpl(
-        $result['id'], $this->mysql, $this->config, $this->topicMap
+        $result['id'], $this->_mysql, $this->_config, $this->_topicMap
       );
     }
     return $types;
@@ -141,18 +141,17 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
    */
   public function getAssociations(Topic $type) {
     $assocs = array();
-    $query = 'SELECT id FROM ' . $this->config['table']['association'] . ' 
-			WHERE type_id = ' . $type->getDbId() . ' AND topicmap_id = ' . $this->tmDbId;
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT id FROM ' . $this->_config['table']['association'] . ' 
+			WHERE type_id = ' . $type->getDbId() . ' AND topicmap_id = ' . $this->_tmDbId;
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $propertyHolder = new PropertyUtils();
-      $propertyHolder->setTypeId($type->getDbId());
+      $propertyHolder['type_id'] = $type->getDbId();
       
       $assocs[] = new AssociationImpl(
         $result['id'], 
-        $this->mysql, 
-        $this->config, 
-        $this->topicMap, 
+        $this->_mysql, 
+        $this->_config, 
+        $this->_topicMap, 
         $propertyHolder
       );
     }
@@ -168,12 +167,12 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
    */
   public function getAssociationTypes() {
     $types = array();
-    $query = 'SELECT type_id FROM ' . $this->config['table']['association'] . ' 
-			WHERE topicmap_id = ' . $this->tmDbId . ' GROUP BY type_id';
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT type_id FROM ' . $this->_config['table']['association'] . ' 
+			WHERE topicmap_id = ' . $this->_tmDbId . ' GROUP BY type_id';
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $types[] = new TopicImpl(
-        $result['type_id'], $this->mysql, $this->config, $this->topicMap
+        $result['type_id'], $this->_mysql, $this->_config, $this->_topicMap
       );
     }
     return $types;
@@ -190,28 +189,28 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
   public function getRoles(Topic $type) {
     $roles = array();
     $query = 'SELECT t1.id, t1.association_id, t1.player_id 
-    	FROM ' . $this->config['table']['assocrole'] . ' t1 
-    	INNER JOIN ' . $this->config['table']['association'] . ' t2 
+    	FROM ' . $this->_config['table']['assocrole'] . ' t1 
+    	INNER JOIN ' . $this->_config['table']['association'] . ' t2 
     	ON t1.association_id = t2.id 
-			WHERE t1.type_id = ' . $type->getDbId() . ' AND t2.topicmap_id = ' . $this->tmDbId;
-    $mysqlResult = $this->mysql->execute($query);
+			WHERE t1.type_id = ' . $type->getDbId() . ' AND t2.topicmap_id = ' . $this->_tmDbId;
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $propertyHolder = new PropertyUtils();
-      $propertyHolder->setTypeId($type->getDbId())->setPlayerId((int)$result['player_id']);
+      $propertyHolder['type_id'] = $type->getDbId();
+      $propertyHolder['player_id'] = $result['player_id'];
       
       $parent = new AssociationImpl(
         $result['association_id'], 
-        $this->mysql, 
-        $this->config, 
-        $this->topicMap
+        $this->_mysql, 
+        $this->_config, 
+        $this->_topicMap
       );
       
       $roles[] = new RoleImpl(
         $result['id'], 
-        $this->mysql, 
-        $this->config, 
+        $this->_mysql, 
+        $this->_config, 
         $parent, 
-        $this->topicMap, 
+        $this->_topicMap, 
         $propertyHolder
       );
     }
@@ -227,13 +226,13 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
    */
   public function getRoleTypes() {
     $types = array();
-    $query = 'SELECT t1.type_id FROM ' . $this->config['table']['assocrole'] . ' t1  
-      INNER JOIN ' . $this->config['table']['association'] . ' t2 ON t1.association_id = t2.id
-			WHERE t2.topicmap_id = ' . $this->tmDbId . ' GROUP BY t1.type_id';
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT t1.type_id FROM ' . $this->_config['table']['assocrole'] . ' t1  
+      INNER JOIN ' . $this->_config['table']['association'] . ' t2 ON t1.association_id = t2.id
+			WHERE t2.topicmap_id = ' . $this->_tmDbId . ' GROUP BY t1.type_id';
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $types[] = new TopicImpl(
-        $result['type_id'], $this->mysql, $this->config, $this->topicMap
+        $result['type_id'], $this->_mysql, $this->_config, $this->_topicMap
       );
     }
     return $types;
@@ -250,25 +249,25 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
   public function getNames(Topic $type) {
     $names = array();
     $query = 'SELECT t1.id, t1.topic_id, t1.value 
-    	FROM ' . $this->config['table']['topicname'] . ' t1 
-    	INNER JOIN ' . $this->config['table']['topic'] . ' t2 
+    	FROM ' . $this->_config['table']['topicname'] . ' t1 
+    	INNER JOIN ' . $this->_config['table']['topic'] . ' t2 
     	ON t1.topic_id = t2.id 
-			WHERE t1.type_id = ' . $type->getDbId() . ' AND t2.topicmap_id = ' . $this->tmDbId;
-    $mysqlResult = $this->mysql->execute($query);
+			WHERE t1.type_id = ' . $type->getDbId() . ' AND t2.topicmap_id = ' . $this->_tmDbId;
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $propertyHolder = new PropertyUtils();
-      $propertyHolder->setTypeId($type->getDbId())->setValue($result['value']);
+      $propertyHolder['type_id'] = $type->getDbId();
+      $propertyHolder['value'] = $result['value'];
       
       $parent = new TopicImpl(
-        $result['topic_id'], $this->mysql, $this->config, $this->topicMap
+        $result['topic_id'], $this->_mysql, $this->_config, $this->_topicMap
       );
       
       $names[] = new NameImpl(
         $result['id'], 
-        $this->mysql, 
-        $this->config, 
+        $this->_mysql, 
+        $this->_config, 
         $parent, 
-        $this->topicMap, 
+        $this->_topicMap, 
         $propertyHolder
       );
     }
@@ -284,13 +283,13 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
    */
   public function getNameTypes() {
     $types = array();
-    $query = 'SELECT t1.type_id FROM ' . $this->config['table']['topicname'] . ' t1  
-      INNER JOIN ' . $this->config['table']['topic'] . ' t2 ON t1.topic_id = t2.id
-			WHERE t2.topicmap_id = ' . $this->tmDbId . ' GROUP BY t1.type_id';
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT t1.type_id FROM ' . $this->_config['table']['topicname'] . ' t1  
+      INNER JOIN ' . $this->_config['table']['topic'] . ' t2 ON t1.topic_id = t2.id
+			WHERE t2.topicmap_id = ' . $this->_tmDbId . ' GROUP BY t1.type_id';
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $types[] = new TopicImpl(
-        $result['type_id'], $this->mysql, $this->config, $this->topicMap
+        $result['type_id'], $this->_mysql, $this->_config, $this->_topicMap
       );
     }
     return $types;
@@ -307,27 +306,26 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
   public function getOccurrences(Topic $type) {
     $occs = array();
     $query = 'SELECT t1.id, t1.topic_id, t1.value, t1.datatype 
-    	FROM ' . $this->config['table']['occurrence'] . ' t1 
-    	INNER JOIN ' . $this->config['table']['topic'] . ' t2 
+    	FROM ' . $this->_config['table']['occurrence'] . ' t1 
+    	INNER JOIN ' . $this->_config['table']['topic'] . ' t2 
     	ON t1.topic_id = t2.id 
-			WHERE t1.type_id = ' . $type->getDbId() . ' AND t2.topicmap_id = ' . $this->tmDbId;
-    $mysqlResult = $this->mysql->execute($query);
+			WHERE t1.type_id = ' . $type->getDbId() . ' AND t2.topicmap_id = ' . $this->_tmDbId;
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $propertyHolder = new PropertyUtils();
-      $propertyHolder->setTypeId($type->getDbId())
-        ->setValue($result['value'])
-        ->setDataType($result['datatype']);
+      $propertyHolder['type_id'] = $type->getDbId();
+      $propertyHolder['value'] = $result['value'];
+      $propertyHolder['datatype'] = $result['datatype'];
       
       $parent = new TopicImpl(
-        $result['topic_id'], $this->mysql, $this->config, $this->topicMap
+        $result['topic_id'], $this->_mysql, $this->_config, $this->_topicMap
       );
       
       $occs[] = new OccurrenceImpl(
         $result['id'], 
-        $this->mysql, 
-        $this->config, 
+        $this->_mysql, 
+        $this->_config, 
         $parent, 
-        $this->topicMap, 
+        $this->_topicMap, 
         $propertyHolder
       );
     }
@@ -343,13 +341,13 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
    */
   public function getOccurrenceTypes() {
     $types = array();
-    $query = 'SELECT t1.type_id FROM ' . $this->config['table']['occurrence'] . ' t1  
-      INNER JOIN ' . $this->config['table']['topic'] . ' t2 ON t1.topic_id = t2.id
-			WHERE t2.topicmap_id = ' . $this->tmDbId . ' GROUP BY t1.type_id';
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT t1.type_id FROM ' . $this->_config['table']['occurrence'] . ' t1  
+      INNER JOIN ' . $this->_config['table']['topic'] . ' t2 ON t1.topic_id = t2.id
+			WHERE t2.topicmap_id = ' . $this->_tmDbId . ' GROUP BY t1.type_id';
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $types[] = new TopicImpl(
-        $result['type_id'], $this->mysql, $this->config, $this->topicMap
+        $result['type_id'], $this->_mysql, $this->_config, $this->_topicMap
       );
     }
     return $types;
