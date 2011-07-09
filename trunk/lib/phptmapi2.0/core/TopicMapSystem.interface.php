@@ -83,8 +83,8 @@ interface TopicMapSystem {
    * subsequently.
    * 
    * @param string The name of the property to retrieve.
-   * @return object|null Object The value set for the property or <var>null</var> 
-   *        if no value is set for the specified <var>propertyName</var>.
+   * @return mixed The value set for the property or <var>null</var> 
+   *        if no value is set.
    */
   public function getProperty($propertyName);
 

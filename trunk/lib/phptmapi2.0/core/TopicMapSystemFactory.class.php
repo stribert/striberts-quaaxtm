@@ -79,8 +79,8 @@ abstract class TopicMapSystemFactory {
    * An implementation is free to support properties other than the core ones.
    * 
    * @param string The name of the property to retrieve.
-   * @return object|null Object The value set for this property or <var>null</var> 
-   *        if no value is currently set for the property.
+   * @return mixed The value set for this property or <var>null</var> 
+   *        if no value is set.
    */
   abstract public function getProperty($propertyName);
 
@@ -92,7 +92,7 @@ abstract class TopicMapSystemFactory {
    * An implementation is free to support properties other than the core ones.
    * 
    * @param string The name of the property to be set.
-   * @param object|null Object The value to be set of this property or null to 
+   * @param mixed The value to be set of this property or <var>null</var> to 
    *        remove the property from the current factory configuration.
    * @return void
    */
