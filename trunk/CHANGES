@@ -3,8 +3,8 @@ Changes log
 0.6.2 (2011/05/07)
 ------------------
 QuaaxTM
-- added example.php
-- moved the checks if themes in passed scopes belong to the parent topic map from ScopeImpl 
+- Added example.php
+- Moved the checks if themes in passed scopes belong to the parent topic map from ScopeImpl 
   to the respective implementations of Topic Maps constructs
 
 Bugfixes
