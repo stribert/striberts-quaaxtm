@@ -32,10 +32,10 @@
  */
 final class TopicMapSystemImpl implements TopicMapSystem {
 
-  private $mysql,
-          $config,
-          $properties,
-          $features;
+  private $_mysql,
+          $_config,
+          $_properties,
+          $_features;
   
   /**
    * Constructor.
@@ -47,10 +47,10 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    * @return void
    */
   public function __construct(Mysql $mysql, array $config, array $properties, array $features) {
-    $this->config = $config;
-    $this->mysql = $mysql;
-    $this->properties = $properties;
-    $this->features = $features;
+    $this->_config = $config;
+    $this->_mysql = $mysql;
+    $this->_properties = $properties;
+    $this->_features = $features;
   }
    
   /**
@@ -64,13 +64,13 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    *        such {@link TopicMapImpl} is found.
    */
   public function getTopicMap($uri) {
-    $query = 'SELECT id FROM ' . $this->config['table']['topicmap'] . 
+    $query = 'SELECT id FROM ' . $this->_config['table']['topicmap'] . 
       ' WHERE locator = "' . $uri . '"';
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {
       $result = $mysqlResult->fetch();
-      return new TopicMapImpl($result['id'], $this->mysql, $this->config, $this);
+      return new TopicMapImpl($result['id'], $this->_mysql, $this->_config, $this);
     } else {
       return null;
     }
@@ -91,22 +91,22 @@ final class TopicMapSystemImpl implements TopicMapSystem {
       return null;
     }
     // check if locator already exists
-    $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['topicmap'] . 
+    $query = 'SELECT COUNT(*) FROM ' . $this->_config['table']['topicmap'] . 
       ' WHERE locator = "' . $uri . '"';
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetchArray();
     if ($result[0] == 0) {
-      $this->mysql->startTransaction();
-      $query = 'INSERT INTO ' . $this->config['table']['topicmap'] . 
+      $this->_mysql->startTransaction();
+      $query = 'INSERT INTO ' . $this->_config['table']['topicmap'] . 
         ' (id, locator) VALUES (NULL, "' . $uri . '")';
-      $this->mysql->execute($query);
+      $this->_mysql->execute($query);
       $lastId = $mysqlResult->getLastId();
       
-      $query = 'INSERT INTO ' . $this->config['table']['topicmapconstruct'] . 
+      $query = 'INSERT INTO ' . $this->_config['table']['topicmapconstruct'] . 
         ' (topicmap_id) VALUES (' . $lastId . ')';
-      $this->mysql->execute($query);
-      $this->mysql->finishTransaction();
-      return new TopicMapImpl($lastId, $this->mysql, $this->config, $this);
+      $this->_mysql->execute($query);
+      $this->_mysql->finishTransaction();
+      return new TopicMapImpl($lastId, $this->_mysql, $this->_config, $this);
     } else {
       throw new TopicMapExistsException(
         __METHOD__ . ': Topic map with locator "' . $uri . '" already exists!'
@@ -123,8 +123,8 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    */
   public function getLocators() {
     $locators = array();
-    $query = 'SELECT locator FROM ' . $this->config['table']['topicmap'];
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT locator FROM ' . $this->_config['table']['topicmap'];
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $locators[] = $result['locator'];
     }
@@ -147,8 +147,8 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    *        does not recognize the named feature.
    */
   public function getFeature($featureName) {
-    if (array_key_exists($featureName, $this->features)) {
-      return $this->features[$featureName];
+    if (array_key_exists($featureName, $this->_features)) {
+      return $this->_features[$featureName];
     } else {
       throw new FeatureNotRecognizedException(
         __METHOD__ . ': The feature "' . $featureName . '" is not recognized!'
@@ -167,12 +167,12 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    * subsequently.
    * 
    * @param string The name of the property to retrieve.
-   * @return object|null Object The value set for the property or <var>null</var> 
-   *        if no value is set for the specified <var>propertyName</var>.
+   * @return mixed The value set for the property or <var>null</var> 
+   *        if no value is set.
    */
   public function getProperty($propertyName) {
-    return array_key_exists($propertyName, $this->properties) 
-      ? $this->properties[$propertyName] 
+    return array_key_exists($propertyName, $this->_properties) 
+      ? $this->_properties[$propertyName] 
       : null;
   }
 
@@ -188,7 +188,7 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    * @return void
    */
   public function close() {
-    $this->mysql->close();
+    $this->_mysql->close();
   }
 }
 ?>
