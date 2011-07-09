@@ -109,5 +109,19 @@ class QTMMySQLTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals($preTopicCount, $postTopicCount, 'Unexpected topic!');
   }
   
+  public function testMysqlResult() {
+    $query = 'SELECT id FROM ' . $this->config['table']['topicmap'] . 
+    	' WHERE locator = "fdgfd"';
+    $mysqlResult = $this->mysql->execute($query);
+    $this->assertNull($mysqlResult->fetchArray());
+    $this->assertNull($mysqlResult->fetch());
+  }
+  
+  public function testMisc() {
+    $this->assertFalse($this->mysql->getError());
+    $this->mysql->close();
+    $mysqlResult = $this->mysql->execute('SELECT VERSION()');
+    $this->assertFalse($mysqlResult);
+  }
 }
 ?>

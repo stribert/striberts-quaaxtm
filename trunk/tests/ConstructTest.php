@@ -41,12 +41,13 @@ class ConstructTest extends PHPTMAPITestCase {
     $tm = $this->topicMap;
     $this->assertEquals(0, count($construct->getItemIdentifiers()), 
       'Expected number of iids to be 0 for newly created construct!');
-    $locator1 = 'http://tmapi.org/test#test1';
-    $locator2 = 'http://tmapi.org/test#test2';
+    $locator1 = 'http://tmapi.org/test#' . uniqid();
+    $locator2 = 'http://tmapi.org/test#' . uniqid();
     $construct->addItemIdentifier($locator1);
     $this->assertEquals(1, count($construct->getItemIdentifiers()), 
       'Expected 1 iid!');
     $construct->addItemIdentifier($locator2);
+    $construct->removeItemIdentifier(null);
     $this->assertEquals(2, count($construct->getItemIdentifiers()), 
       'Expected 2 iids!');
     $this->assertTrue(in_array($locator1, $construct->getItemIdentifiers(), true), 
@@ -92,6 +93,46 @@ class ConstructTest extends PHPTMAPITestCase {
     $this->assertTrue($construct->equals($tm->getConstructById($id)), 'Expected identity!');
     $topic = $tm->createTopic();
     $this->assertFalse($construct->equals($topic), 'Unexpected identity!');
+    // test the SQL fallbacks in Name's and Occurrence's getters
+    $construct->addItemIdentifier($locator1);
+    if ($construct instanceof Name) {
+      $name = $tm->getConstructByItemIdentifier($locator1);
+      $this->assertEquals($name->getValue(), 'foo', 'Expected identity!');
+      $type = $name->getType();
+      $sids = $type->getSubjectIdentifiers();
+      $this->assertTrue(
+        in_array('http://psi.topicmaps.org/iso13250/model/topic-name', $sids), 
+        'Expected subject identifier for default name type'
+       );
+    }
+    if ($construct instanceof Occurrence) {
+      $occ = $tm->getConstructByItemIdentifier($locator1);
+      $this->assertEquals(
+        $occ->getValue(), 
+        'http://phptmapi.sourceforge.net/', 
+        'Expected identity!'
+      );
+      $this->assertEquals(
+        $occ->getDatatype(), 
+        parent::$dtUri, 
+        'Expected identity!'
+      );
+      $type = $occ->getType();
+      $sids = $type->getSubjectIdentifiers();
+      $this->assertTrue(
+        in_array('http://example.org', $sids), 
+        'Expected subject identifier for default name type'
+       );
+    }
+    if ($construct instanceof Role) {
+      $role = $tm->getConstructByItemIdentifier($locator1);
+      $player = $role->getPlayer();
+      $sids = $player->getSubjectIdentifiers();
+      $this->assertTrue(
+        in_array('http://example.org', $sids), 
+        'Expected subject identifier for default name type'
+       );
+    }
   }
   
   public function testTopicMap() {
@@ -100,7 +141,7 @@ class ConstructTest extends PHPTMAPITestCase {
   }
   
   public function testTopic() {
-    // Avoid that the topic has an item identifier
+    // Avoid the topic having an item identifier
     $this->_testConstruct($this->topicMap
       ->createTopicBySubjectIdentifier('http://tmapi.org/test#topic1'));
   }

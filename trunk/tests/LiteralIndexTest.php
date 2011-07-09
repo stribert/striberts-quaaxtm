@@ -119,7 +119,8 @@ class LiteralIndexTest extends PHPTMAPITestCase {
     $this->assertTrue($index instanceof LiteralIndexImpl);
     
     $topic = $tm->createTopic();
-    $name = $topic->createName('Name');
+    $nameType = $tm->createTopic();
+    $name = $topic->createName('Name', $nameType);
     
     $name->createVariant('foo', parent::$dtString, array($tm->createTopic()));
     $name->createVariant('http://example.org', parent::$dtUri, array($tm->createTopic()));
@@ -160,6 +161,10 @@ class LiteralIndexTest extends PHPTMAPITestCase {
     $this->assertEquals($variant->getValue(), 'http://example.org');
     $this->assertEquals($variant->getDatatype(), parent::$dtUri);
     $this->assertEquals($variant->getParent()->getId(), $name->getId());
+    $this->assertEquals($variant->getParent()->getValue(), $name->getValue());
+    $this->assertEquals(
+      $variant->getParent()->getType()->getId(), $name->getType()->getId()
+    );
   }
 }
 ?>

@@ -225,5 +225,16 @@ class QTMDuplicateRemovalTest extends PHPTMAPITestCase {
     $this->assertEquals($role->getType()->getId(), $roleType->getId(), 'Unexpected type!');
     $this->assertEquals($role->getPlayer()->getId(), $player->getId(), 'Unexpected player!');
   }
+  
+  public function testInvalidArgument() {
+    $topic = $this->topicMap->createTopic();
+    $role = $this->createRole();
+    try {
+      $topic->finished($role);
+      $this->fail('Invalid argument for TopicImpl::finished().');
+    } catch (InvalidArgumentException $e) {
+      // no op.
+    }
+  }
 }
 ?>

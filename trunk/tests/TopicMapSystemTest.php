@@ -75,9 +75,9 @@ class TopicMapSystemTest extends PHPTMAPITestCase {
   
   public function testCreateTopicMaps() {
     $base = 'http://localhost/topicmaps/';
-    $tm1 = $this->sys->createTopicMap($base . 'map1');
-    $tm2 = $this->sys->createTopicMap($base . 'map2');
-    $tm3 = $this->sys->createTopicMap($base . 'map3');
+    $tm1 = $this->sys->createTopicMap($base . uniqid());
+    $tm2 = $this->sys->createTopicMap($base . uniqid());
+    $tm3 = $this->sys->createTopicMap($base . uniqid());
     $this->assertNotNull($tm1, 'Expected a topic map!');
     $this->assertNotNull($tm2, 'Expected a topic map!');
     $this->assertNotNull($tm3, 'Expected a topic map!');
@@ -90,6 +90,22 @@ class TopicMapSystemTest extends PHPTMAPITestCase {
     $this->assertNotEquals($id1, $id2, 'Unexpected identity!');
     $this->assertNotEquals($id1, $id3, 'Unexpected identity!');
     $this->assertNotEquals($id2, $id3, 'Unexpected identity!');
+    $tm = $this->sys->getTopicMap(uniqid());
+    $this->assertNull($tm, 'Unexpected topic map!');
+    $tm = $this->sys->createTopicMap('');
+    $this->assertNull($tm, 'Unexpected topic map!');
+    $tm = $this->sys->createTopicMap(null);
+    $this->assertNull($tm, 'Unexpected topic map!');
+    $tm = $this->sys->createTopicMap(false);
+    $this->assertNull($tm, 'Unexpected topic map!');
+    $tm = $this->sys->createTopicMap(0);
+    $this->assertNull($tm, 'Unexpected topic map!');
+    $tm = $this->sys->createTopicMap('0');
+    $this->assertNull($tm, 'Unexpected topic map!');
+    $tm = $this->sys->createTopicMap(array());
+    $this->assertNull($tm, 'Unexpected topic map!');
+    $tm = $this->sys->createTopicMap(0.0);
+    $this->assertNull($tm, 'Unexpected topic map!');
   }
   
   public function testRemoveTopicMaps() {
@@ -151,11 +167,19 @@ class TopicMapSystemTest extends PHPTMAPITestCase {
   
   public function testGetProperty() {
     $myTmSystemFactory = TopicMapSystemFactory::newInstance();
-    $myTmSystemFactory->setProperty('myProperty', new myProperty());
+    $myTmSystemFactory->setProperty('myProperty', new MyProperty());
+    $myTmSystemFactory->setProperty('strProperty', 'foo');
+    $myTmSystemFactory->setProperty('arrayProperty', array(1,2));
     $myTmSystem = $myTmSystemFactory->newTopicMapSystem();
     $property = $myTmSystem->getProperty('myProperty');
-    $this->assertTrue(is_object($property), 'Property is no object!');
+    $this->assertTrue(
+       $property instanceof myProperty, 'Property is not an instance of MyProperty!'
+    );
     $this->assertEquals('PHPTMAPI', $property->myFunction(), 'Expected identity!');
+    $property = $myTmSystem->getProperty('strProperty');
+    $this->assertEquals($property, 'foo', 'Expected identity!');
+    $property = $myTmSystem->getProperty('arrayProperty');
+    $this->assertEquals($property, array(1,2), 'Expected identity!');
   }
   
   public function testUnsetProperty() {

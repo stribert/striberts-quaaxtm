@@ -101,6 +101,19 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     $this->assertEquals(count($tm1Topics), 0);
     
     $tm2->remove();
+    
+    try {
+      $index->getTopics(array('foo'), true);
+      $this->fail('Expected InvalidArgumentException!');
+    } catch (InvalidArgumentException $e) {
+      // no op.
+    }
+    try {
+      $index->getTopics(array($type1, 'foo'), true);
+      $this->fail('Expected InvalidArgumentException!');
+    } catch (InvalidArgumentException $e) {
+      // no op.
+    }
   }
   
   public function testGetTopicTypes() {

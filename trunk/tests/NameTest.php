@@ -85,7 +85,8 @@ class NameTest extends PHPTMAPITestCase {
       $name->setValue(null);
       $this->fail('setValue(null) is not allowed!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
     $this->assertEquals($name->getValue(), $value2);
   }
@@ -155,6 +156,41 @@ class NameTest extends PHPTMAPITestCase {
     $mergeTopic->addItemIdentifier('#english');
     $names = $topic->getNames();
     $this->assertEquals(count($names), 1, 'Expected 1 name');
+  }
+  
+  public function testGainVariantsUsingFinished() {
+    $topic = $this->topicMap->createTopic();
+    $theme = $this->topicMap->createTopic();
+    $name1 = $topic->createName('foo');
+    $variant1 = $name1->createVariant('bar', parent::$dtString, array($theme));
+    $reifier = $this->topicMap->createTopic();
+    $variant1->setReifier($reifier);
+    $iid = 'http://localhost' . uniqid();
+    $variant1->addItemIdentifier($iid);
+    $name2 = $topic->createName('baz');
+    $variant2 = $name2->createVariant('bar', parent::$dtString, array($theme));
+    $this->assertEquals(count($name1->getVariants()), 1);
+    $this->assertEquals(count($name2->getVariants()), 1);
+    $name2->setValue('foo');
+    $topic->finished($name2);
+    $names = $topic->getNames();
+    $this->assertEquals(count($names), 1);
+    $name = $names[0];
+    $this->assertEquals($name->getValue(), 'foo');
+    $variants = $name->getVariants();
+    $this->assertEquals(count($variants), 1);
+    $variant = $variants[0];
+    $this->assertEquals($variant->getValue(), 'bar');
+    $this->assertEquals($variant->getDatatype(), parent::$dtString);
+    $scope = $variant->getScope();
+    $this->assertEquals(count($scope), 1);
+    $this->assertEquals($scope[0]->getId(), $theme->getId());
+    if ($variant->getReifier() instanceof Topic) {
+      $this->assertEquals($variant->getReifier()->getId(), $reifier->getId());
+    } else {
+      $this->fail('Expected a reifier.');
+    }
+    $this->assertTrue(in_array($iid, $variant->getItemIdentifiers()));
   }
 }
 ?>

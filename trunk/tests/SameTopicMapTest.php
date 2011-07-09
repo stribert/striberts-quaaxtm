@@ -46,6 +46,8 @@ class SameTopicMapTest extends PHPTMAPITestCase {
         $this->topicMap->getId(), 
         'Expected identity!'
       );
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
       $otherTopicMap->remove();
     }
   }
@@ -65,6 +67,8 @@ class SameTopicMapTest extends PHPTMAPITestCase {
         $this->topicMap->getId(), 
         'Expected identity!'
       );
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
       $otherTopicMap->remove();
     }
   }
@@ -82,6 +86,8 @@ class SameTopicMapTest extends PHPTMAPITestCase {
         $parent->getId(), 
         'Expected identity!'
       );
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
       $otherTopicMap->remove();
     }
   }
@@ -103,6 +109,8 @@ class SameTopicMapTest extends PHPTMAPITestCase {
         $parent->getId(), 
         'Expected identity!'
       );
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
       $otherTopicMap->remove();
     }
   }
@@ -120,6 +128,8 @@ class SameTopicMapTest extends PHPTMAPITestCase {
         $parent->getId(), 
         'Expected identity!'
       );
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
       $otherTopicMap->remove();
     }
   }
@@ -129,7 +139,7 @@ class SameTopicMapTest extends PHPTMAPITestCase {
       $otherTopicMap = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
       $parent = $this->topicMap->createTopic();
       $parent->createOccurrence(
-        $otherTopicMap->createTopic(), 
+        $this->topicMap->createTopic(), 
         'Occurrence', 
         parent::$dtString, 
         array($this->topicMap->createTopic(), $otherTopicMap->createTopic(), 'foo')
@@ -142,6 +152,8 @@ class SameTopicMapTest extends PHPTMAPITestCase {
         $parent->getId(), 
         'Expected identity!'
       );
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
       $otherTopicMap->remove();
     }
   }
@@ -164,6 +176,8 @@ class SameTopicMapTest extends PHPTMAPITestCase {
         $parent->getId(), 
         'Expected identity!'
       );
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
       $otherTopicMap->remove();
     }
   }
@@ -181,6 +195,8 @@ class SameTopicMapTest extends PHPTMAPITestCase {
         $parent->getId(), 
         'Expected identity!'
       );
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
       $otherTopicMap->remove();
     }
   }
@@ -198,6 +214,8 @@ class SameTopicMapTest extends PHPTMAPITestCase {
         $parent->getId(), 
         'Expected identity!'
       );
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
       $otherTopicMap->remove();
     }
   }
@@ -247,6 +265,8 @@ class SameTopicMapTest extends PHPTMAPITestCase {
         $role->getId(), 
         'Expected identity!'
       );
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
       $otherTopicMap->remove();
     }
   }
@@ -264,6 +284,8 @@ class SameTopicMapTest extends PHPTMAPITestCase {
         $topic->getId(), 
         'Expected identity!'
       );
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
       $otherTopicMap->remove();
     }
   }
@@ -310,6 +332,8 @@ class SameTopicMapTest extends PHPTMAPITestCase {
         $scoped->getId(), 
         'Expected identity!'
       );
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
       $otherTopicMap->remove();
     }
   }
@@ -332,6 +356,8 @@ class SameTopicMapTest extends PHPTMAPITestCase {
         $typed->getId(), 
         'Expected identity!'
       );
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
       $otherTopicMap->remove();
     }
   }
@@ -354,6 +380,8 @@ class SameTopicMapTest extends PHPTMAPITestCase {
         $reifiable->getId(), 
         'Expected identity!'
       );
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
       $otherTopicMap->remove();
     }
   }  

@@ -145,6 +145,8 @@ class ItemIdentifierConstraintTest extends PHPTMAPITestCase {
       $this->assertEquals($topic2->getId(), $e->getReporter()->getId());
       $this->assertEquals($topic1->getId(), $e->getExisting()->getId());
       $this->assertEquals($locator1, $e->getLocator());
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
     if ($this->sharedFixture->getFeature('http://tmapi.org/features/automerge/')) {
       // $topic1 has been merged; it must be omitted from here
@@ -183,6 +185,8 @@ class ItemIdentifierConstraintTest extends PHPTMAPITestCase {
       $this->assertEquals($construct->getId(), $e->getReporter()->getId());
       $this->assertEquals($assoc->getId(), $e->getExisting()->getId());
       $this->assertEquals($locator1, $e->getLocator());
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
     $construct->addItemIdentifier($locator2);
     $this->assertTrue(in_array($locator2, $construct->getItemIdentifiers(), true), 
@@ -219,6 +223,8 @@ class ItemIdentifierConstraintTest extends PHPTMAPITestCase {
       $this->assertEquals($construct->getId(), $e->getReporter()->getId());
       $this->assertEquals($topic->getId(), $e->getExisting()->getId());
       $this->assertEquals($locator1, $e->getLocator());
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
     $construct->addItemIdentifier($locator2);
     $this->assertTrue(in_array($locator2, $construct->getItemIdentifiers(), true), 

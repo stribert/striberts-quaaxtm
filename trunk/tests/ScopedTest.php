@@ -94,8 +94,7 @@ class ScopedTest extends PHPTMAPITestCase {
   }
   
   /**
-   * QuaaxTM specific.
-   * TODO remove from PHPTMAPI test suite
+   * QuaaxTM specific test.
    */
   public function testCleanupBlocked() {
     $name1 = $this->createName();

@@ -60,6 +60,13 @@ class TopicMapTest extends PHPTMAPITestCase {
     foreach ($sids as $_sid) {
       $this->assertEquals($sid, $_sid, 'Unexpected subject identifier');
     }
+    $topic1 = $tm->createTopicByItemIdentifier('http://www.example.org/foo');
+    $topic2 = $tm->createTopicBySubjectIdentifier('http://www.example.org/foo');
+    $this->assertEquals($topic1->getId(), $topic2->getId(), 'Expected identity!');
+    $sids = $topic1->getSubjectIdentifiers();
+    $this->assertTrue(
+      in_array('http://www.example.org/foo', $sids, 'Expected subject identifier!')
+    );
   }
   
   public function testTopicCreationSubjectIdentifierIllegal() {
@@ -67,7 +74,8 @@ class TopicMapTest extends PHPTMAPITestCase {
       $this->topicMap->createTopicBySubjectIdentifier(null);
       $this->fail('null is not allowed as subject identifier!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
   }
   
@@ -93,6 +101,9 @@ class TopicMapTest extends PHPTMAPITestCase {
     foreach ($slos as $_slo) {
       $this->assertEquals($slo, $_slo, 'Unexpected subject locator');
     }
+    $topic1 = $tm->createTopicBySubjectLocator('http://www.example.org/foo');
+    $topic2 = $tm->createTopicBySubjectLocator('http://www.example.org/foo');
+    $this->assertEquals($topic1->getId(), $topic2->getId(), 'Expected identity!');
   }
   
   public function testTopicCreationSubjectLocatorIllegal() {
@@ -126,6 +137,28 @@ class TopicMapTest extends PHPTMAPITestCase {
     foreach ($iids as $_iid) {
       $this->assertEquals($iid, $_iid, 'Unexpected item identifier');
     }
+    $name = $this->createName();
+    $iid = 'http://www.example.org#foo';
+    $name->addItemIdentifier($iid);
+    try {
+      $tm->createTopicByItemIdentifier($iid);
+      $this->fail('Expected IdentityConstraintException!');
+    } catch (IdentityConstraintException $e) {
+      $this->assertEquals(
+        $e->getExisting()->getId(), $name->getId(), 'Expected identitity!'
+      );
+      $this->assertEquals(
+        $e->getReporter()->getId(), $tm->getId(), 'Expected identitity!'
+      );
+      $this->assertEquals($e->getLocator(), $iid, 'Expected identitity!');
+    }
+    $topic1 = $tm->createTopicBySubjectIdentifier('http://www.example.org/foo');
+    $topic2 = $tm->createTopicByItemIdentifier('http://www.example.org/foo');
+    $this->assertEquals($topic1->getId(), $topic2->getId(), 'Expected identity!');
+    $iids = $topic1->getItemIdentifiers();
+    $this->assertTrue(
+      in_array('http://www.example.org/foo', $iids, 'Expected item identifier!')
+    );
   }
   
   public function testTopicCreationItemIdentifierIllegal() {

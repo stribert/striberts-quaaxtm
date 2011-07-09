@@ -40,6 +40,11 @@ class IndexTest extends PHPTMAPITestCase {
     } catch (FeatureNotSupportedException $e) {
       // no op.
     }
+    $this->assertNull($index->open());
+    $this->assertNull($index->close());
+    $this->assertTrue($index->isOpen());
+    $this->assertTrue($index->isAutoUpdated());
+    $this->assertNull($index->reindex());
   }
 }
 ?>

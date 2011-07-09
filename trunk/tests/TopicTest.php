@@ -56,7 +56,8 @@ class TopicTest extends PHPTMAPITestCase {
       $topic->addSubjectIdentifier(null);
       $this->fail('null is not allowed as subject identifier!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
   }
   
@@ -66,7 +67,8 @@ class TopicTest extends PHPTMAPITestCase {
       $topic->addSubjectLocator(null);
       $this->fail('null is not allowed as subject locator!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
   }
   
@@ -79,6 +81,7 @@ class TopicTest extends PHPTMAPITestCase {
     $this->assertTrue(in_array($sid1, $topic->getSubjectIdentifiers(), true), 
       'Subject identifier is not part of getSubjectIdentifiers()!');
     $topic->addSubjectIdentifier($sid2);
+    $topic->removeSubjectIdentifier(null);
     $this->assertEquals(count($topic->getSubjectIdentifiers()), 2, 
       'Expected 2 subject identifiers');
     $this->assertTrue(in_array($sid1, $topic->getSubjectIdentifiers(), true), 
@@ -101,6 +104,7 @@ class TopicTest extends PHPTMAPITestCase {
     $this->assertTrue(in_array($slo1, $topic->getSubjectLocators(), true), 
       'Subject locator is not part of getSubjectLocators()!');
     $topic->addSubjectLocator($slo2);
+    $topic->removeSubjectLocator(null);
     $this->assertEquals(count($topic->getSubjectLocators()), 2, 
       'Expected 2 subject locators');
     $this->assertTrue(in_array($slo1, $topic->getSubjectLocators(), true), 
@@ -570,9 +574,10 @@ class TopicTest extends PHPTMAPITestCase {
     $value = null;
     try {
       $name = $topic->createName($value);
-      $this->fail('null is not allowed as value!');
+      $this->fail('Null is not allowed as value!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
   }
 }

@@ -387,6 +387,49 @@ class TopicMapMergeTest extends PHPTMAPITestCase {
     $this->assertEquals($name->getValue(), 'Name', 'Unexpected name value!');
   }
   
+  public function testMergeNameVariant() {
+    $sid1 = 'http://localhost/sid/topic' . uniqid('1');
+    $topic = $this->tm2->createTopicBySubjectIdentifier($sid1);
+    $slo = 'http://localhost/slo/topic' . uniqid();
+    $variantReifier = $this->tm2->createTopicBySubjectlocator($slo);
+    $sid2 = 'http://localhost/sid/topic' . uniqid('2');
+    $theme = $this->tm2->createTopicBySubjectIdentifier($sid2);
+    $name = $topic->createName('foo');
+    $variant = $name->createVariant('bar', parent::$dtString, array($theme));
+    $variant->setReifier($variantReifier);
+    $iid1 = 'http://localhost/iid' . uniqid('1');
+    $iid2 = 'http://localhost/iid' . uniqid('2');
+    $variant->addItemIdentifier($iid1);
+    $variant->addItemIdentifier($iid2);
+    $variantIids = $variant->getItemIdentifiers();
+    $this->assertEquals(count($this->tm1->getTopics()), 0);
+    $this->tm1->mergeIn($this->tm2);
+    $topic = $this->tm1->getTopicBySubjectIdentifier($sid1);
+    $this->assertTrue($topic instanceof Topic);
+    $names = $topic->getNames();
+    $this->assertEquals(count($names), 1);
+    $name = $names[0];
+    $variants = $name->getVariants();
+    $this->assertEquals(count($variants), 1);
+    $variant = $variants[0];
+    $iids = $variant->getItemIdentifiers();
+    $this->assertTrue(in_array($iid1, $iids));
+    $this->assertTrue(in_array($iid2, $iids));
+    $this->assertEquals(
+      $variant->getReifier()->getId(),
+      $this->tm1->getTopicBySubjectLocator($slo)->getId()
+    );
+    $scope = $variant->getScope();
+    $this->assertEquals(count($scope), 1);
+    $theme = $scope[0];
+    $this->assertEquals(
+      $theme->getId(),
+      $this->tm1->getTopicBySubjectIdentifier($sid2)->getId()
+    );
+    $this->assertEquals($variant->getValue(), 'bar');
+    $this->assertEquals($variant->getDataType(), parent::$dtString);
+  }
+  
   public function testMergeOccurrence() {
     $topic1 = $this->tm1->createTopic();
     $this->assertEquals(count($this->tm1->getTopics()), 1, 'Expected 1 topic!');
@@ -562,6 +605,16 @@ class TopicMapMergeTest extends PHPTMAPITestCase {
     $this->assertTrue($_assoc->getType() instanceof Topic, 'Expected association type!');
     $this->assertEquals(count($_assoc->getScope()), 2, 'Expected 2 themes!');
     $this->assertEquals(count($_assoc->getRoles()), 1, 'Expected 1 association role!');
+  }
+  
+  public function testGainReifier() {
+    $sid = 'http://example.org' . uniqid();
+    $reifier = $this->tm2->createTopicBySubjectIdentifier($sid);
+    $this->tm2->setReifier($reifier);
+    $this->tm1->mergeIn($this->tm2);
+    $gainedReifier = $this->tm1->getReifier();
+    $sids = $gainedReifier->getSubjectIdentifiers();
+    $this->assertTrue(in_array($sid, $sids));
   }
 }
 ?>

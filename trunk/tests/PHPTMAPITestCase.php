@@ -52,29 +52,33 @@ class PHPTMAPITestCase extends PHPUnit_Framework_TestCase {
   private $preservedBaseLocators;
   
   protected function setUp() {
-    // allow all extending tests being stand alone
-    if (!$this->sharedFixture instanceof TopicMapSystem) {
-      $tmSystemFactory = TopicMapSystemFactory::newInstance();
-      // QuaaxTM specific feature
-      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, true);
+    $tmSystemFactory = TopicMapSystemFactory::newInstance();
+    // QuaaxTM specific features
+    $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
+    $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, false);
+    try {
       $this->sharedFixture = $tmSystemFactory->newTopicMapSystem();
+      $this->preservedBaseLocators = $this->sharedFixture->getLocators();
+      $this->topicMap = $this->sharedFixture->createTopicMap(self::$tmLocator);
+    } catch (PHPTMAPIRuntimeException $e) {
+      $this->markTestSkipped($e->getMessage() . ': Skip test.');
     }
-    $this->preservedBaseLocators = $this->sharedFixture->getLocators();
-    $this->topicMap = $this->sharedFixture->createTopicMap(self::$tmLocator);
   }
   
   protected function tearDown() {
-    $locators = $this->sharedFixture->getLocators();
-    foreach ($locators as $locator) {
-      if (!in_array($locator, $this->preservedBaseLocators)) {
-        $tm = $this->sharedFixture->getTopicMap($locator);
-        $tm->close();
-        $tm->remove();
+    if ($this->sharedFixture instanceof TopicMapSystem) {
+      $locators = $this->sharedFixture->getLocators();
+      foreach ($locators as $locator) {
+        if (!in_array($locator, $this->preservedBaseLocators)) {
+          $tm = $this->sharedFixture->getTopicMap($locator);
+          $tm->close();
+          $tm->remove();
+        }
       }
+      $this->sharedFixture->close();
+      $this->topicMap = 
+      $this->sharedFixture = null;
     }
-    $this->sharedFixture->close();
-    $this->topicMap = 
-    $this->sharedFixture = null;
   }
   
   protected function getIdsOfConstructs(array $constructs) {
@@ -90,22 +94,36 @@ class PHPTMAPITestCase extends PHPUnit_Framework_TestCase {
   }
   
   protected function createRole() {
-    return $this->createAssoc()->createRole($this->topicMap->createTopic(), 
-      $this->topicMap->createTopic());
+    $player = $this->topicMap->createTopicBySubjectIdentifier(
+    	'http://example.org'
+    );
+    return $this->createAssoc()->createRole(
+      $this->topicMap->createTopic(), 
+      $player
+    );
   }
   
   protected function createOcc() {
-    return $this->topicMap->createTopic()->createOccurrence($this->topicMap->createTopic(), 
-      'http://phptmapi.sourceforge.net/', self::$dtUri);
+    $type = $this->topicMap->createTopicBySubjectIdentifier(
+    	'http://example.org'
+    );
+    return $this->topicMap->createTopic()->createOccurrence(
+      $type, 
+      'http://phptmapi.sourceforge.net/', 
+      self::$dtUri
+    );
   }
   
   protected function createName() {
-    return $this->topicMap->createTopic()->createName('Testname');
+    return $this->topicMap->createTopic()->createName('foo');
   }
   
   protected function createVariant() {
-    return $this->createName()->createVariant('Testvariant', 
-      self::$dtString, array($this->topicMap->createTopic()));
+    return $this->createName()->createVariant(
+    	'bar', 
+      self::$dtString, 
+      array($this->topicMap->createTopic())
+    );
   }
 }
 ?>

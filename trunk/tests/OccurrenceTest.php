@@ -72,20 +72,23 @@ class OccurrenceTest extends PHPTMAPITestCase {
       $parent->createOccurrence($tm->createTopic(), null, parent::$dtUri);
       $this->fail('null is not allowed as value!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
     try {
       $parent->createOccurrence($tm->createTopic(), 
         'http://phptmapi.sourceforge.net/', null);
       $this->fail('null is not allowed as datatype!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
     try {
       $parent->createOccurrence($tm->createTopic(), null, null);
       $this->fail('Occurrences have a value and a datatype != null!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
     $occ = $parent->createOccurrence($tm->createTopic(), 
       'http://phptmapi.sourceforge.net/', parent::$dtUri);
@@ -98,6 +101,27 @@ class OccurrenceTest extends PHPTMAPITestCase {
     $occ->setValue('test', parent::$dtString);
     $this->assertEquals($occ->getValue(), 'test', 'Values are different!');
     $this->assertEquals($occ->getDatatype(), parent::$dtString, 'Datatypes are different!');
+    try {
+      $occ->setValue(null, parent::$dtUri);
+      $this->fail('Occurrence value must not be null!');
+    } catch (ModelConstraintException $e) {
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
+    }
+    try {
+      $occ->setValue('foo', null);
+      $this->fail('Occurrence datatype must not be null!');
+    } catch (ModelConstraintException $e) {
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
+    }
+    try {
+      $occ->setValue(null, null);
+      $this->fail('Occurrence value and datatype must not be null!');
+    } catch (ModelConstraintException $e) {
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
+    }
   }
   
   public function testScope() {

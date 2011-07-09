@@ -628,5 +628,104 @@ class TopicMergeTest extends PHPTMAPITestCase {
       $this->fail('Expected 1 occurrence!');
     }
   }
+  
+  public function testSameTopicMaps() {
+    $otherTm = $this->sharedFixture->createTopicMap('http://localhost/' . uniqid());
+    $otherTopic = $otherTm->createTopic();
+    $topic = $this->topicMap->createTopic();
+    try {
+      $topic->mergeIn($otherTopic);
+      $this->fail('Both topics must belong to the same topic map!');
+    } catch (InvalidArgumentException $e) {
+      // no op.
+    }
+  }
+  
+  /**
+   * Tests the code coverage of dupl. removal in TopicImpl::mergeIn().
+   * TopicImpl::getTypes() always returns a true set of topics.
+   */
+  public function testRemoveInstanceofDuplicates() {
+    $type1 = $this->topicMap->createTopic();
+    $type2 = $this->topicMap->createTopic();
+    $typed = $this->topicMap->createTopic();
+    $typed->addType($type1);
+    $typed->addType($type2);
+    $this->assertEquals(count($typed->getTypes()), 2);
+    $type1->mergeIn($type2);
+    $this->assertEquals(count($typed->getTypes()), 1);
+  }
+  
+  /**
+   * Tests the code coverage of dupl. removal in TopicImpl::mergeIn().
+   * ScopedImpl::getScope() always returns a true set of topics (themes).
+   */
+  public function testRemoveThemesDuplicates() {
+    $theme1 = $this->topicMap->createTopic();
+    $theme2 = $this->topicMap->createTopic();
+    $topic = $this->topicMap->createTopic();
+    $name = $topic->createName('foo', null, array($theme1, $theme2));
+    $scope = $name->getScope();
+    $this->assertEquals(count($scope), 2);
+    $theme1->mergeIn($theme2);
+    $scope = $name->getScope();
+    $this->assertEquals(count($scope), 1);
+  }
+  
+  public function testAssociationTypesMerged() {
+    $type1 = $this->topicMap->createTopic();
+    $type2 = $this->topicMap->createTopic();
+    $topics = $this->topicMap->getTopics();
+    $this->assertEquals(count($topics), 2);
+    $assoc = $this->topicMap->createAssociation($type1);
+    $type = $assoc->getType();
+    $this->assertEquals($type1->getId(), $type->getId());
+    $assoc->setType($type2);
+    $type = $assoc->getType();
+    $this->assertEquals($type2->getId(), $type->getId());
+    $type1->mergeIn($type2);
+    $topics = $this->topicMap->getTopics();
+    $this->assertEquals(count($topics), 1);
+    $type = $assoc->getType();
+    $this->assertEquals($type1->getId(), $type->getId());
+  }
+  
+  public function testOccurrenceTypesMerged() {
+    $type1 = $this->topicMap->createTopic();
+    $type2 = $this->topicMap->createTopic();
+    $topic = $this->topicMap->createTopic();
+    $topics = $this->topicMap->getTopics();
+    $this->assertEquals(count($topics), 3);
+    $occ = $topic->createOccurrence($type1, 'foo', parent::$dtString);
+    $type = $occ->getType();
+    $this->assertEquals($type1->getId(), $type->getId());
+    $occ->setType($type2);
+    $type = $occ->getType();
+    $this->assertEquals($type2->getId(), $type->getId());
+    $type1->mergeIn($type2);
+    $topics = $this->topicMap->getTopics();
+    $this->assertEquals(count($topics), 2);
+    $type = $occ->getType();
+    $this->assertEquals($type1->getId(), $type->getId());
+  }
+  
+  public function testNameTypesMerged() {
+    $type1 = $this->topicMap->createTopic();
+    $type2 = $this->topicMap->createTopic();
+    $topic = $this->topicMap->createTopic();
+    $topics = $this->topicMap->getTopics();
+    $this->assertEquals(count($topics), 3);
+    $name = $topic->createName('foo', $type1);
+    $type = $name->getType();
+    $this->assertEquals($type1->getId(), $type->getId());
+    $name->setType($type2);
+    $type = $name->getType();
+    $this->assertEquals($type2->getId(), $type->getId());
+    $type1->mergeIn($type2);
+    $topics = $this->topicMap->getTopics();
+    $this->assertEquals(count($topics), 2);
+    $type = $name->getType();
+    $this->assertEquals($type1->getId(), $type->getId());
+  }
 }
 ?>

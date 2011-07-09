@@ -57,7 +57,8 @@ class VariantTest extends PHPTMAPITestCase {
       $variant = $name->createVariant(null, parent::$dtString, $scope);
       $this->fail('Variant value must not be null!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
     try {
       $name = $this->createName();
@@ -65,7 +66,8 @@ class VariantTest extends PHPTMAPITestCase {
       $variant = $name->createVariant('Variant', null, $scope);
       $this->fail('Variant datatype must not be null!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
     try {
       $name = $this->createName();
@@ -73,7 +75,8 @@ class VariantTest extends PHPTMAPITestCase {
       $variant = $name->createVariant(null, null, $scope);
       $this->fail('Variant value and datatype must not be null!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
     try {
       $name = $this->createName();
@@ -84,7 +87,8 @@ class VariantTest extends PHPTMAPITestCase {
       $variant->setValue(null, parent::$dtString);
       $this->fail('Variant value must not be null!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
     try {
       $name = $this->createName();
@@ -95,7 +99,8 @@ class VariantTest extends PHPTMAPITestCase {
       $variant->setValue('foo', null);
       $this->fail('Variant datatype must not be null!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
     try {
       $name = $this->createName();
@@ -106,7 +111,8 @@ class VariantTest extends PHPTMAPITestCase {
       $variant->setValue(null, null);
       $this->fail('Neither variant value nor datatype must be null!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
   }
   
@@ -228,13 +234,15 @@ class VariantTest extends PHPTMAPITestCase {
       $name->createVariant('Variant', parent::$dtString, array());
       $this->fail('Variant scope is not a superset of the name scope!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
     try {
       $name->createVariant('Variant', parent::$dtString, array($nameTheme));
       $this->fail('Variant scope is not a superset of the name scope!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
     $variant = $name->createVariant('Variant', parent::$dtString, 
       array($nameTheme, $varTheme));
@@ -267,27 +275,31 @@ class VariantTest extends PHPTMAPITestCase {
       $name->createVariant('Variant', parent::$dtString, array());
       $this->fail('Variant scope is not a superset of the name scope!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
     try {
       $name->createVariant('Variant', parent::$dtString, array($nameTheme));
       $this->fail('Variant scope is not a superset of the name scope!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
     try {
       $name->createVariant('Variant', parent::$dtString, 
         array($nameTheme, $nameTheme));
       $this->fail('Variant scope is not a superset of the name scope!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
     try {
       $name->createVariant('Variant', parent::$dtString, 
         array($nameTheme, $nameTheme, $nameTheme));
       $this->fail('Variant scope is not a superset of the name scope!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
     }
     
     $variant = $name->createVariant('Variant', parent::$dtString, 

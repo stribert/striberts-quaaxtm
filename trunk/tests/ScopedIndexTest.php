@@ -575,7 +575,8 @@ class ScopedIndexTest extends PHPTMAPITestCase {
     $theme2 = $tm->createTopic();
     $theme3 = $tm->createTopic();
     $topic = $tm->createTopic();
-    $name = $topic->createName('foo');
+    $nameType = $tm->createTopic();
+    $name = $topic->createName('foo', $nameType);
     
     $variant1 = $name->createVariant('foo', parent::$dtString, array($theme1));
     $variant2 = $name->createVariant('http://example.org', parent::$dtUri, array($theme2));
@@ -635,6 +636,11 @@ class ScopedIndexTest extends PHPTMAPITestCase {
       $this->assertEquals($twoVariants1[$variant->getId()]->getValue(), $variant->getValue());
       $this->assertEquals($twoVariants1[$variant->getId()]->getDatatype(), $variant->getDatatype());
       unset($twoVariants1[$variant->getId()]);
+      $this->assertEquals($variant->getParent()->getId(), $name->getId());
+      $this->assertEquals($variant->getParent()->getValue(), $name->getValue());
+      $this->assertEquals(
+        $variant->getParent()->getType()->getId(), $name->getType()->getId()
+      );
     }
     
     $variants = $index->getVariants(array($theme1, $theme2), true);
@@ -645,6 +651,11 @@ class ScopedIndexTest extends PHPTMAPITestCase {
       $this->assertEquals($twoVariants2[$variant->getId()]->getValue(), $variant->getValue());
       $this->assertEquals($twoVariants2[$variant->getId()]->getDatatype(), $variant->getDatatype());
       unset($twoVariants2[$variant->getId()]);
+      $this->assertEquals($variant->getParent()->getId(), $name->getId());
+      $this->assertEquals($variant->getParent()->getValue(), $name->getValue());
+      $this->assertEquals(
+        $variant->getParent()->getType()->getId(), $name->getType()->getId()
+      );
     }
     
     $variants = $index->getVariants(array($theme1, $theme2, $theme3), false);
@@ -655,6 +666,11 @@ class ScopedIndexTest extends PHPTMAPITestCase {
       $this->assertEquals($twoVariants3[$variant->getId()]->getValue(), $variant->getValue());
       $this->assertEquals($twoVariants3[$variant->getId()]->getDatatype(), $variant->getDatatype());
       unset($twoVariants3[$variant->getId()]);
+      $this->assertEquals($variant->getParent()->getId(), $name->getId());
+      $this->assertEquals($variant->getParent()->getValue(), $name->getValue());
+      $this->assertEquals(
+        $variant->getParent()->getType()->getId(), $name->getType()->getId()
+      );
     }
     
     $variants = $index->getVariants(array($theme1, $theme2, $theme3), true);
