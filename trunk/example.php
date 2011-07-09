@@ -56,21 +56,28 @@ require_once(
 $tmSystemFactory = TopicMapSystemFactory::newInstance();
 // set up QuaaxTM specific duplicate removal feature
 $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, true);
+// set up QuaaxTM specific memcached based MySQL result cache feature to false; enable if 
+// memcached is set up correctly in src/phptmapi/config.php
+$tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, false);
 // create an instance of TopicMapSystem
-$tmSystem = $tmSystemFactory->newTopicMapSystem();
-// create a topic map; see http://phptmapi.sourceforge.net/2.0/docs/core/TopicMap.html 
-// for all topic map features
-$topicMap = $tmSystem->createTopicMap('http://localhost/tm/' . uniqid());
-// create a topic with an automatically generated item identifier; see 
-// http://phptmapi.sourceforge.net/2.0/docs/core/Topic.html for all topic features
-$topic = $topicMap->createTopic();
-// create a topic name with the default name type in the unconstrained scope; 
-// see http://phptmapi.sourceforge.net/2.0/docs/core/Name.html for all topic name features
-$name = $topic->createName('foo');
-// serialize the topic map to XTM 2.1
-$xtmWriter = new PHPTMAPIXTM201Writer();
-$xtm = $xtmWriter->write($topicMap);
-var_dump($xtm);
-// remove the created topic map
-$topicMap->remove();
+try {
+  $tmSystem = $tmSystemFactory->newTopicMapSystem();
+  // create a topic map; see http://phptmapi.sourceforge.net/2.0/docs/core/TopicMap.html 
+  // for all topic map features
+  $topicMap = $tmSystem->createTopicMap('http://localhost/tm/' . uniqid());
+  // create a topic with an automatically generated item identifier; see 
+  // http://phptmapi.sourceforge.net/2.0/docs/core/Topic.html for all topic features
+  $topic = $topicMap->createTopic();
+  // create a topic name with the default name type in the unconstrained scope; 
+  // see http://phptmapi.sourceforge.net/2.0/docs/core/Name.html for all topic name features
+  $name = $topic->createName('foo');
+  // serialize the topic map to XTM 2.1
+  $xtmWriter = new PHPTMAPIXTM201Writer();
+  $xtm = $xtmWriter->write($topicMap);
+  var_dump($xtm);
+  // remove the created topic map
+  $topicMap->remove();
+} catch (PHPTMAPIRuntimeException $e) {
+  var_dump($e->getMessage());
+}
 ?>
