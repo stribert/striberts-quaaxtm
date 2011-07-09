@@ -28,8 +28,8 @@
  */
 class MysqlResult {
 	
-  private $result,
-          $connection;
+  private $_result,
+          $_connection;
 	
   /**
    * Constructor.
@@ -39,8 +39,8 @@ class MysqlResult {
    * @return void
    */
   function __construct($result, $connection) {
-    $this->result = $result;
-    $this->connection = $connection;
+    $this->_result = $result;
+    $this->_connection = $connection;
   }
 	
   /**
@@ -49,7 +49,7 @@ class MysqlResult {
    * @return array|null
    */   
   public function fetch() {
-    if ($array = mysqli_fetch_assoc($this->result)) {
+    if ($array = mysqli_fetch_assoc($this->_result)) {
       return $array;
     } else {
       return null;
@@ -62,7 +62,7 @@ class MysqlResult {
    * @return array|null
    */   
   public function fetchArray() {
-    if ($array = mysqli_fetch_array($this->result)) {
+    if ($array = mysqli_fetch_array($this->_result)) {
       return $array;
     } else {
       return null;
@@ -75,7 +75,7 @@ class MysqlResult {
    * @return int
    */      
   public function getNumRows() {
-    return (int) mysqli_num_rows($this->result);
+    return (int) mysqli_num_rows($this->_result);
   }
 	
   /**
@@ -84,7 +84,7 @@ class MysqlResult {
    * @return int
    */
   public function getLastId() {
-    return (int) mysqli_insert_id($this->connection);
+    return (int) mysqli_insert_id($this->_connection);
   }
 }
 ?>
