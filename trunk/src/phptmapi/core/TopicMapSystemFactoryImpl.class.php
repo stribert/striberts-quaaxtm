@@ -36,12 +36,11 @@ spl_autoload_register('TopicMapSystemFactoryImpl::autoload');
  */
 final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
   
-  private static $instance = null,
-                  $pearClasses = array('Net_URL2');
+  private static $_instance = null;
   
-  private $properties,
-          $features,
-          $fixFeatures;
+  private $_properties,
+          $_features,
+          $_fixFeatures;
   
   /**
    * Constructor.
@@ -49,16 +48,17 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    * @return void
    */
   private function __construct() {
-    $this->properties = 
-    $this->features = 
-    $this->fixFeatures = array();
+    $this->_properties = 
+    $this->_features = 
+    $this->_fixFeatures = array();
     // URI of feature, value, fix?
-    $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_AUTOMERGE, true, true);
-    $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_READONLY, false, true);
-    $this->setupFeatures(VocabularyUtils::TMAPI_FEATURE_TYPE_INST_ASSOC, false, true);
-    $this->setupFeatures(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false, false);
+    $this->_setupFeatures(VocabularyUtils::TMAPI_FEATURE_AUTOMERGE, true, true);
+    $this->_setupFeatures(VocabularyUtils::TMAPI_FEATURE_READONLY, false, true);
+    $this->_setupFeatures(VocabularyUtils::TMAPI_FEATURE_TYPE_INST_ASSOC, false, true);
+    $this->_setupFeatures(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false, false);
+    $this->_setupFeatures(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, false, false);
     
-    self::$instance = $this;
+    self::$_instance = $this;
   }
   
   /**
@@ -82,13 +82,12 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    *        does not recognize the named feature.
    */
   public function getFeature($featureName) {
-    if (array_key_exists($featureName, $this->features)) {
-      return $this->features[$featureName];
-    } else {
+    if (!array_key_exists($featureName, $this->_features)) {
       throw new FeatureNotRecognizedException(
         __METHOD__ . ': The feature "' . $featureName . '" is not recognized!'
       );
     }
+    return $this->_features[$featureName];
   }
 
   /**
@@ -106,19 +105,17 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    *        disabling it (as specified by the enabled parameter).
    */
   public function setFeature($featureName, $enable) {
-    if (array_key_exists($featureName, $this->features)) {
-      if ($this->fixFeatures[$featureName]) {
-        throw new FeatureNotSupportedException(
-          __METHOD__ . ': The feature "' . $featureName . '" is fix!'
-        );
-      } else {
-        $this->features[$featureName] = $enable;
-      }
-    } else {
+    if (!array_key_exists($featureName, $this->_features)) {
       throw new FeatureNotRecognizedException(
         __METHOD__ . ': The feature "' . $featureName . '" is not recognized!'
+      ); 
+    }
+    if ($this->_fixFeatures[$featureName]) {
+      throw new FeatureNotSupportedException(
+        __METHOD__ . ': The feature "' . $featureName . '" is fix!'
       );
     }
+    $this->_features[$featureName] = $enable;
   }
 
   /**
@@ -134,7 +131,7 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    *        otherwise <var>false</var>.
    */
   public function hasFeature($featureName) {
-    return array_key_exists($featureName, $this->features);
+    return array_key_exists($featureName, $this->_features);
   }
 
   /**
@@ -145,12 +142,12 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    * An implementation is free to support properties other than the core ones.
    * 
    * @param string The name of the property to retrieve.
-   * @return object|null Object The value set for this property or <var>null</var> 
-   *        if no value is currently set for the property.
+   * @return mixed The value set for this property or <var>null</var> 
+   *        if no value is set.
    */
   public function getProperty($propertyName) {
-    return array_key_exists($propertyName, $this->properties) 
-      ? $this->properties[$propertyName] 
+    return array_key_exists($propertyName, $this->_properties) 
+      ? $this->_properties[$propertyName] 
       : null;
   }
 
@@ -162,15 +159,15 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    * An implementation is free to support properties other than the core ones.
    * 
    * @param string The name of the property to be set.
-   * @param object|null Object The value to be set of this property or null to 
+   * @param mixed The value to be set of this property or <var>null</var> to 
    *        remove the property from the current factory configuration.
    * @return void
    */
   public function setProperty($propertyName, $value) {
     if (!is_null($value)) {
-      $this->properties[$propertyName] = $value;
+      $this->_properties[$propertyName] = $value;
     } else {
-      unset($this->properties[$propertyName]);
+      unset($this->_properties[$propertyName]);
     }
   }
 
@@ -182,8 +179,8 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    * @static
    */
   public static function newInstance() {
-    return self::$instance instanceof TopicMapSystemFactory 
-      ? self::$instance
+    return self::$_instance instanceof TopicMapSystemFactory 
+      ? self::$_instance
       : new self();
   }
 
@@ -192,6 +189,9 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    * configured factory parameters.
    *
    * @return TopicMapSystemImpl
+   * @throws {@link PHPTMAPIRuntimeException} If the connection to MySQL or, if set up, the 
+   * 				connection to memcached cannot be established, or if PHP memcached support using 
+   * 				libmemcached (Memcached) is not available.
    */
   public function newTopicMapSystem() {
     $config = array();
@@ -202,21 +202,25 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
       DIRECTORY_SEPARATOR . 
       'config.php'
     );
-    $mysql = new Mysql($config);
-    return new TopicMapSystemImpl($mysql, $config, $this->properties, $this->features);
+    $enableResultCache = $this->getFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE);
+    try {
+      $mysql = new Mysql($config, $enableResultCache);
+    } catch (RuntimeException $e) {
+      throw new PHPTMAPIRuntimeException($e->getMessage());
+    } catch (Exception $e) {
+      throw new PHPTMAPIRuntimeException($e->getMessage());
+    }
+    return new TopicMapSystemImpl($mysql, $config, $this->_properties, $this->_features);
   }
   
   /**
-   * Autoload.
+   * Autoloads all required classes.
    * 
    * @param string The class name.
    * @return void
    * @static
    */
   public static function autoload($className) {
-    if (in_array($className, self::$pearClasses)) {
-      return;
-    }
     $path = get_include_path();
     $thisPath = dirname(__FILE__);
     $qtmPath = $thisPath . 
@@ -266,7 +270,7 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
       PATH_SEPARATOR . 
       $utilPath
     );
-    $file = $className . self::getFileExtension($className);
+    $file = $className . self::_getFileExtension($className);
     require_once($file);
     set_include_path($path);
   }
@@ -277,7 +281,7 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    * @param string The class name.
    * @return string
    */
-  private static function getFileExtension($className) {
+  private static function _getFileExtension($className) {
     if (stristr($className, 'impl') ||
         stristr($className, 'utils') ||
         stristr($className, 'mysql') ||
@@ -291,7 +295,7 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
   }
   
   /**
-   * Sets up the TMAPI features of QuaaxTM.
+   * Sets up the TMAPI as well as the QuaaxTM specific features.
    * 
    * @param string The feature name.
    * @param boolean The value. <var>True</var> to enable the feature, 
@@ -300,9 +304,9 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory {
    *        <var>false</var> if not. In QuaaxTM all features are fix.
    * @return void
    */
-  private function setupFeatures($featureName, $value, $fix) {
-    $this->fixFeatures[$featureName] = $fix;
-    $this->features[$featureName] = $value;
+  private function _setupFeatures($featureName, $value, $fix) {
+    $this->_fixFeatures[$featureName] = $fix;
+    $this->_features[$featureName] = $value;
   }
 }
 ?>
