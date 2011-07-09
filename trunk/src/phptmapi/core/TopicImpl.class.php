@@ -42,10 +42,8 @@
  * @version $Id$
  */
 final class TopicImpl extends ConstructImpl implements Topic {
-
-  const IDENTITY_NULL_ERR_MSG = ': Identity locator must not be null!';
   
-  private $defaultNameType;
+  private $_defaultNameType;
   
   /**
    * Constructor.
@@ -58,7 +56,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
    */
   public function __construct($dbId, Mysql $mysql, array $config, TopicMap $parent) {
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $parent);
-    $this->defaultNameType = null;
+    $this->_defaultNameType = null;
   }
 
   /**
@@ -69,9 +67,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
    */
   public function getSubjectIdentifiers() {
     $sids = array();
-    $query = 'SELECT locator FROM ' . $this->config['table']['subjectidentifier'] . 
-      ' WHERE topic_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT locator FROM ' . $this->_config['table']['subjectidentifier'] . 
+      ' WHERE topic_id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $sids[] = $result['locator'];
     }
@@ -97,7 +95,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
     if (is_null($sid)) {
       throw new ModelConstraintException(
         $this, 
-        __METHOD__ . self::IDENTITY_NULL_ERR_MSG
+        __METHOD__ . ConstructImpl::$_identityNullErrMsg
       );
     }
     $sids = $this->getSubjectIdentifiers();
@@ -106,40 +104,40 @@ final class TopicImpl extends ConstructImpl implements Topic {
     }
     // check others' subject identifiers
     $query = 'SELECT t2.id' .
-      ' FROM ' . $this->config['table']['subjectidentifier'] . ' t1' .
-      ' INNER JOIN ' . $this->config['table']['topic'] . ' t2' .
+      ' FROM ' . $this->_config['table']['subjectidentifier'] . ' t1' .
+      ' INNER JOIN ' . $this->_config['table']['topic'] . ' t2' .
       ' ON t2.id = t1.topic_id' .
       ' WHERE t1.locator = "' . $sid . '"' .
-      ' AND t2.topicmap_id = ' . $this->topicMap->dbId . 
-      ' AND t2.id <> ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+      ' AND t2.topicmap_id = ' . $this->_topicMap->_dbId . 
+      ' AND t2.id <> ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     $rows = $mysqlResult->getNumRows();
     if ($rows == 0) {
       // check others' item identifiers too
       $query = 'SELECT t1.*' . 
-        ' FROM ' . $this->config['table']['topicmapconstruct'] . ' t1' . 
-        ' INNER JOIN ' . $this->config['table']['itemidentifier'] . ' t2' .
+        ' FROM ' . $this->_config['table']['topicmapconstruct'] . ' t1' . 
+        ' INNER JOIN ' . $this->_config['table']['itemidentifier'] . ' t2' .
         ' ON t1.id = t2.topicmapconstruct_id' .
         ' WHERE t2.locator = "' . $sid . '"' . 
-        ' AND t1.topicmap_id = ' . $this->topicMap->dbId . 
-        ' AND t1.topic_id <> ' . $this->dbId . 
+        ' AND t1.topicmap_id = ' . $this->_topicMap->_dbId . 
+        ' AND t1.topic_id <> ' . $this->_dbId . 
         ' AND t1.topic_id IS NOT NULL';
-      $mysqlResult = $this->mysql->execute($query);
+      $mysqlResult = $this->_mysql->execute($query);
       $rows = $mysqlResult->getNumRows();
       if ($rows == 0) {// insert subject identifier
-        $query = 'INSERT INTO ' . $this->config['table']['subjectidentifier'] . 
-          ' (topic_id, locator) VALUES (' . $this->dbId . ', "' . $sid .'")';
-        $this->mysql->execute($query);
-        if (!$this->mysql->hasError()) {
-          $this->postSave();
+        $query = 'INSERT INTO ' . $this->_config['table']['subjectidentifier'] . 
+          ' (topic_id, locator) VALUES (' . $this->_dbId . ', "' . $sid .'")';
+        $this->_mysql->execute($query);
+        if (!$this->_mysql->hasError()) {
+          $this->_postSave();
         }
       } else {// merge
-        $existingTopic = $this->factory($mysqlResult);
+        $existingTopic = $this->_factory($mysqlResult);
         $this->mergeIn($existingTopic);
       }
     } else {// merge
       $result = $mysqlResult->fetch();
-      $existingTopic = $this->parent->getConstructByVerifiedId(__CLASS__ . '-' . $result['id']);
+      $existingTopic = $this->_parent->_getConstructByVerifiedId(__CLASS__ . '-' . $result['id']);
       $this->mergeIn($existingTopic);
     }
   }
@@ -155,12 +153,12 @@ final class TopicImpl extends ConstructImpl implements Topic {
     if (is_null($sid)) {
       return;
     }
-    $query = 'DELETE FROM ' . $this->config['table']['subjectidentifier'] . 
-      ' WHERE topic_id = ' . $this->dbId . 
+    $query = 'DELETE FROM ' . $this->_config['table']['subjectidentifier'] . 
+      ' WHERE topic_id = ' . $this->_dbId . 
       ' AND locator = "' . $sid . '"';
-    $this->mysql->execute($query);
-    if (!$this->mysql->hasError()) {
-      $this->postSave();
+    $this->_mysql->execute($query);
+    if (!$this->_mysql->hasError()) {
+      $this->_postSave();
     }
   }
 
@@ -172,9 +170,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
    */
   public function getSubjectLocators() {
     $slos = array();
-    $query = 'SELECT locator FROM ' . $this->config['table']['subjectlocator'] . 
-      ' WHERE topic_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT locator FROM ' . $this->_config['table']['subjectlocator'] . 
+      ' WHERE topic_id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $slos[] = $result['locator'];
     }
@@ -200,7 +198,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
     if (is_null($slo)) {
       throw new ModelConstraintException(
         $this, 
-        __METHOD__ . self::IDENTITY_NULL_ERR_MSG
+        __METHOD__ . ConstructImpl::$_identityNullErrMsg
       );
     }
     $slos = $this->getSubjectLocators();
@@ -209,24 +207,24 @@ final class TopicImpl extends ConstructImpl implements Topic {
     }
     // check others' subject locators
     $query = 'SELECT t2.id' .
-      ' FROM ' . $this->config['table']['subjectlocator'] . ' t1' .
-      ' INNER JOIN ' . $this->config['table']['topic'] . ' t2' .
+      ' FROM ' . $this->_config['table']['subjectlocator'] . ' t1' .
+      ' INNER JOIN ' . $this->_config['table']['topic'] . ' t2' .
       ' ON t2.id = t1.topic_id' .
       ' WHERE t1.locator = "' . $slo . '"' .
-      ' AND t2.topicmap_id = ' . $this->topicMap->dbId . 
-      ' AND t2.id <> ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+      ' AND t2.topicmap_id = ' . $this->_topicMap->_dbId . 
+      ' AND t2.id <> ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     $rows = $mysqlResult->getNumRows();
     if ($rows == 0) {// insert subject locator
-      $query = 'INSERT INTO ' . $this->config['table']['subjectlocator'] . 
-        ' (topic_id, locator) VALUES (' . $this->dbId . ', "' . $slo .'")';
-      $this->mysql->execute($query);
-      if (!$this->mysql->hasError()) {
-        $this->postSave();
+      $query = 'INSERT INTO ' . $this->_config['table']['subjectlocator'] . 
+        ' (topic_id, locator) VALUES (' . $this->_dbId . ', "' . $slo .'")';
+      $this->_mysql->execute($query);
+      if (!$this->_mysql->hasError()) {
+        $this->_postSave();
       }
     } else {// merge
       $result = $mysqlResult->fetch();
-      $existingTopic = $this->parent->getConstructByVerifiedId(__CLASS__ . '-' . $result['id']);
+      $existingTopic = $this->_parent->_getConstructByVerifiedId(__CLASS__ . '-' . $result['id']);
       $this->mergeIn($existingTopic);
     }
   }
@@ -242,12 +240,12 @@ final class TopicImpl extends ConstructImpl implements Topic {
     if (is_null($slo)) {
       return;
     }
-    $query = 'DELETE FROM ' . $this->config['table']['subjectlocator'] . 
-      ' WHERE topic_id = ' . $this->dbId . 
+    $query = 'DELETE FROM ' . $this->_config['table']['subjectlocator'] . 
+      ' WHERE topic_id = ' . $this->_dbId . 
       ' AND locator = "' . $slo . '"';
-    $this->mysql->execute($query);
-    if (!$this->mysql->hasError()) {
-      $this->postSave();
+    $this->_mysql->execute($query);
+    if (!$this->_mysql->hasError()) {
+      $this->_postSave();
     }
   }
 
@@ -260,21 +258,19 @@ final class TopicImpl extends ConstructImpl implements Topic {
    */
   public function getNames(Topic $type=null) {
     $names = array();
-    $query = 'SELECT id, type_id, value, hash FROM ' . $this->config['table']['topicname'] . 
-      ' WHERE topic_id = ' . $this->dbId;
+    $query = 'SELECT id, type_id, value, hash FROM ' . $this->_config['table']['topicname'] . 
+      ' WHERE topic_id = ' . $this->_dbId;
     if (!is_null($type)) {
-      $query .= ' AND type_id = ' . $type->dbId;
+      $query .= ' AND type_id = ' . $type->_dbId;
     }
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $propertyHolder = new PropertyUtils();
-      $propertyHolder->setTypeId((int)$result['type_id'])
-        ->setValue($result['value']);
-      $this->parent->setConstructPropertyHolder($propertyHolder);
+      $propertyHolder['type_id'] = $result['type_id'];
+      $propertyHolder['value'] = $result['value'];
+      $this->_parent->_setConstructPropertyHolder($propertyHolder);
       
-      $this->parent->setConstructParent($this);
-      
-      $name = $this->parent->getConstructByVerifiedId('NameImpl-' . $result['id']);
+      $this->_parent->_setConstructParent($this);
+      $name = $this->_parent->_getConstructByVerifiedId('NameImpl-' . $result['id']);
       
       $names[$result['hash']] = $name;
     }
@@ -303,63 +299,62 @@ final class TopicImpl extends ConstructImpl implements Topic {
     if (is_null($value)) {
       throw new ModelConstraintException(
         $this, 
-        __METHOD__ . parent::VALUE_NULL_ERR_MSG
+        __METHOD__ . ConstructImpl::$_valueNullErrMsg
       );
     }
-    $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
-    $type = is_null($type) ? $this->getDefaultNameType() : $type;
-    if (!$this->topicMap->equals($type->topicMap)) {
+    $value = CharacteristicUtils::canonicalize($value, $this->_mysql->getConnection());
+    $type = is_null($type) ? $this->_getDefaultNameType() : $type;
+    if (!$this->_topicMap->equals($type->_topicMap)) {
       throw new ModelConstraintException(
         $this, 
-        __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+        __METHOD__ . ConstructImpl::$_sameTmConstraintErrMsg
       );
     }
     foreach ($scope as $theme) {
-      if ($theme instanceof Topic && !$this->topicMap->equals($theme->topicMap)) {
+      if ($theme instanceof Topic && !$this->_topicMap->equals($theme->_topicMap)) {
         throw new ModelConstraintException(
           $this, 
-          __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+          __METHOD__ . ConstructImpl::$_sameTmConstraintErrMsg
         );
       }
     }
-    $hash = $this->getNameHash($value, $type, $scope);
-    $propertyId = $this->hasName($hash);
+    $hash = $this->_getNameHash($value, $type, $scope);
+    $propertyId = $this->_hasName($hash);
     if (!$propertyId) {
-      $this->mysql->startTransaction(true);
-      $query = 'INSERT INTO ' . $this->config['table']['topicname'] . 
+      $this->_mysql->startTransaction(true);
+      $query = 'INSERT INTO ' . $this->_config['table']['topicname'] . 
         ' (id, topic_id, type_id, value, hash) VALUES' .
-        ' (NULL, ' . $this->dbId . ', ' . $type->dbId . ', "' . $value . '", "' . $hash . '")';
-      $mysqlResult = $this->mysql->execute($query);
+        ' (NULL, ' . $this->_dbId . ', ' . $type->_dbId . ', "' . $value . '", "' . $hash . '")';
+      $mysqlResult = $this->_mysql->execute($query);
       $lastNameId = $mysqlResult->getLastId();
       
-      $query = 'INSERT INTO ' . $this->config['table']['topicmapconstruct'] . 
+      $query = 'INSERT INTO ' . $this->_config['table']['topicmapconstruct'] . 
         ' (topicname_id, topicmap_id, parent_id) VALUES' .
-        ' (' . $lastNameId . ', ' . $this->parent->dbId . ', ' . $this->dbId . ')';
-      $this->mysql->execute($query);
+        ' (' . $lastNameId . ', ' . $this->_parent->_dbId . ', ' . $this->_dbId . ')';
+      $this->_mysql->execute($query);
       
-      $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope, $this->topicMap, $this);
-      $query = 'INSERT INTO ' . $this->config['table']['topicname_scope'] . 
+      $scopeObj = new ScopeImpl($this->_mysql, $this->_config, $scope, $this->_topicMap, $this);
+      $query = 'INSERT INTO ' . $this->_config['table']['topicname_scope'] . 
         ' (scope_id, topicname_id) VALUES' .
-        ' (' . $scopeObj->dbId . ', ' . $lastNameId . ')';
-      $this->mysql->execute($query);
+        ' (' . $scopeObj->_dbId . ', ' . $lastNameId . ')';
+      $this->_mysql->execute($query);
       
-      $this->mysql->finishTransaction(true);
+      $this->_mysql->finishTransaction(true);
       
-      $propertyHolder = new PropertyUtils();
-      $propertyHolder->setTypeId($type->dbId)
-        ->setValue($value);
-      $this->parent->setConstructPropertyHolder($propertyHolder);
-      $this->parent->setConstructParent($this);
+      $propertyHolder['type_id'] = $type->_dbId;
+      $propertyHolder['value'] = $value;
+      $this->_parent->_setConstructPropertyHolder($propertyHolder);
+      $this->_parent->_setConstructParent($this);
       
-      $name = $this->parent->getConstructByVerifiedId('NameImpl-' . $lastNameId);
-      if (!$this->mysql->hasError()) {
-        $name->postInsert();
-        $this->postSave();
+      $name = $this->_parent->_getConstructByVerifiedId('NameImpl-' . $lastNameId);
+      if (!$this->_mysql->hasError()) {
+        $name->_postInsert();
+        $this->_postSave();
       }
       return $name;
     } else {
-      $this->parent->setConstructParent($this);
-      return $this->parent->getConstructByVerifiedId('NameImpl-' . $propertyId);
+      $this->_parent->_setConstructParent($this);
+      return $this->_parent->_getConstructByVerifiedId('NameImpl-' . $propertyId);
     }
   }
 
@@ -375,21 +370,20 @@ final class TopicImpl extends ConstructImpl implements Topic {
   public function getOccurrences(Topic $type=null) {
     $occurrences = array();
     $query = 'SELECT id, type_id, value, datatype, hash 
-    	FROM ' . $this->config['table']['occurrence'] . ' WHERE topic_id = ' . $this->dbId;
+    	FROM ' . $this->_config['table']['occurrence'] . ' WHERE topic_id = ' . $this->_dbId;
     if (!is_null($type)) {
-      $query .= ' AND type_id = ' . $type->dbId;
+      $query .= ' AND type_id = ' . $type->_dbId;
     }
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $propertyHolder = new PropertyUtils();
-      $propertyHolder->setTypeId((int)$result['type_id'])
-        ->setValue($result['value'])
-        ->setDataType($result['datatype']);
-      $this->parent->setConstructPropertyHolder($propertyHolder);
+      $propertyHolder['type_id'] = $result['type_id'];
+      $propertyHolder['value'] = $result['value'];
+      $propertyHolder['datatype'] = $result['datatype'];
+      $this->_parent->_setConstructPropertyHolder($propertyHolder);
       
-      $this->parent->setConstructParent($this);
+      $this->_parent->_setConstructParent($this);
       
-      $occurrence = $this->parent->getConstructByVerifiedId('OccurrenceImpl-' . $result['id']);
+      $occurrence = $this->_parent->_getConstructByVerifiedId('OccurrenceImpl-' . $result['id']);
       
       $occurrences[$result['hash']] = $occurrence;
     }
@@ -416,68 +410,67 @@ final class TopicImpl extends ConstructImpl implements Topic {
    *        <var>theme</var> in the scope does not belong to the parent topic map.
    */
   public function createOccurrence(Topic $type, $value, $datatype, array $scope=array()) {
-    if (!$this->topicMap->equals($type->topicMap)) {
+    if (!$this->_topicMap->equals($type->_topicMap)) {
       throw new ModelConstraintException(
         $this, 
-        __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+        __METHOD__ . ConstructImpl::$_sameTmConstraintErrMsg
       );
     }
     if (is_null($value) || is_null($datatype)) {
       throw new ModelConstraintException(
         $this, 
-        __METHOD__ . parent::VALUE_DATATYPE_NULL_ERR_MSG
+        __METHOD__ . ConstructImpl::$_valueDatatypeNullErrMsg
       );
     }
     foreach ($scope as $theme) {
-      if ($theme instanceof Topic && !$this->topicMap->equals($theme->topicMap)) {
+      if ($theme instanceof Topic && !$this->_topicMap->equals($theme->_topicMap)) {
         throw new ModelConstraintException(
           $this, 
-          __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+          __METHOD__ . ConstructImpl::$_sameTmConstraintErrMsg
         );
       }
     }
-    $value = CharacteristicUtils::canonicalize($value, $this->mysql->getConnection());
-    $datatype = CharacteristicUtils::canonicalize($datatype, $this->mysql->getConnection());
-    $hash = $this->getOccurrenceHash($type, $value, $datatype, $scope);
-    $propertyId = $this->hasOccurrence($hash);
+    $value = CharacteristicUtils::canonicalize($value, $this->_mysql->getConnection());
+    $datatype = CharacteristicUtils::canonicalize($datatype, $this->_mysql->getConnection());
+    $hash = $this->_getOccurrenceHash($type, $value, $datatype, $scope);
+    $propertyId = $this->_hasOccurrence($hash);
     if (!$propertyId) {
-      $this->mysql->startTransaction(true);
-      $query = 'INSERT INTO ' . $this->config['table']['occurrence'] . 
+      $this->_mysql->startTransaction(true);
+      $query = 'INSERT INTO ' . $this->_config['table']['occurrence'] . 
         ' (id, topic_id, type_id, value, datatype, hash) VALUES' .
-        ' (NULL, '.$this->dbId.', ' . $type->dbId . ', "' . $value . '", "' . $datatype . '", "' . $hash . '")';
-      $mysqlResult = $this->mysql->execute($query);
+        ' (NULL, '.$this->_dbId.', ' . $type->_dbId . ', "' . $value . '", "' . $datatype . '", "' . $hash . '")';
+      $mysqlResult = $this->_mysql->execute($query);
       $lastOccurrenceId = $mysqlResult->getLastId();
       
-      $query = 'INSERT INTO ' . $this->config['table']['topicmapconstruct'] . 
+      $query = 'INSERT INTO ' . $this->_config['table']['topicmapconstruct'] . 
         ' (occurrence_id, topicmap_id, parent_id) VALUES' .
-        ' (' . $lastOccurrenceId . ', ' . $this->parent->dbId . ', ' . $this->dbId . ')';
-      $this->mysql->execute($query);
+        ' (' . $lastOccurrenceId . ', ' . $this->_parent->_dbId . ', ' . $this->_dbId . ')';
+      $this->_mysql->execute($query);
       
-      $scopeObj = new ScopeImpl($this->mysql, $this->config, $scope, $this->topicMap, $this);
-      $query = 'INSERT INTO ' . $this->config['table']['occurrence_scope'] . 
+      $scopeObj = new ScopeImpl($this->_mysql, $this->_config, $scope, $this->_topicMap, $this);
+      $query = 'INSERT INTO ' . $this->_config['table']['occurrence_scope'] . 
         ' (scope_id, occurrence_id) VALUES' .
-        ' (' . $scopeObj->dbId . ', ' . $lastOccurrenceId . ')';
-      $this->mysql->execute($query);
+        ' (' . $scopeObj->_dbId . ', ' . $lastOccurrenceId . ')';
+      $this->_mysql->execute($query);
       
-      $this->mysql->finishTransaction(true);
+      $this->_mysql->finishTransaction(true);
       
-      $propertyHolder = new PropertyUtils();
-      $propertyHolder->setTypeId($type->dbId)
-        ->setValue($value)
-        ->setDataType($datatype);
-      $this->parent->setConstructPropertyHolder($propertyHolder);
-      $this->parent->setConstructParent($this);
+      $propertyHolder['type_id'] = $type->_dbId;
+      $propertyHolder['value'] = $value;
+      $propertyHolder['datatype'] = $datatype;
+      $this->_parent->_setConstructPropertyHolder($propertyHolder);
+      $this->_parent->_setConstructParent($this);
       
-      $occ = $this->parent->getConstructByVerifiedId('OccurrenceImpl-' . 
+      $occ = $this->_parent->_getConstructByVerifiedId('OccurrenceImpl-' . 
         $lastOccurrenceId);
-      if (!$this->mysql->hasError()) {
-        $occ->postInsert();
-        $this->postSave();
+      if (!$this->_mysql->hasError()) {
+        $occ->_postInsert();
+        $this->_postSave();
       }
       return $occ;
     } else {
-      $this->parent->setConstructParent($this);
-      return $this->parent->getConstructByVerifiedId('OccurrenceImpl-' . $propertyId);
+      $this->_parent->_setConstructParent($this);
+      return $this->_parent->_getConstructByVerifiedId('OccurrenceImpl-' . $propertyId);
     }
   }
   
@@ -491,13 +484,13 @@ final class TopicImpl extends ConstructImpl implements Topic {
    */
   public function getRolesPlayed(Topic $type=null, Topic $assocType=null) {
     if (is_null($type) && is_null($assocType)) {
-      return $this->getRolesPlayedUntyped();
+      return $this->_getRolesPlayedUntyped();
     } elseif (!is_null($type) && is_null($assocType)) {
-      return $this->getRolesPlayedByType($type);
+      return $this->_getRolesPlayedByType($type);
     } elseif (!is_null($type) && !is_null($assocType)) {
-      return $this->getRolesPlayedByTypeAssocType($type, $assocType);
+      return $this->_getRolesPlayedByTypeAssocType($type, $assocType);
     } else {
-      return $this->getRolesPlayedByAssocType($assocType);
+      return $this->_getRolesPlayedByAssocType($assocType);
     }
   }
 
@@ -515,11 +508,11 @@ final class TopicImpl extends ConstructImpl implements Topic {
    */
   public function getTypes() {
     $types = array();
-    $query = 'SELECT type_id FROM ' . $this->config['table']['instanceof'] . 
-      ' WHERE topic_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT type_id FROM ' . $this->_config['table']['instanceof'] . 
+      ' WHERE topic_id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $type = $this->parent->getConstructByVerifiedId(__CLASS__ . '-' . $result['type_id']);
+      $type = $this->_parent->_getConstructByVerifiedId(__CLASS__ . '-' . $result['type_id']);
       $types[$type->getId()] = $type;
     }
     return array_values($types);
@@ -537,25 +530,25 @@ final class TopicImpl extends ConstructImpl implements Topic {
    *        to the parent topic map.
    */
   public function addType(Topic $type) {
-    if (!$this->topicMap->equals($type->topicMap)) {
+    if (!$this->_topicMap->equals($type->_topicMap)) {
       throw new ModelConstraintException(
         $this, 
-        __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+        __METHOD__ . ConstructImpl::$_sameTmConstraintErrMsg
       );
     }
     // duplicate suppression
-    $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['instanceof'] . 
-      ' WHERE topic_id = ' . $this->dbId . 
-      ' AND type_id = ' . $type->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT COUNT(*) FROM ' . $this->_config['table']['instanceof'] . 
+      ' WHERE topic_id = ' . $this->_dbId . 
+      ' AND type_id = ' . $type->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetchArray();
     if ($result[0] == 0) {
-      $query = 'INSERT INTO ' . $this->config['table']['instanceof'] . 
+      $query = 'INSERT INTO ' . $this->_config['table']['instanceof'] . 
         ' (topic_id, type_id) VALUES' .
-        ' (' . $this->dbId . ', ' . $type->dbId . ')';
-      $this->mysql->execute($query);
-      if (!$this->mysql->hasError()) {
-        $this->postSave();
+        ' (' . $this->_dbId . ', ' . $type->_dbId . ')';
+      $this->_mysql->execute($query);
+      if (!$this->_mysql->hasError()) {
+        $this->_postSave();
       }
     }
   }
@@ -567,12 +560,12 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @return void
    */
   public function removeType(Topic $type) {
-    $query = 'DELETE FROM ' . $this->config['table']['instanceof'] . 
-      ' WHERE topic_id = ' . $this->dbId . 
-      ' AND type_id = ' . $type->dbId;
-    $this->mysql->execute($query);
-    if (!$this->mysql->hasError()) {
-      $this->postSave();
+    $query = 'DELETE FROM ' . $this->_config['table']['instanceof'] . 
+      ' WHERE topic_id = ' . $this->_dbId . 
+      ' AND type_id = ' . $type->_dbId;
+    $this->_mysql->execute($query);
+    if (!$this->_mysql->hasError()) {
+      $this->_postSave();
     }
   }
 
@@ -584,13 +577,13 @@ final class TopicImpl extends ConstructImpl implements Topic {
    */
   public function getReified() {
     $query = 'SELECT * ' . 
-      ' FROM ' . $this->config['table']['topicmapconstruct'] . 
-      ' WHERE reifier_id = ' . $this->dbId . 
-      ' AND topicmap_id = ' . $this->parent->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+      ' FROM ' . $this->_config['table']['topicmapconstruct'] . 
+      ' WHERE reifier_id = ' . $this->_dbId . 
+      ' AND topicmap_id = ' . $this->_parent->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     $rows = $mysqlResult->getNumRows();
     return $rows > 0
-      ? $this->factory($mysqlResult)
+      ? $this->_factory($mysqlResult)
       : null;
   }
 
@@ -616,7 +609,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
     if ($this->equals($other)) {
       return;
     }
-    if (!$this->parent->equals($other->parent)) {
+    if (!$this->_parent->equals($other->_parent)) {
       throw new InvalidArgumentException(
         __METHOD__ . ': Both topics must belong to the same topic map!'
       );
@@ -629,48 +622,49 @@ final class TopicImpl extends ConstructImpl implements Topic {
       }
     }
     
-    $this->mysql->startTransaction(true);
+    $this->_topicMap->_setState(VocabularyUtils::QTM_STATE_MERGING);
+    $this->_mysql->startTransaction(true);
     
-    // type properties and typing in instanceof
-    $query = 'UPDATE ' . $this->config['table']['instanceof'] . 
-      ' SET topic_id = ' . $this->dbId . ' WHERE topic_id = ' . $other->dbId;
-    $this->mysql->execute($query);
-    $query = 'UPDATE ' . $this->config['table']['instanceof'] . 
-      ' SET type_id = ' . $this->dbId . ' WHERE type_id = ' . $other->dbId;
-    $this->mysql->execute($query);
+    // type properties and typing in table qtm_instanceof
+    $query = 'UPDATE ' . $this->_config['table']['instanceof'] . 
+      ' SET topic_id = ' . $this->_dbId . ' WHERE topic_id = ' . $other->_dbId;
+    $this->_mysql->execute($query);
+    $query = 'UPDATE ' . $this->_config['table']['instanceof'] . 
+      ' SET type_id = ' . $this->_dbId . ' WHERE type_id = ' . $other->_dbId;
+    $this->_mysql->execute($query);
     
-    // clean up: remove possible duplicates from qtm_instanceof
+    // clean up: remove possible duplicates from table qtm_instanceof
     $query = 'SELECT MIN(id) AS protected_id, topic_id, type_id, COUNT(*)' .
-      ' FROM ' . $this->config['table']['instanceof'] . 
-      ' WHERE (topic_id = ' . $this->dbId . ' OR type_id = ' . $this->dbId . ')' . 
+      ' FROM ' . $this->_config['table']['instanceof'] . 
+      ' WHERE (topic_id = ' . $this->_dbId . ' OR type_id = ' . $this->_dbId . ')' . 
       ' GROUP BY topic_id, type_id HAVING COUNT(*) > 1';
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $query = 'DELETE FROM ' . $this->config['table']['instanceof'] .
+      $query = 'DELETE FROM ' . $this->_config['table']['instanceof'] .
         ' WHERE id <> ' . $result['protected_id'] . 
         ' AND type_id = ' . $result['type_id'] . 
         ' AND topic_id = ' . $result['topic_id'];
-      $this->mysql->execute($query);
+      $this->_mysql->execute($query);
     }
     
     // clean up: remove possible self typing
-    $query = 'DELETE FROM ' . $this->config['table']['instanceof'] .
+    $query = 'DELETE FROM ' . $this->_config['table']['instanceof'] .
       ' WHERE topic_id = type_id';
-    $this->mysql->execute($query);
+    $this->_mysql->execute($query);
     
     // get the affected scopes in order to be able to update the constructs hashes
     $affectedScopeIds = array();
-    $query = 'SELECT scope_id FROM ' . $this->config['table']['theme'] .
-      ' WHERE topic_id = ' . $other->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT scope_id FROM ' . $this->_config['table']['theme'] .
+      ' WHERE topic_id = ' . $other->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $affectedScopeIds[] = $result['scope_id'];
     }
     
     // scope properties (themes)
-    $query = 'UPDATE ' . $this->config['table']['theme'] . 
-      ' SET topic_id = ' . $this->dbId . ' WHERE topic_id = ' . $other->dbId;
-    $this->mysql->execute($query);
+    $query = 'UPDATE ' . $this->_config['table']['theme'] . 
+      ' SET topic_id = ' . $this->_dbId . ' WHERE topic_id = ' . $other->_dbId;
+    $this->_mysql->execute($query);
     
     // update the scoped constructs hashes
     if (!empty($affectedScopeIds)) {
@@ -679,120 +673,118 @@ final class TopicImpl extends ConstructImpl implements Topic {
       
       // occurrences
       $query = 'SELECT t1.id AS occ_id, t1.type_id, t1.value, t1.datatype 
-      	FROM ' . $this->config['table']['occurrence'] . ' t1
-        INNER JOIN ' . $this->config['table']['occurrence_scope'] . ' t2 
+      	FROM ' . $this->_config['table']['occurrence'] . ' t1
+        INNER JOIN ' . $this->_config['table']['occurrence_scope'] . ' t2 
         ON t1.id = t2.occurrence_id WHERE t2.scope_id IN(' . $implodedScopeIds . ')';
-      $mysqlResult = $this->mysql->execute($query);
+      $mysqlResult = $this->_mysql->execute($query);
       while ($result = $mysqlResult->fetch()) {
-        $propertyHolder = new PropertyUtils();
-        $propertyHolder->setTypeId((int)$result['type_id'])
-          ->setValue($result['value'])
-          ->setDataType($result['datatype']);
-        $this->parent->setConstructPropertyHolder($propertyHolder);
+        $propertyHolder['type_id'] = $result['type_id'];
+        $propertyHolder['value'] = $result['value'];
+        $propertyHolder['datatype'] = $result['datatype'];
+        $this->_parent->_setConstructPropertyHolder($propertyHolder);
         
-        $this->parent->setConstructParent($this);
+        $this->_parent->_setConstructParent($this);
         
-        $occurrence = $this->parent->getConstructByVerifiedId(
+        $occurrence = $this->_parent->_getConstructByVerifiedId(
         	'OccurrenceImpl-' . $result['occ_id']
         );
-        $hash = $this->getOccurrenceHash(
+        $hash = $this->_getOccurrenceHash(
           $occurrence->getType(), 
           $occurrence->getValue(), 
           $occurrence->getDatatype(), 
           $occurrence->getScope()
         );
-        $this->updateOccurrenceHash($occurrence->dbId, $hash);
+        $this->_updateOccurrenceHash($occurrence->_dbId, $hash);
       }
       
       // names
       $query = 'SELECT t1.id AS name_id, t1.type_id, t1.value 
-      	FROM ' . $this->config['table']['topicname'] . ' t1
-        INNER JOIN ' . $this->config['table']['topicname_scope'] . ' t2 
+      	FROM ' . $this->_config['table']['topicname'] . ' t1
+        INNER JOIN ' . $this->_config['table']['topicname_scope'] . ' t2 
         ON t1.id = t2.topicname_id WHERE t2.scope_id IN(' . $implodedScopeIds . ')';
-      $mysqlResult = $this->mysql->execute($query);
+      $mysqlResult = $this->_mysql->execute($query);
       while ($result = $mysqlResult->fetch()) {
-        $propertyHolder = new PropertyUtils();
-        $propertyHolder->setTypeId((int)$result['type_id'])->setValue($result['value']);
-        $this->parent->setConstructPropertyHolder($propertyHolder);
+        $propertyHolder['type_id'] = $result['type_id'];
+        $propertyHolder['value'] = $result['value'];
+        $this->_parent->_setConstructPropertyHolder($propertyHolder);
         
-        $this->parent->setConstructParent($this);
+        $this->_parent->_setConstructParent($this);
         
-        $name = $this->parent->getConstructByVerifiedId('NameImpl-' . $result['name_id']);
-        $hash = $this->getNameHash(
+        $name = $this->_parent->_getConstructByVerifiedId('NameImpl-' . $result['name_id']);
+        $hash = $this->_getNameHash(
           $name->getValue(), 
           $name->getType(), 
           $name->getScope()
         );
-        $this->updateNameHash($name->dbId, $hash);
+        $this->_updateNameHash($name->_dbId, $hash);
       }
       
       // variants
       $query = 'SELECT t1.id AS variant_id, t1.value, t1.datatype 
-      	FROM ' . $this->config['table']['variant'] . ' t1
-        INNER JOIN ' . $this->config['table']['variant_scope'] . ' t2 
+      	FROM ' . $this->_config['table']['variant'] . ' t1
+        INNER JOIN ' . $this->_config['table']['variant_scope'] . ' t2 
         ON t1.id = t2.variant_id WHERE t2.scope_id IN(' . $implodedScopeIds . ')';
-      $mysqlResult = $this->mysql->execute($query);
+      $mysqlResult = $this->_mysql->execute($query);
       while ($result = $mysqlResult->fetch()) {
-        $propertyHolder = new PropertyUtils();
-        $propertyHolder->setValue($result['value'])->setDataType($result['datatype']);
-        $this->parent->setConstructPropertyHolder($propertyHolder);
+        $propertyHolder['value'] = $result['value'];
+        $propertyHolder['datatype'] = $result['datatype'];
+        $this->_parent->_setConstructPropertyHolder($propertyHolder);
         
-        $variant = $this->parent->getConstructByVerifiedId('VariantImpl-' . $result['variant_id']);
+        $variant = $this->_parent->_getConstructByVerifiedId('VariantImpl-' . $result['variant_id']);
         $parent = $variant->getParent();
-        $hash = $parent->getVariantHash(
+        $hash = $parent->_getVariantHash(
           $variant->getValue(), 
           $variant->getDatatype(), 
           $variant->getScope()
         );
-        $parent->updateVariantHash($variant->dbId, $hash);
+        $parent->_updateVariantHash($variant->_dbId, $hash);
       }
       
       // associations
       $query = 'SELECT t1.id AS assoc_id, t1.type_id 
-      	FROM ' . $this->config['table']['association'] . ' t1
-        INNER JOIN ' . $this->config['table']['association_scope'] . ' t2 
+      	FROM ' . $this->_config['table']['association'] . ' t1
+        INNER JOIN ' . $this->_config['table']['association_scope'] . ' t2 
         ON t1.id = t2.association_id WHERE t2.scope_id IN(' . $implodedScopeIds . ')';
-      $mysqlResult = $this->mysql->execute($query);
+      $mysqlResult = $this->_mysql->execute($query);
       while ($result = $mysqlResult->fetch()) {
-        $propertyHolder = new PropertyUtils();
-        $propertyHolder->setTypeId((int)$result['type_id']);
-        $this->parent->setConstructPropertyHolder($propertyHolder);
+        $propertyHolder['type_id'] = $result['type_id'];
+        $this->_parent->_setConstructPropertyHolder($propertyHolder);
         
-        $assoc = $this->parent->getConstructByVerifiedId(
+        $assoc = $this->_parent->_getConstructByVerifiedId(
           'AssociationImpl-' . $result['assoc_id']
         );
-        $hash = $this->parent->getAssocHash(
+        $hash = $this->_parent->_getAssocHash(
           $assoc->getType(), 
           $assoc->getScope(), 
           $assoc->getRoles()
         );
-        $this->parent->updateAssocHash($assoc->dbId, $hash);
+        $this->_parent->_updateAssocHash($assoc->_dbId, $hash);
       }
     }
     
     // clean up: remove possible duplicates from qtm_theme
     $query = 'SELECT MIN(id) AS protected_id, scope_id, topic_id, COUNT(*)' .
-      ' FROM ' . $this->config['table']['theme'] . 
-      ' WHERE topic_id = ' . $this->dbId . 
+      ' FROM ' . $this->_config['table']['theme'] . 
+      ' WHERE topic_id = ' . $this->_dbId . 
       ' GROUP BY scope_id, topic_id HAVING COUNT(*) > 1';
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $query = 'DELETE FROM ' . $this->config['table']['theme'] .
+      $query = 'DELETE FROM ' . $this->_config['table']['theme'] .
         ' WHERE id <> ' . $result['protected_id'] . 
         ' AND scope_id = ' . $result['scope_id'] . 
         ' AND topic_id = ' . $result['topic_id'];
-      $this->mysql->execute($query);
+      $this->_mysql->execute($query);
     }
     
     // roles properties
-    $query = 'UPDATE ' . $this->config['table']['assocrole'] . 
-      ' SET player_id = ' . $this->dbId . ' WHERE player_id = ' . $other->dbId;
-    $this->mysql->execute($query);
+    $query = 'UPDATE ' . $this->_config['table']['assocrole'] . 
+      ' SET player_id = ' . $this->_dbId . ' WHERE player_id = ' . $other->_dbId;
+    $this->_mysql->execute($query);
     
     // type properties in roles
-    $query = 'UPDATE ' . $this->config['table']['assocrole'] . 
-      ' SET type_id = ' . $this->dbId . ' WHERE type_id = ' . $other->dbId;
-    $this->mysql->execute($query);
+    $query = 'UPDATE ' . $this->_config['table']['assocrole'] . 
+      ' SET type_id = ' . $this->_dbId . ' WHERE type_id = ' . $other->_dbId;
+    $this->_mysql->execute($query);
     
     // clean up: remove possible duplicates from qtm_assocrole
     $query = 'SELECT MIN(id) AS protected_id, ' .
@@ -800,30 +792,30 @@ final class TopicImpl extends ConstructImpl implements Topic {
                     'type_id, ' .
                     'player_id, ' .
                     'COUNT(*)' .
-      ' FROM ' . $this->config['table']['assocrole'] . 
-      ' WHERE (type_id = ' . $this->dbId . ' OR player_id = ' . $this->dbId . ')' . 
+      ' FROM ' . $this->_config['table']['assocrole'] . 
+      ' WHERE (type_id = ' . $this->_dbId . ' OR player_id = ' . $this->_dbId . ')' . 
       ' GROUP BY association_id, type_id, player_id HAVING COUNT(*) > 1';
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $query = 'DELETE FROM ' . $this->config['table']['assocrole'] .
+      $query = 'DELETE FROM ' . $this->_config['table']['assocrole'] .
         ' WHERE id <> ' . $result['protected_id'] . 
         ' AND association_id = ' . $result['association_id'] . 
         ' AND type_id = ' . $result['type_id'] . 
         ' AND player_id = ' . $result['player_id'];
-      $this->mysql->execute($query);
+      $this->_mysql->execute($query);
     }
     
     /* type properties in association; 
       use get and set in order to update the hash and remove dupl. */
-    $assocs = $this->parent->getAssociationsByType($other);
+    $assocs = $this->_parent->getAssociationsByType($other);
     foreach ($assocs as $assoc) {
       $assoc->setType($this);
-      $this->parent->finished($assoc);
+      $this->_parent->finished($assoc);
     }
     
     /* type properties in occurrence; 
       use get and set in order to update the hash and remove dupl. */
-    $occs = $this->getAllOccurrencesByType($other);
+    $occs = $this->_getAllOccurrencesByType($other);
     foreach ($occs as $occ) {
       $occ->setType($this);
       $occ->getParent()->finished($occ);
@@ -831,16 +823,16 @@ final class TopicImpl extends ConstructImpl implements Topic {
     
     /* type properties in name; 
       use get and set in order to update the hash and remove dupl. */
-    $names = $this->getAllNamesByType($other);
+    $names = $this->_getAllNamesByType($other);
     foreach ($names as $name) {
       $name->setType($this);
       $name->getParent()->finished($name);
     }
 
     // reifier properties
-    $query = 'UPDATE ' . $this->config['table']['topicmapconstruct'] . 
-      ' SET reifier_id = ' . $this->dbId . ' WHERE reifier_id = ' . $other->dbId;
-    $this->mysql->execute($query);
+    $query = 'UPDATE ' . $this->_config['table']['topicmapconstruct'] . 
+      ' SET reifier_id = ' . $this->_dbId . ' WHERE reifier_id = ' . $other->_dbId;
+    $this->_mysql->execute($query);
     
     // merge other's names
     $othersNames = $other->getNames();
@@ -851,10 +843,10 @@ final class TopicImpl extends ConstructImpl implements Topic {
                                 $othersName->getScope()
                               );
       // other's name's iids
-      $name->gainItemIdentifiers($othersName);
+      $name->_gainItemIdentifiers($othersName);
       
       // other's name's reifier
-      $name->gainReifier($othersName);
+      $name->_gainReifier($othersName);
 
       // other's name's variants
       $othersNameVariants = $othersName->getVariants();
@@ -864,10 +856,10 @@ final class TopicImpl extends ConstructImpl implements Topic {
                                           $othersNameVariant->getScope()
                                         );
         // other's variant's iids
-        $variant->gainItemIdentifiers($othersNameVariant);
+        $variant->_gainItemIdentifiers($othersNameVariant);
 
         // other's variant's reifier
-        $variant->gainReifier($othersNameVariant);
+        $variant->_gainReifier($othersNameVariant);
       }
     }
     
@@ -880,10 +872,10 @@ final class TopicImpl extends ConstructImpl implements Topic {
                                       $othersOccurrence->getScope()
                                     );
       // other's occurrence's iids
-      $occ->gainItemIdentifiers($othersOccurrence);
+      $occ->_gainItemIdentifiers($othersOccurrence);
 
       // other's occurrence's reifier
-      $occ->gainReifier($othersOccurrence);
+      $occ->_gainReifier($othersOccurrence);
     }
     
     // merge other's sids
@@ -909,11 +901,13 @@ final class TopicImpl extends ConstructImpl implements Topic {
     
     $other->remove();
 
-    $this->mysql->finishTransaction(true);
+    $this->_mysql->finishTransaction(true);
     
-    if (!$this->mysql->hasError()) {
-      $this->postSave();
+    if (!$this->_mysql->hasError()) {
+      $this->_postSave();
     }
+    
+    $this->_topicMap->_setState(VocabularyUtils::QTM_STATE_REGULAR);
   }
   
   /**
@@ -926,26 +920,26 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * construct, or if it reifies a {@link Reifiable}.
    */
   public function remove() {
-    if ($this->isType()) {
+    if ($this->_isType()) {
       throw new TopicInUseException($this, __METHOD__ . ': Topic is typing one or more constructs!');
     }
-    if ($this->playsRole()) {
+    if ($this->_playsRole()) {
       throw new TopicInUseException($this, __METHOD__ . ': Topic plays one or more roles!');
     }
-    if ($this->isTheme()) {
+    if ($this->_isTheme()) {
       throw new TopicInUseException($this, __METHOD__ . ': Topic is a theme!');
     }
     if ($this->getReified() instanceof Reifiable) {
       throw new TopicInUseException($this, __METHOD__ . ': Topic is a reifier!');
     }
-    $this->preDelete();
-    $query = 'DELETE FROM ' . $this->config['table']['topic'] . 
-      ' WHERE id = ' . $this->dbId;
-    $this->mysql->execute($query);
-    if (!$this->mysql->hasError()) {
-      $this->parent->removeTopicFromCache($this->getId());
-      $this->id = 
-      $this->dbId = null;
+    $this->_preDelete();
+    $query = 'DELETE FROM ' . $this->_config['table']['topic'] . 
+      ' WHERE id = ' . $this->_dbId;
+    $this->_mysql->execute($query);
+    if (!$this->_mysql->hasError()) {
+      $this->_parent->_removeTopicFromCache($this->getId());
+      $this->_id = 
+      $this->_dbId = null;
     }
   }
   
@@ -955,38 +949,49 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * 
    * Note: This may be a resource consuming process.
    * 
-   * @param ConstructImpl The property.
+   * @param Reifiable The property (a {@link NameImpl} or an {@link OccurrenceImpl}).
    * @return void
+   * @throws InvalidArgumentException If the property is not an instance of 
+   * 				{@link NameImpl} or {@link OccurrenceImpl}.
    */
-  public function finished(Construct $property) {
+  public function finished(Reifiable $property) {
     $className = get_class($property);
-    $table = $className == 'NameImpl' ? 'topicname' : 'occurrence';
+    switch ($className) {
+      case 'NameImpl':
+        $tableName = 'topicname';
+        break;
+      case 'OccurrenceImpl':
+        $tableName = 'occurrence';
+        break;
+      default:
+        throw new InvalidArgumentException(
+          __METHOD__ . ': The property is not an instance of Name or Occurrence.'
+        );
+    }
     // get the hash of the finished property
-    $query = 'SELECT hash FROM ' . $this->config['table'][$table] . 
-      ' WHERE id = ' . $property->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT hash FROM ' . $this->_config['table'][$tableName] . 
+      ' WHERE id = ' . $property->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetch();
     // detect duplicates
-    $query = 'SELECT id FROM ' . $this->config['table'][$table] . 
+    $query = 'SELECT id FROM ' . $this->_config['table'][$tableName] . 
       ' WHERE hash = "' . $result['hash'] . '"' . 
-      ' AND id <> ' . $property->dbId . 
-      ' AND topic_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
-    if ($rows > 0) {// there exist duplicates
-      while ($result = $mysqlResult->fetch()) {
-        $this->parent->setConstructParent($this);
-        $duplicate = $this->parent->getConstructByVerifiedId($className . '-' . 
-          $result['id']);
-        // gain duplicate's item identities
-        $property->gainItemIdentifiers($duplicate);
-        // gain duplicate's reifier
-        $property->gainReifier($duplicate);
-        if ($property instanceof Name) {
-          $property->gainVariants($duplicate);
-        }
-        $duplicate->remove();
+      ' AND id <> ' . $property->_dbId . 
+      ' AND topic_id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
+    while ($result = $mysqlResult->fetch()) {
+      $this->_parent->_setConstructParent($this);
+      $duplicate = $this->_parent->_getConstructByVerifiedId(
+        $className . '-' . $result['id']
+      );
+      // gain duplicate's item identities
+      $property->_gainItemIdentifiers($duplicate);
+      // gain duplicate's reifier
+      $property->_gainReifier($duplicate);
+      if ($property instanceof Name) {
+        $property->_gainVariants($duplicate);
       }
+      $duplicate->remove();
     }
   }
   
@@ -998,19 +1003,19 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param array The scope.
    * @return string
    */
-  protected function getNameHash($value, Topic $type, array $scope) {
+  protected function _getNameHash($value, Topic $type, array $scope) {
     if (empty($scope)) {
-      return md5($value . $type->dbId);
+      return md5($value . $type->_dbId);
     } else {
       $ids = array();
       foreach ($scope as $theme) {
         if ($theme instanceof Topic) {
-          $ids[$theme->dbId] = $theme->dbId;
+          $ids[$theme->_dbId] = $theme->_dbId;
         }
       }
       ksort($ids);
       $idsImploded = implode('', $ids);
-      return md5($value . $type->dbId . $idsImploded);
+      return md5($value . $type->_dbId . $idsImploded);
     }
   }
   
@@ -1023,19 +1028,19 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param array The scope.
    * @return string
    */
-  protected function getOccurrenceHash(Topic $type, $value, $datatype, array $scope) {
+  protected function _getOccurrenceHash(Topic $type, $value, $datatype, array $scope) {
     if (empty($scope)) {
-      return md5($value . $datatype . $type->dbId);
+      return md5($value . $datatype . $type->_dbId);
     } else {
       $ids = array();
       foreach ($scope as $theme) {
         if ($theme instanceof Topic) {
-          $ids[$theme->dbId] = $theme->dbId;
+          $ids[$theme->_dbId] = $theme->_dbId;
         }
       }
       ksort($ids);
       $idsImploded = implode('', $ids);
-      return md5($value . $datatype . $type->dbId . $idsImploded);
+      return md5($value . $datatype . $type->_dbId . $idsImploded);
     }
   }
   
@@ -1046,11 +1051,11 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param string The name hash.
    * @return void
    */
-  protected function updateNameHash($nameId, $hash) {
-    $query = 'UPDATE ' . $this->config['table']['topicname'] . 
+  protected function _updateNameHash($nameId, $hash) {
+    $query = 'UPDATE ' . $this->_config['table']['topicname'] . 
       ' SET hash = "' . $hash . '"' .
       ' WHERE id = ' . $nameId;
-    $this->mysql->execute($query);
+    $this->_mysql->execute($query);
   }
   
   /**
@@ -1060,11 +1065,11 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param string The occurrence hash.
    * @return void
    */
-  protected function updateOccurrenceHash($occId, $hash) {
-    $query = 'UPDATE ' . $this->config['table']['occurrence'] . 
+  protected function _updateOccurrenceHash($occId, $hash) {
+    $query = 'UPDATE ' . $this->_config['table']['occurrence'] . 
       ' SET hash = "' . $hash . '"' .
       ' WHERE id = ' . $occId;
-    $this->mysql->execute($query);
+    $this->_mysql->execute($query);
   }
   
   /**
@@ -1073,11 +1078,11 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param string The hash code.
    * @return false|int The name id or <var>false</var> otherwise.
    */
-  protected function hasName($hash) {
-    $query = 'SELECT id FROM ' . $this->config['table']['topicname'] . 
-      ' WHERE topic_id = ' . $this->dbId . 
+  private function _hasName($hash) {
+    $query = 'SELECT id FROM ' . $this->_config['table']['topicname'] . 
+      ' WHERE topic_id = ' . $this->_dbId . 
       ' AND hash = "' . $hash . '"';
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {
       $result = $mysqlResult->fetch();
@@ -1092,11 +1097,11 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param string The hash code.
    * @return false|int The occurrence id or <var>false</var> otherwise.
    */
-  protected function hasOccurrence($hash) {
-    $query = 'SELECT id FROM ' . $this->config['table']['occurrence'] . 
-      ' WHERE topic_id = ' . $this->dbId . 
+  private function _hasOccurrence($hash) {
+    $query = 'SELECT id FROM ' . $this->_config['table']['occurrence'] . 
+      ' WHERE topic_id = ' . $this->_dbId . 
       ' AND hash = "' . $hash . '"';
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {
       $result = $mysqlResult->fetch();
@@ -1110,24 +1115,24 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * 
    * @return TopicImpl
    */
-  private function getDefaultNameType() {
-    if (!is_null($this->defaultNameType)) {
-      return $this->defaultNameType; 
+  private function _getDefaultNameType() {
+    if (!is_null($this->_defaultNameType)) {
+      return $this->_defaultNameType; 
     }
     $sid = VocabularyUtils::TMDM_PSI_DEFAULT_NAME_TYPE;
-    $query = $query = 'SELECT t1.id FROM ' . $this->config['table']['topic'] . ' AS t1' .
-      ' INNER JOIN ' . $this->config['table']['subjectidentifier'] . ' t2' .
+    $query = $query = 'SELECT t1.id FROM ' . $this->_config['table']['topic'] . ' AS t1' .
+      ' INNER JOIN ' . $this->_config['table']['subjectidentifier'] . ' t2' .
       ' ON t1.id = t2.topic_id' .
       ' WHERE t2.locator = "' . $sid . '"' .
-      ' AND t1.topicmap_id = ' . $this->parent->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+      ' AND t1.topicmap_id = ' . $this->_parent->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {
       $result = $mysqlResult->fetch();
-      $nameType = $this->parent->getConstructByVerifiedId(__CLASS__ . '-' . $result['id']);
-      return $this->defaultNameType = $nameType;
+      $nameType = $this->_parent->_getConstructByVerifiedId(__CLASS__ . '-' . $result['id']);
+      return $this->_defaultNameType = $nameType;
     } else {
-      return $this->defaultNameType = $this->parent->createTopicBySubjectIdentifier($sid);
+      return $this->_defaultNameType = $this->_parent->createTopicBySubjectIdentifier($sid);
     }
   }
   
@@ -1136,10 +1141,10 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * 
    * @return boolean
    */
-  private function playsRole() {
-    $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['assocrole'] . 
-      ' WHERE player_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+  private function _playsRole() {
+    $query = 'SELECT COUNT(*) FROM ' . $this->_config['table']['assocrole'] . 
+      ' WHERE player_id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetchArray();
     return $result[0] == 0 ? false : true;
   }
@@ -1149,7 +1154,7 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * 
    * @return boolean
    */
-  private function isType() {
+  private function _isType() {
     $tableNames = array(
       'instanceof',
       'association',
@@ -1158,9 +1163,9 @@ final class TopicImpl extends ConstructImpl implements Topic {
       'topicname'
     );
     foreach ($tableNames as $tableName) {
-      $query = 'SELECT COUNT(*) FROM ' . $this->config['table'][$tableName] . 
-        ' WHERE type_id = ' . $this->dbId;
-      $mysqlResult = $this->mysql->execute($query);
+      $query = 'SELECT COUNT(*) FROM ' . $this->_config['table'][$tableName] . 
+        ' WHERE type_id = ' . $this->_dbId;
+      $mysqlResult = $this->_mysql->execute($query);
       $result = $mysqlResult->fetchArray();
       if ($result[0] > 0) return true;
     }
@@ -1172,10 +1177,10 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * 
    * @return boolean
    */
-  private function isTheme() {
-    $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['theme'] . 
-      ' WHERE topic_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+  private function _isTheme() {
+    $query = 'SELECT COUNT(*) FROM ' . $this->_config['table']['theme'] . 
+      ' WHERE topic_id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetchArray();
     return $result[0] == 0 ? false : true;
   }
@@ -1187,18 +1192,18 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param TopicImpl The occurrence type.
    * @return array An array containing occurrences.
    */
-  private function getAllOccurrencesByType(Topic $type) {
+  private function _getAllOccurrencesByType(Topic $type) {
     $occurrences = array();
-    $query = 'SELECT t1.id AS occ_id, t2.id AS topic_id FROM ' . $this->config['table']['occurrence'] . ' t1' . 
-      ' INNER JOIN ' . $this->config['table']['topic'] . ' t2' . 
+    $query = 'SELECT t1.id AS occ_id, t2.id AS topic_id FROM ' . $this->_config['table']['occurrence'] . ' t1' . 
+      ' INNER JOIN ' . $this->_config['table']['topic'] . ' t2' . 
       ' ON t2.id = t1.topic_id' . 
-      ' WHERE t2.topicmap_id = ' . $this->parent->dbId . 
-      ' AND t1.type_id = ' . $type->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+      ' WHERE t2.topicmap_id = ' . $this->_parent->_dbId . 
+      ' AND t1.type_id = ' . $type->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $parent = $this->parent->getConstructByVerifiedId(__CLASS__ . '-' . $result['topic_id']);
-      $this->parent->setConstructParent($parent);
-      $occurrence = $this->parent->getConstructByVerifiedId('OccurrenceImpl-' . $result['occ_id']);
+      $parent = $this->_parent->_getConstructByVerifiedId(__CLASS__ . '-' . $result['topic_id']);
+      $this->_parent->_setConstructParent($parent);
+      $occurrence = $this->_parent->_getConstructByVerifiedId('OccurrenceImpl-' . $result['occ_id']);
       $occurrences[] = $occurrence;
     }
     return $occurrences;
@@ -1211,18 +1216,18 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param TopicImpl The name type.
    * @return array An array containing topic names.
    */
-  private function getAllNamesByType(Topic $type) {
+  private function _getAllNamesByType(Topic $type) {
     $names = array();
-    $query = 'SELECT t1.id AS name_id, t2.id AS topic_id FROM ' . $this->config['table']['topicname'] . ' t1' . 
-      ' INNER JOIN ' . $this->config['table']['topic'] . ' t2' . 
+    $query = 'SELECT t1.id AS name_id, t2.id AS topic_id FROM ' . $this->_config['table']['topicname'] . ' t1' . 
+      ' INNER JOIN ' . $this->_config['table']['topic'] . ' t2' . 
       ' ON t2.id = t1.topic_id' . 
-      ' WHERE t2.topicmap_id = ' . $this->parent->dbId . 
-      ' AND t1.type_id = ' . $type->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+      ' WHERE t2.topicmap_id = ' . $this->_parent->_dbId . 
+      ' AND t1.type_id = ' . $type->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $parent = $this->parent->getConstructByVerifiedId(__CLASS__ . '-' . $result['topic_id']);
-      $this->parent->setConstructParent($parent);
-      $name = $this->parent->getConstructByVerifiedId('NameImpl-' . $result['name_id']);
+      $parent = $this->_parent->_getConstructByVerifiedId(__CLASS__ . '-' . $result['topic_id']);
+      $this->_parent->_setConstructParent($parent);
+      $name = $this->_parent->_getConstructByVerifiedId('NameImpl-' . $result['name_id']);
       $names[] = $name;
     }
     return $names;
@@ -1236,25 +1241,22 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param TopicImpl The type of the {@link AssociationImpl} from which the
    * @return array An array containing a set of {@link RoleImpl}s played by this topic.
    */
-  private function getRolesPlayedUntyped() {
+  private function _getRolesPlayedUntyped() {
     $roles = array();
     $query = 'SELECT t1.id AS role_id, t1.association_id, t1.type_id, t2.hash' .
-    	' FROM ' . $this->config['table']['assocrole'] . ' t1' .
-      ' INNER JOIN ' . $this->config['table']['association'] . ' t2' .
+    	' FROM ' . $this->_config['table']['assocrole'] . ' t1' .
+      ' INNER JOIN ' . $this->_config['table']['association'] . ' t2' .
       ' ON t2.id = t1.association_id' .
-      ' WHERE t1.player_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+      ' WHERE t1.player_id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       // parent association
-      $assoc = $this->parent->getConstructByVerifiedId(
+      $assoc = $this->_parent->_getConstructByVerifiedId(
       	'AssociationImpl-' . $result['association_id']
       );
-      if (is_null($assoc)) {
-        continue;
-      }
-      $this->parent->setConstructParent($assoc);
-      $role = $this->parent->getConstructByVerifiedId('RoleImpl-' . $result['role_id']);
-      $roles[$result['hash'] . $result['type_id'] . $this->dbId] = $role;
+      $this->_parent->_setConstructParent($assoc);
+      $role = $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $result['role_id']);
+      $roles[$result['hash'] . $result['type_id'] . $this->_dbId] = $role;
     }
     return array_values($roles);
   }
@@ -1267,26 +1269,23 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @return array An array containing a set of {@link RoleImpl}s with the specified 
    *        <var>type</var>.
    */
-  private function getRolesPlayedByType(Topic $type) {
+  private function _getRolesPlayedByType(Topic $type) {
     $roles = array();
     $query = 'SELECT t1.id AS role_id, t1.association_id, t1.type_id, t2.hash' .
-    	' FROM ' . $this->config['table']['assocrole'] . ' t1' .
-      ' INNER JOIN ' . $this->config['table']['association'] . ' t2' . 
+    	' FROM ' . $this->_config['table']['assocrole'] . ' t1' .
+      ' INNER JOIN ' . $this->_config['table']['association'] . ' t2' . 
       ' ON t2.id = t1.association_id' . 
-      ' WHERE t1.type_id = ' . $type->dbId . 
-      ' AND t1.player_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+      ' WHERE t1.type_id = ' . $type->_dbId . 
+      ' AND t1.player_id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       // parent association
-      $assoc = $this->parent->getConstructByVerifiedId(
+      $assoc = $this->_parent->_getConstructByVerifiedId(
       	'AssociationImpl-' . $result['association_id']
       );
-      if (is_null($assoc)) {
-        continue;
-      }
-      $this->parent->setConstructParent($assoc);
-      $role = $this->parent->getConstructByVerifiedId('RoleImpl-' . $result['role_id']);
-      $roles[$result['hash'] . $result['type_id'] . $this->dbId] = $role;
+      $this->_parent->_setConstructParent($assoc);
+      $role = $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $result['role_id']);
+      $roles[$result['hash'] . $result['type_id'] . $this->_dbId] = $role;
     }
     return array_values($roles);
   }
@@ -1303,27 +1302,24 @@ final class TopicImpl extends ConstructImpl implements Topic {
    *        <var>type</var> which are part of {@link AssociationImpl}s with the specified 
    *        <var>assocType</var>.
    */
-  private function getRolesPlayedByTypeAssocType(Topic $type, Topic $assocType) {
+  private function _getRolesPlayedByTypeAssocType(Topic $type, Topic $assocType) {
     $roles = array();
     $query = 'SELECT t1.id AS role_id, t1.association_id, t1.type_id, t2.hash' . 
-    	' FROM ' . $this->config['table']['assocrole'] . ' t1' .
-      ' INNER JOIN ' . $this->config['table']['association'] . ' t2' .
+    	' FROM ' . $this->_config['table']['assocrole'] . ' t1' .
+      ' INNER JOIN ' . $this->_config['table']['association'] . ' t2' .
       ' ON t2.id = t1.association_id' .
-      ' WHERE t2.type_id = ' . $assocType->dbId . 
-      ' AND t1.type_id = ' . $type->dbId . 
-      ' AND t1.player_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+      ' WHERE t2.type_id = ' . $assocType->_dbId . 
+      ' AND t1.type_id = ' . $type->_dbId . 
+      ' AND t1.player_id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       // parent association
-      $assoc = $this->parent->getConstructByVerifiedId(
+      $assoc = $this->_parent->_getConstructByVerifiedId(
       	'AssociationImpl-' . $result['association_id']
       );
-      if (is_null($assoc)) {
-        continue;
-      }
-      $this->parent->setConstructParent($assoc);
-      $role = $this->parent->getConstructByVerifiedId('RoleImpl-' . $result['role_id']);
-      $roles[$result['hash'] . $result['type_id'] . $this->dbId] = $role;
+      $this->_parent->_setConstructParent($assoc);
+      $role = $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $result['role_id']);
+      $roles[$result['hash'] . $result['type_id'] . $this->_dbId] = $role;
     }
     return array_values($roles);
   }
@@ -1338,26 +1334,23 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @return array An array containing a set of {@link RoleImpl}s which are part of 
    *        {@link AssociationImpl}s with the specified <var>assocType</var>.
    */
-  private function getRolesPlayedByAssocType(Topic $assocType) {
+  private function _getRolesPlayedByAssocType(Topic $assocType) {
     $roles = array();
     $query = 'SELECT t1.id AS role_id, t1.association_id, t1.type_id, t2.hash' . 
-    	' FROM ' . $this->config['table']['assocrole'] . ' t1' .
-      ' INNER JOIN ' . $this->config['table']['association'] . ' t2' .
+    	' FROM ' . $this->_config['table']['assocrole'] . ' t1' .
+      ' INNER JOIN ' . $this->_config['table']['association'] . ' t2' .
       ' ON t2.id = t1.association_id  ' .
-      ' WHERE t2.type_id = ' . $assocType->dbId . 
-      ' AND t1.player_id = ' . $this->dbId;
-    $mysqlResult = $this->mysql->execute($query);
+      ' WHERE t2.type_id = ' . $assocType->_dbId . 
+      ' AND t1.player_id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       // parent association
-      $assoc = $this->parent->getConstructByVerifiedId(
+      $assoc = $this->_parent->_getConstructByVerifiedId(
       	'AssociationImpl-' . $result['association_id']
       );
-      if (is_null($assoc)) {
-        continue;
-      }
-      $this->parent->setConstructParent($assoc);
-      $role = $this->parent->getConstructByVerifiedId('RoleImpl-' . $result['role_id']);
-      $roles[$result['hash'] . $result['type_id'] . $this->dbId] = $role;
+      $this->_parent->_setConstructParent($assoc);
+      $role = $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $result['role_id']);
+      $roles[$result['hash'] . $result['type_id'] . $this->_dbId] = $role;
     }
     return array_values($roles);
   }
