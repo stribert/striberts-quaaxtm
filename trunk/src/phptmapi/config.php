@@ -21,8 +21,11 @@
 $config['db']['host'] = 'localhost';
 $config['db']['user'] = 'root';
 $config['db']['pass'] = '';
-$config['db']['name'] = 'quaaxtm_new';
-$config['db']['port'] = '3306';
+$config['db']['name'] = 'quaaxtm_test';
+$config['db']['port'] = 3306;
+$config['memcached']['host'] = '127.0.0.1';
+$config['memcached']['port'] = 11211;
+$config['resultcache']['expiration'] = 60;
 $config['table']['association'] = 'qtm_association';
 $config['table']['association_scope'] = 'qtm_association_scope';
 $config['table']['assocrole'] = 'qtm_assocrole';
