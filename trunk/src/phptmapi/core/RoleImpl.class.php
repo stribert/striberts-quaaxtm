@@ -33,7 +33,7 @@
  */
 final class RoleImpl extends ConstructImpl implements Role {
   
-  private $propertyHolder;
+  private $_propertyHolder;
   
   /**
    * Constructor.
@@ -43,7 +43,7 @@ final class RoleImpl extends ConstructImpl implements Role {
    * @param array The configuration data.
    * @param AssociationImpl The parent association.
    * @param TopicMapImpl The containing topic map.
-   * @param PropertyUtils The property holder.
+   * @param array The property holder.
    * @return void
    */
   public function __construct(
@@ -52,12 +52,10 @@ final class RoleImpl extends ConstructImpl implements Role {
     array $config, 
     Association $parent, 
     TopicMap $topicMap, 
-    PropertyUtils $propertyHolder=null
+    array $propertyHolder=array()
   ) {  
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $topicMap);
-    $this->propertyHolder = !is_null($propertyHolder) 
-      ? $propertyHolder 
-      : new PropertyUtils();
+    $this->_propertyHolder = $propertyHolder;
   }
   
   /**
@@ -66,16 +64,20 @@ final class RoleImpl extends ConstructImpl implements Role {
    * @return TopicImpl
    */
   public function getPlayer() {
-    if (!is_null($this->propertyHolder->getPlayerId())) {
-      $playerId = $this->propertyHolder->getPlayerId();
-      return $this->topicMap->getConstructByVerifiedId('TopicImpl-' . $playerId);
+    if (
+      isset($this->_propertyHolder['player_id']) && 
+      !empty($this->_propertyHolder['player_id'])
+    ) {
+      return $this->_topicMap->_getConstructByVerifiedId(
+      	'TopicImpl-' . $this->_propertyHolder['player_id']
+      );
     } else {
-      $query = 'SELECT player_id FROM ' . $this->config['table']['assocrole'] . 
-        ' WHERE id = ' . $this->dbId;
-      $mysqlResult = $this->mysql->execute($query);
+      $query = 'SELECT player_id FROM ' . $this->_config['table']['assocrole'] . 
+        ' WHERE id = ' . $this->_dbId;
+      $mysqlResult = $this->_mysql->execute($query);
       $result = $mysqlResult->fetch();
-      $this->propertyHolder->setPlayerId($result['player_id']);
-      return $this->topicMap->getConstructByVerifiedId('TopicImpl-' . $result['player_id']);
+      $this->_propertyHolder['player_id'] = $result['player_id'];
+      return $this->_topicMap->_getConstructByVerifiedId('TopicImpl-' . $result['player_id']);
     }
   }
 
@@ -89,26 +91,26 @@ final class RoleImpl extends ConstructImpl implements Role {
    *        to the parent topic map.
    */
   public function setPlayer(Topic $player) {
-    if (!$this->topicMap->equals($player->topicMap)) {
+    if (!$this->_topicMap->equals($player->_topicMap)) {
       throw new ModelConstraintException(
         $this, 
-        __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+        __METHOD__ . ConstructImpl::$_sameTmConstraintErrMsg
       );
     }
-    $this->mysql->startTransaction();
-    $query = 'UPDATE ' . $this->config['table']['assocrole'] . 
-      ' SET player_id = ' . $player->dbId . 
-      ' WHERE id = ' . $this->dbId;
-    $this->mysql->execute($query);
+    $this->_mysql->startTransaction();
+    $query = 'UPDATE ' . $this->_config['table']['assocrole'] . 
+      ' SET player_id = ' . $player->_dbId . 
+      ' WHERE id = ' . $this->_dbId;
+    $this->_mysql->execute($query);
     
-    $hash = $this->topicMap->getAssocHash($this->parent->getType(), 
-      $this->parent->getScope(), $this->parent->getRoles());
-    $this->topicMap->updateAssocHash($this->parent->dbId, $hash);
-    $this->mysql->finishTransaction();
+    $hash = $this->_topicMap->_getAssocHash($this->_parent->getType(), 
+      $this->_parent->getScope(), $this->_parent->getRoles());
+    $this->_topicMap->_updateAssocHash($this->_parent->_dbId, $hash);
+    $this->_mysql->finishTransaction();
     
-    if (!$this->mysql->hasError()) {
-      $this->propertyHolder->setPlayerId($player->dbId);
-      $this->postSave();
+    if (!$this->_mysql->hasError()) {
+      $this->_propertyHolder['player_id'] = $player->_dbId;
+      $this->_postSave();
     }
   }
   
@@ -136,16 +138,20 @@ final class RoleImpl extends ConstructImpl implements Role {
    * @return TopicImpl
    */
   public function getType() {
-    if (!is_null($this->propertyHolder->getTypeId())) {
-      $typeId = $this->propertyHolder->getTypeId();
-      return $this->topicMap->getConstructByVerifiedId('TopicImpl-' . $typeId);
+    if (
+      isset($this->_propertyHolder['type_id']) && 
+      !empty($this->_propertyHolder['type_id'])
+    ) {
+      return $this->_topicMap->_getConstructByVerifiedId(
+      	'TopicImpl-' . $this->_propertyHolder['type_id']
+      );
     } else {
-      $query = 'SELECT type_id FROM ' . $this->config['table']['assocrole'] . 
-        ' WHERE id = ' . $this->dbId;
-      $mysqlResult = $this->mysql->execute($query);
+      $query = 'SELECT type_id FROM ' . $this->_config['table']['assocrole'] . 
+        ' WHERE id = ' . $this->_dbId;
+      $mysqlResult = $this->_mysql->execute($query);
       $result = $mysqlResult->fetch();
-      $this->propertyHolder->setTypeId($result['type_id']);
-      return $this->topicMap->getConstructByVerifiedId('TopicImpl-' . $result['type_id']);
+      $this->_propertyHolder['type_id'] = $result['type_id'];
+      return $this->_topicMap->_getConstructByVerifiedId('TopicImpl-' . $result['type_id']);
     }
   }
 
@@ -159,26 +165,26 @@ final class RoleImpl extends ConstructImpl implements Role {
    *        to the parent topic map.
    */
   public function setType(Topic $type) {
-    if (!$this->topicMap->equals($type->topicMap)) {
+    if (!$this->_topicMap->equals($type->_topicMap)) {
       throw new ModelConstraintException(
         $this, 
-        __METHOD__ . parent::SAME_TM_CONSTRAINT_ERR_MSG
+        __METHOD__ . ConstructImpl::$_sameTmConstraintErrMsg
       );
     }
-    $this->mysql->startTransaction();
-    $query = 'UPDATE ' . $this->config['table']['assocrole'] . 
-      ' SET type_id = ' . $type->dbId . 
-      ' WHERE id = ' . $this->dbId;
-    $this->mysql->execute($query);
+    $this->_mysql->startTransaction();
+    $query = 'UPDATE ' . $this->_config['table']['assocrole'] . 
+      ' SET type_id = ' . $type->_dbId . 
+      ' WHERE id = ' . $this->_dbId;
+    $this->_mysql->execute($query);
     
-    $hash = $this->topicMap->getAssocHash($this->parent->getType(), 
-      $this->parent->getScope(), $this->parent->getRoles());
-    $this->topicMap->updateAssocHash($this->parent->dbId, $hash);
-    $this->mysql->finishTransaction();
+    $hash = $this->_topicMap->_getAssocHash($this->_parent->getType(), 
+      $this->_parent->getScope(), $this->_parent->getRoles());
+    $this->_topicMap->_updateAssocHash($this->_parent->_dbId, $hash);
+    $this->_mysql->finishTransaction();
     
-    if (!$this->mysql->hasError()) {
-      $this->propertyHolder->setTypeId($type->dbId);
-      $this->postSave();
+    if (!$this->_mysql->hasError()) {
+      $this->_propertyHolder['type_id'] = $type->_dbId;
+      $this->_postSave();
     }
   }
   
@@ -189,20 +195,20 @@ final class RoleImpl extends ConstructImpl implements Role {
    * @return void
    */
   public function remove() {
-    $this->preDelete();
-    $this->mysql->startTransaction();
-    $query = 'DELETE FROM ' . $this->config['table']['assocrole'] . 
-      ' WHERE id = ' . $this->dbId;
-    $this->mysql->execute($query);
+    $this->_preDelete();
+    $this->_mysql->startTransaction();
+    $query = 'DELETE FROM ' . $this->_config['table']['assocrole'] . 
+      ' WHERE id = ' . $this->_dbId;
+    $this->_mysql->execute($query);
      
-    $hash = $this->topicMap->getAssocHash($this->parent->getType(), 
-      $this->parent->getScope(), $this->parent->getRoles());
-    $this->topicMap->updateAssocHash($this->parent->dbId, $hash);
-    $this->mysql->finishTransaction();
+    $hash = $this->_topicMap->_getAssocHash($this->_parent->getType(), 
+      $this->_parent->getScope(), $this->_parent->getRoles());
+    $this->_topicMap->_updateAssocHash($this->_parent->_dbId, $hash);
+    $this->_mysql->finishTransaction();
     
-    $this->id = 
-    $this->dbId = 
-    $this->propertyHolder = null;
+    $this->_id = 
+    $this->_dbId = null;
+    $this->_propertyHolder = array();
   }
 }
 ?>
