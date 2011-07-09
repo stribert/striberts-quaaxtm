@@ -19,14 +19,14 @@
  */
 
 /**
- * An implementation of {@link IScope}.
+ * Represents a set of {@link TopicImpl}s (themes) which define the scope.
  *
  * @package core
  * @author Johannes Schmidt <joschmidt@users.sourceforge.net>
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-final class ScopeImpl implements IScope {
+final class ScopeImpl {
 
   /**
    * The id (primary key) in table qtm_scope.
@@ -35,12 +35,12 @@ final class ScopeImpl implements IScope {
    */
   public $dbId;
 
-  private $mysql,
-          $config,
-          $themes,
-          $themesIds,
-          $currentTopicMap,
-          $currentConstruct;
+  private $_mysql,
+          $_config,
+          $_themes,
+          $_themesIds,
+          $_currentTopicMap,
+          $_currentConstruct;
 
   /**
    * Constructor.
@@ -58,27 +58,30 @@ final class ScopeImpl implements IScope {
     TopicMap $currentTopicMap, 
     Construct $currentConstruct
   ) {  
-    $this->mysql = $mysql;
-    $this->config = $config;
-    $this->currentTopicMap = $currentTopicMap;
-    $this->currentConstruct = $currentConstruct;
+    $this->_mysql = $mysql;
+    $this->_config = $config;
+    $this->_currentTopicMap = $currentTopicMap;
+    $this->_currentConstruct = $currentConstruct;
     if (count($themes) > 0) {
-      $this->createSet($themes);
-      $scopeId = $this->exists();
+      $this->_createSet($themes);
+      $scopeId = $this->_exists();
       if ($scopeId) {
-        $this->dbId = $scopeId;
+        $this->_dbId = $scopeId;
       } else {
-        $this->create();
+        $this->_create();
       }
     } else {// unconstrained scope
-      $this->themesIds = 
-      $this->themes = array();
-      $this->dbId = $this->getUcsId();
+      $this->_themesIds = 
+      $this->_themes = array();
+      $this->_dbId = $this->_getUcsId();
     }
   }
   
   /**
-   * @see IScope::isTrueSubset()
+   * Checks if scope is a true subset of given scope (themes).
+   * 
+   * @param array An array containing topics.
+   * @return boolean
    */
   public function isTrueSubset(array $themes) {
     $set = array();
@@ -88,32 +91,20 @@ final class ScopeImpl implements IScope {
       }
     }
     $otherThemesIds = array_keys($set);
-    $intersect = array_intersect($this->themesIds, $otherThemesIds);
-    return count($intersect) == count($this->themesIds) && 
-      count($otherThemesIds) > count($this->themesIds) 
+    $intersect = array_intersect($this->_themesIds, $otherThemesIds);
+    return count($intersect) == count($this->_themesIds) && 
+      count($otherThemesIds) > count($this->_themesIds) 
       ? true 
       : false;
   }
   
   /**
-   * @see IScope::isUnconstrained()
+   * Checks if this scope represents the unconstrained scope (UCS).
+   * 
+   * @return boolean
    */
   public function isUnconstrained() {
-    return count($this->themesIds) > 0 ? false : true;
-  }
-  
-  /**
-   * @see IScope::getThemes()
-   */
-  public function getThemes() {
-    return $this->themes;
-  }
-  
-  /**
-   * @see IScope::hasTheme()
-   */
-  public function hasTheme(Topic $theme) {
-    return in_array($theme->getDbId(), $this->themesIds);
+    return count($this->_themesIds) > 0 ? false : true;
   }
   
   /**
@@ -121,24 +112,24 @@ final class ScopeImpl implements IScope {
    * 
    * @return int|false <var>False</var> if scope does not exist, the scope id otherwise.
    */
-  private function exists() {
-    $idsImploded = implode(',', $this->themesIds);
-    $query = 'SELECT scope_id FROM ' . $this->config['table']['theme'] . 
+  private function _exists() {
+    $idsImploded = implode(',', $this->_themesIds);
+    $query = 'SELECT scope_id FROM ' . $this->_config['table']['theme'] . 
       ' WHERE topic_id IN (' . $idsImploded . ')' .
       ' GROUP BY scope_id';
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {
       while ($result = $mysqlResult->fetch()) {
         $_themesIds = array();
-        $query = 'SELECT topic_id FROM ' . $this->config['table']['theme'] . 
+        $query = 'SELECT topic_id FROM ' . $this->_config['table']['theme'] . 
           ' WHERE scope_id = ' . $result['scope_id'];
-        $_mysqlResult = $this->mysql->execute($query);
+        $_mysqlResult = $this->_mysql->execute($query);
         while ($_result = $_mysqlResult->fetch()) {
           $_themesIds[] = (int) $_result['topic_id'];
         }
-        $diff = array_diff($this->themesIds, $_themesIds);
-        $diffReverse = array_diff($_themesIds, $this->themesIds);
+        $diff = array_diff($this->_themesIds, $_themesIds);
+        $diffReverse = array_diff($_themesIds, $this->_themesIds);
         if (empty($diff) && empty($diffReverse)) {
           return (int) $result['scope_id'];
         }
@@ -153,15 +144,15 @@ final class ScopeImpl implements IScope {
    * 
    * @param array An array containing topics (the themes).
    */
-  private function createSet(array $scope) {
+  private function _createSet(array $scope) {
     $set = array();
     foreach ($scope as $theme) {
       if ($theme instanceof Topic) {
         $set[$theme->getDbId()] = $theme;
       }
     }
-    $this->themesIds = array_keys($set);
-    $this->themes = array_values($set);
+    $this->_themesIds = array_keys($set);
+    $this->_themes = array_values($set);
   }
   
   /**
@@ -169,19 +160,19 @@ final class ScopeImpl implements IScope {
    * 
    * @return void
    */
-  private function create() {
-    $this->mysql->startTransaction();
-    $query = 'INSERT INTO ' . $this->config['table']['scope'] . ' (id) VALUES (NULL)';
-    $mysqlResult = $this->mysql->execute($query);
+  private function _create() {
+    $this->_mysql->startTransaction();
+    $query = 'INSERT INTO ' . $this->_config['table']['scope'] . ' (id) VALUES (NULL)';
+    $mysqlResult = $this->_mysql->execute($query);
     $lastScopeId = $mysqlResult->getLastId();
-    foreach ($this->themesIds as $topicId) {
-      $query = 'INSERT INTO ' . $this->config['table']['theme'] . 
+    foreach ($this->_themesIds as $topicId) {
+      $query = 'INSERT INTO ' . $this->_config['table']['theme'] . 
         ' (scope_id, topic_id) VALUES' .
         ' (' . $lastScopeId . ', ' . $topicId . ')';
-      $this->mysql->execute($query);
+      $this->_mysql->execute($query);
     }
-    $this->dbId = $lastScopeId;
-    $this->mysql->finishTransaction();
+    $this->_dbId = $lastScopeId;
+    $this->_mysql->finishTransaction();
   }
   
   /**
@@ -189,19 +180,19 @@ final class ScopeImpl implements IScope {
    * 
    * @return int The scope id.
    */
-  private function getUcsId() {
-    $query = 'SELECT t1.id AS scope_id FROM ' . $this->config['table']['scope'] . ' t1 ' .
-      'LEFT JOIN ' . $this->config['table']['theme'] . ' t2 ' .
+  private function _getUcsId() {
+    $query = 'SELECT t1.id AS scope_id FROM ' . $this->_config['table']['scope'] . ' t1 ' .
+      'LEFT JOIN ' . $this->_config['table']['theme'] . ' t2 ' .
       'ON t2.scope_id = t1.id ' .
       'WHERE t2.scope_id IS NULL';
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $rows = $mysqlResult->getNumRows();
     if ($rows > 0) {
       $result = $mysqlResult->fetch();
       return (int) $result['scope_id'];
     } else {
-      $query = 'INSERT INTO ' . $this->config['table']['scope'] . ' (id) VALUES (NULL)';
-      $mysqlResult = $this->mysql->execute($query);
+      $query = 'INSERT INTO ' . $this->_config['table']['scope'] . ' (id) VALUES (NULL)';
+      $mysqlResult = $this->_mysql->execute($query);
       return (int) $mysqlResult->getLastId();
     }
   }
