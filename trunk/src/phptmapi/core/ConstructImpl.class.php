@@ -551,7 +551,7 @@ abstract class ConstructImpl implements Construct {
   
   /**
    * (non-PHPdoc)
-   * @see phptmapi/core/TopicMapImpl#getConstructByVerifiedId()
+   * @see phptmapi/core/TopicMapImpl#_getConstructByVerifiedId()
    */
   protected function _getConstructByVerifiedId($id, $hash=null) {
     return;
@@ -559,7 +559,7 @@ abstract class ConstructImpl implements Construct {
   
   /**
    * (non-PHPdoc)
-   * @see phptmapi/core/TopicMapImpl#setConstructParent()
+   * @see phptmapi/core/TopicMapImpl#_setConstructParent()
    */
   protected function _setConstructParent(Construct $parent) {
     return;
@@ -567,7 +567,7 @@ abstract class ConstructImpl implements Construct {
   
   /**
    * (non-PHPdoc)
-   * @see phptmapi/core/TopicMapImpl#setConstructPropertyHolder()
+   * @see phptmapi/core/TopicMapImpl#_setConstructPropertyHolder()
    */
   protected function _setConstructPropertyHolder(array $propertyHolder) {
     return;
@@ -575,7 +575,7 @@ abstract class ConstructImpl implements Construct {
   
   /**
    * (non-PHPdoc)
-   * @see phptmapi/core/TopicMapImpl#getAssocHash()
+   * @see phptmapi/core/TopicMapImpl#_getAssocHash()
    */
   protected function _getAssocHash(Topic $type, array $scope, array $roles) {
     return;
@@ -583,7 +583,7 @@ abstract class ConstructImpl implements Construct {
   
   /**
    * (non-PHPdoc)
-   * @see phptmapi/core/TopicMapImpl#updateAssocHash()
+   * @see phptmapi/core/TopicMapImpl#_updateAssocHash()
    */
   protected function _updateAssocHash($assocId, $hash) {
     return;
@@ -591,7 +591,7 @@ abstract class ConstructImpl implements Construct {
   
   /**
    * (non-PHPdoc)
-   * @see phptmapi/core/TopicMapImpl#hasAssoc()
+   * @see phptmapi/core/TopicMapImpl#_hasAssoc()
    */
   protected function _hasAssoc($hash) {
     return;
@@ -599,7 +599,7 @@ abstract class ConstructImpl implements Construct {
   
   /**
    * (non-PHPdoc)
-   * @see phptmapi/core/TopicMapImpl#removeAssociationFromCache()
+   * @see phptmapi/core/TopicMapImpl#_removeAssociationFromCache()
    */
   protected function _removeAssociationFromCache($assocId) {
     return;
@@ -607,7 +607,7 @@ abstract class ConstructImpl implements Construct {
   
   /**
    * (non-PHPdoc)
-   * @see phptmapi/core/TopicMapImpl#removeTopicFromCache()
+   * @see phptmapi/core/TopicMapImpl#_removeTopicFromCache()
    */
   protected function _removeTopicFromCache($topicId) {
     return;
@@ -615,7 +615,7 @@ abstract class ConstructImpl implements Construct {
   
   /**
    * (non-PHPdoc)
-   * @see phptmapi/core/NameImpl#getVariantHash()
+   * @see phptmapi/core/NameImpl#_getVariantHash()
    */
   protected function _getVariantHash($value, $datatype, array $scope) {
     return;
@@ -623,7 +623,7 @@ abstract class ConstructImpl implements Construct {
   
   /**
    * (non-PHPdoc)
-   * @see phptmapi/core/NameImpl#updateVariantHash()
+   * @see phptmapi/core/NameImpl#_updateVariantHash()
    */
   protected function _updateVariantHash($variantId, $hash) {
     return;
@@ -631,7 +631,7 @@ abstract class ConstructImpl implements Construct {
   
   /**
    * (non-PHPdoc)
-   * @see phptmapi/core/NameImpl#hasVariant()
+   * @see phptmapi/core/NameImpl#_hasVariant()
    */
   protected function _hasVariant($hash) {
     return;
@@ -639,7 +639,7 @@ abstract class ConstructImpl implements Construct {
   
   /**
    * (non-PHPdoc)
-   * @see phptmapi/core/TopicImpl#getNameHash()
+   * @see phptmapi/core/TopicImpl#_getNameHash()
    */
   protected function _getNameHash($value, Topic $type, array $scope) {
     return;
@@ -647,7 +647,7 @@ abstract class ConstructImpl implements Construct {
   
   /**
    * (non-PHPdoc)
-   * @see phptmapi/core/TopicImpl#getOccurrenceHash()
+   * @see phptmapi/core/TopicImpl#_getOccurrenceHash()
    */
   protected function _getOccurrenceHash(Topic $type, $value, $datatype, array $scope) {
     return;
@@ -655,7 +655,7 @@ abstract class ConstructImpl implements Construct {
   
   /**
    * (non-PHPdoc)
-   * @see phptmapi/core/TopicImpl#updateNameHash()
+   * @see phptmapi/core/TopicImpl#_updateNameHash()
    */
   protected function _updateNameHash($nameId, $hash) {
     return;
@@ -663,7 +663,7 @@ abstract class ConstructImpl implements Construct {
   
   /**
    * (non-PHPdoc)
-   * @see phptmapi/core/TopicImpl#updateOccurrenceHash()
+   * @see phptmapi/core/TopicImpl#_updateOccurrenceHash()
    */
   protected function _updateOccurrenceHash($occId, $hash) {
     return;
@@ -671,7 +671,7 @@ abstract class ConstructImpl implements Construct {
   
   /**
    * (non-PHPdoc)
-   * @see phptmapi/core/TopicMapImpl#setState()
+   * @see phptmapi/core/TopicMapImpl#_setState()
    */
   protected function _setState($state) {
     return;
@@ -679,7 +679,7 @@ abstract class ConstructImpl implements Construct {
   
   /**
    * (non-PHPdoc)
-   * @see phptmapi/core/TopicMapImpl#getState()
+   * @see phptmapi/core/TopicMapImpl#_getState()
    */
   protected function _getState() {
     return;
