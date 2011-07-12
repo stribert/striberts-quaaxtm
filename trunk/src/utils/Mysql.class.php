@@ -19,7 +19,7 @@
  */
 
 /**
- * Wraps access to MySQL via mysqli.
+ * Wraps access to MySQL via mysqli and provides a result cache layer using memcached.
  *
  * @package utils
  * @author Johannes Schmidt <joschmidt@users.sourceforge.net>
