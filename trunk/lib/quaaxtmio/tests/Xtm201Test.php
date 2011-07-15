@@ -75,6 +75,27 @@ class Xtm201Test extends TestCase {
     }
   }
   
+  public function testValidRemoteXtm21File() {
+    $host = 'http://quaaxtm.sourceforge.net/tests/';
+    $xtmFile = 'topic-no-id-iid.xtm';
+    $cxtmDir = $this->cxtmIncPath . 'xtm21' . DIRECTORY_SEPARATOR . 'baseline';
+    // read source XTM from remote server
+    $this->readSrcFile($host . $xtmFile, self::$reader);
+    $cxtmBase = $this->readCxtmFile($cxtmDir . DIRECTORY_SEPARATOR . $xtmFile . '.cxtm');
+    // get the topic map and write the XTM
+    $topicMap = $this->sharedFixture->getTopicMap($this->tmLocator);
+    $xtmWriter = new PHPTMAPIXTM201Writer();
+    $xtm = $xtmWriter->write($topicMap, $this->tmLocator);
+    $topicMap->remove();
+    // read written XTM
+    $this->read($xtm, self::$reader);
+    // get the topic map and write the CXTM
+    $topicMap = $this->sharedFixture->getTopicMap($this->tmLocator);
+    $cxtmWriter = new PHPTMAPICXTMWriter();
+    $cxtm = $cxtmWriter->write($topicMap, $this->tmLocator, true, 'TopicImpl-');
+    $this->assertEquals($cxtm, $cxtmBase);
+  }
+  
   /**
    * @dataProvider getValid20Files
    */
