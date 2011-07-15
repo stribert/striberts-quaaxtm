@@ -97,8 +97,7 @@ final class VariantImpl extends ScopedImpl implements IVariant {
         ' WHERE id = ' . $this->_dbId;
       $mysqlResult = $this->_mysql->execute($query);
       $result = $mysqlResult->fetch();
-      $this->_propertyHolder['value'] = $result['value'];
-      return $result['value'];
+      return $this->_propertyHolder['value'] = $result['value'];
     }
   }
 
@@ -119,8 +118,7 @@ final class VariantImpl extends ScopedImpl implements IVariant {
         ' WHERE id = ' . $this->_dbId;
       $mysqlResult = $this->_mysql->execute($query);
       $result = $mysqlResult->fetch();
-      $this->_propertyHolder['datatype'] = $result['datatype'];
-      return $result['datatype'];
+      return $this->_propertyHolder['datatype'] = $result['datatype'];
     }
   }
 

@@ -90,8 +90,7 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
         ' WHERE id = ' . $this->_dbId;
       $mysqlResult = $this->_mysql->execute($query);
       $result = $mysqlResult->fetch();
-      $this->_propertyHolder['value'] = $result['value'];
-      return $result['value'];
+      return $this->_propertyHolder['value'] = $result['value'];
     }
   }
 
@@ -112,8 +111,7 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
         ' WHERE id = ' . $this->_dbId;
       $mysqlResult = $this->_mysql->execute($query);
       $result = $mysqlResult->fetch();
-      $this->_propertyHolder['datatype'] = $result['datatype'];
-      return (string) $result['datatype'];
+      return $this->_propertyHolder['datatype'] = $result['datatype'];
     }
   }
 

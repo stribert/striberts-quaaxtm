@@ -90,8 +90,7 @@ final class NameImpl extends ScopedImpl implements Name {
         ' WHERE id = ' . $this->_dbId;
       $mysqlResult = $this->_mysql->execute($query);
       $result = $mysqlResult->fetch();
-      $this->_propertyHolder['value'] = $result['value'];
-      return $result['value'];
+      return $this->_propertyHolder['value'] = $result['value'];
     }
   }
 
