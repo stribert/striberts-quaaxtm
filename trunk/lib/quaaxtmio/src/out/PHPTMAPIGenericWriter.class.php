@@ -37,13 +37,13 @@ require_once(
  */
 abstract class PHPTMAPIGenericWriter {
   
-  protected $struct,
-            $setup,
-            $tmLocator,
-            $topicsIidsIdx,
-            $sidsIdx,
-            $slosIdx,
-            $typeInstanceAssocs;
+  protected $_struct,
+            $_setup,
+            $_tmLocator,
+            $_topicsIidsIdx,
+            $_sidsIdx,
+            $_slosIdx,
+            $_typeInstanceAssocs;
   
   /**
    * Constructor.
@@ -51,23 +51,28 @@ abstract class PHPTMAPIGenericWriter {
    * @return void
    */
   public function __construct() {
-    $this->struct = 
-    $this->setup = 
-    $this->topicsIidsIdx = 
-    $this->sidsIdx = 
-    $this->slosIdx = 
-    $this->typeInstanceAssocs = array();
-    $this->tmLocator = null;
+    $this->_struct = 
+    $this->_setup = 
+    $this->_topicsIidsIdx = 
+    $this->_sidsIdx = 
+    $this->_slosIdx = 
+    $this->_typeInstanceAssocs = array();
+    $this->_tmLocator = null;
   }
   
   /**
    * Destructor.
    * 
    * @return void
-   * @see __construct()
    */
   public function __destruct() {
-    $this->__construct();
+    unset($this->_struct);
+    unset($this->_setup);
+    unset($this->_topicsIidsIdx);
+    unset($this->_sidsIdx);
+    unset($this->_slosIdx);
+    unset($this->_typeInstanceAssocs);
+    unset($this->_tmLocator);
   }
   
   /**
@@ -77,23 +82,23 @@ abstract class PHPTMAPIGenericWriter {
    * @return void
    */
   public function write(TopicMap $topicMap) {
-    $this->tmLocator = $topicMap->getLocator();
-    $this->struct['reifier'] = $this->getReifierReference($topicMap);
+    $this->_tmLocator = $topicMap->getLocator();
+    $this->_struct['reifier'] = $this->_getReifierReference($topicMap);
     
     $iids = $topicMap->getItemIdentifiers();
     if (!empty($iids)) {
-      $this->struct['item_identifiers'] = $iids;
+      $this->_struct['item_identifiers'] = $iids;
     }
     
     $topics = $topicMap->getTopics();
     if (!empty($topics)) {
-      $this->struct['topics'] = $this->writeTopics($topics);
+      $this->_struct['topics'] = $this->_writeTopics($topics);
     }
     
     $assocs = $topicMap->getAssociations();
-    if (!empty($assocs) || !empty($this->typeInstanceAssocs)) {
-      $domainAssocs = $this->writeAssociations($assocs);
-      $this->struct['associations'] = array_merge($domainAssocs, $this->typeInstanceAssocs);
+    if (!empty($assocs) || !empty($this->_typeInstanceAssocs)) {
+      $domainAssocs = $this->_writeAssociations($assocs);
+      $this->_struct['associations'] = array_merge($domainAssocs, $this->_typeInstanceAssocs);
     }
   }
   
@@ -103,45 +108,45 @@ abstract class PHPTMAPIGenericWriter {
    * @param array The topics to serialize.
    * @return array
    */
-  private function writeTopics(array $topics) {
+  private function _writeTopics(array $topics) {
     $topicsStruct = array();
     foreach ($topics as $topic) {
       $itemStruct = array();
       $topicId = $topic->getId();
       // "id" is syntax specific; check setup
-      if ($this->isSetup('topics', 'id')) {
+      if ($this->_isSetup('topics', 'id')) {
         $itemStruct['id'] = $topicId;
       }
       
       $iids = $topic->getItemIdentifiers();
       if (!empty($iids)) {
         $itemStruct['item_identifiers'] = $iids;
-        $this->topicsIidsIdx[$topicId] = $iids;
+        $this->_topicsIidsIdx[$topicId] = $iids;
       }
       $sids = $topic->getSubjectIdentifiers();
       if (!empty($sids)) {
         $itemStruct['subject_identifiers'] = $sids;
-        $this->sidsIdx[$topicId] = $sids;
+        $this->_sidsIdx[$topicId] = $sids;
       }
       $slos = $topic->getSubjectLocators();
       if (!empty($slos)) {
         $itemStruct['subject_locators'] = $slos;
-        $this->slosIdx[$topicId] = $slos;
+        $this->_slosIdx[$topicId] = $slos;
       }
       
       $types = $topic->getTypes();
       if (!empty($types)) {
-        $this->typeInstanceAssocs = $this->writeTypeInstanceAssocs($types, $topic);
+        $this->_typeInstanceAssocs = $this->_writeTypeInstanceAssocs($types, $topic);
       }
       
       $names = $topic->getNames();
       if (!empty($names)) {
-        $itemStruct['names'] = $this->writeNames($names);
+        $itemStruct['names'] = $this->_writeNames($names);
       }
       
       $occs = $topic->getOccurrences();
       if (!empty($occs)) {
-        $itemStruct['occurrences'] = $this->writeDatatypeAware($occs);
+        $itemStruct['occurrences'] = $this->_writeDatatypeAware($occs);
       }
       
       $topicsStruct[] = $itemStruct;
@@ -156,7 +161,7 @@ abstract class PHPTMAPIGenericWriter {
    * @param Topic The typed topic.
    * @return array The type instance associations.
    */
-  private function writeTypeInstanceAssocs(array $types, Topic $topic) {
+  private function _writeTypeInstanceAssocs(array $types, Topic $topic) {
     $assocs = array();
     foreach ($types as $topicType) {
       $assoc = array();
@@ -166,12 +171,12 @@ abstract class PHPTMAPIGenericWriter {
       
       $instance = array();
       $instance['type'] = 'si:' . MIOUtil::PSI_INSTANCE;
-      $instance['player'] = $this->getTopicReference($topic);
+      $instance['player'] = $this->_getTopicReference($topic);
       $roles[] = $instance;
       
       $type = array();
       $type['type'] = 'si:' . MIOUtil::PSI_TYPE;
-      $type['player'] = $this->getTopicReference($topicType);
+      $type['player'] = $this->_getTopicReference($topicType);
       $roles[] = $type;
       
       $assoc['roles'] = $roles;
@@ -187,11 +192,11 @@ abstract class PHPTMAPIGenericWriter {
    * @param array The topic names to serialize.
    * @return array
    */
-  private function writeNames(array $names) {
+  private function _writeNames(array $names) {
     $namesStruct = array();
     foreach ($names as $name) {
       $itemStruct = array();
-      $itemStruct['reifier'] = $this->getReifierReference($name);
+      $itemStruct['reifier'] = $this->_getReifierReference($name);
       
       $iids = $name->getItemIdentifiers();
       if (!empty($iids)) {
@@ -202,17 +207,17 @@ abstract class PHPTMAPIGenericWriter {
       
       $type = $name->getType();
       if ($type instanceof Topic) {
-        $itemStruct['type'] = $this->getTopicReference($type);
+        $itemStruct['type'] = $this->_getTopicReference($type);
       }
       
       $scope = $name->getScope();
       if (!empty($scope)) {
-        $itemStruct['scope'] = $this->getThemesReferences($scope);
+        $itemStruct['scope'] = $this->_getThemesReferences($scope);
       }
       
       $variants = $name->getVariants();
       if (!empty($variants)) {
-        $itemStruct['variants'] = $this->writeDatatypeAware($variants);
+        $itemStruct['variants'] = $this->_writeDatatypeAware($variants);
       }
       
       $namesStruct[] = $itemStruct;
@@ -226,11 +231,11 @@ abstract class PHPTMAPIGenericWriter {
    * @param array The data type aware Topic Maps constructs to serialize.
    * @return array
    */
-  private function writeDatatypeAware(array $datatypeAwares) {
+  private function _writeDatatypeAware(array $datatypeAwares) {
     $daStruct = array();
     foreach ($datatypeAwares as $da) {
       $itemStruct = array();
-      $itemStruct['reifier'] = $this->getReifierReference($da);
+      $itemStruct['reifier'] = $this->_getReifierReference($da);
       
       $iids = $da->getItemIdentifiers();
       if (!empty($iids)) {
@@ -245,12 +250,12 @@ abstract class PHPTMAPIGenericWriter {
       }
       
       if ($da instanceof Occurrence) {
-        $itemStruct['type'] = $this->getTopicReference($da->getType());
+        $itemStruct['type'] = $this->_getTopicReference($da->getType());
       }
       
       $scope = $da->getScope();
       if (!empty($scope)) {
-        $itemStruct['scope'] = $this->getThemesReferences($scope);
+        $itemStruct['scope'] = $this->_getThemesReferences($scope);
       }
       
       $daStruct[] = $itemStruct;
@@ -264,25 +269,25 @@ abstract class PHPTMAPIGenericWriter {
    * @param array The associations to serialize.
    * @return void
    */
-  private function writeAssociations(array $assocs) {
+  private function _writeAssociations(array $assocs) {
     $assocsStruct = array();
     foreach ($assocs as $assoc) {
       $itemStruct = array();
-      $itemStruct['reifier'] = $this->getReifierReference($assoc);
+      $itemStruct['reifier'] = $this->_getReifierReference($assoc);
       
       $iids = $assoc->getItemIdentifiers();
       if (!empty($iids)) {
         $itemStruct['item_identifiers'] = $iids;
       }
       
-      $itemStruct['type'] = $this->getTopicReference($assoc->getType());
+      $itemStruct['type'] = $this->_getTopicReference($assoc->getType());
       
       $scope = $assoc->getScope();
       if (!empty($scope)) {
-        $itemStruct['scope'] = $this->getThemesReferences($scope);
+        $itemStruct['scope'] = $this->_getThemesReferences($scope);
       }
       
-      $itemStruct['roles'] = $this->writeRoles($assoc->getRoles());
+      $itemStruct['roles'] = $this->_writeRoles($assoc->getRoles());
       
       $assocsStruct[] = $itemStruct;
     }
@@ -295,19 +300,19 @@ abstract class PHPTMAPIGenericWriter {
    * @param array The association roles to serialize.
    * @return void
    */
-  private function writeRoles(array $roles) {
+  private function _writeRoles(array $roles) {
     $rolesStruct = array();
     foreach ($roles as $role) {
       $itemStruct = array();
-      $itemStruct['reifier'] = $this->getReifierReference($role);
+      $itemStruct['reifier'] = $this->_getReifierReference($role);
       
       $iids = $role->getItemIdentifiers();
       if (!empty($iids)) {
         $itemStruct['item_identifiers'] = $iids;
       }
       
-      $itemStruct['type'] = $this->getTopicReference($role->getType());
-      $itemStruct['player'] = $this->getTopicReference($role->getPlayer());
+      $itemStruct['type'] = $this->_getTopicReference($role->getType());
+      $itemStruct['player'] = $this->_getTopicReference($role->getPlayer());
       
       $rolesStruct[] = $itemStruct;
     }
@@ -320,10 +325,10 @@ abstract class PHPTMAPIGenericWriter {
    * @param array The scope containing themes.
    * @return array
    */
-  private function getThemesReferences(array $scope) {
+  private function _getThemesReferences(array $scope) {
     $themesStruct = array();
     foreach ($scope as $theme) {
-      $themesStruct[] = $this->getTopicReference($theme);
+      $themesStruct[] = $this->_getTopicReference($theme);
     }
     return $themesStruct;
   }
@@ -334,10 +339,10 @@ abstract class PHPTMAPIGenericWriter {
    * @param Construct The Topic Maps construct.
    * @return string|null
    */
-  private function getReifierReference(Construct $construct) {
+  private function _getReifierReference(Construct $construct) {
     $reifier = $construct->getReifier();
     return $reifier instanceof Topic 
-      ? $this->getTopicReference($reifier)
+      ? $this->_getTopicReference($reifier)
       : null;
   }
   
@@ -347,36 +352,36 @@ abstract class PHPTMAPIGenericWriter {
    * @param Topic The topic.
    * @return string
    */
-  private function getTopicReference(Topic $topic) {
+  private function _getTopicReference(Topic $topic) {
     $topicId = $topic->getId();
     // XTM: topicRef by topic id as URI fragment
-    if ($this->isSetup('topics', 'id')) {
+    if ($this->_isSetup('topics', 'id')) {
       return 'ii:#' . $topicId;
     }
-    $sids = isset($this->sidsIdx[$topicId]) 
-      ? $this->sidsIdx[$topicId]
+    $sids = isset($this->_sidsIdx[$topicId]) 
+      ? $this->_sidsIdx[$topicId]
       : $topic->getSubjectIdentifiers();
     if (count($sids) > 0) {
       return 'si:' . $sids[0];
     }
-    $slos = isset($this->slosIdx[$topicId]) 
-      ? $this->slosIdx[$topicId]
+    $slos = isset($this->_slosIdx[$topicId]) 
+      ? $this->_slosIdx[$topicId]
       : $topic->getSubjectLocators();
     if (count($slos) > 0) {
       return 'sl:' . $slos[0];
     }
-    $iids = isset($this->topicsIidsIdx[$topicId])
-      ? $this->topicsIidsIdx[$topicId]
+    $iids = isset($this->_topicsIidsIdx[$topicId])
+      ? $this->_topicsIidsIdx[$topicId]
       : $topic->getItemIdentifiers();
     foreach ($iids as $iid) {
-      $pos = strpos($iid, $this->tmLocator);
+      $pos = strpos($iid, $this->_tmLocator);
       if ($pos === 0) {
         return 'ii:' . $iid;
       }
     }
     return count($iids > 0) 
       ? 'ii:' . $iids[0]
-    	: 'ii:' . $this->tmLocator . '#' . $topicId;
+    	: 'ii:' . $this->_tmLocator . '#' . $topicId;
   }
   
   /**
@@ -387,8 +392,8 @@ abstract class PHPTMAPIGenericWriter {
    * @param boolean The setup (true or false).
    * @return void
    */
-  protected function setup($parentKey, $childKey, $value) {
-    $this->setup[$parentKey][$childKey] = (boolean) $value;
+  protected function _setup($parentKey, $childKey, $value) {
+    $this->_setup[$parentKey][$childKey] = (boolean) $value;
   }
   
   /**
@@ -398,10 +403,10 @@ abstract class PHPTMAPIGenericWriter {
    * @param string The child key.
    * @return boolean
    */
-  protected function isSetup($parentKey, $childKey) {
-    return !isset($this->setup[$parentKey][$childKey])
+  protected function _isSetup($parentKey, $childKey) {
+    return !isset($this->_setup[$parentKey][$childKey])
       ? false
-      : $this->setup[$parentKey][$childKey];
+      : $this->_setup[$parentKey][$childKey];
   }
 }
 ?>

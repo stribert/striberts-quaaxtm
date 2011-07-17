@@ -29,9 +29,9 @@ require_once('MemoryScoped.class.php');
  */
 class MemoryOccurrence extends MemoryScoped {
   
-  private $type,
-          $value,
-          $datatype;
+  private $_type,
+          $_value,
+          $_datatype;
 
   /**
    * Constructor.
@@ -40,9 +40,20 @@ class MemoryOccurrence extends MemoryScoped {
    */
   public function __construct() {
     parent::__construct();
-    $this->type = 
-    $this->value = 
-    $this->datatype = null;
+    $this->_type = 
+    $this->_value = 
+    $this->_datatype = null;
+  }
+  
+  /**
+   * Destructor.
+   * 
+   * @return void
+   */
+  public function __destruct() {
+    unset($this->_type);
+    unset($this->_value);
+    unset($this->_datatype);
   }
   
   /**
@@ -52,7 +63,7 @@ class MemoryOccurrence extends MemoryScoped {
    * @return void
    */
   public function setType(Topic $type) {
-    $this->type = $type;
+    $this->_type = $type;
   }
   
   /**
@@ -61,7 +72,7 @@ class MemoryOccurrence extends MemoryScoped {
    * @return Topic The occurrence type.
    */
   public function getType() {
-    return $this->type;
+    return $this->_type;
   }
   
   /**
@@ -72,8 +83,8 @@ class MemoryOccurrence extends MemoryScoped {
    * @return void
    */
   public function setValue($value, $datatype) {
-    $this->value = $value;
-    $this->datatype = $datatype;
+    $this->_value = $value;
+    $this->_datatype = $datatype;
   }
   
   /**
@@ -82,7 +93,7 @@ class MemoryOccurrence extends MemoryScoped {
    * @return string The occurrence value.
    */
   public function getValue() {
-    return $this->value;
+    return $this->_value;
   }
   
   /**
@@ -91,7 +102,7 @@ class MemoryOccurrence extends MemoryScoped {
    * @return string The URI identifying the datatype of the value.
    */
   public function getDatatype() {
-    return $this->datatype;
+    return $this->_datatype;
   }
 }
 ?>

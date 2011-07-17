@@ -29,7 +29,7 @@ require_once('MemoryConstruct.class.php');
  */
 class MemoryScoped extends MemoryConstruct {
   
-  private $themes;
+  private $_themes;
   
   /**
    * Constructor.
@@ -38,7 +38,16 @@ class MemoryScoped extends MemoryConstruct {
    */
   public function __construct() {
     parent::__construct();
-    $this->themes = array();
+    $this->_themes = array();
+  }
+  
+  /**
+   * Destructor.
+   * 
+   * @return void
+   */
+  public function __destruct() {
+    unset($this->_themes);
   }
   
   /**
@@ -48,7 +57,7 @@ class MemoryScoped extends MemoryConstruct {
    * @return void
    */
   public function addTheme(Topic $theme) {
-    $this->themes[$theme->getId()] = $theme;
+    $this->_themes[$theme->getId()] = $theme;
   }
   
   /**
@@ -57,7 +66,7 @@ class MemoryScoped extends MemoryConstruct {
    * @return array An array containing themes.
    */
   public function getScope() {
-    return array_values($this->themes);
+    return array_values($this->_themes);
   }
 }
 ?>

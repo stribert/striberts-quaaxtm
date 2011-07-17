@@ -29,8 +29,8 @@ require_once('MemoryScoped.class.php');
  */
 class MemoryVariant extends MemoryScoped {
   
-  private $value,
-          $datatype;
+  private $_value,
+          $_datatype;
           
   /**
    * Constructor.
@@ -39,8 +39,18 @@ class MemoryVariant extends MemoryScoped {
    */
   public function __construct() {
     parent::__construct();
-    $this->value = 
-    $this->datatype = null;
+    $this->_value = 
+    $this->_datatype = null;
+  }
+  
+  /**
+   * Destructor.
+   * 
+   * @return void
+   */
+  public function __destruct() {
+    unset($this->_value);
+    unset($this->_datatype);
   }
   
   /**
@@ -51,8 +61,8 @@ class MemoryVariant extends MemoryScoped {
    * @return void
    */
   public function setValue($value, $datatype) {
-    $this->value = $value;
-    $this->datatype = $datatype;
+    $this->_value = $value;
+    $this->_datatype = $datatype;
   }
   
   /**
@@ -61,7 +71,7 @@ class MemoryVariant extends MemoryScoped {
    * @return string The variant value.
    */
   public function getValue() {
-    return $this->value;
+    return $this->_value;
   }
   
   /**
@@ -70,7 +80,7 @@ class MemoryVariant extends MemoryScoped {
    * @return string The URI identifying the datatype of the value.
    */
   public function getDatatype() {
-    return $this->datatype;
+    return $this->_datatype;
   }
 }
 ?>

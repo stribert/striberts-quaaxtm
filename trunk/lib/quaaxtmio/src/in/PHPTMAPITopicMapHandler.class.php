@@ -66,20 +66,20 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
         ISA = 'isa',
         TYPE = 'type';
   
-  private $stateChain,
-          $constructs,
-          $tmSystem,
-          $topicMap,
-          $locator,
-          $baseLocatorRef,
-          $maxMergeMapCount,
-          $mergeMapCount,
-          $mergeMapLocators,
-          $assocsIndex,
-          $occsIndex,
-          $namesIndex,
-          $variantsIndex, 
-          $defaultNameType;
+  private $_stateChain,
+          $_constructs,
+          $_tmSystem,
+          $_topicMap,
+          $_locator,
+          $_baseLocatorRef,
+          $_maxMergeMapCount,
+          $_mergeMapCount,
+          $_mergeMapLocators,
+          $_assocsIndex,
+          $_occsIndex,
+          $_namesIndex,
+          $_variantsIndex, 
+          $_defaultNameType;
   
   /**
    * Constructor.
@@ -90,7 +90,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @param int The merge map processing count. Will be set in startMergeMap().
    * @param array The base locators of the merged topic maps. Will be set in startMergeMap().
    * @return void
-   * @throws MIOException If topic map's base locator is not absolute, or base 
+   * @throws MIOException If the topic map's base locator is not absolute, or base 
    * 				locator is in use.
    */
   public function __construct(
@@ -98,32 +98,54 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
     $baseLocator, 
     $maxMergeMapCount=2, 
     $mergeMapCount=0, 
-    $mergeMapLocators=array()
+    array $mergeMapLocators=array()
   ) {
     
-    $this->locator = new Net_URL2($baseLocator);
-    if (!$this->locator->getScheme() && !$this->locator->isAbsolute()) {
+    $this->_locator = new Net_URL2($baseLocator);
+    if (!$this->_locator->getScheme() && !$this->_locator->isAbsolute()) {
       throw new MIOException('Error in ' . __METHOD__ . ': Base locator must have 
       	a scheme and must be absolute!');
     }
-    $this->baseLocatorRef = $this->locator->getUrl();
-    $this->tmSystem = $tmSystem;
-    $baseLocators = $this->tmSystem->getLocators();
-    if (in_array($this->baseLocatorRef, $baseLocators)) {
+    $this->_baseLocatorRef = $this->_locator->getUrl();
+    $this->_tmSystem = $tmSystem;
+    $baseLocators = $this->_tmSystem->getLocators();
+    if (in_array($this->_baseLocatorRef, $baseLocators)) {
       throw new MIOException('Error in ' . __METHOD__ . ': Base locator "' . 
-        $this->baseLocatorRef . '" is in use!');
+        $this->_baseLocatorRef . '" is in use!');
     }
-    $this->maxMergeMapCount = $maxMergeMapCount;
-    $this->mergeMapCount = $mergeMapCount;
-    $this->mergeMapLocators = $mergeMapLocators;
-    $this->topicMap = 
-    $this->defaultNameType = null;
-    $this->stateChain = 
-    $this->constructs = 
-    $this->assocsIndex = 
-    $this->occsIndex = 
-    $this->namesIndex = 
-    $this->variantsIndex = array();
+    $this->_maxMergeMapCount = $maxMergeMapCount;
+    $this->_mergeMapCount = $mergeMapCount;
+    $this->_mergeMapLocators = $mergeMapLocators;
+    $this->_topicMap = 
+    $this->_defaultNameType = null;
+    $this->_stateChain = 
+    $this->_constructs = 
+    $this->_assocsIndex = 
+    $this->_occsIndex = 
+    $this->_namesIndex = 
+    $this->_variantsIndex = array();
+  }
+  
+  /**
+   * Destructor.
+   * 
+   * @return void
+   */
+  public function __destruct() {
+    unset($this->_locator);
+    unset($this->_baseLocatorRef);
+    unset($this->_tmSystem);
+    unset($this->_maxMergeMapCount);
+    unset($this->_mergeMapCount);
+    unset($this->_mergeMapLocators);
+    unset($this->_topicMap);
+    unset($this->_defaultNameType);
+    unset($this->_stateChain);
+    unset($this->_constructs);
+    unset($this->_assocsIndex);
+    unset($this->_occsIndex);
+    unset($this->_namesIndex);
+    unset($this->_variantsIndex);
   }
   
   /**
@@ -131,17 +153,17 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startTopicMap()
    */
   public function startTopicMap() {
-    $topicMap = $this->tmSystem->getTopicMap($this->baseLocatorRef);
+    $topicMap = $this->_tmSystem->getTopicMap($this->_baseLocatorRef);
     if (!is_null($topicMap)) {
       throw new MIOException('Error in ' . __METHOD__ . ': Topic map with ' . 
-      	'base locator "' . $this->baseLocatorRef . '" already exists!');
+      	'base locator "' . $this->_baseLocatorRef . '" already exists!');
     }
-    $this->topicMap = $this->tmSystem->createTopicMap($this->baseLocatorRef);
-    if (!$this->topicMap instanceof TopicMap) {
+    $this->_topicMap = $this->_tmSystem->createTopicMap($this->_baseLocatorRef);
+    if (!$this->_topicMap instanceof TopicMap) {
       throw new MIOException('Error in ' . __METHOD__ . ': Topic map with ' . 
-        'base locator "' . $this->baseLocatorRef . '" could not be created!'); 
+        'base locator "' . $this->_baseLocatorRef . '" could not be created!'); 
     }
-    $this->enterStateNewConstruct(self::TOPICMAP, $this->topicMap);
+    $this->_enterStateNewConstruct(self::TOPICMAP, $this->_topicMap);
   }
 
   /**
@@ -149,8 +171,8 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endTopicMap()
    */
   public function endTopicMap() {
-    $this->stateChain = 
-    $this->constructs = array();
+    $this->_stateChain = 
+    $this->_constructs = array();
   }
 
   /**
@@ -158,7 +180,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startTopic($identity)
    */
   public function startTopic(ReferenceInterface $identity) {
-    $this->enterStateNewConstruct(self::TOPIC, $this->createTopic($identity));
+    $this->_enterStateNewConstruct(self::TOPIC, $this->_createTopic($identity));
   }
 
   /**
@@ -166,9 +188,9 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endTopic()
    */
   public function endTopic() {
-    $topic = $this->peekTopic();
-    $this->handleTopic($topic);
-    $this->leaveStatePopConstruct();
+    $topic = $this->_peekTopic();
+    $this->_handleTopic($topic);
+    $this->_leaveStatePopConstruct();
   }
 
   /**
@@ -176,7 +198,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startAssociation()
    */
   public function startAssociation() {
-    $this->enterStateNewConstruct(self::ASSOCIATION, new MemoryAssoc());
+    $this->_enterStateNewConstruct(self::ASSOCIATION, new MemoryAssoc());
   }
   
   /**
@@ -184,29 +206,29 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endAssociation()
    */
   public function endAssociation() {
-    $memoryAssoc = $this->peekConstruct();
+    $memoryAssoc = $this->_peekConstruct();
     $hash = $this->getAssocHash(
       $memoryAssoc->getType(), 
       $memoryAssoc->getScope(), 
       $memoryAssoc->getRoles()
     );
     if (!$this->hasAssoc($hash)) {
-      $assoc = $this->topicMap->createAssociation(
+      $assoc = $this->_topicMap->createAssociation(
         $memoryAssoc->getType(), 
         $memoryAssoc->getScope()
       );
     } else {
-      $id = $this->assocsIndex[$hash];
-      $assoc = $this->topicMap->getConstructById($id);
+      $id = $this->_assocsIndex[$hash];
+      $assoc = $this->_topicMap->getConstructById($id);
     }
     $reifier = $memoryAssoc->getReifier();
-    if ($reifier instanceof Topic && !$this->hasEqualReifier($assoc, $reifier)) {
+    if ($reifier instanceof Topic && !$this->_hasEqualReifier($assoc, $reifier)) {
       $assoc->setReifier($reifier);
     }
     $iids = $memoryAssoc->getItemIdentifiers();
     $existingIids = $assoc->getItemIdentifiers();
     foreach ($iids as $iid) {
-      if (!$this->hasEqualIid($existingIids, $iid)) {
+      if (!$this->_hasEqualIid($existingIids, $iid)) {
         $assoc->addItemIdentifier($iid);
       }
     }
@@ -216,19 +238,19 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
         $memoryRole->getType(), $memoryRole->getPlayer()
       );
       $reifier = $memoryRole->getReifier();
-      if ($reifier instanceof Topic && !$this->hasEqualReifier($role, $reifier)) {
+      if ($reifier instanceof Topic && !$this->_hasEqualReifier($role, $reifier)) {
         $role->setReifier($reifier);
       }
       $iids = $memoryRole->getItemIdentifiers();
       $existingIids = $role->getItemIdentifiers();
       foreach ($iids as $iid) {
-        if (!$this->hasEqualIid($existingIids, $iid)) {
+        if (!$this->_hasEqualIid($existingIids, $iid)) {
           $role->addItemIdentifier($iid);
         }
       }
     }
-    $this->leaveStatePopConstruct();
-    $this->assocsIndex[$hash] = $assoc->getId();
+    $this->_leaveStatePopConstruct();
+    $this->_assocsIndex[$hash] = $assoc->getId();
     $memoryAssoc = 
     $assoc = null;
   }
@@ -238,7 +260,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startRole()
    */
   public function startRole() {
-    $this->enterStateNewConstruct(self::ROLE, new MemoryRole());
+    $this->_enterStateNewConstruct(self::ROLE, new MemoryRole());
   }
 
   /**
@@ -246,8 +268,8 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endRole()
    */
   public function endRole() {
-    $this->peekConstruct(count($this->constructs)-2)->addRole($this->peekConstruct());
-    $this->leaveStatePopConstruct();
+    $this->_peekConstruct(count($this->_constructs)-2)->addRole($this->_peekConstruct());
+    $this->_leaveStatePopConstruct();
   }
 
   /**
@@ -255,7 +277,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startOccurrence()
    */
   public function startOccurrence() {
-    $this->enterStateNewConstruct(
+    $this->_enterStateNewConstruct(
       self::OCCURRENCE, 
       new MemoryOccurrence()
     );
@@ -266,38 +288,38 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endOccurrence()
    */
   public function endOccurrence() {
-    $memoryOcc = $this->peekConstruct();
-    $this->leaveStatePopConstruct();
+    $memoryOcc = $this->_peekConstruct();
+    $this->_leaveStatePopConstruct();
     $hash = $this->getOccurrenceHash(
-      $this->peekTopic(), 
+      $this->_peekTopic(), 
       $memoryOcc->getType(), 
       $memoryOcc->getValue(), 
       $memoryOcc->getDatatype(), 
       $memoryOcc->getScope()
     );
     if (!$this->hasOccurrence($hash)) {
-      $occ = $this->peekTopic()->createOccurrence(
+      $occ = $this->_peekTopic()->createOccurrence(
         $memoryOcc->getType(), 
         $memoryOcc->getValue(), 
         $memoryOcc->getDatatype(), 
         $memoryOcc->getScope()
       );
     } else {
-      $id = $this->occsIndex[$hash];
-      $occ = $this->topicMap->getConstructById($id);
+      $id = $this->_occsIndex[$hash];
+      $occ = $this->_topicMap->getConstructById($id);
     }
     $reifier = $memoryOcc->getReifier();
-    if ($reifier instanceof Topic && !$this->hasEqualReifier($occ, $reifier)) {
+    if ($reifier instanceof Topic && !$this->_hasEqualReifier($occ, $reifier)) {
       $occ->setReifier($reifier);
     }
     $iids = $memoryOcc->getItemIdentifiers();
     $existingIids = $occ->getItemIdentifiers();
     foreach ($iids as $iid) {
-      if (!$this->hasEqualIid($existingIids, $iid)) {
+      if (!$this->_hasEqualIid($existingIids, $iid)) {
         $occ->addItemIdentifier($iid);
       }
     }
-    $this->occsIndex[$hash] = $occ->getId();
+    $this->_occsIndex[$hash] = $occ->getId();
   }
 
   /**
@@ -305,7 +327,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startName()
    */
   public function startName() {
-    $this->enterStateNewConstruct(self::NAME, new MemoryName());
+    $this->_enterStateNewConstruct(self::NAME, new MemoryName());
   }
 
   /**
@@ -313,49 +335,49 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endName()
    */
   public function endName() {
-    $memoryName = $this->peekConstruct();
-    $this->leaveStatePopConstruct();
+    $memoryName = $this->_peekConstruct();
+    $this->_leaveStatePopConstruct();
     $nameType = $memoryName->getType();
     if (is_null($nameType)) {
-      if (is_null($this->defaultNameType)) {
+      if (is_null($this->_defaultNameType)) {
         $psi = 'http://psi.topicmaps.org/iso13250/model/topic-name';
-        $this->defaultNameType = $this->topicMap->getTopicBySubjectIdentifier($psi);
-        if (is_null($this->defaultNameType)) {
-          $this->defaultNameType = $this->topicMap->createTopicBySubjectIdentifier(
+        $this->_defaultNameType = $this->_topicMap->getTopicBySubjectIdentifier($psi);
+        if (is_null($this->_defaultNameType)) {
+          $this->_defaultNameType = $this->_topicMap->createTopicBySubjectIdentifier(
             $psi
           );
         }
       }
-      $nameType = $this->defaultNameType;
+      $nameType = $this->_defaultNameType;
     }
     $hash = $this->getNameHash(
-      $this->peekTopic(), 
+      $this->_peekTopic(), 
       $memoryName->getValue(), 
       $nameType, 
       $memoryName->getScope()
     );
     if (!$this->hasName($hash)) {
-      $name = $this->peekTopic()->createName(
+      $name = $this->_peekTopic()->createName(
         $memoryName->getValue(), 
         $memoryName->getType(), 
         $memoryName->getScope()
       );
     } else {
-      $id = $this->namesIndex[$hash];
-      $name = $this->topicMap->getConstructById($id);
+      $id = $this->_namesIndex[$hash];
+      $name = $this->_topicMap->getConstructById($id);
     }
     $reifier = $memoryName->getReifier();
-    if ($reifier instanceof Topic && !$this->hasEqualReifier($name, $reifier)) {
+    if ($reifier instanceof Topic && !$this->_hasEqualReifier($name, $reifier)) {
       $name->setReifier($reifier);
     }
     $iids = $memoryName->getItemIdentifiers();
     $existingIids = $name->getItemIdentifiers();
     foreach ($iids as $iid) {
-      if (!$this->hasEqualIid($existingIids, $iid)) {
+      if (!$this->_hasEqualIid($existingIids, $iid)) {
         $name->addItemIdentifier($iid);
       }
     }
-    $this->namesIndex[$hash] = $name->getId();
+    $this->_namesIndex[$hash] = $name->getId();
     $memoryVariants = $memoryName->getVariants();
     foreach ($memoryVariants as $memoryVariant) {
       $hash = $this->getVariantHash(
@@ -371,21 +393,21 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
           $memoryVariant->getScope()
         );
       } else {
-        $id = $this->variantsIndex[$hash];
-        $variant = $this->topicMap->getConstructById($id);
+        $id = $this->_variantsIndex[$hash];
+        $variant = $this->_topicMap->getConstructById($id);
       }
       $reifier = $memoryVariant->getReifier();
-      if ($reifier instanceof Topic && !$this->hasEqualReifier($variant, $reifier)) {
+      if ($reifier instanceof Topic && !$this->_hasEqualReifier($variant, $reifier)) {
         $variant->setReifier($reifier);
       }
       $iids = $memoryVariant->getItemIdentifiers();
       $existingIids = $variant->getItemIdentifiers();
       foreach ($iids as $iid) {
-        if (!$this->hasEqualIid($existingIids, $iid)) {
+        if (!$this->_hasEqualIid($existingIids, $iid)) {
           $variant->addItemIdentifier($iid);
         }
       }
-      $this->variantsIndex[$hash] = $variant->getId();
+      $this->_variantsIndex[$hash] = $variant->getId();
     }
     $memoryName = 
     $name = null;
@@ -396,7 +418,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startVariant()
    */
   public function startVariant() {
-    $this->enterStateNewConstruct(
+    $this->_enterStateNewConstruct(
       self::VARIANT, 
       new MemoryVariant()
     );
@@ -407,9 +429,9 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endVariant()
    */
   public function endVariant() {
-    $memoryVariant = $this->peekConstruct();
-    $this->leaveStatePopConstruct();
-    $this->peekConstruct()->addVariant($memoryVariant);
+    $memoryVariant = $this->_peekConstruct();
+    $this->_leaveStatePopConstruct();
+    $this->_peekConstruct()->addVariant($memoryVariant);
     $memoryVariant = null;
   }
 
@@ -418,9 +440,9 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startScope()
    */
   public function startScope() {
-    $construct = $this->peekConstruct();
+    $construct = $this->_peekConstruct();
     if ($construct instanceof Scoped || $construct instanceof MemoryScoped) {
-      $this->enterState(self::SCOPE);
+      $this->_enterState(self::SCOPE);
     }
   }
 
@@ -429,7 +451,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endScope()
    */
   public function endScope() {
-    $this->leaveState();
+    $this->_leaveState();
   }
 
   /**
@@ -437,8 +459,8 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#nameValue($value)
    */
   public function nameValue($value) {
-    $memoryName = $this->peekConstruct();
-    if ($this->getCurrentState() === self::NAME && $memoryName instanceof MemoryName) {
+    $memoryName = $this->_peekConstruct();
+    if ($this->_getCurrentState() === self::NAME && $memoryName instanceof MemoryName) {
       $memoryName->setValue(trim($value));
     }
   }
@@ -448,14 +470,14 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#value($value, $datatype)
    */
   public function value($value, $datatype) {
-    if ($this->getCurrentState() == self::OCCURRENCE) {
-      $memoryOcc = $this->peekConstruct();
+    if ($this->_getCurrentState() == self::OCCURRENCE) {
+      $memoryOcc = $this->_peekConstruct();
       if ($memoryOcc instanceof MemoryOccurrence) {
         $memoryOcc->setValue(trim($value), $datatype);
       }
     } 
-    if ($this->getCurrentState() == self::VARIANT) {
-      $memoryVariant = $this->peekConstruct();
+    if ($this->_getCurrentState() == self::VARIANT) {
+      $memoryVariant = $this->_peekConstruct();
       if ($memoryVariant instanceof MemoryVariant) {
         $memoryVariant->setValue(trim($value), $datatype);
       }
@@ -467,8 +489,8 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#subjectIdentifier($sid)
    */
   public function subjectIdentifier($sid) {
-    if ($this->getCurrentState() === self::TOPIC) {
-      $this->peekConstruct()->addSubjectIdentifier($sid);
+    if ($this->_getCurrentState() === self::TOPIC) {
+      $this->_peekConstruct()->addSubjectIdentifier($sid);
     }
   }
 
@@ -477,8 +499,8 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#subjectLocator($slo)
    */
   public function subjectLocator($slo) {
-    if ($this->getCurrentState() === self::TOPIC) {
-      $this->peekConstruct()->addSubjectLocator($slo);
+    if ($this->_getCurrentState() === self::TOPIC) {
+      $this->_peekConstruct()->addSubjectLocator($slo);
     }
   }
 
@@ -487,8 +509,8 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#itemIdentifier($iid)
    */
   public function itemIdentifier($iid) {
-    $_iid = $this->getUri($iid);
-    $this->peekConstruct()->addItemIdentifier($_iid);
+    $_iid = $this->_getUri($iid);
+    $this->_peekConstruct()->addItemIdentifier($_iid);
   }
 
   /**
@@ -496,7 +518,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startType()
    */
   public function startType() {
-    $this->enterState(self::TYPE);
+    $this->_enterState(self::TYPE);
   }
 
   /**
@@ -504,7 +526,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endType()
    */
   public function endType() {
-    $this->leaveState(self::TYPE);
+    $this->_leaveState(self::TYPE);
   }
 
   /**
@@ -512,7 +534,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startReifier()
    */
   public function startReifier() {
-    $this->enterState(self::REIFIER);
+    $this->_enterState(self::REIFIER);
   }
 
   /**
@@ -520,7 +542,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endReifier()
    */
   public function endReifier() {
-    $this->leaveState(self::REIFIER);
+    $this->_leaveState(self::REIFIER);
   }
 
   /**
@@ -528,7 +550,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#topicRef($identity)
    */
   public function topicRef(ReferenceInterface $identity) {
-    $this->handleTopic($this->createTopic($identity));
+    $this->_handleTopic($this->_createTopic($identity));
   }
 
   /**
@@ -536,7 +558,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startIsa()
    */
   public function startIsa() {
-    $this->enterState(self::ISA);
+    $this->_enterState(self::ISA);
   }
 
   /**
@@ -544,7 +566,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endIsa()
    */
   public function endIsa() {
-    $this->leaveState(self::ISA);
+    $this->_leaveState(self::ISA);
   }
   
   /**
@@ -552,27 +574,27 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startMergeMap($locator, $readerClassName)
    */
   public function startMergeMap($locator, $readerClassName) {
-    if ($this->mergeMapCount > $this->maxMergeMapCount) {
+    if ($this->_mergeMapCount > $this->_maxMergeMapCount) {
       throw new MIOException('Error in ' . __METHOD__ . ': Exceeded merge map count!');
     }
-    $baseLocator = $this->locator->resolve($locator)->getUrl();
-    if ($this->mergeMapCount == 0) {
-      $this->mergeMapLocators[] = $this->locator->getUrl();
+    $baseLocator = $this->_locator->resolve($locator)->getUrl();
+    if ($this->_mergeMapCount == 0) {
+      $this->_mergeMapLocators[] = $this->_locator->getUrl();
     }
-    if (in_array($baseLocator, $this->mergeMapLocators)) {
+    if (in_array($baseLocator, $this->_mergeMapLocators)) {
       return;// prevent "merge ping pong"
     }
-    $this->mergeMapLocators[] = $baseLocator;
+    $this->_mergeMapLocators[] = $baseLocator;
     $mapHandler = new self(
-      $this->tmSystem, 
+      $this->_tmSystem, 
       $baseLocator, 
-      $this->maxMergeMapCount, 
-      $this->mergeMapCount+1, 
-      $this->mergeMapLocators
+      $this->_maxMergeMapCount, 
+      $this->_mergeMapCount+1, 
+      $this->_mergeMapLocators
     );
     $reader = new $readerClassName($mapHandler);
     $reader->readFile($baseLocator);
-    $this->topicMap->mergeIn($mapHandler->getTopicMap());
+    $this->_topicMap->mergeIn($mapHandler->getTopicMap());
   }
   
   /**
@@ -589,7 +611,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @return TopicMap The topic map.
    */
   public function getTopicMap() {
-    return $this->topicMap;
+    return $this->_topicMap;
   }
   
   /**
@@ -598,7 +620,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @return string The base locator.
    */
   public function getBaseLocator() {
-    return $this->baseLocatorRef;
+    return $this->_baseLocatorRef;
   }
 
   /**
@@ -607,8 +629,8 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @param string The state.
    * @return void
    */
-  private function enterState($state) {
-    $this->stateChain[] = $state;
+  private function _enterState($state) {
+    $this->_stateChain[] = $state;
   }
   
   /**
@@ -618,9 +640,9 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @param object The Topic Maps construct.
    * @return void
    */
-  private function enterStateNewConstruct($state, $construct) {
-    $this->stateChain[] = $state;
-    $this->constructs[] = $construct;
+  private function _enterStateNewConstruct($state, $construct) {
+    $this->_stateChain[] = $state;
+    $this->_constructs[] = $construct;
   }
   
   /**
@@ -628,8 +650,8 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * 
    * @return void
    */
-  private function leaveState() {
-    array_pop($this->stateChain);
+  private function _leaveState() {
+    array_pop($this->_stateChain);
   }
   
   /**
@@ -637,9 +659,9 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * 
    * @return void
    */
-  private function leaveStatePopConstruct() {
-    array_pop($this->stateChain);
-    array_pop($this->constructs);
+  private function _leaveStatePopConstruct() {
+    array_pop($this->_stateChain);
+    array_pop($this->_constructs);
   }
   
   /**
@@ -649,11 +671,11 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * 				construct is returned. Default <var>null</var>.
    * @return object A Topic Maps construct.
    */
-  private function peekConstruct($index=null) {
+  private function _peekConstruct($index=null) {
     if (is_null($index)) {
-      return $this->constructs[count($this->constructs)-1];
+      return $this->_constructs[count($this->_constructs)-1];
     } else {
-      return $this->constructs[$index];
+      return $this->_constructs[$index];
     }
   }
   
@@ -663,11 +685,11 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @return Topic The last registered topic.
    * @throws MIOException If the currently processed Topic Maps construct is not a topic.
    */
-  private function peekTopic() {
-    $construct = $this->peekConstruct();
+  private function _peekTopic() {
+    $construct = $this->_peekConstruct();
     if (!$construct instanceof Topic) {
       throw new MIOException('Error in ' . __METHOD__ . 
-      	': Topic maps construct is not Topic!'); 
+      	': The Topic Maps construct is not a topic!'); 
     }
     return $construct;
   }
@@ -677,8 +699,8 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * 
    * @return string The state name.
    */
-  private function getCurrentState() {
-    return $this->stateChain[count($this->stateChain)-1];
+  private function _getCurrentState() {
+    return $this->_stateChain[count($this->_stateChain)-1];
   }
   
   /**
@@ -686,8 +708,8 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * 
    * @return string
    */
-  private function getPreviousState() {
-    return $this->stateChain[count($this->stateChain)-2];
+  private function _getPreviousState() {
+    return $this->_stateChain[count($this->_stateChain)-2];
   }
   
   /**
@@ -696,23 +718,23 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @param Topic The topic to process.
    * @return void
    */
-  private function handleTopic(Topic $topic) {
-    $state = $this->getCurrentState();
+  private function _handleTopic(Topic $topic) {
+    $state = $this->_getCurrentState();
     switch ($state) {
       case self::REIFIER:
-        $this->handleReifier($this->peekConstruct(), $topic);
+        $this->_handleReifier($this->_peekConstruct(), $topic);
         break;
       case self::ISA:
-        $this->peekTopic()->addType($topic);
+        $this->_peekTopic()->addType($topic);
         break;
       case self::TYPE:
-        $this->handleType($this->getPreviousState(), $topic);
+        $this->_handleType($this->_getPreviousState(), $topic);
         break;
       case self::SCOPE:
-        $this->peekConstruct()->addTheme($topic);
+        $this->_peekConstruct()->addTheme($topic);
         break;
       case self::ROLE:
-        $this->peekConstruct()->setPlayer($topic);
+        $this->_peekConstruct()->setPlayer($topic);
         break;
       default:
         break;
@@ -725,8 +747,8 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @param string The reference.
    * @return string A valid URI.
    */
-  private function getUri($ref) {
-    $baseLocator = new Net_URL2($this->baseLocatorRef);
+  private function _getUri($ref) {
+    $baseLocator = new Net_URL2($this->_baseLocatorRef);
     return $baseLocator->resolve($ref)->getUrl();
   }
   
@@ -737,23 +759,23 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @throws MIOException If the reference type is invalid.
    * @return Topic
    */
-  private function createTopic(ReferenceInterface $topicRef) {
+  private function _createTopic(ReferenceInterface $topicRef) {
       $type = $topicRef->getType();
-      if ($type == Reference::ITEM_IDENTIFIER) {
-        return $this->createTopicByItemIdentifier(
-          $this->getUri($topicRef->getReference())
+      if ($type == ReferenceInterface::ITEM_IDENTIFIER) {
+        return $this->_createTopicByItemIdentifier(
+          $this->_getUri($topicRef->getReference())
         );
-      } else if($type == Reference::SUBJECT_IDENTIFIER) {
-        return $this->topicMap->createTopicBySubjectIdentifier(
+      } elseif($type == ReferenceInterface::SUBJECT_IDENTIFIER) {
+        return $this->_topicMap->createTopicBySubjectIdentifier(
           $topicRef->getReference()
         );
-      } else if($type == Reference::SUBJECT_LOCATOR) {
-        return $this->topicMap->createTopicBySubjectLocator(
+      } elseif($type == ReferenceInterface::SUBJECT_LOCATOR) {
+        return $this->_topicMap->createTopicBySubjectLocator(
           $topicRef->getReference()
         );
       } else {
         throw new MIOException('Error in ' . __METHOD__ . 
-        	': Provided unexpected reference type!');
+        	': Unexpected reference type "' . $type . '"!');
       }
   }
   
@@ -765,8 +787,8 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @throws MIOException If a Topic Maps construct with the given item identifier - 
    * 				which does not refer to a topic - already exists in the topic map.
    */
-  private function createTopicByItemIdentifier($iid) {
-    $construct = $this->topicMap->getConstructByItemIdentifier($iid);
+  private function _createTopicByItemIdentifier($iid) {
+    $construct = $this->_topicMap->getConstructByItemIdentifier($iid);
     if (!is_null($construct)) {
       if (!$construct instanceof Topic) {
         throw new MIOException('Error in ' . __METHOD__ . 
@@ -775,9 +797,9 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
       return $topic = $construct;
     }
     // Prevent merging in TM engine and use possibly existing topic with given subject identitifier.
-    $topic = $this->topicMap->getTopicBySubjectIdentifier($iid);
+    $topic = $this->_topicMap->getTopicBySubjectIdentifier($iid);
     if (is_null($topic)) {
-      return $this->topicMap->createTopicByItemIdentifier($iid);
+      return $this->_topicMap->createTopicByItemIdentifier($iid);
     } else {
       $topic->addItemIdentifier($iid);
       return $topic;
@@ -791,8 +813,8 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @param Topic The reifier.
    * @return void
    */
-  private function handleReifier($construct, Topic $reifier) {
-    if ($this->mergeMapCount > 0 && $construct instanceof TopicMap) {
+  private function _handleReifier($construct, Topic $reifier) {
+    if ($this->_mergeMapCount > 0 && $construct instanceof TopicMap) {
       return;
     }
     $_reifier = $construct->getReifier();
@@ -812,8 +834,8 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @param Topic The type.
    * @return void
    */
-  private function handleType($state, Topic $type) {
-    $memoryConstruct = $this->peekConstruct();
+  private function _handleType($state, Topic $type) {
+    $memoryConstruct = $this->_peekConstruct();
     if (
         ($state === self::NAME && $memoryConstruct instanceof MemoryName) || 
         ($state === self::OCCURRENCE && $memoryConstruct instanceof MemoryOccurrence) ||
@@ -832,7 +854,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @param Topic|null The reifier or <var>null</var>.
    * @return boolean
    */
-  private function hasEqualReifier(Construct $construct, $reifier) {
+  private function _hasEqualReifier(Construct $construct, $reifier) {
     $_reifier = $construct->getReifier();
     if (!$_reifier instanceof Topic) {
       return false;
@@ -850,7 +872,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @param string The item identifier.
    * @return boolean
    */
-  private function hasEqualIid(array $iids, $iid) {
+  private function _hasEqualIid(array $iids, $iid) {
     return in_array($iid, $iids);
   }
   
@@ -897,7 +919,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @return boolean
    */
   public function hasAssoc($hash) {
-    return array_key_exists($hash, $this->assocsIndex);
+    return array_key_exists($hash, $this->_assocsIndex);
   }
   
   /**
@@ -936,7 +958,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @return boolean
    */
   public function hasOccurrence($hash) {
-    return array_key_exists($hash, $this->occsIndex);
+    return array_key_exists($hash, $this->_occsIndex);
   }
   
   /**
@@ -974,7 +996,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @return boolean
    */
   public function hasName($hash) {
-    return array_key_exists($hash, $this->namesIndex);
+    return array_key_exists($hash, $this->_namesIndex);
   }
   
   /**
@@ -1010,7 +1032,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface {
    * @return boolean
    */
   public function hasVariant($hash) {
-    return array_key_exists($hash, $this->variantsIndex);
+    return array_key_exists($hash, $this->_variantsIndex);
   }
 }
 ?>

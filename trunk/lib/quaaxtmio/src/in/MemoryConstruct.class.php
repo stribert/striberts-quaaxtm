@@ -27,8 +27,8 @@
  */
 class MemoryConstruct {
   
-  private $reifier,
-          $iids;
+  private $_reifier,
+          $_iids;
           
   /**
    * Constructor.
@@ -36,8 +36,18 @@ class MemoryConstruct {
    * @return void
    */
   public function __construct() {
-    $this->reifier = null;
-    $this->iids = array();
+    $this->_reifier = null;
+    $this->_iids = array();
+  }
+  
+  /**
+   * Destructor.
+   * 
+   * @return void
+   */
+  public function __destruct() {
+    unset($this->_reifier);
+    unset($this->_iids);
   }
   
   /**
@@ -47,7 +57,7 @@ class MemoryConstruct {
    * @return void
    */
   public function setReifier(Topic $reifier) {
-    $this->reifier = $reifier;
+    $this->_reifier = $reifier;
   }
   
   /**
@@ -56,7 +66,7 @@ class MemoryConstruct {
    * @return Topic The reifier.
    */
   public function getReifier() {
-    return $this->reifier;
+    return $this->_reifier;
   }
   
   /**
@@ -66,7 +76,7 @@ class MemoryConstruct {
    * @return void
    */
   public function addItemIdentifier($iid) {
-    $this->iids[$iid] = $iid;
+    $this->_iids[$iid] = $iid;
   }
   
   /**
@@ -75,7 +85,7 @@ class MemoryConstruct {
    * @return array An array containing the item identifiers.
    */
   public function getItemIdentifiers() {
-    return array_values($this->iids);
+    return array_values($this->_iids);
   }
 }
 ?>

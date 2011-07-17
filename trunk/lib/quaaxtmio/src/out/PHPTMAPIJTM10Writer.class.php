@@ -54,11 +54,11 @@ class PHPTMAPIJTM10Writer extends PHPTMAPIGenericWriter {
    * @return string The JTM 1.0.
    */
   public function write(TopicMap $topicMap) {
-    parent::setup('topics', 'id', false);
-    $this->struct['version'] = '1.0';
-    $this->struct['item_type'] = 'topicmap';
+    parent::_setup('topics', 'id', false);
+    $this->_struct['version'] = '1.0';
+    $this->_struct['item_type'] = 'topicmap';
     parent::write($topicMap);
-    return json_encode($this->struct);
+    return json_encode($this->_struct);
   }
 }
 ?>

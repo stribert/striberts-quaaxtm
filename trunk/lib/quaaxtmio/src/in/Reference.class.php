@@ -29,8 +29,8 @@ require_once('Reference.interface.php');
  */
 class Reference implements ReferenceInterface {
 
-  private $ref,
-          $type;
+  private $_ref,
+          $_type;
   
   /**
    * Constructor.
@@ -40,16 +40,26 @@ class Reference implements ReferenceInterface {
    * @return void
    */
   public function __construct($ref, $type = self::ITEM_IDENTIFIER) {    
-    $this->ref = $ref;
-    $this->type = $type;
+    $this->_ref = $ref;
+    $this->_type = $type;
   }
-
+  
+  /**
+   * Destructor.
+   * 
+   * @return void
+   */
+  public function __destruct() {
+    unset($this->_ref);
+    unset($this->_type);
+  }
+ 
   /**
    * (non-PHPdoc)
    * @see src/in/ReferenceInterface#getReference()
    */
   public function getReference() {
-    return $this->ref;
+    return $this->_ref;
   }
 
   /**
@@ -57,7 +67,7 @@ class Reference implements ReferenceInterface {
    * @see src/in/ReferenceInterface#getType()
    */
   public function getType() {
-    return $this->type;
+    return $this->_type;
   }
 }
 ?>

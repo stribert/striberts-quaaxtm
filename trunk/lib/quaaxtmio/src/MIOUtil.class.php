@@ -52,9 +52,9 @@ class MIOUtil {
   public static function readFile($file) {
     $constituents = parse_url($file);
     if (isset($constituents['host']) && isset($constituents['scheme'])) {
-      return self::readRemoteFile($file);
+      return self::_readRemoteFile($file);
     } else {
-      return self::readLocalFile($file);
+      return self::_readLocalFile($file);
     }
   }
   
@@ -66,7 +66,7 @@ class MIOUtil {
    * @static
    * @throws MIOException If file cannot be read.
    */
-  private static function readLocalFile($file) {
+  private static function _readLocalFile($file) {
     // PHP does not recognize file:/, needs file:///
     $file = str_replace('file:/', 'file:///', $file);
     if ($fileHandle = @fopen($file, 'r')) {
@@ -86,7 +86,7 @@ class MIOUtil {
    * @static
    * @throws MIOException If file cannot be read.
    */
-  private static function readRemoteFile($file) {
+  private static function _readRemoteFile($file) {
     $ch = curl_init($file);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);

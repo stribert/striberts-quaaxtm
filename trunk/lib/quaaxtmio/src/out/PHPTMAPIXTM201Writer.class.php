@@ -39,13 +39,13 @@ require_once('Net/URL2.php');
  */
 class PHPTMAPIXTM201Writer {
   
-  private $baseLocator,
-          $topicMap,
-          $writer,
-          $iidIdx,
-          $sloIdx,
-          $sidIdx,
-          $xtm21;
+  private $_baseLocator,
+          $_topicMap,
+          $_writer,
+          $_iidIdx,
+          $_sloIdx,
+          $_sidIdx,
+          $_xtm21;
   
   /**
    * Constructor.
@@ -53,11 +53,11 @@ class PHPTMAPIXTM201Writer {
    * @return void
    */
   public function __construct() {
-    $this->baseLocator = 
-    $this->writer = null;
-    $this->iidIdx = 
-    $this->sloIdx = 
-    $this->sidIdx = array();
+    $this->_baseLocator = 
+    $this->_writer = null;
+    $this->_iidIdx = 
+    $this->_sloIdx = 
+    $this->_sidIdx = array();
   }
   
   /**
@@ -66,9 +66,11 @@ class PHPTMAPIXTM201Writer {
    * @return void
    */
   public function __destruct() {
-    unset($this->baseLocator);
-    unset($this->writer);
-    unset($this->iidIdx);
+    unset($this->_baseLocator);
+    unset($this->_writer);
+    unset($this->_iidIdx);
+    unset($this->_sloIdx);
+    unset($this->_sidIdx);
   }
   
   /**
@@ -92,33 +94,33 @@ class PHPTMAPIXTM201Writer {
         $this->xtm21 = false;
       }
     }
-    $this->baseLocator = !is_null($baseLocator) 
+    $this->_baseLocator = !is_null($baseLocator) 
       ? $baseLocator 
       : $topicMap->getLocator();
-    $this->baseLocator = $this->normalizeLocator($this->baseLocator);
+    $this->_baseLocator = $this->_normalizeLocator($this->_baseLocator);
       
-    $this->writer = new XMLWriter();
-    $this->writer->openMemory();
-    $this->writer->setIndent($indent);
+    $this->_writer = new XMLWriter();
+    $this->_writer->openMemory();
+    $this->_writer->setIndent($indent);
     
-    $this->writer->startElement('topicMap');
-    $this->writer->writeAttribute('xmlns', 'http://www.topicmaps.org/xtm/');
-    $this->writer->writeAttribute('version', $version);
-    $this->writeReifier($topicMap);
-    $this->writeItemIdentifiers($topicMap);
+    $this->_writer->startElement('topicMap');
+    $this->_writer->writeAttribute('xmlns', 'http://www.topicmaps.org/xtm/');
+    $this->_writer->writeAttribute('version', $version);
+    $this->_writeReifier($topicMap);
+    $this->_writeItemIdentifiers($topicMap);
     
     $topics = $topicMap->getTopics();
     foreach ($topics as $topic) {
-      $this->writeTopic($topic);
+      $this->_writeTopic($topic);
     }
     
     $assocs = $topicMap->getAssociations();
     foreach ($assocs as $assoc) {
-      $this->writeAssociation($assoc);
+      $this->_writeAssociation($assoc);
     }
     
-    $this->writer->endElement();
-    $xtm = $this->writer->outputMemory();
+    $this->_writer->endElement();
+    $xtm = $this->_writer->outputMemory();
     
     return trim($xtm);
   }
@@ -129,67 +131,67 @@ class PHPTMAPIXTM201Writer {
    * @param Topic The topic to write.
    * @return void
    */
-  private function writeTopic(Topic $topic) {
+  private function _writeTopic(Topic $topic) {
     $topicId = $topic->getId();
     
     $sids = $topic->getSubjectIdentifiers();
     sort($sids);
-    $this->sidIdx[$topicId] = $sids;
+    $this->_sidIdx[$topicId] = $sids;
     
     $slos = $topic->getSubjectLocators();
     sort($slos);
-    $this->sloIdx[$topicId] = $slos;
+    $this->_sloIdx[$topicId] = $slos;
     
     $iids = $topic->getItemIdentifiers();
     sort($iids);
-    $this->iidIdx[$topicId] = $iids;
+    $this->_iidIdx[$topicId] = $iids;
     
-    $this->writer->startElement('topic');
+    $this->_writer->startElement('topic');
     
     if ($this->xtm21) {
       if (empty($sids) && empty($slos) && empty($iids)) {
-        $this->writer->writeAttribute('id', $this->getXtmTopicId($topic));
+        $this->_writer->writeAttribute('id', $this->_getXtmTopicId($topic));
       }
     } else {
-      $this->writer->writeAttribute('id', $this->getXtmTopicId($topic));
+      $this->_writer->writeAttribute('id', $this->_getXtmTopicId($topic));
     }
     
     if (!empty($iids)) {
-      $this->writeItemIdentifiers($topic);
+      $this->_writeItemIdentifiers($topic);
     }
     
     foreach ($slos as $slo) {
-      $this->writer->startElement('subjectLocator');
-      $this->writer->writeAttribute('href', $slo);
-      $this->writer->endElement();
+      $this->_writer->startElement('subjectLocator');
+      $this->_writer->writeAttribute('href', $slo);
+      $this->_writer->endElement();
     }
     
     foreach ($sids as $sid) {
-      $this->writer->startElement('subjectIdentifier');
-      $this->writer->writeAttribute('href', $sid);
-      $this->writer->endElement();
+      $this->_writer->startElement('subjectIdentifier');
+      $this->_writer->writeAttribute('href', $sid);
+      $this->_writer->endElement();
     }
     
     $types = $topic->getTypes();
     if (count($types) > 0) {
-      $this->writer->startElement('instanceOf');
+      $this->_writer->startElement('instanceOf');
       foreach ($types as $type) {
-        $this->writeTopicRef($type);
+        $this->_writeTopicRef($type);
       }
-      $this->writer->endElement();
+      $this->_writer->endElement();
     }
     
     $names = $topic->getNames();
     foreach ($names as $name) {
-      $this->writeName($name);
+      $this->_writeName($name);
     }
     
     $occs = $topic->getOccurrences();
     foreach ($occs as $occ) {
-      $this->writeOccurrence($occ);
+      $this->_writeOccurrence($occ);
     }
     
-    $this->writer->endElement();
+    $this->_writer->endElement();
   }
   
   /**
@@ -198,25 +200,25 @@ class PHPTMAPIXTM201Writer {
    * @param Name The name to write.
    * @return void
    */
-  private function writeName(Name $name) {
-    $this->writer->startElement('name');
-    $this->writeReifier($name);
-    $this->writeItemIdentifiers($name);
-    $this->writeType($name);
-    $this->writeScope($name);
-    $this->writer->writeElement('value', $name->getValue());
+  private function _writeName(Name $name) {
+    $this->_writer->startElement('name');
+    $this->_writeReifier($name);
+    $this->_writeItemIdentifiers($name);
+    $this->_writeType($name);
+    $this->_writeScope($name);
+    $this->_writer->writeElement('value', $name->getValue());
     
     $variants = $name->getVariants();
     foreach ($variants as $variant) {
-      $this->writer->startElement('variant');
-      $this->writeReifier($variant);
-      $this->writeItemIdentifiers($variant);
-      $this->writeScope($variant);
-      $this->writeValueDatatype($variant);
-      $this->writer->endElement();
+      $this->_writer->startElement('variant');
+      $this->_writeReifier($variant);
+      $this->_writeItemIdentifiers($variant);
+      $this->_writeScope($variant);
+      $this->_writeValueDatatype($variant);
+      $this->_writer->endElement();
     }
     
-    $this->writer->endElement();
+    $this->_writer->endElement();
   }
   
   /**
@@ -225,14 +227,14 @@ class PHPTMAPIXTM201Writer {
    * @param Occurrence The occurrence to write.
    * @return void.
    */
-  private function writeOccurrence(Occurrence $occ) {
-    $this->writer->startElement('occurrence');
-    $this->writeReifier($occ);
-    $this->writeItemIdentifiers($occ);
-    $this->writeType($occ);
-    $this->writeScope($occ);
-    $this->writeValueDatatype($occ);
-    $this->writer->endElement();
+  private function _writeOccurrence(Occurrence $occ) {
+    $this->_writer->startElement('occurrence');
+    $this->_writeReifier($occ);
+    $this->_writeItemIdentifiers($occ);
+    $this->_writeType($occ);
+    $this->_writeScope($occ);
+    $this->_writeValueDatatype($occ);
+    $this->_writer->endElement();
   }
   
   /**
@@ -241,24 +243,24 @@ class PHPTMAPIXTM201Writer {
    * @param Association The association to write.
    * @return void
    */
-  private function writeAssociation(Association $assoc) {
-    $this->writer->startElement('association');
-    $this->writeReifier($assoc);
-    $this->writeItemIdentifiers($assoc);
-    $this->writeType($assoc);
-    $this->writeScope($assoc);
+  private function _writeAssociation(Association $assoc) {
+    $this->_writer->startElement('association');
+    $this->_writeReifier($assoc);
+    $this->_writeItemIdentifiers($assoc);
+    $this->_writeType($assoc);
+    $this->_writeScope($assoc);
 
     $roles = $assoc->getRoles();
     foreach ($roles as $role) {
-      $this->writer->startElement('role');
-      $this->writeReifier($role);
-      $this->writeItemIdentifiers($role);
-      $this->writeType($role);
-      $this->writeTopicRef($role->getPlayer());
-      $this->writer->endElement();
+      $this->_writer->startElement('role');
+      $this->_writeReifier($role);
+      $this->_writeItemIdentifiers($role);
+      $this->_writeType($role);
+      $this->_writeTopicRef($role->getPlayer());
+      $this->_writer->endElement();
     }
     
-    $this->writer->endElement();
+    $this->_writer->endElement();
   }
   
   /**
@@ -268,20 +270,20 @@ class PHPTMAPIXTM201Writer {
    * 				and the datatype to write.
    * @return void
    */
-  private function writeValueDatatype(DatatypeAware $da) {
+  private function _writeValueDatatype(DatatypeAware $da) {
     $datatype = $da->getDatatype();
     if ($datatype == MIOUtil::XSD_ANYURI) {
-      $this->writer->startElement('resourceRef');
-      $this->writer->writeAttribute('href', $da->getValue());
-      $this->writer->endElement();
+      $this->_writer->startElement('resourceRef');
+      $this->_writer->writeAttribute('href', $da->getValue());
+      $this->_writer->endElement();
     } else {
       if ($datatype == MIOUtil::XSD_STRING) {
-        $this->writer->writeElement('resourceData', $da->getValue());
+        $this->_writer->writeElement('resourceData', $da->getValue());
       } else {
-        $this->writer->startElement('resourceData');
-        $this->writer->writeAttribute('datatype', $datatype);
-        $this->writer->text($da->getValue());
-        $this->writer->endElement();
+        $this->_writer->startElement('resourceData');
+        $this->_writer->writeAttribute('datatype', $datatype);
+        $this->_writer->text($da->getValue());
+        $this->_writer->endElement();
       }
     }
   }
@@ -292,16 +294,16 @@ class PHPTMAPIXTM201Writer {
    * @param Scoped The scoped Topic Maps construct having the scope to write.
    * @return void
    */
-  private function writeScope(Scoped $scoped) {
+  private function _writeScope(Scoped $scoped) {
     $scope = $scoped->getScope();
     if (empty($scope)) {
       return;
     }
-    $this->writer->startElement('scope');
+    $this->_writer->startElement('scope');
     foreach ($scope as $theme) {
-      $this->writeTopicRef($theme);
+      $this->_writeTopicRef($theme);
     }
-    $this->writer->endElement();
+    $this->_writer->endElement();
   }
   
   /**
@@ -310,14 +312,14 @@ class PHPTMAPIXTM201Writer {
    * @param Typed The typed Topic Maps construct having the type to write.
    * @return void
    */
-  private function writeType(Typed $typed) {
+  private function _writeType(Typed $typed) {
     $type = $typed->getType();
     if (empty($type)) {
       return;
     }
-    $this->writer->startElement('type');
-    $this->writeTopicRef($type);
-    $this->writer->endElement();
+    $this->_writer->startElement('type');
+    $this->_writeTopicRef($type);
+    $this->_writer->endElement();
   }
   
   /**
@@ -326,19 +328,19 @@ class PHPTMAPIXTM201Writer {
    * @param Construct The Topic Maps construct having the item identifiers to write.
    * @return void
    */
-  private function writeItemIdentifiers(Construct $construct) {
-    if ($construct instanceof Topic && isset($this->iidIdx[$construct->getId()])) {
-      $iids = $this->iidIdx[$construct->getId()];
+  private function _writeItemIdentifiers(Construct $construct) {
+    if ($construct instanceof Topic && isset($this->_iidIdx[$construct->getId()])) {
+      $iids = $this->_iidIdx[$construct->getId()];
     } else {
       $iids = $construct->getItemIdentifiers();
       if ($construct instanceof Topic) {
-        $this->iidIdx[$construct->getId()] = $iids;
+        $this->_iidIdx[$construct->getId()] = $iids;
       }
     }
     foreach ($iids as $iid) {
-      $this->writer->startElement('itemIdentity');
-      $this->writer->writeAttribute('href', $this->getHref($iid));
-      $this->writer->endElement();
+      $this->_writer->startElement('itemIdentity');
+      $this->_writer->writeAttribute('href', $this->_getHref($iid));
+      $this->_writer->endElement();
     }
   }
   
@@ -348,66 +350,66 @@ class PHPTMAPIXTM201Writer {
    * @param Reifiable The reifiable Topic Maps construct having the reifier to write.
    * @return void
    */
-  private function writeReifier(Reifiable $reifiable) {
+  private function _writeReifier(Reifiable $reifiable) {
     $reifier = $reifiable->getReifier();
     if (!$reifier instanceof Topic) {
       return; 
     }
     if ($this->xtm21) {
-      $this->writer->startElement('reifier');
-      $this->writeTopicRef($reifier);
-      $this->writer->endElement();
+      $this->_writer->startElement('reifier');
+      $this->_writeTopicRef($reifier);
+      $this->_writer->endElement();
     } else {
-      $ref = $this->getXtmTopicId($reifier, true);
-      $this->writer->writeAttribute('reifier', $ref);
+      $ref = $this->_getXtmTopicId($reifier, true);
+      $this->_writer->writeAttribute('reifier', $ref);
     }
   }
   
-  private function writeTopicRef(Topic $topic) {
+  private function _writeTopicRef(Topic $topic) {
     if ($this->xtm21) {
-      if (isset($this->sidIdx[$topic->getId()])) {
-        $sids = $this->sidIdx[$topic->getId()];
+      if (isset($this->_sidIdx[$topic->getId()])) {
+        $sids = $this->_sidIdx[$topic->getId()];
       } else {
         $sids = $topic->getSubjectIdentifiers();
       }
       if (!empty($sids)) {
         sort($sids);
-        $this->writer->startElement('subjectIdentifierRef');
-        $this->writer->writeAttribute('href', $sids[0]);
-        $this->writer->endElement();
+        $this->_writer->startElement('subjectIdentifierRef');
+        $this->_writer->writeAttribute('href', $sids[0]);
+        $this->_writer->endElement();
       } else {
-        if (isset($this->sloIdx[$topic->getId()])) {
-          $slos = $this->sloIdx[$topic->getId()];
+        if (isset($this->_sloIdx[$topic->getId()])) {
+          $slos = $this->_sloIdx[$topic->getId()];
         } else {
           $slos = $topic->getSubjectLocators();
         }
         if (!empty($slos)) {
           sort($slos);
-          $this->writer->startElement('subjectLocatorRef');
-          $this->writer->writeAttribute('href', $slos[0]);
-          $this->writer->endElement();
+          $this->_writer->startElement('subjectLocatorRef');
+          $this->_writer->writeAttribute('href', $slos[0]);
+          $this->_writer->endElement();
         } else {
-          if (isset($this->iidIdx[$topic->getId()])) {
-            $iids = $this->iidIdx[$topic->getId()];
+          if (isset($this->_iidIdx[$topic->getId()])) {
+            $iids = $this->_iidIdx[$topic->getId()];
           } else {
             $iids = $topic->getItemIdentifiers();
           }
           if (!empty($iids)) {
             sort($iids);
-            $this->writer->startElement('topicRef');
-            $this->writer->writeAttribute('href', $iids[0]);
-            $this->writer->endElement();
+            $this->_writer->startElement('topicRef');
+            $this->_writer->writeAttribute('href', $iids[0]);
+            $this->_writer->endElement();
           } else {
-            $this->writer->startElement('topicRef');
-            $this->writer->writeAttribute('href', $this->getXtmTopicId($topic, true));
-            $this->writer->endElement();
+            $this->_writer->startElement('topicRef');
+            $this->_writer->writeAttribute('href', $this->_getXtmTopicId($topic, true));
+            $this->_writer->endElement();
           }
         }
       }
     } else {
-      $this->writer->startElement('topicRef');
-      $this->writer->writeAttribute('href', $this->getXtmTopicId($topic, true));
-      $this->writer->endElement();
+      $this->_writer->startElement('topicRef');
+      $this->_writer->writeAttribute('href', $this->_getXtmTopicId($topic, true));
+      $this->_writer->endElement();
     }
   }
   
@@ -417,10 +419,10 @@ class PHPTMAPIXTM201Writer {
    * @param string The raw locator.
    * @return string A relative or an absolute URI.
    */
-  private function getHref($loc) {
-    $loc = $this->normalizeLocator($loc);
-    if (strpos($loc, $this->baseLocator . '#') !== false) {
-      $href = substr($loc, strlen($this->baseLocator . '#'), strlen($loc));
+  private function _getHref($loc) {
+    $loc = $this->_normalizeLocator($loc);
+    if (strpos($loc, $this->_baseLocator . '#') !== false) {
+      $href = substr($loc, strlen($this->_baseLocator . '#'), strlen($loc));
       if (!empty($href)) {
         return '#' . $href;
       }
@@ -435,19 +437,19 @@ class PHPTMAPIXTM201Writer {
    * @param boolean Indicator if a URI fragment must be created. Default <var>false</var>.
    * @return string The XTM topic id.
    */
-  private function getXtmTopicId(Topic $topic, $fragment=false) {
-    if (isset($this->iidIdx[$topic->getId()])) {
-      $iids = $this->iidIdx[$topic->getId()];
+  private function _getXtmTopicId(Topic $topic, $fragment=false) {
+    if (isset($this->_iidIdx[$topic->getId()])) {
+      $iids = $this->_iidIdx[$topic->getId()];
     } else {
       $iids = $topic->getItemIdentifiers();
-      $this->iidIdx[$topic->getId()] = $iids;
+      $this->_iidIdx[$topic->getId()] = $iids;
     }
     if (count($iids) > 0) {
       sort($iids);
       foreach ($iids as $iid) {
-        $iid = $this->normalizeLocator($iid);
-        if (strpos($iid, $this->baseLocator . '#') !== false) {
-          $id = substr($iid, strlen($this->baseLocator . '#'), strlen($iid));
+        $iid = $this->_normalizeLocator($iid);
+        if (strpos($iid, $this->_baseLocator . '#') !== false) {
+          $id = substr($iid, strlen($this->_baseLocator . '#'), strlen($iid));
           if (!empty($id)) {
             return !$fragment ? $id : '#' . $id;
           }
@@ -466,7 +468,7 @@ class PHPTMAPIXTM201Writer {
    * @param string The locator to normalize.
    * @return string A normalized locator.
    */
-  private function normalizeLocator($loc) {
+  private function _normalizeLocator($loc) {
     $locObj = new Net_URL2($loc);
     return $locObj->getNormalizedURL();
   }

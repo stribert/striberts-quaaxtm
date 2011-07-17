@@ -29,8 +29,8 @@ require_once('MemoryScoped.class.php');
  */
 class MemoryAssoc extends MemoryScoped {
   
-  private $roles,
-          $type;
+  private $_roles,
+          $_type;
           
   /**
    * Constructor.
@@ -39,8 +39,18 @@ class MemoryAssoc extends MemoryScoped {
    */
   public function __construct() {
     parent::__construct();
-    $this->roles = array();
-    $this->type = null;
+    $this->_roles = array();
+    $this->_type = null;
+  }
+  
+  /**
+   * Destructor.
+   * 
+   * @return void
+   */
+  public function __destruct() {
+    unset($this->_roles);
+    unset($this->_type);
   }
   
   /**
@@ -50,7 +60,7 @@ class MemoryAssoc extends MemoryScoped {
    * @return void
    */
   public function setType(Topic $type) {
-    $this->type = $type;
+    $this->_type = $type;
   }
   
   /**
@@ -59,7 +69,7 @@ class MemoryAssoc extends MemoryScoped {
    * @return Topic The association type.
    */
   public function getType() {
-    return $this->type;
+    return $this->_type;
   }
   
   /**
@@ -69,7 +79,7 @@ class MemoryAssoc extends MemoryScoped {
    * @return void
    */
   public function addRole(MemoryRole $role) {
-    $this->roles[] = $role;
+    $this->_roles[] = $role;
   }
   
   /**
@@ -78,6 +88,6 @@ class MemoryAssoc extends MemoryScoped {
    * @return array An array containing {@link MemoryRole}s.
    */
   public function getRoles() {
-    return $this->roles;
+    return $this->_roles;
   }
 }

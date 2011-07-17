@@ -29,9 +29,9 @@ require_once('MemoryScoped.class.php');
  */
 class MemoryName extends MemoryScoped {
   
-  private $type,
-          $value,
-          $variants;
+  private $_type,
+          $_value,
+          $_variants;
 
   /**
    * Constructor.
@@ -40,9 +40,20 @@ class MemoryName extends MemoryScoped {
    */
   public function __construct() {
     parent::__construct();
-    $this->type = 
-    $this->value = null;
-    $this->variants = array();
+    $this->_type = 
+    $this->_value = null;
+    $this->_variants = array();
+  }
+  
+  /**
+   * Destructor.
+   * 
+   * @return void
+   */
+  public function __destruct() {
+    unset($this->_type); 
+    unset($this->_value);
+    unset($this->_variants);
   }
   
   /**
@@ -52,7 +63,7 @@ class MemoryName extends MemoryScoped {
    * @return void
    */
   public function setType(Topic $type) {
-    $this->type = $type;
+    $this->_type = $type;
   }
   
   /**
@@ -61,7 +72,7 @@ class MemoryName extends MemoryScoped {
    * @return Topic The topic name type.
    */
   public function getType() {
-    return $this->type;
+    return $this->_type;
   }
   
   /**
@@ -71,7 +82,7 @@ class MemoryName extends MemoryScoped {
    * @return void
    */
   public function setValue($value) {
-    $this->value = $value;
+    $this->_value = $value;
   }
   
   /**
@@ -80,7 +91,7 @@ class MemoryName extends MemoryScoped {
    * @return string The name value.
    */
   public function getValue() {
-    return $this->value;
+    return $this->_value;
   }
   
   /**
@@ -90,7 +101,7 @@ class MemoryName extends MemoryScoped {
    * @return void
    */
   public function addVariant(MemoryVariant $variant) {
-    $this->variants[] = $variant;
+    $this->_variants[] = $variant;
   }
   
   /**
@@ -99,7 +110,7 @@ class MemoryName extends MemoryScoped {
    * @return array An array containing {@link MemoryVariant}s.
    */
   public function getVariants() {
-    return $this->variants;
+    return $this->_variants;
   }
 }
 ?>

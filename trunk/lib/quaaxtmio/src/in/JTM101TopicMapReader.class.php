@@ -43,9 +43,9 @@ require_once('Reference.class.php');
  */
 class JTM101TopicMapReader {
   
-  private $tmHandler,
-          $jtm11,
-          $prefixes;
+  private $_tmHandler,
+          $_jtm11,
+          $_prefixes;
   
   /**
    * Constructor.
@@ -54,9 +54,9 @@ class JTM101TopicMapReader {
    * @return void
    */
   public function __construct(PHPTMAPITopicMapHandlerInterface $tmHandler) {
-    $this->tmHandler = $tmHandler;
-    $this->jtm11 = false;
-    $this->prefixes = array();
+    $this->_tmHandler = $tmHandler;
+    $this->_jtm11 = false;
+    $this->_prefixes = array();
   }
   
   /**
@@ -65,7 +65,8 @@ class JTM101TopicMapReader {
    * @return void
    */
   public function __destruct() {
-    $this->tmHandler = null;
+    unset($this->_tmHandler);
+    unset($this->_prefixes);
   }
 
   /**
@@ -113,12 +114,12 @@ class JTM101TopicMapReader {
     }
     
     if ($version == '1.1') {
-      $this->jtm11 = true;
-      $this->prefixes['xsd'] = 'http://www.w3.org/2001/XMLSchema#';
+      $this->_jtm11 = true;
+      $this->_prefixes['xsd'] = 'http://www.w3.org/2001/XMLSchema#';
       if (isset($struct['prefixes']) && is_array($struct['prefixes'])) {
         foreach ($struct['prefixes'] as $prefix => $uri) {
           if ($prefix != 'xsd') {
-            $this->prefixes[$prefix] = $uri;
+            $this->_prefixes[$prefix] = $uri;
           }
         }
       }
@@ -132,19 +133,19 @@ class JTM101TopicMapReader {
     
     switch ($struct['item_type']) {
       case 'topicmap':
-        $this->readTopicMap($struct);
+        $this->_readTopicMap($struct);
         break;
       case 'association':
-        $this->readDetachedTopicMapProperty($struct,'association');
+        $this->_readDetachedTopicMapProperty($struct,'association');
         break;
       case 'topic':
-        $this->readDetachedTopicMapProperty($struct,'topic');
+        $this->_readDetachedTopicMapProperty($struct,'topic');
         break;
       case 'name':
-        $this->readDetachedTopicProperty($struct, 'name');
+        $this->_readDetachedTopicProperty($struct, 'name');
         break;
       case 'occurrence':
-        $this->readDetachedTopicProperty($struct, 'occurrence');
+        $this->_readDetachedTopicProperty($struct, 'occurrence');
         break;
       default:
         return;
@@ -159,18 +160,18 @@ class JTM101TopicMapReader {
    * @return void
    * @throws MIOException If the property has no parent.
    */
-  private function readDetachedTopicProperty(array $property, $itemType) {
+  private function _readDetachedTopicProperty(array $property, $itemType) {
     if (!isset($property['parent'])) {
       throw new MIOException('Error in ' . __METHOD__ . ': Topic property has no parent.');
     }
-    $this->tmHandler->startTopicMap();
-    $this->readParentTopic($property['parent']);
+    $this->_tmHandler->startTopicMap();
+    $this->_readParentTopic($property['parent']);
     if ($itemType == 'name') {
-      $this->readNames(array($property));
+      $this->_readNames(array($property));
     } else {
-      $this->readOccurrences(array($property));
+      $this->_readOccurrences(array($property));
     }
-    $this->tmHandler->endTopicMap();
+    $this->_tmHandler->endTopicMap();
   }
   
   /**
@@ -180,45 +181,45 @@ class JTM101TopicMapReader {
    * @return void
    * @throws MIOException If the topic has no identity.
    */
-  private function readParentTopic(array $ids) {
+  private function _readParentTopic(array $ids) {
     $i = 0;
     foreach ($ids as $id) {
-      $struct = $this->deconstructTopicReference($id);
+      $struct = $this->_deconstructTopicReference($id);
       switch ($struct[1]) {
         case ReferenceInterface::SUBJECT_IDENTIFIER:
           if ($i == 0) {
-            $this->tmHandler->startTopic(
+            $this->_tmHandler->startTopic(
               new Reference(
                 $struct[0], 
-                Reference::SUBJECT_IDENTIFIER
+                ReferenceInterface::SUBJECT_IDENTIFIER
               )
             );
           } else {
-            $this->tmHandler->subjectIdentifier($struct[0]);
+            $this->_tmHandler->subjectIdentifier($struct[0]);
           }
           break;
         case ReferenceInterface::SUBJECT_LOCATOR:
           if ($i == 0) {
-            $this->tmHandler->startTopic(
+            $this->_tmHandler->startTopic(
               new Reference(
                 $struct[0], 
-                Reference::SUBJECT_LOCATOR
+                ReferenceInterface::SUBJECT_LOCATOR
               )
             );
           } else {
-            $this->tmHandler->subjectLocator($struct[0]);
+            $this->_tmHandler->subjectLocator($struct[0]);
           }
           break;
         case ReferenceInterface::ITEM_IDENTIFIER:
           if ($i == 0) {
-            $this->tmHandler->startTopic(
+            $this->_tmHandler->startTopic(
               new Reference(
                 $struct[0], 
-                Reference::ITEM_IDENTIFIER
+                ReferenceInterface::ITEM_IDENTIFIER
               )
             );
           } else {
-            $this->tmHandler->itemIdentifier($struct[0]);
+            $this->_tmHandler->itemIdentifier($struct[0]);
           }
           break;
         default:
@@ -236,14 +237,14 @@ class JTM101TopicMapReader {
    * @param string The item type.
    * @return void
    */
-  private function readDetachedTopicMapProperty(array $property, $itemType) {
-    $this->tmHandler->startTopicMap();
+  private function _readDetachedTopicMapProperty(array $property, $itemType) {
+    $this->_tmHandler->startTopicMap();
     if ($itemType == 'association') {
-      $this->readAssociations(array($property));
+      $this->_readAssociations(array($property));
     } else {
-      $this->readTopics(array($property));
+      $this->_readTopics(array($property));
     }
-    $this->tmHandler->endTopicMap();
+    $this->_tmHandler->endTopicMap();
   }
   
   /**
@@ -252,26 +253,26 @@ class JTM101TopicMapReader {
    * @param array The topic map.
    * @return void
    */
-  private function readTopicMap(array $topicMap) {
-    $this->tmHandler->startTopicMap();
+  private function _readTopicMap(array $topicMap) {
+    $this->_tmHandler->startTopicMap();
     
     if (isset($topicMap['reifier'])) {
-      $this->handleReifier($topicMap['reifier']);
+      $this->_handleReifier($topicMap['reifier']);
     }
     
     if (isset($topicMap['item_identifiers'])) {
-      $this->handleIids($topicMap['item_identifiers']);
+      $this->_handleIids($topicMap['item_identifiers']);
     }
     
     if (isset($topicMap['topics'])) {
-      $this->readTopics($topicMap['topics']);
+      $this->_readTopics($topicMap['topics']);
     }
     
     if (isset($topicMap['associations'])) {
-      $this->readAssociations($topicMap['associations']);
+      $this->_readAssociations($topicMap['associations']);
     }
     
-    $this->tmHandler->endTopicMap();
+    $this->_tmHandler->endTopicMap();
   }
   
   /**
@@ -281,19 +282,19 @@ class JTM101TopicMapReader {
    * @return void
    * @throws MIOException If the topic has no identity.
    */
-  private function readTopics(array $topics) {
+  private function _readTopics(array $topics) {
     foreach ($topics as $topic) {
       if (isset($topic['subject_identifiers']) && !empty($topic['subject_identifiers'])) {
-        $ref = $this->getReference($topic['subject_identifiers'][0]);
-        $this->tmHandler->startTopic(new Reference($ref, Reference::SUBJECT_IDENTIFIER));
+        $ref = $this->_getReference($topic['subject_identifiers'][0]);
+        $this->_tmHandler->startTopic(new Reference($ref, ReferenceInterface::SUBJECT_IDENTIFIER));
         unset($topic['subject_identifiers'][0]);
       } else if (isset($topic['subject_locators']) && !empty($topic['subject_locators'])) {
-        $ref = $this->getReference($topic['subject_locators'][0]);
-        $this->tmHandler->startTopic(new Reference($ref, Reference::SUBJECT_LOCATOR));
+        $ref = $this->_getReference($topic['subject_locators'][0]);
+        $this->_tmHandler->startTopic(new Reference($ref, ReferenceInterface::SUBJECT_LOCATOR));
         unset($topic['subject_locators'][0]);
       } else if (isset($topic['item_identifiers']) && !empty($topic['item_identifiers'])) {
-        $ref = $this->getReference($topic['item_identifiers'][0]);
-        $this->tmHandler->startTopic(new Reference($ref, Reference::ITEM_IDENTIFIER));
+        $ref = $this->_getReference($topic['item_identifiers'][0]);
+        $this->_tmHandler->startTopic(new Reference($ref, ReferenceInterface::ITEM_IDENTIFIER));
         unset($topic['item_identifiers'][0]);
       } else {
         throw new MIOException('Error in ' . __METHOD__ . ': Topic has no identity.');
@@ -301,46 +302,46 @@ class JTM101TopicMapReader {
       
       if (isset($topic['subject_identifiers'])) {
         foreach ($topic['subject_identifiers'] as $sid) {
-          $sid = $this->getReference($sid);
-          $this->tmHandler->subjectIdentifier($sid);
+          $sid = $this->_getReference($sid);
+          $this->_tmHandler->subjectIdentifier($sid);
         }
       }
       
       if (isset($topic['subject_locators'])) {
         foreach ($topic['subject_locators'] as $slo) {
-          $slo = $this->getReference($slo);
-          $this->tmHandler->subjectLocator($slo);
+          $slo = $this->_getReference($slo);
+          $this->_tmHandler->subjectLocator($slo);
         }
       }
       
       if (isset($topic['item_identifiers'])) {
-        $this->handleIids($topic['item_identifiers']);
+        $this->_handleIids($topic['item_identifiers']);
       }
       
-      if (!$this->jtm11 && isset($topic['instance_of'])) {
+      if (!$this->_jtm11 && isset($topic['instance_of'])) {
         throw new MIOException(
         	'Error in ' . __METHOD__ . ': "instance_of" is not allowed in JTM 1.0.'
         );
       }
       
       if (isset($topic['instance_of'])) {
-        $this->tmHandler->startIsa();
+        $this->_tmHandler->startIsa();
         foreach ($topic['instance_of'] as $topicRef) {
-          $struct = $this->deconstructTopicReference($topicRef);
-          $this->tmHandler->topicRef(new Reference($struct[0], $struct[1]));
+          $struct = $this->_deconstructTopicReference($topicRef);
+          $this->_tmHandler->topicRef(new Reference($struct[0], $struct[1]));
         }
-        $this->tmHandler->endIsa();
+        $this->_tmHandler->endIsa();
       }
       
       if (isset($topic['names'])) {
-        $this->readNames($topic['names']);
+        $this->_readNames($topic['names']);
       }
       
       if (isset($topic['occurrences'])) {
-        $this->readOccurrences($topic['occurrences']);
+        $this->_readOccurrences($topic['occurrences']);
       }
       
-      $this->tmHandler->endTopic();
+      $this->_tmHandler->endTopic();
     }
   }
   
@@ -352,7 +353,7 @@ class JTM101TopicMapReader {
    * @throws MIOException If required type is missing.
    * @throws MIOException If required value is missing.
    */
-  private function readOccurrences(array $occs) {
+  private function _readOccurrences(array $occs) {
     foreach ($occs as $occ) {
       if (!isset($occ['type'])) {
         throw new MIOException('Error in ' . __METHOD__ . ': Missing required "type".');
@@ -360,28 +361,28 @@ class JTM101TopicMapReader {
       if (!isset($occ['value'])) {
         throw new MIOException('Error in ' . __METHOD__ . ': Missing required "value".');
       }
-      $this->tmHandler->startOccurrence();
+      $this->_tmHandler->startOccurrence();
       
       if (isset($occ['reifier'])) {
-        $this->handleReifier($occ['reifier']);
+        $this->_handleReifier($occ['reifier']);
       }
       
       if (isset($occ['item_identifiers'])) {
-        $this->handleIids($occ['item_identifiers']);
+        $this->_handleIids($occ['item_identifiers']);
       }
       
-      $this->handleType($occ['type']);
+      $this->_handleType($occ['type']);
       
       $datatype = isset($occ['datatype']) 
-        ? $this->getReference($occ['datatype']) 
+        ? $this->_getReference($occ['datatype']) 
         : MIOUtil::XSD_STRING;
-      $this->tmHandler->value($occ['value'], $datatype);
+      $this->_tmHandler->value($occ['value'], $datatype);
       
       if (isset($occ['scope'])) {
-        $this->handleScope($occ['scope']);
+        $this->_handleScope($occ['scope']);
       }
       
-      $this->tmHandler->endOccurrence();
+      $this->_tmHandler->endOccurrence();
     }
   }
   
@@ -392,36 +393,36 @@ class JTM101TopicMapReader {
    * @return void
    * @throws MIOException If required value is missing.
    */
-  private function readNames(array $names) {
+  private function _readNames(array $names) {
     foreach ($names as $name) {
       if (!isset($name['value'])) {
         throw new MIOException('Error in ' . __METHOD__ . ': Missing required "value".');
       }
-      $this->tmHandler->startName();
+      $this->_tmHandler->startName();
       
       if (isset($name['reifier'])) {
-        $this->handleReifier($name['reifier']);
+        $this->_handleReifier($name['reifier']);
       }
       
       if (isset($name['item_identifiers'])) {
-        $this->handleIids($name['item_identifiers']);
+        $this->_handleIids($name['item_identifiers']);
       }
       
       if (isset($name['type'])) {
-        $this->handleType($name['type']);
+        $this->_handleType($name['type']);
       }
       
-      $this->tmHandler->nameValue($name['value'], MIOUtil::XSD_STRING);
+      $this->_tmHandler->nameValue($name['value'], MIOUtil::XSD_STRING);
       
       if (isset($name['scope'])) {
-        $this->handleScope($name['scope']);
+        $this->_handleScope($name['scope']);
       }
       
       if (isset($name['variants'])) {
-        $this->readVariants($name['variants']);
+        $this->_readVariants($name['variants']);
       }
       
-      $this->tmHandler->endName();
+      $this->_tmHandler->endName();
     }
   }
   
@@ -433,7 +434,7 @@ class JTM101TopicMapReader {
    * @throws MIOException If required scope is missing.
    * @throws MIOException If required value is missing.
    */
-  private function readVariants(array $variants) {
+  private function _readVariants(array $variants) {
     foreach ($variants as $variant) {
       if (!isset($variant['scope'])) {
         throw new MIOException('Error in ' . __METHOD__ . ': Missing required "scope".');
@@ -441,24 +442,24 @@ class JTM101TopicMapReader {
       if (!isset($variant['value'])) {
         throw new MIOException('Error in ' . __METHOD__ . ': Missing required "value".');
       }
-      $this->tmHandler->startVariant();
+      $this->_tmHandler->startVariant();
       
       if (isset($variant['reifier'])) {
-        $this->handleReifier($variant['reifier']);
+        $this->_handleReifier($variant['reifier']);
       }
       
       if (isset($variant['item_identifiers'])) {
-        $this->handleIids($variant['item_identifiers']);
+        $this->_handleIids($variant['item_identifiers']);
       }
       
-      $this->handleScope($variant['scope']);
+      $this->_handleScope($variant['scope']);
       
       $datatype = isset($variant['datatype']) 
-        ? $this->getReference($variant['datatype']) 
+        ? $this->_getReference($variant['datatype']) 
         : MIOUtil::XSD_STRING;
-      $this->tmHandler->value($variant['value'], $datatype);
+      $this->_tmHandler->value($variant['value'], $datatype);
       
-      $this->tmHandler->endVariant();
+      $this->_tmHandler->endVariant();
     }
   }
   
@@ -470,7 +471,7 @@ class JTM101TopicMapReader {
    * @throws MIOException If required type is missing.
    * @throws MIOException If required roles are missing.
    */
-  private function readAssociations(array $assocs) {
+  private function _readAssociations(array $assocs) {
     foreach ($assocs as $assoc) {
       if (!isset($assoc['type'])) {
         throw new MIOException('Error in ' . __METHOD__ . ': Missing required "type".');
@@ -481,25 +482,25 @@ class JTM101TopicMapReader {
       if (empty($assoc['roles'])) {
         throw new MIOException('Error in ' . __METHOD__ . ': Roles must not be empty.');
       }
-      $this->tmHandler->startAssociation();
+      $this->_tmHandler->startAssociation();
       
       if (isset($assoc['reifier'])) {
-        $this->handleReifier($assoc['reifier']);
+        $this->_handleReifier($assoc['reifier']);
       }
       
       if (isset($assoc['item_identifiers'])) {
-        $this->handleIids($assoc['item_identifiers']);
+        $this->_handleIids($assoc['item_identifiers']);
       }
       
-      $this->handleType($assoc['type']);
+      $this->_handleType($assoc['type']);
       
       if (isset($assoc['scope'])) {
-        $this->handleScope($assoc['scope']);
+        $this->_handleScope($assoc['scope']);
       }
       
-      $this->readRoles($assoc['roles']);
+      $this->_readRoles($assoc['roles']);
       
-      $this->tmHandler->endAssociation();
+      $this->_tmHandler->endAssociation();
     }
   }
   
@@ -511,7 +512,7 @@ class JTM101TopicMapReader {
    * @throws MIOException If required player is missing.
    * @throws MIOException If required type is missing.
    */
-  private function readRoles(array $roles) {
+  private function _readRoles(array $roles) {
     foreach ($roles as $role) {
       if (!isset($role['player'])) {
         throw new MIOException('Error in ' . __METHOD__ . ': Missing required "player".');
@@ -519,22 +520,22 @@ class JTM101TopicMapReader {
       if (!isset($role['type'])) {
         throw new MIOException('Error in ' . __METHOD__ . ': Missing required "type".');
       }
-      $this->tmHandler->startRole();
+      $this->_tmHandler->startRole();
       
       if (isset($role['reifier'])) {
-        $this->handleReifier($role['reifier']);
+        $this->_handleReifier($role['reifier']);
       }
       
       if (isset($role['item_identifiers'])) {
-        $this->handleIids($role['item_identifiers']);
+        $this->_handleIids($role['item_identifiers']);
       }
       
-      $this->handleType($role['type']);
+      $this->_handleType($role['type']);
       
-      $struct = $this->deconstructTopicReference($role['player']);
-      $this->tmHandler->topicRef(new Reference($struct[0], $struct[1]));
+      $struct = $this->_deconstructTopicReference($role['player']);
+      $this->_tmHandler->topicRef(new Reference($struct[0], $struct[1]));
       
-      $this->tmHandler->endRole();
+      $this->_tmHandler->endRole();
     }
   }
   
@@ -544,13 +545,13 @@ class JTM101TopicMapReader {
    * @param array The scope.
    * @return void
    */
-  private function handleScope(array $scope) {
-    $this->tmHandler->startScope();
+  private function _handleScope(array $scope) {
+    $this->_tmHandler->startScope();
     foreach ($scope as $topicRef) {
-      $struct = $this->deconstructTopicReference($topicRef);
-      $this->tmHandler->topicRef(new Reference($struct[0], $struct[1]));
+      $struct = $this->_deconstructTopicReference($topicRef);
+      $this->_tmHandler->topicRef(new Reference($struct[0], $struct[1]));
     }
-    $this->tmHandler->endScope();
+    $this->_tmHandler->endScope();
   }
   
   /**
@@ -559,11 +560,11 @@ class JTM101TopicMapReader {
    * @param string The type (topic) reference.
    * @return void
    */
-  private function handleType($topicRef) {
-    $struct = $this->deconstructTopicReference($topicRef);
-    $this->tmHandler->startType();
-    $this->tmHandler->topicRef(new Reference($struct[0], $struct[1]));
-    $this->tmHandler->endType();
+  private function _handleType($topicRef) {
+    $struct = $this->_deconstructTopicReference($topicRef);
+    $this->_tmHandler->startType();
+    $this->_tmHandler->topicRef(new Reference($struct[0], $struct[1]));
+    $this->_tmHandler->endType();
   }
   
   /**
@@ -572,10 +573,10 @@ class JTM101TopicMapReader {
    * @param array The item identifiers.
    * @return void
    */
-  private function handleIids(array $iids) {
+  private function _handleIids(array $iids) {
     foreach ($iids as $iid) {
-      $iid = $this->getReference($iid);
-      $this->tmHandler->itemIdentifier($iid);
+      $iid = $this->_getReference($iid);
+      $this->_tmHandler->itemIdentifier($iid);
     }
   }
   
@@ -585,14 +586,14 @@ class JTM101TopicMapReader {
    * @param string The reifier (topic) reference.
    * @return void
    */
-  private function handleReifier($topicRef) {
+  private function _handleReifier($topicRef) {
     if ($topicRef === 'NULL') {
       return;
     }
-    $struct = $this->deconstructTopicReference($topicRef);
-    $this->tmHandler->startReifier();
-    $this->tmHandler->topicRef(new Reference($struct[0], $struct[1]));
-    $this->tmHandler->endReifier();
+    $struct = $this->_deconstructTopicReference($topicRef);
+    $this->_tmHandler->startReifier();
+    $this->_tmHandler->topicRef(new Reference($struct[0], $struct[1]));
+    $this->_tmHandler->endReifier();
   }
   
   /**
@@ -601,19 +602,19 @@ class JTM101TopicMapReader {
    * @param string The topic reference.
    * @return void
    */
-  private function deconstructTopicReference($topicRef) {
+  private function _deconstructTopicReference($topicRef) {
     $pos = stripos($topicRef, ':');
     $refType = substr($topicRef, 0, $pos);
     $ref = substr($topicRef, $pos+1, strlen($topicRef));
     switch ($refType) {
       case 'ii':
-        return array($ref, Reference::ITEM_IDENTIFIER);
+        return array($ref, ReferenceInterface::ITEM_IDENTIFIER);
         break;
       case 'si':
-        return array($ref, Reference::SUBJECT_IDENTIFIER);
+        return array($ref, ReferenceInterface::SUBJECT_IDENTIFIER);
         break;
       case 'sl':
-        return array($ref, Reference::SUBJECT_LOCATOR);
+        return array($ref, ReferenceInterface::SUBJECT_LOCATOR);
         break;
       default:
         throw new MIOException(
@@ -633,7 +634,7 @@ class JTM101TopicMapReader {
    * @throws MIOException If colon is missing in Safe_CURIE declaration.
    * @throws MIOException If prefix is not registered.
    */
-  private function getReference($str) {
+  private function _getReference($str) {
     $firstChar = $str{0};
     if ($firstChar != '[') {
       return $str;
@@ -652,10 +653,10 @@ class JTM101TopicMapReader {
         );
       }
       $prefix = substr($str, 0, $pos);
-      if (!array_key_exists($prefix, $this->prefixes)) {
+      if (!array_key_exists($prefix, $this->_prefixes)) {
         throw new MIOException('Error in ' . __METHOD__ . ': CURIE prefix is not registered.');
       }
-      $baseUri = $this->prefixes[$prefix];
+      $baseUri = $this->_prefixes[$prefix];
       $pathFragment = substr($str, $pos+1, strlen($str));
       return $baseUri . $pathFragment;
     }
