@@ -135,6 +135,32 @@ class Xtm201Test extends TestCase {
       // no op.
     }
   }
+  
+  public function testInvalidXml() {
+    $invalidXml = '<foo><bar>baz</bar</foo>';
+    $tmLocator = 'http://localhost/tm/' . uniqid();
+    $tmHandler = new PHPTMAPITopicMapHandler($this->sharedFixture, $tmLocator);
+    $reader = new XTM201TopicMapReader($tmHandler);
+    try {
+      $reader->read($invalidXml);
+      $this->fail('XML to read is invalid.');
+    } catch (MIOException $e) {
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
+    }
+  }
+  
+  public function testInvalidXmlEncoding() {
+    $tmLocator = 'http://localhost/tm/' . uniqid();
+    $tmHandler = new PHPTMAPITopicMapHandler($this->sharedFixture, $tmLocator);
+    try {
+      $reader = new XTM201TopicMapReader($tmHandler, 'foo');
+      $this->fail('Should not have been able to create a parser with enc. "foo".');
+    } catch (MIOException $e) {
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
+    }
+  }
 
   public function getValid21Files() {
     return $files = $this->getSrcFiles('xtm21' . DIRECTORY_SEPARATOR . 'in');
