@@ -26,8 +26,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class CharacteristicUtils {
-
+class CharacteristicUtils
+{
   const UTF8 = 'UTF-8',
         ISO88591 = 'ISO-8859-1';
       
@@ -36,7 +36,7 @@ class CharacteristicUtils {
    * 
    * @return void
    */
-  private function __construct() {}
+  private function __construct(){}
         
   /**
    * Canonicalizes a value for storing in a MySQL database.
@@ -48,7 +48,13 @@ class CharacteristicUtils {
    * @return string
    * @static
    */
-  public static function canonicalize($value, mysqli $connection, $encoding=self::UTF8, $entities=false) {
+  public static function canonicalize(
+    $value, 
+    mysqli $connection, 
+    $encoding=self::UTF8, 
+    $entities=false
+    )
+  {
     $value = mysqli_real_escape_string($connection, $value);
     return $value = $entities ? htmlentities($value, ENT_NOQUOTES, $encoding) : $value;
   }

@@ -26,8 +26,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-final class ScopeImpl {
-
+final class ScopeImpl
+{
   /**
    * The id (primary key) in table qtm_scope.
    * 
@@ -57,7 +57,8 @@ final class ScopeImpl {
     array $themes, 
     TopicMap $currentTopicMap, 
     Construct $currentConstruct
-  ) {  
+    )
+  {  
     $this->_mysql = $mysql;
     $this->_config = $config;
     $this->_currentTopicMap = $currentTopicMap;
@@ -83,7 +84,8 @@ final class ScopeImpl {
    * @param array An array containing topics.
    * @return boolean
    */
-  public function isTrueSubset(array $themes) {
+  public function isTrueSubset(array $themes)
+  {
     $set = array();
     foreach ($themes as $theme) {
       if ($theme instanceof Topic) {
@@ -103,7 +105,8 @@ final class ScopeImpl {
    * 
    * @return boolean
    */
-  public function isUnconstrained() {
+  public function isUnconstrained()
+  {
     return count($this->_themesIds) > 0 ? false : true;
   }
   
@@ -112,7 +115,8 @@ final class ScopeImpl {
    * 
    * @return int|false <var>False</var> if scope does not exist, the scope id otherwise.
    */
-  private function _exists() {
+  private function _exists()
+  {
     $idsImploded = implode(',', $this->_themesIds);
     $query = 'SELECT scope_id FROM ' . $this->_config['table']['theme'] . 
       ' WHERE topic_id IN (' . $idsImploded . ')' .
@@ -144,7 +148,8 @@ final class ScopeImpl {
    * 
    * @param array An array containing topics (the themes).
    */
-  private function _createSet(array $scope) {
+  private function _createSet(array $scope)
+  {
     $set = array();
     foreach ($scope as $theme) {
       if ($theme instanceof Topic) {
@@ -160,7 +165,8 @@ final class ScopeImpl {
    * 
    * @return void
    */
-  private function _create() {
+  private function _create()
+  {
     $this->_mysql->startTransaction();
     $query = 'INSERT INTO ' . $this->_config['table']['scope'] . ' (id) VALUES (NULL)';
     $mysqlResult = $this->_mysql->execute($query);
@@ -180,7 +186,8 @@ final class ScopeImpl {
    * 
    * @return int The scope id.
    */
-  private function _getUcsId() {
+  private function _getUcsId()
+  {
     $query = 'SELECT t1.id AS scope_id FROM ' . $this->_config['table']['scope'] . ' t1 ' .
       'LEFT JOIN ' . $this->_config['table']['theme'] . ' t2 ' .
       'ON t2.scope_id = t1.id ' .

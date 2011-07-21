@@ -27,8 +27,8 @@ require_once('MemoryConstruct.class.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class MemoryRole extends MemoryConstruct {
-  
+class MemoryRole extends MemoryConstruct
+{
   private $_type,
           $_player;
   
@@ -37,7 +37,8 @@ class MemoryRole extends MemoryConstruct {
    * 
    * @return void
    */
-  public function __construct() {
+  public function __construct()
+  {
     parent::__construct();
     $this->_type = 
     $this->_player = null;
@@ -48,7 +49,8 @@ class MemoryRole extends MemoryConstruct {
    * 
    * @return void
    */
-  public function __destruct() {
+  public function __destruct()
+  {
     unset($this->_type);
     unset($this->_player);
   }
@@ -59,7 +61,8 @@ class MemoryRole extends MemoryConstruct {
    * @param Topic The association role type.
    * @return void
    */
-  public function setType(Topic $type) {
+  public function setType(Topic $type)
+  {
     $this->_type = $type;
   }
   
@@ -68,7 +71,8 @@ class MemoryRole extends MemoryConstruct {
    * 
    * @return Topic The association role type.
    */
-  public function getType() {
+  public function getType()
+  {
     return $this->_type;
   }
   
@@ -78,7 +82,8 @@ class MemoryRole extends MemoryConstruct {
    * @param Topic The association role player.
    * @return void
    */
-  public function setPlayer(Topic $player) {
+  public function setPlayer(Topic $player)
+  {
     $this->_player = $player;
   }
   
@@ -87,7 +92,8 @@ class MemoryRole extends MemoryConstruct {
    * 
    * @return Topic The association role player.
    */
-  public function getPlayer() {
+  public function getPlayer()
+  {
     return $this->_player;
   }
 }

@@ -43,13 +43,8 @@ require_once('Net/URL2.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class PHPTMAPICXTMWriter {
-  
-  private static  $_normLocs = array(),
-                  $_normBaseLoc = '',
-                  $_srcXml = true,
-                  $_xsdUri = 'http://www.w3.org/2001/XMLSchema#anyURI';
-  
+class PHPTMAPICXTMWriter
+{ 
   private $_playersToAssocsIndex,
           $_topicsToNumbersIndex,
           $_typeInstance,
@@ -59,13 +54,19 @@ class PHPTMAPICXTMWriter {
           $_topicMap,
           $_writer,
           $_filterTopicIidPattern;
+          
+  private static  $_normLocs = array(),
+                  $_normBaseLoc = '',
+                  $_srcXml = true,
+                  $_xsdUri = 'http://www.w3.org/2001/XMLSchema#anyURI';
   
   /**
    * Constructor.
    * 
    * @return void
    */
-  public function __construct() {
+  public function __construct()
+  {
     $this->_playersToAssocsIndex = 
     $this->_typeInstanceAssocs = 
     $this->_topicsToNumbersIndex = array();
@@ -82,7 +83,8 @@ class PHPTMAPICXTMWriter {
    * 
    * @return void
    */
-  public function __destruct() {
+  public function __destruct()
+  {
     unset($this->_playersToAssocsIndex);
     unset($this->_typeInstanceAssocs);
     unset($this->_topicsToNumbersIndex);
@@ -109,7 +111,8 @@ class PHPTMAPICXTMWriter {
     $baseLocator=null, 
     $srcXml=true, 
     $filterTopicIidPattern=null
-  ) {
+    )
+  {
     $this->_topicMap = $topicMap;
     $baseLocator = !is_null($baseLocator) 
       ? $baseLocator 
@@ -162,7 +165,8 @@ class PHPTMAPICXTMWriter {
    * @param int The element number.
    * @return void
    */
-  private function _writeTopic(Topic $topic, $number) {
+  private function _writeTopic(Topic $topic, $number)
+  {
     $this->_writer->startElement('topic');
     $this->_writer->writeAttribute('number', $number);
     $this->_writer->writeNewLine();
@@ -201,7 +205,8 @@ class PHPTMAPICXTMWriter {
    * @param array The played roles.
    * @return void
    */
-  private function _writeRolesPlayed(array $rolesPlayed) {
+  private function _writeRolesPlayed(array $rolesPlayed)
+  {
     foreach ($rolesPlayed as $rolePlayed) {
       $constituents = explode('-', $rolePlayed);
       $this->_writer->startElement('rolePlayed');
@@ -222,7 +227,8 @@ class PHPTMAPICXTMWriter {
    * @param int The element number.
    * @return void
    */
-  private function _writeName(Name $name, $number) {
+  private function _writeName(Name $name, $number)
+  {
     $this->_writer->startElement('name');
     $this->_writeNumberReifierAttributes($number, $name);
     $this->_writer->writeNewLine();
@@ -261,7 +267,8 @@ class PHPTMAPICXTMWriter {
    * @param int The element number.
    * @return void
    */
-  private function _writeOccurrence(Occurrence $occ, $number) {
+  private function _writeOccurrence(Occurrence $occ, $number)
+  {
     $this->_writer->startElement('occurrence');
     $this->_writeNumberReifierAttributes($number, $occ);
     $this->_writer->writeNewLine();
@@ -283,7 +290,8 @@ class PHPTMAPICXTMWriter {
    * @param int The element number.
    * @return void
    */
-  private function _writeAssociation(Association $assoc, $number) {
+  private function _writeAssociation(Association $assoc, $number)
+  {
     $this->_writer->startElement('association');
     $this->_writeNumberReifierAttributes($number, $assoc);
     $this->_writer->writeNewLine();
@@ -329,7 +337,8 @@ class PHPTMAPICXTMWriter {
    * 				the value and the datatype to write.
    * @return void
    */
-  private function _writeDatatyped(DatatypeAware $da) {
+  private function _writeDatatyped(DatatypeAware $da)
+  {
     $loc = self::_normalizeLocator($da->getDatatype());
     $value = $da->getValue();
     if ($loc == self::$_xsdUri) {
@@ -348,7 +357,8 @@ class PHPTMAPICXTMWriter {
    * @param Scoped The scoped Topic Maps construct having the scope to write.
    * @return void
    */
-  private function _writeScope(Scoped $scoped) {
+  private function _writeScope(Scoped $scoped)
+  {
     $scope = $scoped->getScope();
     if (empty($scope)) {
       return;
@@ -380,7 +390,8 @@ class PHPTMAPICXTMWriter {
    * @param Typed The typed Topic Maps construct having the type to write.
    * @return void
    */
-  private function _writeType(Typed $typed) {
+  private function _writeType(Typed $typed)
+  {
     $this->_writer->startElement('type');
     $this->_writer->writeAttribute(
     	'topicref', 
@@ -398,7 +409,8 @@ class PHPTMAPICXTMWriter {
    * @param Reifiable The reifiable.
    * @return void
    */
-  private function _writeNumberReifierAttributes($number, Reifiable $reifiable) {
+  private function _writeNumberReifierAttributes($number, Reifiable $reifiable)
+  {
     $this->_writer->writeAttribute('number', $number);
     $reifier = $reifiable->getReifier();
     if (!$reifier instanceof Topic) {
@@ -417,7 +429,8 @@ class PHPTMAPICXTMWriter {
    * @param array The locators to write.
    * @return void
    */
-  private function _writeLocators($elementName, array $locs) {
+  private function _writeLocators($elementName, array $locs)
+  {
     if (empty($locs)) {
       return;
     }
@@ -437,7 +450,8 @@ class PHPTMAPICXTMWriter {
    * @param Construct The construct having item identifiers.
    * @return void
    */
-  private function _writeItemIdentifiers(Construct $construct) {
+  private function _writeItemIdentifiers(Construct $construct)
+  {
     if (!is_null($this->_filterTopicIidPattern) && $construct instanceof Topic) {
       $iids = $this->_getFilteredTopicIids($construct);
     } else {
@@ -452,7 +466,8 @@ class PHPTMAPICXTMWriter {
    * @param string The locator.
    * @return void
    */
-  private function _writeLocator($loc) {
+  private function _writeLocator($loc)
+  {
     $this->_writer->writeElement(
     	'locator', 
       rawurldecode(self::_normalizeLocator($loc))
@@ -467,7 +482,8 @@ class PHPTMAPICXTMWriter {
    * @return void
    * @throws MIOException If PHPTMAPI <var>TypeInstanceIndex</var> is not available.
    */
-  private function _prepareTopics() {
+  private function _prepareTopics()
+  {
     try {
       $index = $this->_topicMap->getIndex('TypeInstanceIndexImpl');
     } catch (FeatureNotSupportedException $e) {
@@ -497,7 +513,8 @@ class PHPTMAPICXTMWriter {
    * 
    * @return void
    */
-  private function _prepareAssociations() {
+  private function _prepareAssociations()
+  {
     $assocs = $this->_topicMap->getAssociations();
     usort($assocs, array(__CLASS__, '_compareAssociations'));
     // build $playersToAssocsIndex (example in JSON):
@@ -536,7 +553,8 @@ class PHPTMAPICXTMWriter {
    * @return int The comparison result.
    * @static
    */
-  private static function _compareTopics(Topic $topic1, Topic $topic2) {
+  private static function _compareTopics(Topic $topic1, Topic $topic2)
+  {
     if ($topic1->equals($topic2)) {
       return 0;
     }
@@ -574,7 +592,8 @@ class PHPTMAPICXTMWriter {
    * @return int The comparison result.
    * @static
    */
-  private static function _compareAssociations(Association $assoc1, Association $assoc2) {
+  private static function _compareAssociations(Association $assoc1, Association $assoc2)
+  {
     if ($assoc1->equals($assoc2)) {
       return 0;
     }
@@ -608,7 +627,13 @@ class PHPTMAPICXTMWriter {
    * @return int The comparison result.
    * @static
    */
-  private static function _compareArrays(array $arr1, array $arr2, $functionName, $makeUnique=false) {
+  private static function _compareArrays(
+    array $arr1, 
+    array $arr2, 
+    $functionName, 
+    $makeUnique=false
+    )
+  {
     if ((boolean)$makeUnique) {
       $arr1 = array_unique($arr1);
       $arr2 = array_unique($arr2);
@@ -631,7 +656,8 @@ class PHPTMAPICXTMWriter {
    * @return int The comparison result.
    * @static
    */
-  private static function _compareLocatorContent(array $locs1, array $locs2, $count) {
+  private static function _compareLocatorContent(array $locs1, array $locs2, $count)
+  {
     $res = 0;
     usort($locs1, array(__CLASS__, '_compareLocators'));
     usort($locs2, array(__CLASS__, '_compareLocators'));
@@ -650,7 +676,8 @@ class PHPTMAPICXTMWriter {
    * @return int The comparison result.
    * @static
    */
-  private static function _compareScopeContent(array $themes1, array $themes2, $count) {
+  private static function _compareScopeContent(array $themes1, array $themes2, $count)
+  {
     $res = 0;
     usort($themes1, array(__CLASS__, '_compareTopics'));
     usort($themes2, array(__CLASS__, '_compareTopics'));
@@ -669,7 +696,12 @@ class PHPTMAPICXTMWriter {
    * @return int The comparison result.
    * @static
    */
-  private static function _compareRolesContentIgnoreParent(array $roles1, array $roles2, $count) {
+  private static function _compareRolesContentIgnoreParent(
+    array $roles1, 
+    array $roles2, 
+    $count
+    ) 
+  {
     $res = 0;
     usort($roles1, array(__CLASS__, '_compareRolesIgnoreParent'));
     usort($roles2, array(__CLASS__, '_compareRolesIgnoreParent'));
@@ -687,7 +719,8 @@ class PHPTMAPICXTMWriter {
    * @return int The comparison result.
    * @static
    */
-  private static function _compareRolesIgnoreParent(Role $role1, Role $role2) {
+  private static function _compareRolesIgnoreParent(Role $role1, Role $role2)
+  {
     if ($role1->equals($role2)) {
       return 0;
     }
@@ -706,7 +739,8 @@ class PHPTMAPICXTMWriter {
    * @param Name The second name.
    * @return int The comparison result.
    */
-  private function _compareNamesIgnoreParent(Name $name1, Name $name2) {
+  private function _compareNamesIgnoreParent(Name $name1, Name $name2)
+  {
     if ($name1->equals($name2)) {
       return 0;
     }
@@ -732,7 +766,8 @@ class PHPTMAPICXTMWriter {
    * @param DatatypeAware The second datatype aware Topic Maps construct.
    * @return int The comparison result.
    */
-  private function _compareDatatypeAwareIgnoreParent(DatatypeAware $da1, DatatypeAware $da2) {
+  private function _compareDatatypeAwareIgnoreParent(DatatypeAware $da1, DatatypeAware $da2)
+  {
     if ($da1->equals($da2)) {
       return 0;
     }
@@ -770,7 +805,8 @@ class PHPTMAPICXTMWriter {
    * @return int The comparison result.
    * @static
    */
-  private static function _compareLocators($loc1, $loc2) {
+  private static function _compareLocators($loc1, $loc2)
+  {
     return self::_compareStrings(
       self::_normalizeLocator($loc1), 
       self::_normalizeLocator($loc2)
@@ -785,7 +821,8 @@ class PHPTMAPICXTMWriter {
    * @return int The comparison result.
    * @static
    */
-  private static function _compareStrings($str1, $str2) {
+  private static function _compareStrings($str1, $str2)
+  {
     return strcmp(self::_normalizeString($str1), self::_normalizeString($str2));
   }
   
@@ -796,7 +833,8 @@ class PHPTMAPICXTMWriter {
    * @return string The normalized string.
    * @static
    */
-  private static function _normalizeString($str) {
+  private static function _normalizeString($str)
+  {
     return Normalizer::normalize($str, Normalizer::FORM_C);
   }
   
@@ -808,7 +846,8 @@ class PHPTMAPICXTMWriter {
    * @return string The normalized locator.
    * @static
    */
-  private static function _normalizeLocator($loc) {
+  private static function _normalizeLocator($loc)
+  {
     $locObj = new Net_URL2($loc);
     $loc = $locObj->getUrl();
     if (isset(self::$_normLocs[$loc])) {
@@ -860,7 +899,8 @@ class PHPTMAPICXTMWriter {
    * @return string The created locator (a valid URI).
    * @static
    */
-  private static function _createLocator($scheme, $host, $path) {
+  private static function _createLocator($scheme, $host, $path)
+  {
     switch ($scheme) {
       case 'file':
         return $scheme . ':' . $path;
@@ -879,7 +919,8 @@ class PHPTMAPICXTMWriter {
    * @return string A string without trailing "/".
    * @static
    */
-  private static function _removeTrailingSlash($str) {
+  private static function _removeTrailingSlash($str)
+  {
     $lastChar = substr($str, -1);
     if ($lastChar == '/') {
       $str = substr($str, 0, strlen($str)-1);
@@ -895,7 +936,8 @@ class PHPTMAPICXTMWriter {
    * @return string A string without leading "/".
    * @static
    */
-  private static function _removeLeadingSlash($str) {
+  private static function _removeLeadingSlash($str)
+  {
     $firstChar = $str[0];
     if ($firstChar == '/') {
       $str = substr($str, 1, strlen($str));
@@ -910,7 +952,8 @@ class PHPTMAPICXTMWriter {
    * @return string An escaped string.
    * @static
    */
-  private static function _escapeString($str) {
+  private static function _escapeString($str)
+  {
     return self::$_srcXml ? $str : htmlspecialchars($str, ENT_QUOTES, 'UTF-8');
   }
   
@@ -920,7 +963,8 @@ class PHPTMAPICXTMWriter {
    * @param string The base locator to normalize.
    * @return string A normalized base locator.
    */
-  private function _normalizeBaseLocator($loc) {
+  private function _normalizeBaseLocator($loc)
+  {
     $loc = new Net_URL2($loc);
     switch ($loc->getScheme()) {
       case 'file':
@@ -943,7 +987,8 @@ class PHPTMAPICXTMWriter {
    * @param Topic The instance.
    * @return void
    */
-  private function _createTypeInstanceAssociation(Topic $instance) {
+  private function _createTypeInstanceAssociation(Topic $instance)
+  {
     $types = $instance->getTypes();
     foreach ($types as $type) {
       if (is_null($this->_typeInstance)) {
@@ -989,7 +1034,8 @@ class PHPTMAPICXTMWriter {
    * 
    * @return void
    */
-  private function _cleanUp() {
+  private function _cleanUp()
+  {
     foreach ($this->_typeInstanceAssocs as $assoc) {
       $assoc->remove();
     }
@@ -1004,7 +1050,8 @@ class PHPTMAPICXTMWriter {
    * @return array An array containing the topic's item identifiers. The array may also
    * 				be empty.
    */
-  private function _getFilteredTopicIids(Topic $topic) {
+  private function _getFilteredTopicIids(Topic $topic)
+  {
     $iids = $topic->getItemIdentifiers();
     $filteredIids = array();
     foreach ($iids as $iid) {

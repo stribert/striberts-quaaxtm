@@ -26,8 +26,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class Mysql {
-	
+class Mysql
+{	
   private $_sql,
           $_result,
           $_errno,
@@ -46,7 +46,8 @@ class Mysql {
    * @param boolean Enable or disable the result cache. Default <var>false</var>.
    * @return void
    */
-  public function __construct(array $config, $enableResultCache=false) {
+  public function __construct(array $config, $enableResultCache=false)
+  {
     $this->_sql = 
     $this->_error = '';
     $this->_errno = 0;
@@ -70,7 +71,8 @@ class Mysql {
    * 				configured memcached server cannot be added to the memcached server pool.
    * @throws Exception If PHP memcached support using <var>libmemcached</var> is not available.
    */
-  private function _connect($config, $enableResultCache) {
+  private function _connect($config, $enableResultCache)
+  {
     $this->_connection = mysqli_connect(
       $config['db']['host'], 
       $config['db']['user'], 
@@ -116,7 +118,8 @@ class Mysql {
    * 
    * @return mysqli
    */
-  public function getConnection() {
+  public function getConnection()
+  {
     return $this->_connection;
   }
 	
@@ -125,18 +128,20 @@ class Mysql {
    * 
    * @return void
    */
-  public function close() {
+  public function close()
+  {
     if (mysqli_close($this->_connection)) {
       $this->connOpen = false;
     }
   }
   
   /**
-   * Checks if a connection to MySQL is established.
+   * Gets the MySQL connection status.
    * 
    * @return boolean
    */
-  public function isConnected() {
+  public function isConnected()
+  {
     return $this->connOpen;
   }
 
@@ -146,7 +151,8 @@ class Mysql {
    * @param string The SQL query.
    * @return MysqlResult|false
    */
-  public function execute($query) {
+  public function execute($query)
+  {
     if (!$this->connOpen) {
       return false;
     }
@@ -169,7 +175,8 @@ class Mysql {
    * 
    * @return boolean
    */
-  public function hasError() {
+  public function hasError()
+  {
     return !empty($this->_error);
   }
  
@@ -178,7 +185,8 @@ class Mysql {
    * 
    * @return string|false The error message or <var>false</var> if no error occurred.
    */			
-  public function getError() {
+  public function getError()
+  {
     if (!$this->hasError()) {
       return false;
     } else {
@@ -196,7 +204,8 @@ class Mysql {
    * @return void
    * @throws RuntimeException If the transaction can not be started.
    */
-  public function startTransaction($delay=false) {
+  public function startTransaction($delay=false)
+  {
     if (!$this->_trnx) {
       $this->_delayTrnx = $delay;
       $result = $this->execute('START TRANSACTION');
@@ -215,7 +224,8 @@ class Mysql {
    * @return void
    * @throws RuntimeException If the transaction can not be finished.
    */
-  public function finishTransaction($forced=false) {
+  public function finishTransaction($forced=false)
+  {
     if ($forced) {
       $this->_delayTrnx = false;
     }
@@ -246,7 +256,8 @@ class Mysql {
    * @return array|false The query result as <var>associative array</var> or <var>false</var> 
    * 				on error.
    */
-  public function fetch($query, $resultCachePermission=false, $resultCacheExp=60) {
+  public function fetch($query, $resultCachePermission=false, $resultCacheExp=60)
+  {
     if ($this->_memcached instanceof Memcached && $resultCachePermission) {
       $key = md5($query);
       $result = $this->_memcached->get($key);
@@ -275,7 +286,8 @@ class Mysql {
    * @return array|false The query result as <var>associative array</var> or <var>false</var> 
    * 				on error.
    */
-  private function _fetchAssociated($query) {
+  private function _fetchAssociated($query)
+  {
     $mysqlResult = mysqli_query($this->_connection, $query);
     if (!$mysqlResult) {
       $this->_errno = mysqli_errno($this->_connection);

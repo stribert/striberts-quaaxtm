@@ -27,8 +27,8 @@ require_once('MemoryScoped.class.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class MemoryName extends MemoryScoped {
-  
+class MemoryName extends MemoryScoped
+{
   private $_type,
           $_value,
           $_variants;
@@ -38,7 +38,8 @@ class MemoryName extends MemoryScoped {
    * 
    * @return void
    */
-  public function __construct() {
+  public function __construct()
+  {
     parent::__construct();
     $this->_type = 
     $this->_value = null;
@@ -50,7 +51,8 @@ class MemoryName extends MemoryScoped {
    * 
    * @return void
    */
-  public function __destruct() {
+  public function __destruct()
+  {
     unset($this->_type); 
     unset($this->_value);
     unset($this->_variants);
@@ -62,7 +64,8 @@ class MemoryName extends MemoryScoped {
    * @param Topic The topic name type.
    * @return void
    */
-  public function setType(Topic $type) {
+  public function setType(Topic $type)
+  {
     $this->_type = $type;
   }
   
@@ -71,7 +74,8 @@ class MemoryName extends MemoryScoped {
    * 
    * @return Topic The topic name type.
    */
-  public function getType() {
+  public function getType()
+  {
     return $this->_type;
   }
   
@@ -81,7 +85,8 @@ class MemoryName extends MemoryScoped {
    * @param string The name value.
    * @return void
    */
-  public function setValue($value) {
+  public function setValue($value)
+  {
     $this->_value = $value;
   }
   
@@ -90,7 +95,8 @@ class MemoryName extends MemoryScoped {
    * 
    * @return string The name value.
    */
-  public function getValue() {
+  public function getValue()
+  {
     return $this->_value;
   }
   
@@ -100,7 +106,8 @@ class MemoryName extends MemoryScoped {
    * @param MemoryVariant The topic name variant.
    * @return void
    */
-  public function addVariant(MemoryVariant $variant) {
+  public function addVariant(MemoryVariant $variant)
+  {
     $this->_variants[] = $variant;
   }
   
@@ -109,7 +116,8 @@ class MemoryName extends MemoryScoped {
    * 
    * @return array An array containing {@link MemoryVariant}s.
    */
-  public function getVariants() {
+  public function getVariants()
+  {
     return $this->_variants;
   }
 }

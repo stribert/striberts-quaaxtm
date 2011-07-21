@@ -25,8 +25,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class QTMIOXMLWriter extends XMLWriter {
-  
+class QTMIOXMLWriter extends XMLWriter
+{  
   const NL = "\n";
   
   /**
@@ -34,7 +34,8 @@ class QTMIOXMLWriter extends XMLWriter {
    * 
    * @return void
    */
-  public function writeNewLine() {
+  public function writeNewLine()
+  {
     parent::text(self::NL);
   }
 }

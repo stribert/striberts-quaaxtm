@@ -27,14 +27,15 @@ require_once('PHPTMAPIGenericWriter.class.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class PHPTMAPIJTM10Writer extends PHPTMAPIGenericWriter {
-  
+class PHPTMAPIJTM10Writer extends PHPTMAPIGenericWriter
+{  
   /**
    * Constructor.
    * 
    * @return void
    */
-  public function __construct() {
+  public function __construct()
+  {
     parent::__construct();
   }
   
@@ -43,7 +44,8 @@ class PHPTMAPIJTM10Writer extends PHPTMAPIGenericWriter {
    * 
    * @return void
    */
-  public function __destruct() {
+  public function __destruct()
+  {
     parent::__destruct();
   }
   
@@ -53,7 +55,8 @@ class PHPTMAPIJTM10Writer extends PHPTMAPIGenericWriter {
    * @param TopicMap The topic map to write. 
    * @return string The JTM 1.0.
    */
-  public function write(TopicMap $topicMap) {
+  public function write(TopicMap $topicMap)
+  {
     parent::_setup('topics', 'id', false);
     $this->_struct['version'] = '1.0';
     $this->_struct['item_type'] = 'topicmap';

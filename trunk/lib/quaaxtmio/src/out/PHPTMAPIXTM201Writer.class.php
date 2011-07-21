@@ -37,8 +37,8 @@ require_once('Net/URL2.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class PHPTMAPIXTM201Writer {
-  
+class PHPTMAPIXTM201Writer
+{  
   private $_baseLocator,
           $_topicMap,
           $_writer,
@@ -52,7 +52,8 @@ class PHPTMAPIXTM201Writer {
    * 
    * @return void
    */
-  public function __construct() {
+  public function __construct()
+  {
     $this->_baseLocator = 
     $this->_writer = null;
     $this->_iidIdx = 
@@ -65,7 +66,8 @@ class PHPTMAPIXTM201Writer {
    * 
    * @return void
    */
-  public function __destruct() {
+  public function __destruct()
+  {
     unset($this->_baseLocator);
     unset($this->_writer);
     unset($this->_iidIdx);
@@ -83,7 +85,8 @@ class PHPTMAPIXTM201Writer {
    * @return string The XTM 2.0 or 2.1.
    * @throws MIOException If provided version is invalid (i.e neither 2.0 nor 2.1).
    */
-  public function write(TopicMap $topicMap, $baseLocator=null, $version='2.1', $indent=true) {
+  public function write(TopicMap $topicMap, $baseLocator=null, $version='2.1', $indent=true)
+  {
     $this->xtm21 = true;
     if ($version !== '2.1') {
       if ($version !== '2.0') {
@@ -131,7 +134,8 @@ class PHPTMAPIXTM201Writer {
    * @param Topic The topic to write.
    * @return void
    */
-  private function _writeTopic(Topic $topic) {
+  private function _writeTopic(Topic $topic)
+  {
     $topicId = $topic->getId();
     
     $sids = $topic->getSubjectIdentifiers();
@@ -200,7 +204,8 @@ class PHPTMAPIXTM201Writer {
    * @param Name The name to write.
    * @return void
    */
-  private function _writeName(Name $name) {
+  private function _writeName(Name $name)
+  {
     $this->_writer->startElement('name');
     $this->_writeReifier($name);
     $this->_writeItemIdentifiers($name);
@@ -227,7 +232,8 @@ class PHPTMAPIXTM201Writer {
    * @param Occurrence The occurrence to write.
    * @return void.
    */
-  private function _writeOccurrence(Occurrence $occ) {
+  private function _writeOccurrence(Occurrence $occ)
+  {
     $this->_writer->startElement('occurrence');
     $this->_writeReifier($occ);
     $this->_writeItemIdentifiers($occ);
@@ -243,7 +249,8 @@ class PHPTMAPIXTM201Writer {
    * @param Association The association to write.
    * @return void
    */
-  private function _writeAssociation(Association $assoc) {
+  private function _writeAssociation(Association $assoc)
+  {
     $this->_writer->startElement('association');
     $this->_writeReifier($assoc);
     $this->_writeItemIdentifiers($assoc);
@@ -270,7 +277,8 @@ class PHPTMAPIXTM201Writer {
    * 				and the datatype to write.
    * @return void
    */
-  private function _writeValueDatatype(DatatypeAware $da) {
+  private function _writeValueDatatype(DatatypeAware $da)
+  {
     $datatype = $da->getDatatype();
     if ($datatype == MIOUtil::XSD_ANYURI) {
       $this->_writer->startElement('resourceRef');
@@ -294,7 +302,8 @@ class PHPTMAPIXTM201Writer {
    * @param Scoped The scoped Topic Maps construct having the scope to write.
    * @return void
    */
-  private function _writeScope(Scoped $scoped) {
+  private function _writeScope(Scoped $scoped)
+  {
     $scope = $scoped->getScope();
     if (empty($scope)) {
       return;
@@ -312,7 +321,8 @@ class PHPTMAPIXTM201Writer {
    * @param Typed The typed Topic Maps construct having the type to write.
    * @return void
    */
-  private function _writeType(Typed $typed) {
+  private function _writeType(Typed $typed)
+  {
     $type = $typed->getType();
     if (empty($type)) {
       return;
@@ -328,7 +338,8 @@ class PHPTMAPIXTM201Writer {
    * @param Construct The Topic Maps construct having the item identifiers to write.
    * @return void
    */
-  private function _writeItemIdentifiers(Construct $construct) {
+  private function _writeItemIdentifiers(Construct $construct)
+  {
     if ($construct instanceof Topic && isset($this->_iidIdx[$construct->getId()])) {
       $iids = $this->_iidIdx[$construct->getId()];
     } else {
@@ -350,7 +361,8 @@ class PHPTMAPIXTM201Writer {
    * @param Reifiable The reifiable Topic Maps construct having the reifier to write.
    * @return void
    */
-  private function _writeReifier(Reifiable $reifiable) {
+  private function _writeReifier(Reifiable $reifiable)
+  {
     $reifier = $reifiable->getReifier();
     if (!$reifier instanceof Topic) {
       return; 
@@ -365,7 +377,14 @@ class PHPTMAPIXTM201Writer {
     }
   }
   
-  private function _writeTopicRef(Topic $topic) {
+  /**
+   * Writes a topic reference.
+   * 
+   * @param Topic The topic.
+   * @return void
+   */
+  private function _writeTopicRef(Topic $topic)
+  {
     if ($this->xtm21) {
       if (isset($this->_sidIdx[$topic->getId()])) {
         $sids = $this->_sidIdx[$topic->getId()];
@@ -419,7 +438,8 @@ class PHPTMAPIXTM201Writer {
    * @param string The raw locator.
    * @return string A relative or an absolute URI.
    */
-  private function _getHref($loc) {
+  private function _getHref($loc)
+  {
     $loc = $this->_normalizeLocator($loc);
     if (strpos($loc, $this->_baseLocator . '#') !== false) {
       $href = substr($loc, strlen($this->_baseLocator . '#'), strlen($loc));
@@ -437,7 +457,8 @@ class PHPTMAPIXTM201Writer {
    * @param boolean Indicator if a URI fragment must be created. Default <var>false</var>.
    * @return string The XTM topic id.
    */
-  private function _getXtmTopicId(Topic $topic, $fragment=false) {
+  private function _getXtmTopicId(Topic $topic, $fragment=false)
+  {
     if (isset($this->_iidIdx[$topic->getId()])) {
       $iids = $this->_iidIdx[$topic->getId()];
     } else {
@@ -468,7 +489,8 @@ class PHPTMAPIXTM201Writer {
    * @param string The locator to normalize.
    * @return string A normalized locator.
    */
-  private function _normalizeLocator($loc) {
+  private function _normalizeLocator($loc)
+  {
     $locObj = new Net_URL2($loc);
     return $locObj->getNormalizedURL();
   }

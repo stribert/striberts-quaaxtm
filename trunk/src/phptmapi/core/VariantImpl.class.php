@@ -33,8 +33,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-final class VariantImpl extends ScopedImpl implements IVariant {
-  
+final class VariantImpl extends ScopedImpl implements IVariant
+{  
   private $_propertyHolder,
           $_hash;
   
@@ -58,7 +58,8 @@ final class VariantImpl extends ScopedImpl implements IVariant {
     TopicMap $topicMap, 
     array $propertyHolder=array(), 
     $hash = null
-  ) {  
+    )
+  {  
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $topicMap);
     $this->_propertyHolder = $propertyHolder;
     $this->_hash = $hash;
@@ -69,7 +70,8 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * 
    * @return void
    */
-  public function __destruct() {
+  public function __destruct()
+  {
     $featureIsSet = $this->_topicMap->getTopicMapSystem()->getFeature(
       VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL
     );
@@ -89,7 +91,8 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * 
    * @return string The string representation of the value (never <var>null</var>).
    */
-  public function getValue() {
+  public function getValue()
+  {
     if (isset($this->_propertyHolder['value']) && !empty($this->_propertyHolder['value'])) {
       return $this->_propertyHolder['value'];
     } else {
@@ -107,7 +110,8 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    *
    * @return string The datatype of this construct (never <var>null</var>).
    */
-  public function getDatatype() {
+  public function getDatatype()
+  {
     if (
       isset($this->_propertyHolder['datatype']) && 
       !empty($this->_propertyHolder['datatype'])
@@ -132,7 +136,8 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * @throws {@link ModelConstraintException} If the <var>value</var> or <var>datatype</var> 
    *        is <var>null</var>.
    */
-  public function setValue($value, $datatype) {
+  public function setValue($value, $datatype)
+  {
     if (is_null($value) || is_null($datatype)) {
       throw new ModelConstraintException(
         $this, 
@@ -166,7 +171,8 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * @return TopicImpl The topic that reifies this variant or
    *        <var>null</var> if this variant is not reified.
    */
-  public function getReifier() {
+  public function getReifier()
+  {
     return $this->_getReifier();
   }
 
@@ -174,7 +180,8 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * (non-PHPdoc)
    * @see phptmapi/core/ConstructImpl#_setReifier()
    */
-  public function setReifier(Topic $reifier=null) {
+  public function setReifier(Topic $reifier=null)
+  {
     $this->_setReifier($reifier);
   }
   
@@ -184,7 +191,8 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * @override
    * @return void
    */
-  public function remove() {
+  public function remove()
+  {
     $this->_preDelete();
     $scopeObj = $this->_getScopeObject();
     $query = 'DELETE FROM ' . $this->_config['table']['variant'] . ' WHERE id = ' . $this->_dbId;
@@ -205,7 +213,8 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * @see ScopedImpl::getScope()
    * @override
    */
-  public function getScope() {
+  public function getScope()
+  {
     $scope = array_merge(parent::getScope(), $this->_parent->getScope());
     return $this->_arrayToSet($scope);
   }
@@ -215,7 +224,8 @@ final class VariantImpl extends ScopedImpl implements IVariant {
    * 
    * @return string The hash.
    */
-  protected function _getHash() {
+  protected function _getHash()
+  {
     if (!is_null($this->_hash)) {
       return $this->_hash;
     } else {

@@ -30,8 +30,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-final class TopicMapImpl extends ConstructImpl implements TopicMap {
-
+final class TopicMapImpl extends ConstructImpl implements TopicMap
+{
   protected $_seenConstructsCache;
   
   private $_setIid,
@@ -58,8 +58,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param TopicMapSystem The underlying topic map system.
    * @return void
    */
-  public function __construct($dbId, Mysql $mysql, array $config, TopicMapSystem $tmSystem) {
-    
+  public function __construct($dbId, Mysql $mysql, array $config, TopicMapSystem $tmSystem)
+  {  
     parent::__construct(__CLASS__ . '-' . $dbId, null, $mysql, $config, null);
     
     $this->_setIid = true;
@@ -79,7 +79,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * 
    * @return TopicMapSystemImpl
    */
-  public function getTopicMapSystem() {
+  public function getTopicMapSystem()
+  {
     return $this->_tmSystem;
   }
   
@@ -89,7 +90,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * 
    * @return string A URI which is the storage address of the {@link TopicMapImpl}.
    */
-  public function getLocator() {
+  public function getLocator()
+  {
     if (!is_null($this->_locator)) {
       return $this->_locator;
     }
@@ -106,7 +108,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    *
    * @return array An array containing a set of {@link TopicImpl}s.
    */
-  public function getTopics() {
+  public function getTopics()
+  {
     if (is_null($this->_topicsCache)) {
       $this->_topicsCache = array();
       $query = 'SELECT id FROM ' . $this->_config['table']['topic'] . 
@@ -128,7 +131,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    *
    * @return array An array containing a set of {@link AssociationImpl}s.
    */
-  public function getAssociations() {
+  public function getAssociations()
+  {
     if (is_null($this->_assocsCache)) {
       $this->_assocsCache = 
       $assocsHashes = array();
@@ -159,7 +163,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param TopicImpl The type of the {@link AssociationImpl}s to be returned.
    * @return array An array containing a set of {@link AssociationImpl}s.
    */
-  public function getAssociationsByType(Topic $type) {
+  public function getAssociationsByType(Topic $type)
+  {
     $assocs = array();
     $query = 'SELECT id, type_id, hash FROM ' . $this->_config['table']['association'] . 
       ' WHERE type_id = ' . $type->_dbId  . 
@@ -183,7 +188,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return TopicImpl|null A topic with the specified subject identifier or <var>null</var>
    *        if no such topic exists in the topic map.
    */
-  public function getTopicBySubjectIdentifier($sid) {
+  public function getTopicBySubjectIdentifier($sid)
+  {
     $query = 'SELECT t1.id FROM ' . $this->_config['table']['topic'] . ' AS t1' .
       ' INNER JOIN ' . $this->_config['table']['subjectidentifier'] . ' t2' .
       ' ON t1.id = t2.topic_id' .
@@ -208,7 +214,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return TopicImpl|null A topic with the specified subject locator or <var>null</var>
    *        if no such topic exists in the topic map.
    */
-  public function getTopicBySubjectLocator($slo) {
+  public function getTopicBySubjectLocator($slo)
+  {
     $query = 'SELECT t1.id FROM '.$this->_config['table']['topic'] . ' AS t1' .
       ' INNER JOIN ' . $this->_config['table']['subjectlocator'] . ' t2' .
       ' ON t1.id = t2.topic_id' .
@@ -233,7 +240,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return ConstructImpl|null A construct with the specified item identifier or 
    *        <var>null</var> if no such construct exists in the topic map.
    */
-  public function getConstructByItemIdentifier($iid) {
+  public function getConstructByItemIdentifier($iid)
+  {
     $query = 'SELECT t1.*' .
       ' FROM ' . $this->_config['table']['topicmapconstruct'] . ' t1' .
       ' INNER JOIN ' . $this->_config['table']['itemidentifier'] . ' t2' .
@@ -256,7 +264,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return ConstructImpl|null The construct with the specified id or <var>null</var> 
    *        if such a construct is unknown.
    */
-  public function getConstructById($id) {
+  public function getConstructById($id)
+  {
     if (!$this->_verify($id)) {
       return null;
     }
@@ -275,7 +284,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @throws {@link ModelConstraintException} If <var>type</var> or a <var>theme</var> in 
    * 				the scope does not belong to this topic map.
    */
-  public function createAssociation(Topic $type, array $scope=array()) {
+  public function createAssociation(Topic $type, array $scope=array())
+  {
     if (!$this->equals($type->_topicMap)) {
       throw new ModelConstraintException(
         $this, 
@@ -351,7 +361,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @throws {@link IdentityConstraintException} If another {@link ConstructImpl} with the
    *        specified item identifier exists which is not a {@link TopicImpl}.
    */
-  public function createTopicByItemIdentifier($iid) {
+  public function createTopicByItemIdentifier($iid)
+  {
     if (is_null($iid)) {
       throw new ModelConstraintException(
         $this, 
@@ -405,7 +416,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @throws {@link ModelConstraintException} If the subject identifier <var>sid</var> 
    *        is <var>null</var>.
    */
-  public function createTopicBySubjectIdentifier($sid) {
+  public function createTopicBySubjectIdentifier($sid)
+  {
     if (is_null($sid)) {
       throw new ModelConstraintException(
         $this, 
@@ -444,7 +456,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @throws {@link ModelConstraintException} If the subject locator <var>slo</var> 
    *        is <var>null</var>.
    */
-  public function createTopicBySubjectLocator($slo) {
+  public function createTopicBySubjectLocator($slo)
+  {
     if (is_null($slo)) {
       throw new ModelConstraintException(
         $this, 
@@ -477,7 +490,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return TopicImpl The newly created {@link TopicImpl} instance with an automatically 
    *        generated item identifier.
    */
-  public function createTopic() {
+  public function createTopic()
+  {
     $this->_mysql->startTransaction();
     $query = 'INSERT INTO ' . $this->_config['table']['topic'] . 
       ' (id, topicmap_id) VALUES (NULL, ' . $this->_dbId . ')';
@@ -529,7 +543,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param TopicMapImpl The topic map to be merged with this topic map instance.
    * @return void
    */
-  public function mergeIn(TopicMap $other) {
+  public function mergeIn(TopicMap $other)
+  {
     if ($this->equals($other)) {
       return;
     }
@@ -569,7 +584,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @throws FeatureNotSupportedException If the implementation does not support indices, 
    *        if the specified index is unsupported, or if the specified index does not exist.
    */
-  public function getIndex($className) {
+  public function getIndex($className)
+  {
     if (in_array($className, self::$_supportedIndices)) {
       return new $className($this->_mysql, $this->_config, $this);
     } else {
@@ -589,7 +605,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * 
    * @return void
    */
-  public function close() {
+  public function close()
+  {
     $this->_topicsCache = 
     $this->_assocsCache = null;
   }
@@ -600,7 +617,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return TopicImpl The topic that reifies this construct or
    *        <var>null</var> if this construct is not reified.
    */
-  public function getReifier() {
+  public function getReifier()
+  {
     return $this->_getReifier();
   }
 
@@ -608,7 +626,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * (non-PHPdoc)
    * @see phptmapi/core/ConstructImpl#_setReifier()
    */
-  public function setReifier(Topic $reifier=null) {
+  public function setReifier(Topic $reifier=null)
+  {
     $this->_setReifier($reifier);
   }
   
@@ -621,7 +640,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param AssociationImpl The modified association.
    * @return void
    */
-  public function finished(Association $assoc) {
+  public function finished(Association $assoc)
+  {
     // get the hash of the finished association
     $query = 'SELECT hash FROM ' . $this->_config['table']['association'] . 
       ' WHERE id = ' . $assoc->_dbId;
@@ -650,7 +670,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return void
    * @throws PHPTMAPIRuntimeException If removal failed.
    */
-  public function remove() {
+  public function remove()
+  {
     $this->_preDelete();
     $this->_mysql->startTransaction();
     
@@ -770,7 +791,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * 
    * @return void
    */
-  public function clearTopicsCache() {
+  public function clearTopicsCache()
+  {
     $this->_topicsCache = null;
   }
   
@@ -779,7 +801,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * 
    * @return void
    */
-  public function clearAssociationsCache() {
+  public function clearAssociationsCache()
+  {
     $this->_assocsCache = null;
   }
   
@@ -790,7 +813,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param string The construct's hash.
    * @return ConstructImpl The construct with the specified id.
    */
-  protected function _getConstructByVerifiedId($id, $hash=null) {
+  protected function _getConstructByVerifiedId($id, $hash=null)
+  {
     $constituents = explode('-', $id);
     $className = $constituents[0];
     $dbId = $constituents[1];
@@ -880,7 +904,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param ConstructImpl
    * @return void
    */
-  protected function _setConstructParent(Construct $parent) {
+  protected function _setConstructParent(Construct $parent)
+  {
     $this->_constructParent = $parent;
   }
   
@@ -890,7 +915,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param array The property holder.
    * @return void
    */
-  protected function _setConstructPropertyHolder(array $propertyHolder) {
+  protected function _setConstructPropertyHolder(array $propertyHolder)
+  {
     $this->_constructPropertyHolder = $propertyHolder;
   }
   
@@ -902,7 +928,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param array The roles.
    * @return string
    */
-  protected function _getAssocHash(Topic $type, array $scope, array $roles) {
+  protected function _getAssocHash(Topic $type, array $scope, array $roles)
+  {
     $scopeIdsImploded = 
     $roleIdsImploded = null;
     if (count($scope) > 0) {
@@ -932,7 +959,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param int The association id.
    * @param string The association hash.
    */
-  protected function _updateAssocHash($assocId, $hash) {
+  protected function _updateAssocHash($assocId, $hash)
+  {
     $query = 'UPDATE ' . $this->_config['table']['association'] . 
       ' SET hash = "' . $hash . '"' .
       ' WHERE id = ' . $assocId;
@@ -945,7 +973,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param string The hash code.
    * @return false|int The association id or <var>false</var> otherwise.
    */
-  protected function _hasAssoc($hash) {
+  protected function _hasAssoc($hash)
+  {
     $query = 'SELECT id FROM ' . $this->_config['table']['association'] . 
       ' WHERE topicmap_id = ' . $this->_dbId . 
       ' AND hash = "' . $hash . '"';
@@ -964,7 +993,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param string The association id.
    * @return void
    */
-  protected function _removeAssociationFromCache($assocId) {
+  protected function _removeAssociationFromCache($assocId)
+  {
     if (is_null($this->_assocsCache)) {
       return;
     }
@@ -979,7 +1009,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param string The topic id.
    * @return void
    */
-  protected function _removeTopicFromCache($topicId) {
+  protected function _removeTopicFromCache($topicId)
+  {
     if (is_null($this->_topicsCache)) {
       return;
     }
@@ -996,7 +1027,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param string The state URI.
    * @return void
    */
-  protected function _setState($state) {
+  protected function _setState($state)
+  {
     $this->_topicMapState = $state;
   }
   
@@ -1006,7 +1038,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @see {@link TopicMapImpl::setState()}
    * @return string The state URI.
    */
-  protected function _getState() {
+  protected function _getState()
+  {
     return $this->_topicMapState;
   }
   
@@ -1016,7 +1049,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return int The id.
    * @override
    */
-  private function _getConstructDbId() {
+  private function _getConstructDbId()
+  {
     $query = 'SELECT id FROM ' . $this->_config['table']['topicmapconstruct'] . 
       ' WHERE topicmap_id = ' . $this->_dbId . 
       ' AND parent_id IS NULL';
@@ -1032,7 +1066,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @return boolean <var>True</var> if the id is valid in the current topic map;
    * 				<var>false</var> otherwise.
    */
-  private function _verify($id) {
+  private function _verify($id)
+  {
     if (!preg_match('/^[a-z]+\-[0-9]+$/i', $id)) {
       return false;
     }
@@ -1073,7 +1108,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param int The name id in database.
    * @return TopicImpl
    */
-  private function _getNameParent($nameId) {
+  private function _getNameParent($nameId)
+  {
     $query = 'SELECT parent_id FROM ' . $this->_config['table']['topicmapconstruct'] . 
       ' WHERE topicname_id = ' . $nameId;
     $mysqlResult = $this->_mysql->execute($query);
@@ -1087,7 +1123,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param int The occurrence id in database.
    * @return TopicImpl
    */
-  private function _getOccurrenceParent($occId) {
+  private function _getOccurrenceParent($occId)
+  {
     $query = 'SELECT parent_id FROM ' . $this->_config['table']['topicmapconstruct'] . 
       ' WHERE occurrence_id = ' . $occId;
     $mysqlResult = $this->_mysql->execute($query);
@@ -1101,7 +1138,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param int The role id in database.
    * @return AssociationImpl
    */
-  private function _getRoleParent($roleId) {
+  private function _getRoleParent($roleId)
+  {
     $query = 'SELECT parent_id FROM ' . $this->_config['table']['topicmapconstruct'] . 
       ' WHERE assocrole_id = ' . $roleId;
     $mysqlResult = $this->_mysql->execute($query);
@@ -1115,7 +1153,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param int The variant name id in database.
    * @return NameImpl
    */
-  private function _getVariantParent($variantId) {
+  private function _getVariantParent($variantId)
+  {
     $query = 'SELECT parent_id FROM ' . $this->_config['table']['topicmapconstruct'] . 
       ' WHERE variant_id = ' . $variantId;
     $mysqlResult = $this->_mysql->execute($query);
@@ -1132,7 +1171,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param TopicImpl The source topic.
    * @return TopicImpl
    */
-  private function _copyTopic(Topic $sourceTopic) {
+  private function _copyTopic(Topic $sourceTopic)
+  {
     $existingTopic = $this->_getTopicByOthersIdentities($sourceTopic);
     if ($existingTopic instanceof Topic) {
       $targetTopic = $existingTopic;
@@ -1175,7 +1215,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param TopicImpl The source topic.
    * @return void
    */
-  private function _copyTopicTypes(Topic $targetTopic, Topic $sourceTopic) {
+  private function _copyTopicTypes(Topic $targetTopic, Topic $sourceTopic)
+  {
     $sourceTypes = $sourceTopic->getTypes();
     foreach ($sourceTypes as $sourceType) {
       $targetType = $this->_copyTopic($sourceType);
@@ -1190,7 +1231,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param TopicImpl The source topic.
    * @return void
    */
-  private function _copyNames(Topic $targetTopic, Topic $sourceTopic) {
+  private function _copyNames(Topic $targetTopic, Topic $sourceTopic)
+  {
     $sourceNames = $sourceTopic->getNames();
     foreach ($sourceNames as $sourceName) {
       $targetType = $this->_copyTopic($sourceName->getType());
@@ -1231,7 +1273,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param TopicImpl The source topic.
    * @return void
    */
-  private function _copyOccurrences(Topic $targetTopic, Topic $sourceTopic) {
+  private function _copyOccurrences(Topic $targetTopic, Topic $sourceTopic)
+  {
     $sourceOccurrences = $sourceTopic->getOccurrences();
     foreach ($sourceOccurrences as $sourceOccurrence) {
       $targetType = $this->_copyTopic($sourceOccurrence->getType());
@@ -1256,7 +1299,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param array The source topic map's associations.
    * @return void
    */
-  private function _copyAssociations(array $sourceAssocs) {
+  private function _copyAssociations(array $sourceAssocs)
+  {
     foreach ($sourceAssocs as $sourceAssoc) {
       $targetAssocType = $this->_copyTopic($sourceAssoc->getType());
       $targetScope = $this->_copyScope($sourceAssoc->getScope());
@@ -1291,7 +1335,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param ConstructImpl The source construct.
    * @return void
    */
-  private function _copyIids(Construct $targetConstruct, Construct $sourceConstruct) {
+  private function _copyIids(Construct $targetConstruct, Construct $sourceConstruct)
+  {
     $iids = $sourceConstruct->getItemIdentifiers();
     foreach ($iids as $iid) {
       $targetConstruct->addItemIdentifier($iid);
@@ -1305,7 +1350,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param Reifiable The source reifiable.
    * @return void
    */
-  private function _copyReifier(Reifiable $targetReifiable, Reifiable $sourceReifiable) {
+  private function _copyReifier(Reifiable $targetReifiable, Reifiable $sourceReifiable)
+  {
     $sourceReifier = $sourceReifiable->getReifier();
     if (!is_null($sourceReifier)) {
       $reifier = $this->_copyTopic($sourceReifier);
@@ -1319,7 +1365,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param array The source scope.
    * @return array The target scope.
    */
-  private function _copyScope(array $sourceScope) {
+  private function _copyScope(array $sourceScope)
+  {
     $targetScope = array();
     foreach ($sourceScope as $sourceTheme) {
       $targetTheme = $this->_copyTopic($sourceTheme);
@@ -1335,7 +1382,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap {
    * @param TopicImpl The source topic.
    * @return TopicImpl|null
    */
-  private function _getTopicByOthersIdentities(Topic $sourceTopic) {
+  private function _getTopicByOthersIdentities(Topic $sourceTopic)
+  {
     $iids = $sourceTopic->getItemIdentifiers();
     foreach ($iids as $iid) {
       $construct = $this->getConstructByItemIdentifier($iid);

@@ -43,8 +43,8 @@ require_once('Reference.class.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class XTM201TopicMapReader {
-  
+class XTM201TopicMapReader
+{
   const TAG_TOPIC_MAP = 'topicMap',
         TAG_TOPIC = 'topic',
         TAG_ASSOCIATION = 'association',
@@ -115,7 +115,8 @@ class XTM201TopicMapReader {
    * @throws MIOException If the provided encoding is not supported. Supported encodings 
    * 				are UTF-8, ISO-8859-1, or US-ASCII.
    */
-  public function __construct(PHPTMAPITopicMapHandlerInterface $tmHandler, $encoding='UTF-8') {
+  public function __construct(PHPTMAPITopicMapHandlerInterface $tmHandler, $encoding='UTF-8')
+  {
     if (!in_array($encoding, self::$_supportedEncodings)) {
       throw new MIOException(
       	'Error in ' . __METHOD__ . ': Encoding "' . $encoding . '" is not supported.'
@@ -141,7 +142,8 @@ class XTM201TopicMapReader {
    * 
    * @return void
    */
-  public function __destruct() {
+  public function __destruct()
+  {
     xml_parser_free($this->_sax);
     unset($this->_sax);
     unset($this->_tmHandler);
@@ -156,7 +158,8 @@ class XTM201TopicMapReader {
    * @return void
    * @throws MIOException If parse error occurs.
    */
-  public function readFile($file) {
+  public function readFile($file)
+  {
     $xtm = MIOUtil::readFile($file);
     $this->read($xtm);
   }
@@ -168,7 +171,8 @@ class XTM201TopicMapReader {
    * @return void
    * @throws MIOException If parse error occurs.
    */
-  public function read($xtm) {
+  public function read($xtm)
+  {
     if (!xml_parse($this->_sax, $xtm)) { 
       $error = xml_error_string (xml_get_error_code($this->_sax));
       $line = xml_get_current_line_number($this->_sax);
@@ -187,7 +191,8 @@ class XTM201TopicMapReader {
    * @return void
    * @throws MIOException
    */
-  private function _open($sax, $element, array $attributes) {
+  private function _open($sax, $element, array $attributes)
+  {
     switch ($element) {
       case self::TAG_TOPIC:
         $this->_state = self::STATE_TOPIC;
@@ -375,7 +380,8 @@ class XTM201TopicMapReader {
    * @return void
    * @access private
    */
-  private function _close($sax, $element) {
+  private function _close($sax, $element)
+  {
     switch ($element) {
       case self::TAG_TOPIC:
         $this->_state = self::STATE_TOPIC_MAP;
@@ -441,7 +447,8 @@ class XTM201TopicMapReader {
    * @param string The XML data.
    * @return void
    */
-  private function _data($sax, $data) { 
+  private function _data($sax, $data)
+  { 
     $this->_data .= $data;
   }
   
@@ -451,7 +458,8 @@ class XTM201TopicMapReader {
    * @param string $version
    * @return boolean If $version is '2.0'.
    */
-  private static function _isXtm2($version) {
+  private static function _isXtm2($version)
+  {
     return !empty($version) && $version === '2.0';
   }
 
@@ -461,7 +469,8 @@ class XTM201TopicMapReader {
    * @param string $version
    * @return boolean If $version is '2.1'.
    */
-  private static function _isXtm21($version) {
+  private static function _isXtm21($version)
+  {
     return !empty($version) && $version === '2.1';
   }
   
@@ -471,7 +480,8 @@ class XTM201TopicMapReader {
    * @param array The XML element attributes.
    * @return void
    */
-  private function _handleReifier(array $attributes) {
+  private function _handleReifier(array $attributes)
+  {
     if (isset($attributes[self::ATTR_REIFIER])) {
       $this->_tmHandler->startReifier();
       $this->_tmHandler->topicRef(
@@ -494,7 +504,8 @@ class XTM201TopicMapReader {
    * @return void
    * @throws MIOException If <topicRef> occurs in unexpected state. 
    */
-  private function _handleTopicReference(ReferenceInterface $topicRef) {
+  private function _handleTopicReference(ReferenceInterface $topicRef)
+  {
     if (
         $this->_state === self::STATE_INSTANCE_OF ||
         $this->_state === self::STATE_TYPE ||
@@ -517,7 +528,8 @@ class XTM201TopicMapReader {
    * @return string|null The XML element attribute value or <var>null</var> if
    * 				attribute name is wrong.
    */
-  private function _getAttributeValue(array $attributes, $value) {
+  private function _getAttributeValue(array $attributes, $value)
+  {
     return isset($attributes[$value]) ? $attributes[$value] : null;
   }
   
@@ -527,7 +539,8 @@ class XTM201TopicMapReader {
    * @param string The reference value.
    * @return string A URI.
    */
-  private function _handleHref($href) {
+  private function _handleHref($href)
+  {
     $baseLocObj = new Net_URL2($this->_tmHandler->getBaseLocator());
     return $baseLocObj->resolve($href)->getUrl();
   }
@@ -538,7 +551,8 @@ class XTM201TopicMapReader {
    * @param array The XML element attributes.
    * @return void
    */
-  private function _handleMergeMap(array $attributes) {
+  private function _handleMergeMap(array $attributes)
+  {
     $this->_tmHandler->startMergeMap($attributes[self::ATTR_HREF], __CLASS__);
   }
 }

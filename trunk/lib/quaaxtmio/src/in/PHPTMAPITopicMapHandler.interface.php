@@ -27,8 +27,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-interface PHPTMAPITopicMapHandlerInterface {
-  
+interface PHPTMAPITopicMapHandlerInterface
+{
   /**
    * Notifies the start of a topic map.
    *

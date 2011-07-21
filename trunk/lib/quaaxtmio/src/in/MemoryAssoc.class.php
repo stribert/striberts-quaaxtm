@@ -27,8 +27,8 @@ require_once('MemoryScoped.class.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class MemoryAssoc extends MemoryScoped {
-  
+class MemoryAssoc extends MemoryScoped
+{
   private $_roles,
           $_type;
           
@@ -37,7 +37,8 @@ class MemoryAssoc extends MemoryScoped {
    * 
    * @return void
    */
-  public function __construct() {
+  public function __construct()
+  {
     parent::__construct();
     $this->_roles = array();
     $this->_type = null;
@@ -48,7 +49,8 @@ class MemoryAssoc extends MemoryScoped {
    * 
    * @return void
    */
-  public function __destruct() {
+  public function __destruct()
+  {
     unset($this->_roles);
     unset($this->_type);
   }
@@ -59,7 +61,8 @@ class MemoryAssoc extends MemoryScoped {
    * @param Topic The association type.
    * @return void
    */
-  public function setType(Topic $type) {
+  public function setType(Topic $type)
+  {
     $this->_type = $type;
   }
   
@@ -68,7 +71,8 @@ class MemoryAssoc extends MemoryScoped {
    * 
    * @return Topic The association type.
    */
-  public function getType() {
+  public function getType()
+  {
     return $this->_type;
   }
   
@@ -78,7 +82,8 @@ class MemoryAssoc extends MemoryScoped {
    * @param MemoryRole The association role.
    * @return void
    */
-  public function addRole(MemoryRole $role) {
+  public function addRole(MemoryRole $role)
+  {
     $this->_roles[] = $role;
   }
   
@@ -87,7 +92,8 @@ class MemoryAssoc extends MemoryScoped {
    * 
    * @return array An array containing {@link MemoryRole}s.
    */
-  public function getRoles() {
+  public function getRoles()
+  {
     return $this->_roles;
   }
 }

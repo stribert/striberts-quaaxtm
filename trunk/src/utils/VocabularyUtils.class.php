@@ -19,15 +19,15 @@
  */
 
 /**
- * Provides vocabulary/terminology.
+ * Provides vocabulary/terminology and feature URIs.
  *
  * @package utils
  * @author Johannes Schmidt <joschmidt@users.sourceforge.net>
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class VocabularyUtils {
-
+class VocabularyUtils
+{
   const TMDM_PSI_DEFAULT_NAME_TYPE = 'http://psi.topicmaps.org/iso13250/model/topic-name',
   
         XSD_STRING = 'http://www.w3.org/2001/XMLSchema#string',
@@ -48,6 +48,6 @@ class VocabularyUtils {
    * 
    * @return void
    */
-  private function __construct() {}
+  private function __construct(){}
 }
 ?>

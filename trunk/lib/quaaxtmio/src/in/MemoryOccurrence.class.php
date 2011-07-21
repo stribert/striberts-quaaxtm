@@ -27,8 +27,8 @@ require_once('MemoryScoped.class.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class MemoryOccurrence extends MemoryScoped {
-  
+class MemoryOccurrence extends MemoryScoped
+{
   private $_type,
           $_value,
           $_datatype;
@@ -38,7 +38,8 @@ class MemoryOccurrence extends MemoryScoped {
    * 
    * @return void
    */
-  public function __construct() {
+  public function __construct()
+  {
     parent::__construct();
     $this->_type = 
     $this->_value = 
@@ -50,7 +51,8 @@ class MemoryOccurrence extends MemoryScoped {
    * 
    * @return void
    */
-  public function __destruct() {
+  public function __destruct()
+  {
     unset($this->_type);
     unset($this->_value);
     unset($this->_datatype);
@@ -62,7 +64,8 @@ class MemoryOccurrence extends MemoryScoped {
    * @param Topic The occurrence type.
    * @return void
    */
-  public function setType(Topic $type) {
+  public function setType(Topic $type)
+  {
     $this->_type = $type;
   }
   
@@ -71,7 +74,8 @@ class MemoryOccurrence extends MemoryScoped {
    * 
    * @return Topic The occurrence type.
    */
-  public function getType() {
+  public function getType()
+  {
     return $this->_type;
   }
   
@@ -82,7 +86,8 @@ class MemoryOccurrence extends MemoryScoped {
    * @param string The URI identifying the datatype of the value.
    * @return void
    */
-  public function setValue($value, $datatype) {
+  public function setValue($value, $datatype)
+  {
     $this->_value = $value;
     $this->_datatype = $datatype;
   }
@@ -92,7 +97,8 @@ class MemoryOccurrence extends MemoryScoped {
    * 
    * @return string The occurrence value.
    */
-  public function getValue() {
+  public function getValue()
+  {
     return $this->_value;
   }
   
@@ -101,7 +107,8 @@ class MemoryOccurrence extends MemoryScoped {
    * 
    * @return string The URI identifying the datatype of the value.
    */
-  public function getDatatype() {
+  public function getDatatype()
+  {
     return $this->_datatype;
   }
 }

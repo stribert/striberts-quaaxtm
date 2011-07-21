@@ -26,8 +26,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-abstract class IndexImpl implements Index {
-  
+abstract class IndexImpl implements Index
+{  
   protected $_mysql,
             $_config,
             $_topicMap,
@@ -41,7 +41,8 @@ abstract class IndexImpl implements Index {
    * @param TopicMap The topic map the index operates on.
    * @return void
    */
-  public function __construct(Mysql $mysql, array $config, TopicMap $topicMap) {
+  public function __construct(Mysql $mysql, array $config, TopicMap $topicMap)
+  {
     $this->_mysql = $mysql;
     $this->_config = $config;
     $this->_topicMap = $topicMap;
@@ -55,7 +56,8 @@ abstract class IndexImpl implements Index {
    * 
    * @return void
    */
-  public function open() {
+  public function open()
+  {
     return;
   }
 
@@ -64,7 +66,8 @@ abstract class IndexImpl implements Index {
    * 
    * @return void
    */
-  public function close() {
+  public function close()
+  {
     return;
   }
 
@@ -73,7 +76,8 @@ abstract class IndexImpl implements Index {
    * 
    * @return boolean <var>true</var> if index is already opened, <var>false</var> otherwise.
    */
-  public function isOpen() {
+  public function isOpen()
+  {
     return true;
   }
 
@@ -88,7 +92,8 @@ abstract class IndexImpl implements Index {
    * @return boolean <var>true</var> if index is updated automatically, 
    *        <var>false</var> otherwise.
    */
-  public function isAutoUpdated() {
+  public function isAutoUpdated()
+  {
     return true;
   }
 
@@ -97,7 +102,8 @@ abstract class IndexImpl implements Index {
    *
    * @return void
    */
-  public function reindex() {
+  public function reindex()
+  {
     return;
   }
 }

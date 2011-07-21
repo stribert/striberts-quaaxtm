@@ -31,8 +31,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-final class RoleImpl extends ConstructImpl implements Role {
-  
+final class RoleImpl extends ConstructImpl implements Role
+{  
   private $_propertyHolder;
   
   /**
@@ -53,7 +53,8 @@ final class RoleImpl extends ConstructImpl implements Role {
     Association $parent, 
     TopicMap $topicMap, 
     array $propertyHolder=array()
-  ) {  
+    )
+  {  
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $topicMap);
     $this->_propertyHolder = $propertyHolder;
   }
@@ -63,7 +64,8 @@ final class RoleImpl extends ConstructImpl implements Role {
    *
    * @return TopicImpl
    */
-  public function getPlayer() {
+  public function getPlayer()
+  {
     if (
       isset($this->_propertyHolder['player_id']) && 
       !empty($this->_propertyHolder['player_id'])
@@ -90,7 +92,8 @@ final class RoleImpl extends ConstructImpl implements Role {
    * @throws {@link ModelConstraintException} If the <var>player</var> does not belong 
    *        to the parent topic map.
    */
-  public function setPlayer(Topic $player) {
+  public function setPlayer(Topic $player)
+  {
     if (!$this->_topicMap->equals($player->_topicMap)) {
       throw new ModelConstraintException(
         $this, 
@@ -120,7 +123,8 @@ final class RoleImpl extends ConstructImpl implements Role {
    * @return TopicImpl The topic that reifies this role or
    *        <var>null</var> if this role is not reified.
    */
-  public function getReifier() {
+  public function getReifier()
+  {
     return $this->_getReifier();
   }
 
@@ -128,7 +132,8 @@ final class RoleImpl extends ConstructImpl implements Role {
    * (non-PHPdoc)
    * @see phptmapi/core/ConstructImpl#_setReifier()
    */
-  public function setReifier(Topic $reifier=null) {
+  public function setReifier(Topic $reifier=null)
+  {
     $this->_setReifier($reifier);
   }
   
@@ -137,7 +142,8 @@ final class RoleImpl extends ConstructImpl implements Role {
    *
    * @return TopicImpl
    */
-  public function getType() {
+  public function getType()
+  {
     if (
       isset($this->_propertyHolder['type_id']) && 
       !empty($this->_propertyHolder['type_id'])
@@ -164,7 +170,8 @@ final class RoleImpl extends ConstructImpl implements Role {
    * @throws {@link ModelConstraintException} If the <var>type</var> does not belong 
    *        to the parent topic map.
    */
-  public function setType(Topic $type) {
+  public function setType(Topic $type)
+  {
     if (!$this->_topicMap->equals($type->_topicMap)) {
       throw new ModelConstraintException(
         $this, 
@@ -194,7 +201,8 @@ final class RoleImpl extends ConstructImpl implements Role {
    * @override
    * @return void
    */
-  public function remove() {
+  public function remove()
+  {
     $this->_preDelete();
     $this->_mysql->startTransaction();
     $query = 'DELETE FROM ' . $this->_config['table']['assocrole'] . 

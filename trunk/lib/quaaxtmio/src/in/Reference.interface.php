@@ -25,8 +25,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-interface ReferenceInterface {
-
+interface ReferenceInterface
+{
   const ITEM_IDENTIFIER = 1,
         SUBJECT_IDENTIFIER = 2,
         SUBJECT_LOCATOR = 3;

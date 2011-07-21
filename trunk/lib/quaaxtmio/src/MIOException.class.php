@@ -25,8 +25,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class MIOException extends Exception {
-
+class MIOException extends Exception
+{
   /**
    * Constructor.
    * 

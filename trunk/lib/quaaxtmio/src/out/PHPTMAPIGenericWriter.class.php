@@ -35,8 +35,8 @@ require_once(
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-abstract class PHPTMAPIGenericWriter {
-  
+abstract class PHPTMAPIGenericWriter
+{  
   protected $_struct,
             $_setup,
             $_tmLocator,
@@ -50,7 +50,8 @@ abstract class PHPTMAPIGenericWriter {
    * 
    * @return void
    */
-  public function __construct() {
+  public function __construct()
+  {
     $this->_struct = 
     $this->_setup = 
     $this->_topicsIidsIdx = 
@@ -65,7 +66,8 @@ abstract class PHPTMAPIGenericWriter {
    * 
    * @return void
    */
-  public function __destruct() {
+  public function __destruct()
+  {
     unset($this->_struct);
     unset($this->_setup);
     unset($this->_topicsIidsIdx);
@@ -81,7 +83,8 @@ abstract class PHPTMAPIGenericWriter {
    * @param TopicMap The topic map to serialize.
    * @return void
    */
-  public function write(TopicMap $topicMap) {
+  public function write(TopicMap $topicMap)
+  {
     $this->_tmLocator = $topicMap->getLocator();
     $this->_struct['reifier'] = $this->_getReifierReference($topicMap);
     
@@ -108,7 +111,8 @@ abstract class PHPTMAPIGenericWriter {
    * @param array The topics to serialize.
    * @return array
    */
-  private function _writeTopics(array $topics) {
+  private function _writeTopics(array $topics)
+  {
     $topicsStruct = array();
     foreach ($topics as $topic) {
       $itemStruct = array();
@@ -161,7 +165,8 @@ abstract class PHPTMAPIGenericWriter {
    * @param Topic The typed topic.
    * @return array The type instance associations.
    */
-  private function _writeTypeInstanceAssocs(array $types, Topic $topic) {
+  private function _writeTypeInstanceAssocs(array $types, Topic $topic)
+  {
     $assocs = array();
     foreach ($types as $topicType) {
       $assoc = array();
@@ -192,7 +197,8 @@ abstract class PHPTMAPIGenericWriter {
    * @param array The topic names to serialize.
    * @return array
    */
-  private function _writeNames(array $names) {
+  private function _writeNames(array $names)
+  {
     $namesStruct = array();
     foreach ($names as $name) {
       $itemStruct = array();
@@ -231,7 +237,8 @@ abstract class PHPTMAPIGenericWriter {
    * @param array The data type aware Topic Maps constructs to serialize.
    * @return array
    */
-  private function _writeDatatypeAware(array $datatypeAwares) {
+  private function _writeDatatypeAware(array $datatypeAwares)
+  {
     $daStruct = array();
     foreach ($datatypeAwares as $da) {
       $itemStruct = array();
@@ -269,7 +276,8 @@ abstract class PHPTMAPIGenericWriter {
    * @param array The associations to serialize.
    * @return void
    */
-  private function _writeAssociations(array $assocs) {
+  private function _writeAssociations(array $assocs)
+  {
     $assocsStruct = array();
     foreach ($assocs as $assoc) {
       $itemStruct = array();
@@ -300,7 +308,8 @@ abstract class PHPTMAPIGenericWriter {
    * @param array The association roles to serialize.
    * @return void
    */
-  private function _writeRoles(array $roles) {
+  private function _writeRoles(array $roles)
+  {
     $rolesStruct = array();
     foreach ($roles as $role) {
       $itemStruct = array();
@@ -325,7 +334,8 @@ abstract class PHPTMAPIGenericWriter {
    * @param array The scope containing themes.
    * @return array
    */
-  private function _getThemesReferences(array $scope) {
+  private function _getThemesReferences(array $scope)
+  {
     $themesStruct = array();
     foreach ($scope as $theme) {
       $themesStruct[] = $this->_getTopicReference($theme);
@@ -339,7 +349,8 @@ abstract class PHPTMAPIGenericWriter {
    * @param Construct The Topic Maps construct.
    * @return string|null
    */
-  private function _getReifierReference(Construct $construct) {
+  private function _getReifierReference(Construct $construct)
+  {
     $reifier = $construct->getReifier();
     return $reifier instanceof Topic 
       ? $this->_getTopicReference($reifier)
@@ -352,7 +363,8 @@ abstract class PHPTMAPIGenericWriter {
    * @param Topic The topic.
    * @return string
    */
-  private function _getTopicReference(Topic $topic) {
+  private function _getTopicReference(Topic $topic)
+  {
     $topicId = $topic->getId();
     // XTM: topicRef by topic id as URI fragment
     if ($this->_isSetup('topics', 'id')) {
@@ -392,7 +404,8 @@ abstract class PHPTMAPIGenericWriter {
    * @param boolean The setup (true or false).
    * @return void
    */
-  protected function _setup($parentKey, $childKey, $value) {
+  protected function _setup($parentKey, $childKey, $value)
+  {
     $this->_setup[$parentKey][$childKey] = (boolean) $value;
   }
   
@@ -403,7 +416,8 @@ abstract class PHPTMAPIGenericWriter {
    * @param string The child key.
    * @return boolean
    */
-  protected function _isSetup($parentKey, $childKey) {
+  protected function _isSetup($parentKey, $childKey)
+  {
     return !isset($this->_setup[$parentKey][$childKey])
       ? false
       : $this->_setup[$parentKey][$childKey];

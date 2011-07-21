@@ -41,8 +41,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-final class TopicImpl extends ConstructImpl implements Topic {
-  
+final class TopicImpl extends ConstructImpl implements Topic
+{  
   private $_defaultNameType;
   
   /**
@@ -54,7 +54,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param TopicMapImpl The parent topic map.
    * @return void
    */
-  public function __construct($dbId, Mysql $mysql, array $config, TopicMap $parent) {
+  public function __construct($dbId, Mysql $mysql, array $config, TopicMap $parent)
+  {
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $parent);
     $this->_defaultNameType = null;
   }
@@ -65,7 +66,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    *
    * @return array An array containing a set of URIs representing the subject identifiers.
    */
-  public function getSubjectIdentifiers() {
+  public function getSubjectIdentifiers()
+  {
     $sids = array();
     $query = 'SELECT locator FROM ' . $this->_config['table']['subjectidentifier'] . 
       ' WHERE topic_id = ' . $this->_dbId;
@@ -91,7 +93,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    *        topic represent the same subject as another topic.
    * @throws {@link ModelConstraintException} If the subject identifier is <var>null</var>.
    */
-  public function addSubjectIdentifier($sid) {
+  public function addSubjectIdentifier($sid)
+  {
     if (is_null($sid)) {
       throw new ModelConstraintException(
         $this, 
@@ -149,7 +152,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    *        if present (<var>null</var> is ignored).
    * @return void
    */
-  public function removeSubjectIdentifier($sid) {
+  public function removeSubjectIdentifier($sid)
+  {
     if (is_null($sid)) {
       return;
     }
@@ -168,7 +172,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    *
    * @return array An array containing a set of URIs representing the subject locators.
    */
-  public function getSubjectLocators() {
+  public function getSubjectLocators()
+  {
     $slos = array();
     $query = 'SELECT locator FROM ' . $this->_config['table']['subjectlocator'] . 
       ' WHERE topic_id = ' . $this->_dbId;
@@ -194,7 +199,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    *        topic represent the same subject as another topic.
    * @throws {@link ModelConstraintException} If the subject locator is <var>null</var>.
    */
-  public function addSubjectLocator($slo) {
+  public function addSubjectLocator($slo)
+  {
     if (is_null($slo)) {
       throw new ModelConstraintException(
         $this, 
@@ -236,7 +242,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    *        if present (<var>null</var> is ignored).
    * @return void
    */
-  public function removeSubjectLocator($slo) {
+  public function removeSubjectLocator($slo)
+  {
     if (is_null($slo)) {
       return;
     }
@@ -256,7 +263,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param TopicImpl The type of the {@link NameImpl}s to be returned. Default <var>null</var>.
    * @return array An array containing a set of {@link NameImpl}s belonging to this topic.
    */
-  public function getNames(Topic $type=null) {
+  public function getNames(Topic $type=null)
+  {
     $names = array();
     $query = 'SELECT id, type_id, value, hash FROM ' . $this->_config['table']['topicname'] . 
       ' WHERE topic_id = ' . $this->_dbId;
@@ -295,7 +303,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    *        if <var>type</var> or a <var>theme</var> in the scope does not belong to the 
    *        parent topic map.
    */
-  public function createName($value, Topic $type=null, array $scope=array()) {
+  public function createName($value, Topic $type=null, array $scope=array())
+  {
     if (is_null($value)) {
       throw new ModelConstraintException(
         $this, 
@@ -367,7 +376,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @return array An array containing a set of {@link OccurrenceImpl}s belonging to 
    *        this topic.
    */
-  public function getOccurrences(Topic $type=null) {
+  public function getOccurrences(Topic $type=null)
+  {
     $occurrences = array();
     $query = 'SELECT id, type_id, value, datatype, hash 
     	FROM ' . $this->_config['table']['occurrence'] . ' WHERE topic_id = ' . $this->_dbId;
@@ -409,7 +419,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    *        <var>datatype</var> is <var>null</var>, or if <var>type</var> or a 
    *        <var>theme</var> in the scope does not belong to the parent topic map.
    */
-  public function createOccurrence(Topic $type, $value, $datatype, array $scope=array()) {
+  public function createOccurrence(Topic $type, $value, $datatype, array $scope=array())
+  {
     if (!$this->_topicMap->equals($type->_topicMap)) {
       throw new ModelConstraintException(
         $this, 
@@ -482,7 +493,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param TopicImpl The type of the {@link AssociationImpl} from which the
    * @return array An array containing a set of {@link RoleImpl}s played by this topic.
    */
-  public function getRolesPlayed(Topic $type=null, Topic $assocType=null) {
+  public function getRolesPlayed(Topic $type=null, Topic $assocType=null)
+  {
     if (is_null($type) && is_null($assocType)) {
       return $this->_getRolesPlayedUntyped();
     } elseif (!is_null($type) && is_null($assocType)) {
@@ -506,7 +518,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    *
    * @return array An array containing a set of {@link TopicImpl}s.
    */
-  public function getTypes() {
+  public function getTypes()
+  {
     $types = array();
     $query = 'SELECT type_id FROM ' . $this->_config['table']['instanceof'] . 
       ' WHERE topic_id = ' . $this->_dbId;
@@ -529,7 +542,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @throws {@link ModelConstraintException} If the <var>type</var> does not belong 
    *        to the parent topic map.
    */
-  public function addType(Topic $type) {
+  public function addType(Topic $type)
+  {
     if (!$this->_topicMap->equals($type->_topicMap)) {
       throw new ModelConstraintException(
         $this, 
@@ -559,7 +573,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param TopicImpl The type to remove.
    * @return void
    */
-  public function removeType(Topic $type) {
+  public function removeType(Topic $type)
+  {
     $query = 'DELETE FROM ' . $this->_config['table']['instanceof'] . 
       ' WHERE topic_id = ' . $this->_dbId . 
       ' AND type_id = ' . $type->_dbId;
@@ -575,7 +590,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @return Reifiable|null The {@link Reifiable} that is reified by this topic or 
    *        <var>null</var> if this topic does not reify a statement.
    */
-  public function getReified() {
+  public function getReified()
+  {
     $query = 'SELECT * ' . 
       ' FROM ' . $this->_config['table']['topicmapconstruct'] . 
       ' WHERE reifier_id = ' . $this->_dbId . 
@@ -605,7 +621,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @throws ModelConstraintException If the two topics to be merged reify different 
    *        Topic Maps constructs.
    */
-  public function mergeIn(Topic $other) {
+  public function mergeIn(Topic $other)
+  {
     if ($this->equals($other)) {
       return;
     }
@@ -919,7 +936,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * of a {@link Typed} construct, or if it is used as theme for a {@link ScopedImpl} 
    * construct, or if it reifies a {@link Reifiable}.
    */
-  public function remove() {
+  public function remove()
+  {
     if ($this->_isType()) {
       throw new TopicInUseException($this, __METHOD__ . ': Topic is typing one or more constructs!');
     }
@@ -954,7 +972,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @throws InvalidArgumentException If the property is not an instance of 
    * 				{@link NameImpl} or {@link OccurrenceImpl}.
    */
-  public function finished(Reifiable $property) {
+  public function finished(Reifiable $property)
+  {
     $className = get_class($property);
     switch ($className) {
       case 'NameImpl':
@@ -1003,7 +1022,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param array The scope.
    * @return string
    */
-  protected function _getNameHash($value, Topic $type, array $scope) {
+  protected function _getNameHash($value, Topic $type, array $scope)
+  {
     if (empty($scope)) {
       return md5($value . $type->_dbId);
     } else {
@@ -1028,7 +1048,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param array The scope.
    * @return string
    */
-  protected function _getOccurrenceHash(Topic $type, $value, $datatype, array $scope) {
+  protected function _getOccurrenceHash(Topic $type, $value, $datatype, array $scope)
+  {
     if (empty($scope)) {
       return md5($value . $datatype . $type->_dbId);
     } else {
@@ -1051,7 +1072,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param string The name hash.
    * @return void
    */
-  protected function _updateNameHash($nameId, $hash) {
+  protected function _updateNameHash($nameId, $hash)
+  {
     $query = 'UPDATE ' . $this->_config['table']['topicname'] . 
       ' SET hash = "' . $hash . '"' .
       ' WHERE id = ' . $nameId;
@@ -1065,7 +1087,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param string The occurrence hash.
    * @return void
    */
-  protected function _updateOccurrenceHash($occId, $hash) {
+  protected function _updateOccurrenceHash($occId, $hash)
+  {
     $query = 'UPDATE ' . $this->_config['table']['occurrence'] . 
       ' SET hash = "' . $hash . '"' .
       ' WHERE id = ' . $occId;
@@ -1078,7 +1101,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param string The hash code.
    * @return false|int The name id or <var>false</var> otherwise.
    */
-  private function _hasName($hash) {
+  private function _hasName($hash)
+  {
     $query = 'SELECT id FROM ' . $this->_config['table']['topicname'] . 
       ' WHERE topic_id = ' . $this->_dbId . 
       ' AND hash = "' . $hash . '"';
@@ -1097,7 +1121,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param string The hash code.
    * @return false|int The occurrence id or <var>false</var> otherwise.
    */
-  private function _hasOccurrence($hash) {
+  private function _hasOccurrence($hash)
+  {
     $query = 'SELECT id FROM ' . $this->_config['table']['occurrence'] . 
       ' WHERE topic_id = ' . $this->_dbId . 
       ' AND hash = "' . $hash . '"';
@@ -1115,7 +1140,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * 
    * @return TopicImpl
    */
-  private function _getDefaultNameType() {
+  private function _getDefaultNameType()
+  {
     if (!is_null($this->_defaultNameType)) {
       return $this->_defaultNameType; 
     }
@@ -1141,7 +1167,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * 
    * @return boolean
    */
-  private function _playsRole() {
+  private function _playsRole()
+  {
     $query = 'SELECT COUNT(*) FROM ' . $this->_config['table']['assocrole'] . 
       ' WHERE player_id = ' . $this->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
@@ -1154,7 +1181,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * 
    * @return boolean
    */
-  private function _isType() {
+  private function _isType()
+  {
     $tableNames = array(
       'instanceof',
       'association',
@@ -1177,7 +1205,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * 
    * @return boolean
    */
-  private function _isTheme() {
+  private function _isTheme()
+  {
     $query = 'SELECT COUNT(*) FROM ' . $this->_config['table']['theme'] . 
       ' WHERE topic_id = ' . $this->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
@@ -1192,7 +1221,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param TopicImpl The occurrence type.
    * @return array An array containing occurrences.
    */
-  private function _getAllOccurrencesByType(Topic $type) {
+  private function _getAllOccurrencesByType(Topic $type)
+  {
     $occurrences = array();
     $query = 'SELECT t1.id AS occ_id, t2.id AS topic_id FROM ' . $this->_config['table']['occurrence'] . ' t1' . 
       ' INNER JOIN ' . $this->_config['table']['topic'] . ' t2' . 
@@ -1216,7 +1246,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param TopicImpl The name type.
    * @return array An array containing topic names.
    */
-  private function _getAllNamesByType(Topic $type) {
+  private function _getAllNamesByType(Topic $type)
+  {
     $names = array();
     $query = 'SELECT t1.id AS name_id, t2.id AS topic_id FROM ' . $this->_config['table']['topicname'] . ' t1' . 
       ' INNER JOIN ' . $this->_config['table']['topic'] . ' t2' . 
@@ -1241,7 +1272,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @param TopicImpl The type of the {@link AssociationImpl} from which the
    * @return array An array containing a set of {@link RoleImpl}s played by this topic.
    */
-  private function _getRolesPlayedUntyped() {
+  private function _getRolesPlayedUntyped()
+  {
     $roles = array();
     $query = 'SELECT t1.id AS role_id, t1.association_id, t1.type_id, t2.hash' .
     	' FROM ' . $this->_config['table']['assocrole'] . ' t1' .
@@ -1269,7 +1301,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @return array An array containing a set of {@link RoleImpl}s with the specified 
    *        <var>type</var>.
    */
-  private function _getRolesPlayedByType(Topic $type) {
+  private function _getRolesPlayedByType(Topic $type)
+  {
     $roles = array();
     $query = 'SELECT t1.id AS role_id, t1.association_id, t1.type_id, t2.hash' .
     	' FROM ' . $this->_config['table']['assocrole'] . ' t1' .
@@ -1302,7 +1335,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    *        <var>type</var> which are part of {@link AssociationImpl}s with the specified 
    *        <var>assocType</var>.
    */
-  private function _getRolesPlayedByTypeAssocType(Topic $type, Topic $assocType) {
+  private function _getRolesPlayedByTypeAssocType(Topic $type, Topic $assocType)
+  {
     $roles = array();
     $query = 'SELECT t1.id AS role_id, t1.association_id, t1.type_id, t2.hash' . 
     	' FROM ' . $this->_config['table']['assocrole'] . ' t1' .
@@ -1334,7 +1368,8 @@ final class TopicImpl extends ConstructImpl implements Topic {
    * @return array An array containing a set of {@link RoleImpl}s which are part of 
    *        {@link AssociationImpl}s with the specified <var>assocType</var>.
    */
-  private function _getRolesPlayedByAssocType(Topic $assocType) {
+  private function _getRolesPlayedByAssocType(Topic $assocType)
+  {
     $roles = array();
     $query = 'SELECT t1.id AS role_id, t1.association_id, t1.type_id, t2.hash' . 
     	' FROM ' . $this->_config['table']['assocrole'] . ' t1' .

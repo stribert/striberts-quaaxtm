@@ -30,8 +30,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
-
+final class ScopedIndexImpl extends IndexImpl implements ScopedIndex
+{
   /**
    * Returns the {@link Association}s in the topic map whose scope property 
    * equals one of those <var>themes</var> at least. If themes' length = 1,
@@ -49,7 +49,8 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
    * @throws InvalidArgumentException If <var>themes</var> does not exclusively contain 
    * 				{@link TopicImpl}s.
    */
-  public function getAssociations(array $themes, $matchAll) {
+  public function getAssociations(array $themes, $matchAll)
+  {
     $assocs = array();
     $count = count($themes);
     if ($count == 0) {
@@ -111,7 +112,8 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
    * 
    * @return array An array containing {@link TopicImpl}s.
    */
-  public function getAssociationThemes() {
+  public function getAssociationThemes()
+  {
     $themes = array();
     $query = 'SELECT t1.topic_id FROM ' . $this->_config['table']['theme'] . ' t1 
     	INNER JOIN ' . $this->_config['table']['association_scope'] . ' t2 ON t2.scope_id = t1.scope_id 
@@ -143,7 +145,8 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
    * @throws InvalidArgumentException If <var>themes</var> does not exclusively contain 
    * 				{@link TopicImpl}s.
    */
-  public function getNames(array $themes, $matchAll) {
+  public function getNames(array $themes, $matchAll)
+  {
     $names = array();
     $count = count($themes);
     if ($count == 0) {
@@ -214,7 +217,8 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
    * 
    * @return array An array containing {@link TopicImpl}s.
    */
-  public function getNameThemes() {
+  public function getNameThemes()
+  {
     return $this->_getCharacteristicThemes('topicname');
   }
 
@@ -235,7 +239,8 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
    * @throws InvalidArgumentException If <var>themes</var> does not exclusively contain 
    * 				{@link Topic}s.
    */
-  public function getOccurrences(array $themes, $matchAll) {
+  public function getOccurrences(array $themes, $matchAll)
+  {
     $occs = array();
     $count = count($themes);
     if ($count == 0) {
@@ -319,7 +324,8 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
    * 
    * @return array An array containing {@link TopicImpl}s.
    */
-  public function getOccurrenceThemes() {
+  public function getOccurrenceThemes()
+  {
     return $this->_getCharacteristicThemes('occurrence');
   }
 
@@ -337,7 +343,8 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
    * @throws InvalidArgumentException If <var>themes</var> is an empty array, or if 
    * 				<var>themes</var> does not exclusively contain {@link TopicImpl}s.
    */
-  public function getVariants(array $themes, $matchAll) {
+  public function getVariants(array $themes, $matchAll)
+  {
     $variants = array();
     $count = count($themes);
     if ($count == 0) {
@@ -435,7 +442,8 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
    * 
    * @return array An array containing {@link TopicImpl}s.
    */
-  public function getVariantThemes() {
+  public function getVariantThemes()
+  {
     return $this->_getCharacteristicThemes('variant');
   }
   
@@ -447,7 +455,8 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex {
    * @param string The construct (table) name.
    * @return array An array containing {@link TopicImpl}s.
    */
-  private function _getCharacteristicThemes($constructName) {
+  private function _getCharacteristicThemes($constructName)
+  {
     $themes = array();
     $query = 'SELECT t1.topic_id FROM ' . $this->_config['table']['theme'] . ' t1 
     	INNER JOIN ' . $this->_config['table'][$constructName . '_scope'] . ' t2 

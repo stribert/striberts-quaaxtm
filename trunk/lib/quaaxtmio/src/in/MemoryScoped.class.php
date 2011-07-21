@@ -27,8 +27,8 @@ require_once('MemoryConstruct.class.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class MemoryScoped extends MemoryConstruct {
-  
+class MemoryScoped extends MemoryConstruct
+{
   private $_themes;
   
   /**
@@ -36,7 +36,8 @@ class MemoryScoped extends MemoryConstruct {
    * 
    * @return void
    */
-  public function __construct() {
+  public function __construct()
+  {
     parent::__construct();
     $this->_themes = array();
   }
@@ -46,7 +47,8 @@ class MemoryScoped extends MemoryConstruct {
    * 
    * @return void
    */
-  public function __destruct() {
+  public function __destruct()
+  {
     unset($this->_themes);
   }
   
@@ -56,7 +58,8 @@ class MemoryScoped extends MemoryConstruct {
    * @param Topic The theme.
    * @return void
    */
-  public function addTheme(Topic $theme) {
+  public function addTheme(Topic $theme)
+  {
     $this->_themes[$theme->getId()] = $theme;
   }
   
@@ -65,7 +68,8 @@ class MemoryScoped extends MemoryConstruct {
    * 
    * @return array An array containing themes.
    */
-  public function getScope() {
+  public function getScope()
+  {
     return array_values($this->_themes);
   }
 }

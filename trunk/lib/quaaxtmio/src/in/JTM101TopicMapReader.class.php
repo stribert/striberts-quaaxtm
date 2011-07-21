@@ -41,8 +41,8 @@ require_once('Reference.class.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class JTM101TopicMapReader {
-  
+class JTM101TopicMapReader
+{
   private $_tmHandler,
           $_jtm11,
           $_prefixes;
@@ -53,7 +53,8 @@ class JTM101TopicMapReader {
    * @param PHPTMAPITopicMapHandlerInterface The topic map handler.
    * @return void
    */
-  public function __construct(PHPTMAPITopicMapHandlerInterface $tmHandler) {
+  public function __construct(PHPTMAPITopicMapHandlerInterface $tmHandler)
+  {
     $this->_tmHandler = $tmHandler;
     $this->_jtm11 = false;
     $this->_prefixes = array();
@@ -64,7 +65,8 @@ class JTM101TopicMapReader {
    * 
    * @return void
    */
-  public function __destruct() {
+  public function __destruct()
+  {
     unset($this->_tmHandler);
     unset($this->_prefixes);
   }
@@ -78,7 +80,8 @@ class JTM101TopicMapReader {
    * @throws MIOException If json_decode() returns <var>null</var>.
    * @see read()
    */
-  public function readFile($file) {
+  public function readFile($file)
+  {
     $jtm = MIOUtil::readFile($file);
     $this->read($jtm);
   }
@@ -92,7 +95,8 @@ class JTM101TopicMapReader {
    * @throws MIOException If key "version" is missing.
    * @throws MIOException If version is neither 1.0 nor 1.1.
    */
-  public function read($jtm) {
+  public function read($jtm)
+  {
     $struct = json_decode($jtm, true);
     if (is_null($struct)) {
       throw new MIOException('Error in ' . __METHOD__ . ': JSON could not been decoded.');
@@ -160,7 +164,8 @@ class JTM101TopicMapReader {
    * @return void
    * @throws MIOException If the property has no parent.
    */
-  private function _readDetachedTopicProperty(array $property, $itemType) {
+  private function _readDetachedTopicProperty(array $property, $itemType)
+  {
     if (!isset($property['parent'])) {
       throw new MIOException('Error in ' . __METHOD__ . ': Topic property has no parent.');
     }
@@ -181,7 +186,8 @@ class JTM101TopicMapReader {
    * @return void
    * @throws MIOException If the topic has no identity.
    */
-  private function _readParentTopic(array $ids) {
+  private function _readParentTopic(array $ids)
+  {
     $i = 0;
     foreach ($ids as $id) {
       $struct = $this->_deconstructTopicReference($id);
@@ -237,7 +243,8 @@ class JTM101TopicMapReader {
    * @param string The item type.
    * @return void
    */
-  private function _readDetachedTopicMapProperty(array $property, $itemType) {
+  private function _readDetachedTopicMapProperty(array $property, $itemType)
+  {
     $this->_tmHandler->startTopicMap();
     if ($itemType == 'association') {
       $this->_readAssociations(array($property));
@@ -253,7 +260,8 @@ class JTM101TopicMapReader {
    * @param array The topic map.
    * @return void
    */
-  private function _readTopicMap(array $topicMap) {
+  private function _readTopicMap(array $topicMap)
+  {
     $this->_tmHandler->startTopicMap();
     
     if (isset($topicMap['reifier'])) {
@@ -282,7 +290,8 @@ class JTM101TopicMapReader {
    * @return void
    * @throws MIOException If the topic has no identity.
    */
-  private function _readTopics(array $topics) {
+  private function _readTopics(array $topics)
+  {
     foreach ($topics as $topic) {
       if (isset($topic['subject_identifiers']) && !empty($topic['subject_identifiers'])) {
         $ref = $this->_getReference($topic['subject_identifiers'][0]);
@@ -353,7 +362,8 @@ class JTM101TopicMapReader {
    * @throws MIOException If required type is missing.
    * @throws MIOException If required value is missing.
    */
-  private function _readOccurrences(array $occs) {
+  private function _readOccurrences(array $occs)
+  {
     foreach ($occs as $occ) {
       if (!isset($occ['type'])) {
         throw new MIOException('Error in ' . __METHOD__ . ': Missing required "type".');
@@ -393,7 +403,8 @@ class JTM101TopicMapReader {
    * @return void
    * @throws MIOException If required value is missing.
    */
-  private function _readNames(array $names) {
+  private function _readNames(array $names)
+  {
     foreach ($names as $name) {
       if (!isset($name['value'])) {
         throw new MIOException('Error in ' . __METHOD__ . ': Missing required "value".');
@@ -434,7 +445,8 @@ class JTM101TopicMapReader {
    * @throws MIOException If required scope is missing.
    * @throws MIOException If required value is missing.
    */
-  private function _readVariants(array $variants) {
+  private function _readVariants(array $variants)
+  {
     foreach ($variants as $variant) {
       if (!isset($variant['scope'])) {
         throw new MIOException('Error in ' . __METHOD__ . ': Missing required "scope".');
@@ -471,7 +483,8 @@ class JTM101TopicMapReader {
    * @throws MIOException If required type is missing.
    * @throws MIOException If required roles are missing.
    */
-  private function _readAssociations(array $assocs) {
+  private function _readAssociations(array $assocs)
+  {
     foreach ($assocs as $assoc) {
       if (!isset($assoc['type'])) {
         throw new MIOException('Error in ' . __METHOD__ . ': Missing required "type".');
@@ -512,7 +525,8 @@ class JTM101TopicMapReader {
    * @throws MIOException If required player is missing.
    * @throws MIOException If required type is missing.
    */
-  private function _readRoles(array $roles) {
+  private function _readRoles(array $roles)
+  {
     foreach ($roles as $role) {
       if (!isset($role['player'])) {
         throw new MIOException('Error in ' . __METHOD__ . ': Missing required "player".');
@@ -545,7 +559,8 @@ class JTM101TopicMapReader {
    * @param array The scope.
    * @return void
    */
-  private function _handleScope(array $scope) {
+  private function _handleScope(array $scope)
+  {
     $this->_tmHandler->startScope();
     foreach ($scope as $topicRef) {
       $struct = $this->_deconstructTopicReference($topicRef);
@@ -560,7 +575,8 @@ class JTM101TopicMapReader {
    * @param string The type (topic) reference.
    * @return void
    */
-  private function _handleType($topicRef) {
+  private function _handleType($topicRef)
+  {
     $struct = $this->_deconstructTopicReference($topicRef);
     $this->_tmHandler->startType();
     $this->_tmHandler->topicRef(new Reference($struct[0], $struct[1]));
@@ -573,7 +589,8 @@ class JTM101TopicMapReader {
    * @param array The item identifiers.
    * @return void
    */
-  private function _handleIids(array $iids) {
+  private function _handleIids(array $iids)
+  {
     foreach ($iids as $iid) {
       $iid = $this->_getReference($iid);
       $this->_tmHandler->itemIdentifier($iid);
@@ -586,7 +603,8 @@ class JTM101TopicMapReader {
    * @param string The reifier (topic) reference.
    * @return void
    */
-  private function _handleReifier($topicRef) {
+  private function _handleReifier($topicRef)
+  {
     if ($topicRef === 'NULL') {
       return;
     }
@@ -602,7 +620,8 @@ class JTM101TopicMapReader {
    * @param string The topic reference.
    * @return void
    */
-  private function _deconstructTopicReference($topicRef) {
+  private function _deconstructTopicReference($topicRef)
+  {
     $pos = stripos($topicRef, ':');
     $refType = substr($topicRef, 0, $pos);
     $ref = substr($topicRef, $pos+1, strlen($topicRef));
@@ -634,7 +653,8 @@ class JTM101TopicMapReader {
    * @throws MIOException If colon is missing in Safe_CURIE declaration.
    * @throws MIOException If prefix is not registered.
    */
-  private function _getReference($str) {
+  private function _getReference($str)
+  {
     $firstChar = $str{0};
     if ($firstChar != '[') {
       return $str;

@@ -31,8 +31,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-final class AssociationImpl extends ScopedImpl implements Association {
-  
+final class AssociationImpl extends ScopedImpl implements Association
+{  
   private $_propertyHolder;
   
   /**
@@ -50,9 +50,10 @@ final class AssociationImpl extends ScopedImpl implements Association {
     array $config, 
     TopicMap $parent, 
     array $propertyHolder=array()
-  ) {  
-      parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $parent); 
-      $this->_propertyHolder = $propertyHolder;
+    )
+  {  
+    parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $parent); 
+    $this->_propertyHolder = $propertyHolder;
   }
   
   /**
@@ -60,7 +61,8 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * 
    * @return void
    */
-  public function __destruct() {
+  public function __destruct()
+  {
     $featureIsSet = $this->_topicMap->getTopicMapSystem()->getFeature(
       VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL
     );
@@ -81,7 +83,8 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * @param TopicImpl The type of the {@link RoleImpl} instances to be returned. Default <var>null</var>.
    * @return array An array containing a set of {@link Role}s.
    */
-  public function getRoles(Topic $type=null) {
+  public function getRoles(Topic $type=null)
+  {
     $roles = array();
     $query = 'SELECT id, type_id, player_id FROM ' . $this->_config['table']['assocrole'] . 
       ' WHERE association_id = ' . $this->_dbId;
@@ -119,7 +122,8 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * @throws {@link ModelConstraintException} If either the <var>type</var> or the 
    *        <var>player</var> does not belong to the parent topic map.
    */
-  public function createRole(Topic $type, Topic $player) {
+  public function createRole(Topic $type, Topic $player)
+  {
     if (
       !$this->_topicMap->equals($type->_topicMap) || 
       !$this->_topicMap->equals($player->_topicMap)
@@ -181,7 +185,8 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * @return array An array containing a set of {@link TopicImpl}s representing the 
    *        role types.
    */
-  public function getRoleTypes() {
+  public function getRoleTypes()
+  {
     $types = array();
     $query = 'SELECT type_id FROM ' . $this->_config['table']['assocrole'] . 
       ' WHERE association_id = ' . $this->_dbId;
@@ -199,14 +204,16 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * @return TopicImpl The topic that reifies this construct or
    *        <var>null</var> if this construct is not reified.
    */
-  public function getReifier() {
+  public function getReifier()
+  {
     return $this->_getReifier();
   }
 
   /**
    * @see ConstructImpl::_setReifier()
    */
-  public function setReifier(Topic $reifier=null) {
+  public function setReifier(Topic $reifier=null)
+  {
     $this->_setReifier($reifier);
   }
   
@@ -215,7 +222,8 @@ final class AssociationImpl extends ScopedImpl implements Association {
    *
    * @return TopicImpl
    */
-  public function getType() {
+  public function getType()
+  {
     if (
       isset($this->_propertyHolder['type_id']) && 
       !empty($this->_propertyHolder['type_id'])
@@ -242,7 +250,8 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * @throws {@link ModelConstraintException} If the <var>type</var> does not belong 
    *        to the parent topic map.
    */
-  public function setType(Topic $type) {
+  public function setType(Topic $type)
+  {
     if (!$this->_topicMap->equals($type->_topicMap)) {
       throw new ModelConstraintException(
         $this, 
@@ -272,7 +281,8 @@ final class AssociationImpl extends ScopedImpl implements Association {
    * @override
    * @return void
    */
-  public function remove() {
+  public function remove()
+  {
     $this->_preDelete();
     $scopeObj = $this->_getScopeObject();
     $query = 'DELETE FROM ' . $this->_config['table']['association'] . 

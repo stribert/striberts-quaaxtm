@@ -34,8 +34,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex {
-  
+final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
+{  
   /**
    * Returns the topics in the topic map whose type property equals one of those 
    * <var>types</var> at least. If types' length = 1, <var>matchAll</var> is 
@@ -59,7 +59,8 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
    * @throws InvalidArgumentException If <var>types</var> does not exclusively contain 
    * 				{@link TopicImpl}s.
    */
-  public function getTopics(array $types, $matchAll) {
+  public function getTopics(array $types, $matchAll)
+  {
     $topics = array();
     $count = count($types);
     if ($count == 0) {
@@ -117,7 +118,8 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
    * 
    * @return array An array containing {@link TopicImpl}s.
    */
-  public function getTopicTypes() {
+  public function getTopicTypes()
+  {
     $types = array();
     $query = 'SELECT t1.id FROM ' . $this->_config['table']['topic'] . ' t1  
       INNER JOIN ' . $this->_config['table']['instanceof'] . ' t2 ON t1.id = t2.type_id
@@ -139,7 +141,8 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
    * @param Topic The type of the {@link AssociationImpl}s to be returned.
    * @return array An array containing {@link AssociationImpl}s.
    */
-  public function getAssociations(Topic $type) {
+  public function getAssociations(Topic $type)
+  {
     $assocs = array();
     $query = 'SELECT id FROM ' . $this->_config['table']['association'] . ' 
 			WHERE type_id = ' . $type->getDbId() . ' AND topicmap_id = ' . $this->_tmDbId;
@@ -165,7 +168,8 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
    * 
    * @return array An array containing {@link TopicImpl}s.
    */
-  public function getAssociationTypes() {
+  public function getAssociationTypes()
+  {
     $types = array();
     $query = 'SELECT type_id FROM ' . $this->_config['table']['association'] . ' 
 			WHERE topicmap_id = ' . $this->_tmDbId . ' GROUP BY type_id';
@@ -186,7 +190,8 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
    * @param Topic The type of the {@link RoleImpl}s to be returned.
    * @return array An array containing {@link RoleImpl}s.
    */
-  public function getRoles(Topic $type) {
+  public function getRoles(Topic $type)
+  {
     $roles = array();
     $query = 'SELECT t1.id, t1.association_id, t1.player_id 
     	FROM ' . $this->_config['table']['assocrole'] . ' t1 
@@ -224,7 +229,8 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
    * 
    * @return array An array containing {@link TopicImpl}s.
    */
-  public function getRoleTypes() {
+  public function getRoleTypes()
+  {
     $types = array();
     $query = 'SELECT t1.type_id FROM ' . $this->_config['table']['assocrole'] . ' t1  
       INNER JOIN ' . $this->_config['table']['association'] . ' t2 ON t1.association_id = t2.id
@@ -246,7 +252,8 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
    * @param Topic The type of the {@link NameImpl}s to be returned.
    * @return array An array containing {@link NameImpl}s.
    */
-  public function getNames(Topic $type) {
+  public function getNames(Topic $type)
+  {
     $names = array();
     $query = 'SELECT t1.id, t1.topic_id, t1.value 
     	FROM ' . $this->_config['table']['topicname'] . ' t1 
@@ -281,7 +288,8 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
    * 
    * @return array An array containing {@link TopicImpl}s.
    */
-  public function getNameTypes() {
+  public function getNameTypes()
+  {
     $types = array();
     $query = 'SELECT t1.type_id FROM ' . $this->_config['table']['topicname'] . ' t1  
       INNER JOIN ' . $this->_config['table']['topic'] . ' t2 ON t1.topic_id = t2.id
@@ -303,7 +311,8 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
    * @param Topic The type of the {@link OccurrenceImpl}s to be returned.
    * @return array An array containing {@link OccurrenceImpl}s.
    */
-  public function getOccurrences(Topic $type) {
+  public function getOccurrences(Topic $type)
+  {
     $occs = array();
     $query = 'SELECT t1.id, t1.topic_id, t1.value, t1.datatype 
     	FROM ' . $this->_config['table']['occurrence'] . ' t1 
@@ -339,7 +348,8 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
    * 
    * @return array An array containing {@link TopicImpl}s.
    */
-  public function getOccurrenceTypes() {
+  public function getOccurrenceTypes()
+  {
     $types = array();
     $query = 'SELECT t1.type_id FROM ' . $this->_config['table']['occurrence'] . ' t1  
       INNER JOIN ' . $this->_config['table']['topic'] . ' t2 ON t1.topic_id = t2.id

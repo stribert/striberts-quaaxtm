@@ -30,8 +30,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-final class TopicMapSystemImpl implements TopicMapSystem {
-
+final class TopicMapSystemImpl implements TopicMapSystem
+{
   private $_mysql,
           $_config,
           $_properties,
@@ -46,7 +46,8 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    * @param array The features of this Topic Map System.
    * @return void
    */
-  public function __construct(Mysql $mysql, array $config, array $properties, array $features) {
+  public function __construct(Mysql $mysql, array $config, array $properties, array $features)
+  {
     $this->_config = $config;
     $this->_mysql = $mysql;
     $this->_properties = $properties;
@@ -63,7 +64,8 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    *        is stored at the specified <var>uri</var>, or <var>null</var> if no 
    *        such {@link TopicMapImpl} is found.
    */
-  public function getTopicMap($uri) {
+  public function getTopicMap($uri)
+  {
     $query = 'SELECT id FROM ' . $this->_config['table']['topicmap'] . 
       ' WHERE locator = "' . $uri . '"';
     $mysqlResult = $this->_mysql->execute($query);
@@ -86,7 +88,8 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    * @throws {@link TopicMapExistsException} If this TopicMapSystem already manages a
    *        {@link TopicMapImpl} under the specified URI.
    */
-  public function createTopicMap($uri) {
+  public function createTopicMap($uri)
+  {
     if (empty($uri)) {
       return null;
     }
@@ -121,7 +124,8 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    * 
    * @return array An array containing URIs of known {@link TopicMapImpl} instances.
    */
-  public function getLocators() {
+  public function getLocators()
+  {
     $locators = array();
     $query = 'SELECT locator FROM ' . $this->_config['table']['topicmap'];
     $mysqlResult = $this->_mysql->execute($query);
@@ -146,7 +150,8 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    * @throws {@link FeatureNotRecognizedException} If the underlying implementation 
    *        does not recognize the named feature.
    */
-  public function getFeature($featureName) {
+  public function getFeature($featureName)
+  {
     if (array_key_exists($featureName, $this->_features)) {
       return $this->_features[$featureName];
     } else {
@@ -170,7 +175,8 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    * @return mixed The value set for the property or <var>null</var> 
    *        if no value is set.
    */
-  public function getProperty($propertyName) {
+  public function getProperty($propertyName)
+  {
     return array_key_exists($propertyName, $this->_properties) 
       ? $this->_properties[$propertyName] 
       : null;
@@ -187,7 +193,8 @@ final class TopicMapSystemImpl implements TopicMapSystem {
    * 
    * @return void
    */
-  public function close() {
+  public function close()
+  {
     $this->_mysql->close();
   }
 }

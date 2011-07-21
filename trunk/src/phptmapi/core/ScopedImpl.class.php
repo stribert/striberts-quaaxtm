@@ -29,8 +29,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-abstract class ScopedImpl extends ConstructImpl implements Scoped {
-
+abstract class ScopedImpl extends ConstructImpl implements Scoped
+{
   private $_bindingTable;
   
   /**
@@ -49,7 +49,8 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
     Mysql $mysql, 
     array $config, 
     TopicMap $topicMap
-  ) {  
+    )
+  {  
     parent::__construct($id, $parent, $mysql, $config, $topicMap);
     $this->_bindingTable = $this->_getBindingTable($this->_className);
   }
@@ -61,7 +62,8 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    *
    * @return array An array containing a set of {@link TopicImpl}s which define the scope.
    */
-  public function getScope() {
+  public function getScope()
+  {
     $scope = array();
     $query = 'SELECT t1.topic_id FROM ' . $this->_config['table']['theme'] . 
       ' t1 INNER JOIN ' . $this->_bindingTable . ' t2' .
@@ -83,7 +85,8 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    * @throws {@link ModelConstraintException} If <var>theme</var> does not belong to 
    * 				the parent topic map.
    */
-  public function addTheme(Topic $theme) {
+  public function addTheme(Topic $theme)
+  {
     if (!$this->_topicMap->equals($theme->_topicMap)) {
       throw new ModelConstraintException(
         $this, 
@@ -110,7 +113,8 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    * @param TopicImpl The topic which should be removed from the scope.
    * @return void
    */
-  public function removeTheme(Topic $theme) {
+  public function removeTheme(Topic $theme)
+  {
     $prevScopeObj = $this->_getScopeObject();
     $scope = $this->getScope();
     $_scope = $this->_idsToKeys($scope);
@@ -141,7 +145,8 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    * @param ScopeImpl The scope object.
    * @return void
    */
-  private function _setScope(ScopeImpl $scopeObj) {
+  private function _setScope(ScopeImpl $scopeObj)
+  {
     $query = 'INSERT INTO ' . $this->_bindingTable . 
       ' (scope_id, ' . $this->_fkColumn . ') VALUES' .
       ' (' . $scopeObj->_dbId . ', ' . $this->_dbId . ')';
@@ -154,7 +159,8 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    * @param ScopeImpl The scope object.
    * @return void
    */
-  protected function _unsetScope(ScopeImpl $scopeObj) {
+  protected function _unsetScope(ScopeImpl $scopeObj)
+  {
     $query = 'DELETE FROM ' . $this->_bindingTable . 
       ' WHERE ' . $this->_fkColumn . ' = ' . $this->_dbId;
     $this->_mysql->execute($query);
@@ -185,7 +191,8 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    * 
    * @return ScopeImpl
    */
-  protected function _getScopeObject() {
+  protected function _getScopeObject()
+  {
     return new ScopeImpl(
       $this->_mysql, 
       $this->_config, 
@@ -201,7 +208,8 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    * @param array The scope returned by {@link ScopedImpl::getScope()}.
    * @return array
    */
-  private function _idsToKeys(array $scope) {
+  private function _idsToKeys(array $scope)
+  {
     $_scope = array();
     foreach ($scope as $theme) {
       $_scope[$theme->_dbId] = $theme;
@@ -215,7 +223,8 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    * @param array The new scope.
    * @return void
    */
-  private function _updateScopedPropertyHash(array $scope) {
+  private function _updateScopedPropertyHash(array $scope)
+  {
     switch ($this->_className) {
       case 'NameImpl':
         $hash = $this->_parent->_getNameHash($this->getValue(), $this->getType(), $scope);
@@ -245,7 +254,8 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    * 
    * @return array
    */
-  private function _getBindingTables() {
+  private function _getBindingTables()
+  {
     return array(
       $this->_config['table']['topicname_scope'], 
       $this->_config['table']['occurrence_scope'], 
@@ -260,7 +270,8 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped {
    * @param string The scoped construct's class name.
    * @return string The table name.
    */
-  private function _getBindingTable($className) {
+  private function _getBindingTable($className)
+  {
     switch ($className) {
       case 'NameImpl':
         return $this->_config['table']['topicname_scope'];

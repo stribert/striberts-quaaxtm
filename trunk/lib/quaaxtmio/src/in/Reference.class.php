@@ -27,8 +27,8 @@ require_once('Reference.interface.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class Reference implements ReferenceInterface {
-
+class Reference implements ReferenceInterface
+{
   private $_ref,
           $_type;
   
@@ -39,7 +39,8 @@ class Reference implements ReferenceInterface {
    * @param string The reference type. Default <code>ITEM_IDENTIFIER</code>.
    * @return void
    */
-  public function __construct($ref, $type = self::ITEM_IDENTIFIER) {    
+  public function __construct($ref, $type = self::ITEM_IDENTIFIER)
+  {    
     $this->_ref = $ref;
     $this->_type = $type;
   }
@@ -49,7 +50,8 @@ class Reference implements ReferenceInterface {
    * 
    * @return void
    */
-  public function __destruct() {
+  public function __destruct()
+  {
     unset($this->_ref);
     unset($this->_type);
   }
@@ -58,7 +60,8 @@ class Reference implements ReferenceInterface {
    * (non-PHPdoc)
    * @see src/in/ReferenceInterface#getReference()
    */
-  public function getReference() {
+  public function getReference()
+  {
     return $this->_ref;
   }
 
@@ -66,7 +69,8 @@ class Reference implements ReferenceInterface {
    * (non-PHPdoc)
    * @see src/in/ReferenceInterface#getType()
    */
-  public function getType() {
+  public function getType()
+  {
     return $this->_type;
   }
 }

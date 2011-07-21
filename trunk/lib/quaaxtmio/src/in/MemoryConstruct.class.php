@@ -25,8 +25,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class MemoryConstruct {
-  
+class MemoryConstruct
+{
   private $_reifier,
           $_iids;
           
@@ -35,7 +35,8 @@ class MemoryConstruct {
    * 
    * @return void
    */
-  public function __construct() {
+  public function __construct()
+  {
     $this->_reifier = null;
     $this->_iids = array();
   }
@@ -45,7 +46,8 @@ class MemoryConstruct {
    * 
    * @return void
    */
-  public function __destruct() {
+  public function __destruct()
+  {
     unset($this->_reifier);
     unset($this->_iids);
   }
@@ -56,7 +58,8 @@ class MemoryConstruct {
    * @param Topic The reifier.
    * @return void
    */
-  public function setReifier(Topic $reifier) {
+  public function setReifier(Topic $reifier)
+  {
     $this->_reifier = $reifier;
   }
   
@@ -65,7 +68,8 @@ class MemoryConstruct {
    * 
    * @return Topic The reifier.
    */
-  public function getReifier() {
+  public function getReifier()
+  {
     return $this->_reifier;
   }
   
@@ -75,7 +79,8 @@ class MemoryConstruct {
    * @param string The item identifier.
    * @return void
    */
-  public function addItemIdentifier($iid) {
+  public function addItemIdentifier($iid)
+  {
     $this->_iids[$iid] = $iid;
   }
   
@@ -84,7 +89,8 @@ class MemoryConstruct {
    * 
    * @return array An array containing the item identifiers.
    */
-  public function getItemIdentifiers() {
+  public function getItemIdentifiers()
+  {
     return array_values($this->_iids);
   }
 }

@@ -25,8 +25,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class MIOUtil {
-
+class MIOUtil
+{
   const XSD_ANYTYPE = 'http://www.w3.org/2001/XMLSchema#anyType',
         XSD_STRING = 'http://www.w3.org/2001/XMLSchema#string',
         XSD_ANYURI = 'http://www.w3.org/2001/XMLSchema#anyURI',
@@ -49,7 +49,8 @@ class MIOUtil {
    * @return string The file content.
    * @static
    */
-  public static function readFile($file) {
+  public static function readFile($file)
+  {
     $constituents = parse_url($file);
     if (isset($constituents['host']) && isset($constituents['scheme'])) {
       return self::_readRemoteFile($file);
@@ -66,7 +67,8 @@ class MIOUtil {
    * @static
    * @throws MIOException If file cannot be read.
    */
-  private static function _readLocalFile($file) {
+  private static function _readLocalFile($file)
+  {
     // PHP does not recognize file:/, needs file:///
     $file = str_replace('file:/', 'file:///', $file);
     if ($fileHandle = @fopen($file, 'r')) {
@@ -86,7 +88,8 @@ class MIOUtil {
    * @static
    * @throws MIOException If file cannot be read.
    */
-  private static function _readRemoteFile($file) {
+  private static function _readRemoteFile($file)
+  {
     $ch = curl_init($file);
     curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
     curl_setopt($ch, CURLOPT_CONNECTTIMEOUT, 2);

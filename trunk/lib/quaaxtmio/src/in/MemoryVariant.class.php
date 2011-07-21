@@ -27,8 +27,8 @@ require_once('MemoryScoped.class.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class MemoryVariant extends MemoryScoped {
-  
+class MemoryVariant extends MemoryScoped
+{
   private $_value,
           $_datatype;
           
@@ -37,7 +37,8 @@ class MemoryVariant extends MemoryScoped {
    * 
    * @return void
    */
-  public function __construct() {
+  public function __construct()
+  {
     parent::__construct();
     $this->_value = 
     $this->_datatype = null;
@@ -48,7 +49,8 @@ class MemoryVariant extends MemoryScoped {
    * 
    * @return void
    */
-  public function __destruct() {
+  public function __destruct()
+  {
     unset($this->_value);
     unset($this->_datatype);
   }
@@ -60,7 +62,8 @@ class MemoryVariant extends MemoryScoped {
    * @param string The URI identifying the datatype of the value.
    * @return void
    */
-  public function setValue($value, $datatype) {
+  public function setValue($value, $datatype)
+  {
     $this->_value = $value;
     $this->_datatype = $datatype;
   }
@@ -70,7 +73,8 @@ class MemoryVariant extends MemoryScoped {
    * 
    * @return string The variant value.
    */
-  public function getValue() {
+  public function getValue()
+  {
     return $this->_value;
   }
   
@@ -79,7 +83,8 @@ class MemoryVariant extends MemoryScoped {
    * 
    * @return string The URI identifying the datatype of the value.
    */
-  public function getDatatype() {
+  public function getDatatype()
+  {
     return $this->_datatype;
   }
 }

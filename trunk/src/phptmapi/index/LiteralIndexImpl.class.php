@@ -26,8 +26,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-final class LiteralIndexImpl extends IndexImpl implements LiteralIndex {
-  
+final class LiteralIndexImpl extends IndexImpl implements LiteralIndex
+{  
   /**
    * Retrieves the topic names in the topic map which have a value equal to 
    * <var>value</var>.
@@ -37,7 +37,8 @@ final class LiteralIndexImpl extends IndexImpl implements LiteralIndex {
    * @return array An array containing {@link NameImpl}s.
    * @throws InvalidArgumentException If the value is <var>null</var>.
    */
-  public function getNames($value) {
+  public function getNames($value)
+  {
     if (is_null($value)) {
       throw new InvalidArgumentException(
       	'Error in ' . __METHOD__ . ': Value must not be null!'
@@ -80,7 +81,8 @@ final class LiteralIndexImpl extends IndexImpl implements LiteralIndex {
    * @return array An array containing {@link OccurrenceImpl}s.
    * @throws InvalidArgumentException If the value or datatype is <var>null</var>.
    */
-  public function getOccurrences($value, $datatype) {
+  public function getOccurrences($value, $datatype)
+  {
     if (is_null($value) || is_null($datatype)) {
       throw new InvalidArgumentException(
       	'Error in ' . __METHOD__ . ': Value and/or datatype must not be null!'
@@ -126,7 +128,8 @@ final class LiteralIndexImpl extends IndexImpl implements LiteralIndex {
    * @return array An array containing {@link VariantImpl}s.
    * @throws InvalidArgumentException If the value or datatype is <var>null</var>.
    */
-  public function getVariants($value, $datatype) {
+  public function getVariants($value, $datatype)
+  {
     if (is_null($value) || is_null($datatype)) {
       throw new InvalidArgumentException(
       	'Error in ' . __METHOD__ . ': Value and/or datatype must not be null!'

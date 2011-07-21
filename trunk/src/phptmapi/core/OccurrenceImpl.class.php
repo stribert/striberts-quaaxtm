@@ -31,8 +31,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-final class OccurrenceImpl extends ScopedImpl implements Occurrence {
-  
+final class OccurrenceImpl extends ScopedImpl implements Occurrence
+{  
   private $_propertyHolder;
   
   /**
@@ -53,7 +53,8 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
     Topic $parent, 
     TopicMap $topicMap, 
     array $propertyHolder=array()
-  ) {  
+    )
+  {  
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $topicMap);
     $this->_propertyHolder = $propertyHolder;
   }
@@ -63,7 +64,8 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    * 
    * @return void
    */
-  public function __destruct() {
+  public function __destruct()
+  {
     $featureIsSet = $this->_topicMap->getTopicMapSystem()->getFeature(
       VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL
     );
@@ -82,7 +84,8 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    * 
    * @return string The string representation of the value (never <var>null</var>).
    */
-  public function getValue() {
+  public function getValue()
+  {
     if (isset($this->_propertyHolder['value']) && !empty($this->_propertyHolder['value'])) {
       return $this->_propertyHolder['value'];
     } else {
@@ -100,7 +103,8 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    *
    * @return string The datatype of this construct (never <var>null</var>).
    */
-  public function getDatatype() {
+  public function getDatatype()
+  {
     if (
       isset($this->_propertyHolder['datatype']) && 
       !empty($this->_propertyHolder['datatype'])
@@ -125,7 +129,8 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    * @throws {@link ModelConstraintException} If the <var>value</var> or <var>datatype</var> 
    *        is <var>null</var>.
    */
-  public function setValue($value, $datatype) {
+  public function setValue($value, $datatype)
+  {
     if (is_null($value) || is_null($datatype)) {
       throw new ModelConstraintException(
         $this, 
@@ -157,7 +162,8 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    *
    * @return TopicImpl
    */
-  public function getType() {
+  public function getType()
+  {
     if (
       isset($this->_propertyHolder['type_id']) && 
       !empty($this->_propertyHolder['type_id'])
@@ -184,7 +190,8 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    * @throws {@link ModelConstraintException} If the <var>type</var> does not belong 
    *        to the parent topic map.
    */
-  public function setType(Topic $type) {
+  public function setType(Topic $type)
+  {
     if (!$this->_topicMap->equals($type->_topicMap)) {
       throw new ModelConstraintException(
         $this, 
@@ -215,7 +222,8 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    * @return TopicImpl The topic that reifies this occurrence or
    *        <var>null</var> if this occurrence is not reified.
    */
-  public function getReifier() {
+  public function getReifier()
+  {
     return $this->_getReifier();
   }
 
@@ -223,7 +231,8 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    * (non-PHPdoc)
    * @see phptmapi/core/ConstructImpl#_setReifier()
    */
-  public function setReifier(Topic $reifier=null) {
+  public function setReifier(Topic $reifier=null)
+  {
     $this->_setReifier($reifier);
   }
   
@@ -233,7 +242,8 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence {
    * @override
    * @return void
    */
-  public function remove() {
+  public function remove()
+  {
     $this->_preDelete();
     $scopeObj = $this->_getScopeObject();
     $query = 'DELETE FROM ' . $this->_config['table']['occurrence'] . 

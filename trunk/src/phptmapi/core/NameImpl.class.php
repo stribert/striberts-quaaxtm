@@ -31,8 +31,8 @@
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-final class NameImpl extends ScopedImpl implements Name {
-        
+final class NameImpl extends ScopedImpl implements Name
+{        
   private $_propertyHolder;
   
   /**
@@ -53,7 +53,8 @@ final class NameImpl extends ScopedImpl implements Name {
     Topic $parent, 
     TopicMap $topicMap, 
     array $propertyHolder=array()
-  ) {  
+    )
+  {  
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $topicMap);
     $this->_propertyHolder = $propertyHolder;
   }
@@ -63,7 +64,8 @@ final class NameImpl extends ScopedImpl implements Name {
    * 
    * @return void
    */
-  public function __destruct() {
+  public function __destruct()
+  {
     $featureIsSet = $this->_topicMap->getTopicMapSystem()->getFeature(
       VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL
     );
@@ -82,7 +84,8 @@ final class NameImpl extends ScopedImpl implements Name {
    *
    * @return string
    */
-  public function getValue() {
+  public function getValue()
+  {
     if (isset($this->_propertyHolder['value']) && !empty($this->_propertyHolder['value'])) {
       return $this->_propertyHolder['value'];
     } else {
@@ -102,7 +105,8 @@ final class NameImpl extends ScopedImpl implements Name {
    * @return void
    * @throws {@link ModelConstraintException} If the the <var>value</var> is <var>null</var>.
    */
-  public function setValue($value) {
+  public function setValue($value)
+  {
     if (is_null($value)) {
       throw new ModelConstraintException(
         $this, 
@@ -132,7 +136,8 @@ final class NameImpl extends ScopedImpl implements Name {
    *
    * @return array An array containing a set of {@link VariantImpl}s.
    */
-  public function getVariants() {
+  public function getVariants()
+  {
     $variants = array();
     $query = 'SELECT id, value, datatype, hash FROM ' . $this->_config['table']['variant'] . 
       ' WHERE topicname_id = ' . $this->_dbId;
@@ -172,7 +177,8 @@ final class NameImpl extends ScopedImpl implements Name {
    *        the name's scope, or if a <var>theme</var> in the scope does not belong to the 
    *        parent topic map.
    */
-  public function createVariant($value, $datatype, array $scope) {
+  public function createVariant($value, $datatype, array $scope)
+  {
     if (is_null($value) || is_null($datatype)) {
       throw new ModelConstraintException(
         $this, 
@@ -243,7 +249,8 @@ final class NameImpl extends ScopedImpl implements Name {
    * @return TopicImpl The topic that reifies this name or
    *        <var>null</var> if this name is not reified.
    */
-  public function getReifier() {
+  public function getReifier()
+  {
     return $this->_getReifier();
   }
 
@@ -251,7 +258,8 @@ final class NameImpl extends ScopedImpl implements Name {
    * (non-PHPdoc)
    * @see phptmapi/core/ConstructImpl#_setReifier()
    */
-  public function setReifier(Topic $reifier=null) {
+  public function setReifier(Topic $reifier=null)
+  {
     $this->_setReifier($reifier);
   }
   
@@ -260,7 +268,8 @@ final class NameImpl extends ScopedImpl implements Name {
    *
    * @return TopicImpl
    */
-  public function getType() {
+  public function getType()
+  {
     if (
       isset($this->_propertyHolder['type_id']) && 
       !empty($this->_propertyHolder['type_id'])
@@ -287,7 +296,8 @@ final class NameImpl extends ScopedImpl implements Name {
    * @throws {@link ModelConstraintException} If the <var>type</var> does not belong 
    *        to the parent topic map.
    */
-  public function setType(Topic $type) {
+  public function setType(Topic $type)
+  {
     if (!$this->_topicMap->equals($type->_topicMap)) {
       throw new ModelConstraintException(
         $this, 
@@ -317,7 +327,8 @@ final class NameImpl extends ScopedImpl implements Name {
    * @override
    * @return void
    */
-  public function remove() {
+  public function remove()
+  {
     $this->_preDelete();
     $scopeObj = $this->_getScopeObject();
     $query = 'DELETE FROM ' . $this->_config['table']['topicname'] . 
@@ -342,7 +353,8 @@ final class NameImpl extends ScopedImpl implements Name {
    * @param VariantImpl The modified variant.
    * @return void
    */
-  public function finished(IVariant $variant) {
+  public function finished(IVariant $variant)
+  {
     // get the hash of the finished variant
     $query = 'SELECT hash FROM ' . $this->_config['table']['variant'] . 
       ' WHERE id = ' . $variant->_dbId;
@@ -375,7 +387,8 @@ final class NameImpl extends ScopedImpl implements Name {
    * @param array The scope.
    * @return string
    */
-  protected function _getVariantHash($value, $datatype, array $scope) {
+  protected function _getVariantHash($value, $datatype, array $scope)
+  {
     $scopeIdsImploded = null;
     if (count($scope) > 0) {
       $ids = array();
@@ -396,7 +409,8 @@ final class NameImpl extends ScopedImpl implements Name {
    * @param int The variant id.
    * @param string The variant hash.
    */
-  protected function _updateVariantHash($variantId, $hash) {
+  protected function _updateVariantHash($variantId, $hash)
+  {
     $query = 'UPDATE ' . $this->_config['table']['variant'] . 
       ' SET hash = "' . $hash . '"' .
       ' WHERE id = ' . $variantId;
@@ -409,7 +423,8 @@ final class NameImpl extends ScopedImpl implements Name {
    * @param string The hash code.
    * @return false|int The variant id or <var>false</var> otherwise.
    */
-  protected function _hasVariant($hash) {
+  protected function _hasVariant($hash)
+  {
     $query = 'SELECT id FROM ' . $this->_config['table']['variant'] . 
       ' WHERE topicname_id = ' . $this->_dbId . 
       ' AND hash = "' . $hash . '"';
