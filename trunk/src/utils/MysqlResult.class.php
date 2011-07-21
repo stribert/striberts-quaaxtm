@@ -38,7 +38,7 @@ class MysqlResult
    * @param resource The MySQL connection resource.
    * @return void
    */
-  function __construct($result, $connection)
+  public function __construct($result, $connection)
   {
     $this->_result = $result;
     $this->_connection = $connection;
