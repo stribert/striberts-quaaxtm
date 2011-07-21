@@ -53,7 +53,6 @@ class Mysql
     $this->_errno = 0;
     $this->_connection = 
     $this->_memcached = null;
-    $this->_result = 
     $this->_commit = 
     $this->_trnx = 
     $this->_delayTrnx = false;
@@ -157,9 +156,9 @@ class Mysql
       return false;
     }
     $this->_sql = $query;
-    $this->_result = mysqli_query($this->_connection, $this->_sql);
-    if ($this->_result) {
-      return new MysqlResult($this->_result, $this->_connection);
+    $result = mysqli_query($this->_connection, $this->_sql);
+    if ($result) {
+      return new MysqlResult($result, $this->_connection);
     } else {
       $this->_errno = mysqli_errno($this->_connection);
       $this->_error = mysqli_error($this->_connection);
