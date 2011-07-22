@@ -88,7 +88,8 @@ class Mysql
     if ($enableResultCache) {
       if (!class_exists('Memcached')) {
         throw new Exception(
-          'Error in ' . __METHOD__ . ': PHP memcached support using libmemcached is not available.'
+          'Error in ' . __METHOD__ . 
+          	': PHP memcached support using libmemcached is not available.'
         );
       }
       $memcached = new Memcached();
