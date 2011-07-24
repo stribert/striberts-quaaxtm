@@ -129,7 +129,7 @@ final class RoleImpl extends ConstructImpl implements Role
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see phptmapi/core/ConstructImpl#_setReifier()
    */
   public function setReifier(Topic $reifier=null)

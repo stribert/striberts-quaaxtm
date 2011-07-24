@@ -228,7 +228,7 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see phptmapi/core/ConstructImpl#_setReifier()
    */
   public function setReifier(Topic $reifier=null)

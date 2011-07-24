@@ -255,7 +255,7 @@ final class NameImpl extends ScopedImpl implements Name
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see phptmapi/core/ConstructImpl#_setReifier()
    */
   public function setReifier(Topic $reifier=null)

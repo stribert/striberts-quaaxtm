@@ -150,7 +150,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
   
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startTopicMap()
    */
   public function startTopicMap()
@@ -169,7 +169,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endTopicMap()
    */
   public function endTopicMap()
@@ -179,7 +179,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startTopic($identity)
    */
   public function startTopic(ReferenceInterface $identity)
@@ -188,7 +188,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endTopic()
    */
   public function endTopic()
@@ -199,7 +199,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startAssociation()
    */
   public function startAssociation()
@@ -208,7 +208,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
   
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endAssociation()
    */
   public function endAssociation()
@@ -263,7 +263,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startRole()
    */
   public function startRole()
@@ -272,7 +272,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endRole()
    */
   public function endRole()
@@ -282,7 +282,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startOccurrence()
    */
   public function startOccurrence()
@@ -294,7 +294,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endOccurrence()
    */
   public function endOccurrence()
@@ -334,7 +334,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startName()
    */
   public function startName()
@@ -343,7 +343,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endName()
    */
   public function endName()
@@ -427,7 +427,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startVariant()
    */
   public function startVariant()
@@ -439,7 +439,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endVariant()
    */
   public function endVariant()
@@ -451,7 +451,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startScope()
    */
   public function startScope()
@@ -463,7 +463,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endScope()
    */
   public function endScope()
@@ -472,7 +472,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#nameValue($value)
    */
   public function nameValue($value)
@@ -484,7 +484,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#value($value, $datatype)
    */
   public function value($value, $datatype)
@@ -504,7 +504,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#subjectIdentifier($sid)
    */
   public function subjectIdentifier($sid)
@@ -515,7 +515,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#subjectLocator($slo)
    */
   public function subjectLocator($slo)
@@ -526,7 +526,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#itemIdentifier($iid)
    */
   public function itemIdentifier($iid)
@@ -536,7 +536,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startType()
    */
   public function startType()
@@ -545,7 +545,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endType()
    */
   public function endType()
@@ -554,7 +554,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startReifier()
    */
   public function startReifier()
@@ -563,7 +563,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endReifier()
    */
   public function endReifier()
@@ -572,7 +572,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#topicRef($identity)
    */
   public function topicRef(ReferenceInterface $identity)
@@ -581,7 +581,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startIsa()
    */
   public function startIsa()
@@ -590,7 +590,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endIsa()
    */
   public function endIsa()
@@ -599,7 +599,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
   
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#startMergeMap($locator, $readerClassName)
    */
   public function startMergeMap($locator, $readerClassName)
@@ -628,7 +628,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
   
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/PHPTMAPITopicMapHandlerInterface#endMergeMap()
    */
   public function endMergeMap()

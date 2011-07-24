@@ -57,7 +57,7 @@ class Reference implements ReferenceInterface
   }
  
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/ReferenceInterface#getReference()
    */
   public function getReference()
@@ -66,7 +66,7 @@ class Reference implements ReferenceInterface
   }
 
   /**
-   * (non-PHPdoc)
+   * (non-PHPDoc)
    * @see src/in/ReferenceInterface#getType()
    */
   public function getType()
