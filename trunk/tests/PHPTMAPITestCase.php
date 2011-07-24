@@ -40,48 +40,61 @@ require_once(
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class PHPTMAPITestCase extends PHPUnit_Framework_TestCase {
+class PHPTMAPITestCase extends PHPUnit_Framework_TestCase
+{  
+  protected $_sharedFixture,
+            $_topicMap;
   
-  protected static  $tmLocator = 'http://localhost/tm/1', 
-  					        $dtString = 'http://www.w3.org/2001/XMLSchema#string', 
-                    $dtUri = 'http://www.w3.org/2001/XMLSchema#anyURI';
+  protected static $_tmLocator = 'http://localhost/tm/1', 
+  					        $_dtString = 'http://www.w3.org/2001/XMLSchema#string', 
+                    $_dtUri = 'http://www.w3.org/2001/XMLSchema#anyURI';
   
-  protected $sharedFixture,
-            $topicMap;
+  private $_preservedBaseLocators;
   
-  private $preservedBaseLocators;
-  
-  protected function setUp() {
+  /**
+   * (non-PHPDoc)
+   * @see PHPUnit_Framework_TestCase#setUp()
+   * @override
+   */
+  protected function setUp()
+  {
     $tmSystemFactory = TopicMapSystemFactory::newInstance();
     // QuaaxTM specific features
     $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
     $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, false);
     try {
-      $this->sharedFixture = $tmSystemFactory->newTopicMapSystem();
-      $this->preservedBaseLocators = $this->sharedFixture->getLocators();
-      $this->topicMap = $this->sharedFixture->createTopicMap(self::$tmLocator);
+      $this->_sharedFixture = $tmSystemFactory->newTopicMapSystem();
+      $this->_preservedBaseLocators = $this->_sharedFixture->getLocators();
+      $this->_topicMap = $this->_sharedFixture->createTopicMap(self::$_tmLocator);
     } catch (PHPTMAPIRuntimeException $e) {
       $this->markTestSkipped($e->getMessage() . ': Skip test.');
     }
   }
   
-  protected function tearDown() {
-    if ($this->sharedFixture instanceof TopicMapSystem) {
-      $locators = $this->sharedFixture->getLocators();
+  /**
+   * (non-PHPDoc)
+   * @see PHPUnit_Framework_TestCase#tearDown()
+   * @override
+   */
+  protected function tearDown()
+  {
+    if ($this->_sharedFixture instanceof TopicMapSystem) {
+      $locators = $this->_sharedFixture->getLocators();
       foreach ($locators as $locator) {
-        if (!in_array($locator, $this->preservedBaseLocators)) {
-          $tm = $this->sharedFixture->getTopicMap($locator);
+        if (!in_array($locator, $this->_preservedBaseLocators)) {
+          $tm = $this->_sharedFixture->getTopicMap($locator);
           $tm->close();
           $tm->remove();
         }
       }
-      $this->sharedFixture->close();
-      $this->topicMap = 
-      $this->sharedFixture = null;
+      $this->_sharedFixture->close();
+      $this->_topicMap = 
+      $this->_sharedFixture = null;
     }
   }
   
-  protected function getIdsOfConstructs(array $constructs) {
+  protected function _getIdsOfConstructs(array $constructs)
+  {
     $ids = array();
     foreach ($constructs as $construct) {
       $ids[] = $construct->getId();
@@ -89,40 +102,45 @@ class PHPTMAPITestCase extends PHPUnit_Framework_TestCase {
     return $ids;
   }
   
-  protected function createAssoc() {
-    return $this->topicMap->createAssociation($this->topicMap->createTopic());
+  protected function _createAssoc()
+  {
+    return $this->_topicMap->createAssociation($this->_topicMap->createTopic());
   }
   
-  protected function createRole() {
-    $player = $this->topicMap->createTopicBySubjectIdentifier(
+  protected function _createRole()
+  {
+    $player = $this->_topicMap->createTopicBySubjectIdentifier(
     	'http://example.org'
     );
-    return $this->createAssoc()->createRole(
-      $this->topicMap->createTopic(), 
+    return $this->_createAssoc()->createRole(
+      $this->_topicMap->createTopic(), 
       $player
     );
   }
   
-  protected function createOcc() {
-    $type = $this->topicMap->createTopicBySubjectIdentifier(
+  protected function _createOcc()
+  {
+    $type = $this->_topicMap->createTopicBySubjectIdentifier(
     	'http://example.org'
     );
-    return $this->topicMap->createTopic()->createOccurrence(
+    return $this->_topicMap->createTopic()->createOccurrence(
       $type, 
       'http://phptmapi.sourceforge.net/', 
-      self::$dtUri
+      self::$_dtUri
     );
   }
   
-  protected function createName() {
-    return $this->topicMap->createTopic()->createName('foo');
+  protected function _createName()
+  {
+    return $this->_topicMap->createTopic()->createName('foo');
   }
   
-  protected function createVariant() {
-    return $this->createName()->createVariant(
+  protected function _createVariant()
+  {
+    return $this->_createName()->createVariant(
     	'bar', 
-      self::$dtString, 
-      array($this->topicMap->createTopic())
+      self::$_dtString, 
+      array($this->_topicMap->createTopic())
     );
   }
 }

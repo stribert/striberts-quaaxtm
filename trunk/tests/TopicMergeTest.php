@@ -28,17 +28,20 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class TopicMergeTest extends PHPTMAPITestCase {
+class TopicMergeTest extends PHPTMAPITestCase
+{
 
-  public function testTopicMap() {
-    $this->assertTrue($this->topicMap instanceof TopicMap);
+  public function testTopicMap()
+  {
+    $this->assertTrue($this->_topicMap instanceof TopicMap);
   }
   
   /**
    * Tests if $t->mergeIn($t) is ignored.
    */
-  public function testTopicMergeNoop() {
-    $tm = $this->topicMap;
+  public function testTopicMergeNoop()
+  {
+    $tm = $this->_topicMap;
     $locator = 'http://localhost/t/3';
     $topic = $tm->createTopicBySubjectIdentifier($locator);
     $this->assertEquals(count($tm->getTopics()), 1, 'Expected 1 topic!');
@@ -50,8 +53,9 @@ class TopicMergeTest extends PHPTMAPITestCase {
       $tm->getTopicBySubjectIdentifier($locator)->getId(), 'Expected identity!');
   }
   
-  public function testTypesMerged() {
-    $tm = $this->topicMap;
+  public function testTypesMerged()
+  {
+    $tm = $this->_topicMap;
     $topic1 = $tm->createTopic();
     $topic2 = $tm->createTopic();
     $type = $tm->createTopic();
@@ -60,7 +64,7 @@ class TopicMergeTest extends PHPTMAPITestCase {
     $this->assertEquals(count($topic2->getTypes()), 0, 'Unexpected topic type!');
     $topic2->mergeIn($topic1);
     $this->assertEquals(count($topic2->getTypes()), 1, 'Expected 1 topic type!');
-    $ids = $this->getIdsOfConstructs($topic2->getTypes());
+    $ids = $this->_getIdsOfConstructs($topic2->getTypes());
     $this->assertTrue(in_array($type->getId(), $ids, true), 
       'Topic is not part of getTypes()!');
   }
@@ -68,12 +72,13 @@ class TopicMergeTest extends PHPTMAPITestCase {
   /**
    * If topics reify different Topic Maps constructs they cannot be merged.
    */
-  public function testReifiedClash() {
-    $tm = $this->topicMap;
+  public function testReifiedClash()
+  {
+    $tm = $this->_topicMap;
     $topic1 = $tm->createTopic();
     $topic2 = $tm->createTopic();
-    $assoc1 = $this->createAssoc();
-    $assoc2 = $this->createAssoc();
+    $assoc1 = $this->_createAssoc();
+    $assoc2 = $this->_createAssoc();
     $assoc1->setReifier($topic1);
     $assoc2->setReifier($topic2);
     $this->assertEquals($assoc1->getReifier()->getId(), $topic1->getId(), 
@@ -91,30 +96,32 @@ class TopicMergeTest extends PHPTMAPITestCase {
   /**
    * Tests if a topic overtakes all roles played of the other topic.
    */
-  public function testRolePlaying() {
-    $tm = $this->topicMap;
+  public function testRolePlaying()
+  {
+    $tm = $this->_topicMap;
     $topic1 = $tm->createTopic();
     $topic2 = $tm->createTopic();
-    $assoc = $this->createAssoc();
+    $assoc = $this->_createAssoc();
     $role = $assoc->createRole($tm->createTopic(), $topic2);
     $this->assertEquals(count($tm->getTopics()), 4, 'Expected 4 topics!');
     $this->assertEquals(count($topic1->getRolesPlayed()), 0, 'Unexpected role player!');
     $this->assertEquals(count($topic2->getRolesPlayed()), 1, 'Expected topic to play 1 role!');
-    $ids = $this->getIdsOfConstructs($topic2->getRolesPlayed());
+    $ids = $this->_getIdsOfConstructs($topic2->getRolesPlayed());
     $this->assertTrue(in_array($role->getId(), $ids, true), 
       'Role is not part of getRolesPlayed()!');
     $topic1->mergeIn($topic2);
     $this->assertEquals(count($topic1->getRolesPlayed()), 1, 'Expected topic to play 1 role!');
-    $ids = $this->getIdsOfConstructs($topic1->getRolesPlayed());
+    $ids = $this->_getIdsOfConstructs($topic1->getRolesPlayed());
     $this->assertTrue(in_array($role->getId(), $ids, true), 
       'Role is not part of getRolesPlayed()!');
   }
   
   /**
-   * Tests if the subject identifiers are overtaken.
+   * Tests if the subject identifiers are gained.
    */
-  public function testIdentitySubjectIdentifier() {
-    $tm = $this->topicMap;
+  public function testIdentitySubjectIdentifier()
+  {
+    $tm = $this->_topicMap;
     $sid1 = 'http://psi.example.org/sid-1';
     $sid2 = 'http://psi.example.org/sid-2';
     $topic1 = $tm->createTopicBySubjectIdentifier($sid1);
@@ -137,10 +144,11 @@ class TopicMergeTest extends PHPTMAPITestCase {
   }
   
   /**
-   * Tests if the subject locators are overtaken.
+   * Tests if the subject locators are gained.
    */
-  public function testIdentitySubjectLocator() {
-    $tm = $this->topicMap;
+  public function testIdentitySubjectLocator()
+  {
+    $tm = $this->_topicMap;
     $slo1 = 'http://phptmapi.sourceforge.net/';
     $slo2 = 'http://phptmapi.sf.net/';
     $topic1 = $tm->createTopicBySubjectLocator($slo1);
@@ -163,10 +171,11 @@ class TopicMergeTest extends PHPTMAPITestCase {
   }
   
   /**
-   * Tests if the item identifiers are overtaken.
+   * Tests if the item identifiers are gained.
    */
-  public function testIdentityItemIdentifier() {
-    $tm = $this->topicMap;
+  public function testIdentityItemIdentifier()
+  {
+    $tm = $this->_topicMap;
     $iid1 = 'http://localhost/t/1';
     $iid2 = 'http://localhost/t/2';
     $topic1 = $tm->createTopicByItemIdentifier($iid1);
@@ -191,8 +200,9 @@ class TopicMergeTest extends PHPTMAPITestCase {
   /**
    * Tests if merging detects duplicates and that the reifier is preserved.
    */
-  public function testDuplicateDetectionReifier() {
-    $tm = $this->topicMap;
+  public function testDuplicateDetectionReifier()
+  {
+    $tm = $this->_topicMap;
     $topic1 = $tm->createTopic();
     $topic2 = $tm->createTopic();
     $type = $tm->createTopic();
@@ -204,11 +214,11 @@ class TopicMergeTest extends PHPTMAPITestCase {
     $this->assertEquals($name1->getReifier()->getId(), $reifier->getId(), 
       'Expected identity!');
     $this->assertEquals(count($topic1->getNames()), 1, 'Expected 1 topic name');
-    $ids = $this->getIdsOfConstructs($topic1->getNames());
+    $ids = $this->_getIdsOfConstructs($topic1->getNames());
     $this->assertTrue(in_array($name1->getId(), $ids, true), 
       'Name is not part of getNames()!');
     $this->assertEquals(count($topic2->getNames()), 1, 'Expected 1 topic name');
-    $ids = $this->getIdsOfConstructs($topic2->getNames());
+    $ids = $this->_getIdsOfConstructs($topic2->getNames());
     $this->assertTrue(in_array($name2->getId(), $ids, true), 
       'Name is not part of getNames()!');
     $topic1->mergeIn($topic2);
@@ -228,8 +238,9 @@ class TopicMergeTest extends PHPTMAPITestCase {
   /**
    * Tests if merging detects duplicates and merges the reifiers of the duplicates.
    */
-  public function testDuplicateDetectionReifierMerge() {
-    $tm = $this->topicMap;
+  public function testDuplicateDetectionReifierMerge()
+  {
+    $tm = $this->_topicMap;
     $topic1 = $tm->createTopic();
     $topic2 = $tm->createTopic();
     $type = $tm->createTopic();
@@ -247,11 +258,11 @@ class TopicMergeTest extends PHPTMAPITestCase {
     $this->assertEquals($name2->getReifier()->getId(), $reifier2->getId(), 
       'Expected identity!');
     $this->assertEquals(count($topic1->getNames()), 1, 'Expected 1 topic name');
-    $ids = $this->getIdsOfConstructs($topic1->getNames());
+    $ids = $this->_getIdsOfConstructs($topic1->getNames());
     $this->assertTrue(in_array($name1->getId(), $ids, true), 
       'Name is not part of getNames()!');
     $this->assertEquals(count($topic2->getNames()), 1, 'Expected 1 topic name');
-    $ids = $this->getIdsOfConstructs($topic2->getNames());
+    $ids = $this->_getIdsOfConstructs($topic2->getNames());
     $this->assertTrue(in_array($name2->getId(), $ids, true), 
       'Name is not part of getNames()!');
     $topic1->mergeIn($topic2);
@@ -285,8 +296,9 @@ class TopicMergeTest extends PHPTMAPITestCase {
   /**
    * Tests if merging detects duplicate associations.
    */
-  public function testDuplicateSuppressionAssociation() {
-    $tm = $this->topicMap;
+  public function testDuplicateSuppressionAssociation()
+  {
+    $tm = $this->_topicMap;
     $topic1 = $tm->createTopic();
     $topic2 = $tm->createTopic();
     $roleType = $tm->createTopic();
@@ -301,10 +313,10 @@ class TopicMergeTest extends PHPTMAPITestCase {
       'Expected topic to play 1 role!');
     $this->assertEquals(count($topic2->getRolesPlayed()), 1, 
       'Expected topic to play 1 role!');
-    $ids = $this->getIdsOfConstructs($topic1->getRolesPlayed());
+    $ids = $this->_getIdsOfConstructs($topic1->getRolesPlayed());
     $this->assertTrue(in_array($role1->getId(), $ids, true), 
       'Role is not part of getRolesPlayed()!');
-    $ids = $this->getIdsOfConstructs($topic2->getRolesPlayed());
+    $ids = $this->_getIdsOfConstructs($topic2->getRolesPlayed());
     $this->assertTrue(in_array($role2->getId(), $ids, true), 
       'Role is not part of getRolesPlayed()!');
     $topic1->mergeIn($topic2);
@@ -324,19 +336,20 @@ class TopicMergeTest extends PHPTMAPITestCase {
   /**
    * Tests if merging detects duplicate names.
    */
-  public function testDuplicateSuppressionName() {
-    $tm = $this->topicMap;
+  public function testDuplicateSuppressionName()
+  {
+    $tm = $this->_topicMap;
     $topic1 = $tm->createTopic();
     $topic2 = $tm->createTopic();
     $name1 = $topic1->createName('PHPTMAPI');
     $name2 = $topic2->createName('PHPTMAPI');
     $name3 = $topic2->createName('TMAPI');
     $this->assertEquals(count($topic1->getNames()), 1, 'Expected 1 topic name!');
-    $ids = $this->getIdsOfConstructs($topic1->getNames());
+    $ids = $this->_getIdsOfConstructs($topic1->getNames());
     $this->assertTrue(in_array($name1->getId(), $ids, true), 
       'Name is not part of getNames()!');
     $this->assertEquals(count($topic2->getNames()), 2, 'Expected 2 topic names!');
-    $ids = $this->getIdsOfConstructs($topic2->getNames());
+    $ids = $this->_getIdsOfConstructs($topic2->getNames());
     $this->assertTrue(in_array($name2->getId(), $ids, true), 
       'Name is not part of getNames()!');
     $this->assertTrue(in_array($name3->getId(), $ids, true), 
@@ -359,24 +372,25 @@ class TopicMergeTest extends PHPTMAPITestCase {
   /**
    * Tests if merging detects duplicate names and moves the variants.
    */
-  public function testDuplicateSuppressionNameVariant() {
-    $tm = $this->topicMap;
+  public function testDuplicateSuppressionNameVariant()
+  {
+    $tm = $this->_topicMap;
     $topic1 = $tm->createTopic();
     $topic2 = $tm->createTopic();
     $name1 = $topic1->createName('PHPTMAPI');
     $name2 = $topic2->createName('PHPTMAPI');
     $scope = array($tm->createTopic());
-    $variant = $name2->createVariant('Variant', parent::$dtString, $scope);
+    $variant = $name2->createVariant('Variant', parent::$_dtString, $scope);
     $this->assertEquals(count($topic1->getNames()), 1, 'Expected 1 topic name!');
-    $ids = $this->getIdsOfConstructs($topic1->getNames());
+    $ids = $this->_getIdsOfConstructs($topic1->getNames());
     $this->assertTrue(in_array($name1->getId(), $ids, true), 
       'Name is not part of getNames()!');
     $this->assertEquals(count($topic2->getNames()), 1, 'Expected 1 topic name!');
-    $ids = $this->getIdsOfConstructs($topic2->getNames());
+    $ids = $this->_getIdsOfConstructs($topic2->getNames());
     $this->assertTrue(in_array($name2->getId(), $ids, true), 
       'Name is not part of getNames()!');
     $this->assertEquals(count($name2->getVariants()), 1, 'Expected 1 variant name!');
-    $ids = $this->getIdsOfConstructs($name2->getVariants());
+    $ids = $this->_getIdsOfConstructs($name2->getVariants());
     $this->assertTrue(in_array($variant->getId(), $ids, true), 
       'Variant is not part of getVariants()!');
     $topic1->mergeIn($topic2);
@@ -401,8 +415,9 @@ class TopicMergeTest extends PHPTMAPITestCase {
    * Tests if merging detects duplicate names 
    * and sets the item identifier to the union of both names.
    */
-  public function testDuplicateSuppressionNameMoveItemIdentifiers() {
-    $tm = $this->topicMap;
+  public function testDuplicateSuppressionNameMoveItemIdentifiers()
+  {
+    $tm = $this->_topicMap;
     $topic1 = $tm->createTopic();
     $topic2 = $tm->createTopic();
     $name1 = $topic1->createName('PHPTMAPI');
@@ -412,11 +427,11 @@ class TopicMergeTest extends PHPTMAPITestCase {
     $name1->addItemIdentifier($iid1);
     $name2->addItemIdentifier($iid2);
     $this->assertEquals(count($topic1->getNames()), 1, 'Expected 1 topic name!');
-    $ids = $this->getIdsOfConstructs($topic1->getNames());
+    $ids = $this->_getIdsOfConstructs($topic1->getNames());
     $this->assertTrue(in_array($name1->getId(), $ids, true), 
       'Name is not part of getNames()!');
     $this->assertEquals(count($topic2->getNames()), 1, 'Expected 1 topic name!');
-    $ids = $this->getIdsOfConstructs($topic2->getNames());
+    $ids = $this->_getIdsOfConstructs($topic2->getNames());
     $this->assertTrue(in_array($name2->getId(), $ids, true), 
       'Name is not part of getNames()!');
     $this->assertTrue(in_array($iid1, $name1->getItemIdentifiers()), 
@@ -440,8 +455,9 @@ class TopicMergeTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testNamesMerged() {
-    $tm = $this->topicMap;
+  public function testNamesMerged()
+  {
+    $tm = $this->_topicMap;
     $topic1 = $tm->createTopic();
     $topic2 = $tm->createTopic();
     $type = $tm->createTopic();
@@ -471,8 +487,9 @@ class TopicMergeTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testNamesVariantMerged() {
-    $tm = $this->topicMap;
+  public function testNamesVariantMerged()
+  {
+    $tm = $this->_topicMap;
     $topic1 = $tm->createTopic();
     $topic2 = $tm->createTopic();
     $type = $tm->createTopic();
@@ -483,7 +500,7 @@ class TopicMergeTest extends PHPTMAPITestCase {
     $name->setReifier($nameReifier);
     $nameScope[] = $tm->createTopic();
     $variantScope = $nameScope;
-    $variant = $name->createVariant('Variant', parent::$dtString, $variantScope);
+    $variant = $name->createVariant('Variant', parent::$_dtString, $variantScope);
     $variant->setReifier($variantReifier);
     $variant->addItemIdentifier('http://localhost/v/1');
     $this->assertEquals(count($tm->getTopics()), 8, 'Expected 8 topics!');
@@ -518,15 +535,16 @@ class TopicMergeTest extends PHPTMAPITestCase {
     }
   }
     
-  public function testOccurrencesMerged() {
-    $tm = $this->topicMap;
+  public function testOccurrencesMerged()
+  {
+    $tm = $this->_topicMap;
     $topic1 = $tm->createTopic();
     $topic2 = $tm->createTopic();
     $type = $tm->createTopic();
     $reifier = $tm->createTopic();
     $scope = array($tm->createTopic(), $tm->createTopic());
     $this->assertEquals(count($tm->getTopics()), 6, 'Expected 6 topics!');
-    $occ = $topic1->createOccurrence($type, 'Occurrence', parent::$dtString, $scope);
+    $occ = $topic1->createOccurrence($type, 'Occurrence', parent::$_dtString, $scope);
     $occ->setReifier($reifier);
     $occ->addItemIdentifier('http://localhost/o/1');
     $this->assertEquals(count($topic1->getOccurrences()), 1, 'Expected 1 occurrence!');
@@ -552,20 +570,21 @@ class TopicMergeTest extends PHPTMAPITestCase {
   /**
    * Tests if merging detects duplicate occurrences.
    */
-  public function testDuplicateSuppressionOccurrence() {
-    $tm = $this->topicMap;
+  public function testDuplicateSuppressionOccurrence()
+  {
+    $tm = $this->_topicMap;
     $topic1 = $tm->createTopic();
     $topic2 = $tm->createTopic();
     $type = $tm->createTopic();
-    $occ1 = $topic1->createOccurrence($type, 'PHPTMAPI', parent::$dtString);
-    $occ2 = $topic2->createOccurrence($type, 'PHPTMAPI', parent::$dtString);
-    $occ3 = $topic2->createOccurrence($type, 'Occurrence', parent::$dtString);
+    $occ1 = $topic1->createOccurrence($type, 'PHPTMAPI', parent::$_dtString);
+    $occ2 = $topic2->createOccurrence($type, 'PHPTMAPI', parent::$_dtString);
+    $occ3 = $topic2->createOccurrence($type, 'Occurrence', parent::$_dtString);
     $this->assertEquals(count($topic1->getOccurrences()), 1, 'Expected 1 occurrence!');
-    $ids = $this->getIdsOfConstructs($topic1->getOccurrences());
+    $ids = $this->_getIdsOfConstructs($topic1->getOccurrences());
     $this->assertTrue(in_array($occ1->getId(), $ids, true), 
       'Occurrence is not part of getOccurrences()!');
     $this->assertEquals(count($topic2->getOccurrences()), 2, 'Expected 2 occurrences!');
-    $ids = $this->getIdsOfConstructs($topic2->getOccurrences());
+    $ids = $this->_getIdsOfConstructs($topic2->getOccurrences());
     $this->assertTrue(in_array($occ2->getId(), $ids, true), 
       'Occurrence is not part of getOccurrences()!');
     $this->assertTrue(in_array($occ3->getId(), $ids, true), 
@@ -589,25 +608,26 @@ class TopicMergeTest extends PHPTMAPITestCase {
    * Tests if merging detects duplicate occurrences and sets the item 
    * identifier to the union of both occurrences.
    */
-  public function testDuplicateSuppressionOccurrenceMoveItemIdentifiers() {
-    $tm = $this->topicMap;
+  public function testDuplicateSuppressionOccurrenceMoveItemIdentifiers()
+  {
+    $tm = $this->_topicMap;
     $topic1 = $tm->createTopic();
     $topic2 = $tm->createTopic();
     $type = $tm->createTopic();
     $iid1 = 'http://example.org/iid-1';
     $iid2 = 'http://example.org/iid-2';
-    $occ1 = $topic1->createOccurrence($type, 'PHPTMAPI', parent::$dtString);
+    $occ1 = $topic1->createOccurrence($type, 'PHPTMAPI', parent::$_dtString);
     $occ1->addItemIdentifier($iid1);
     $this->assertEquals(count($topic1->getOccurrences()), 1, 'Expected 1 occurrence!');
-    $ids = $this->getIdsOfConstructs($topic1->getOccurrences());
+    $ids = $this->_getIdsOfConstructs($topic1->getOccurrences());
     $this->assertTrue(in_array($occ1->getId(), $ids, true), 
       'Occurrence is not part of getOccurrences()!');
     $this->assertTrue(in_array($iid1, $occ1->getItemIdentifiers()), 
       'Expected item identifier!');
-    $occ2 = $topic2->createOccurrence($type, 'PHPTMAPI', parent::$dtString);
+    $occ2 = $topic2->createOccurrence($type, 'PHPTMAPI', parent::$_dtString);
     $occ2->addItemIdentifier($iid2);
     $this->assertEquals(count($topic2->getOccurrences()), 1, 'Expected 1 occurrence!');
-    $ids = $this->getIdsOfConstructs($topic2->getOccurrences());
+    $ids = $this->_getIdsOfConstructs($topic2->getOccurrences());
     $this->assertTrue(in_array($occ2->getId(), $ids, true), 
       'Occurrence is not part of getOccurrences()!');
     $this->assertTrue(in_array($iid2, $occ2->getItemIdentifiers()), 
@@ -629,10 +649,11 @@ class TopicMergeTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testSameTopicMaps() {
-    $otherTm = $this->sharedFixture->createTopicMap('http://localhost/' . uniqid());
+  public function testSameTopicMaps()
+  {
+    $otherTm = $this->_sharedFixture->createTopicMap('http://localhost/' . uniqid());
     $otherTopic = $otherTm->createTopic();
-    $topic = $this->topicMap->createTopic();
+    $topic = $this->_topicMap->createTopic();
     try {
       $topic->mergeIn($otherTopic);
       $this->fail('Both topics must belong to the same topic map!');
@@ -645,10 +666,11 @@ class TopicMergeTest extends PHPTMAPITestCase {
    * Tests the code coverage of dupl. removal in TopicImpl::mergeIn().
    * TopicImpl::getTypes() always returns a true set of topics.
    */
-  public function testRemoveInstanceofDuplicates() {
-    $type1 = $this->topicMap->createTopic();
-    $type2 = $this->topicMap->createTopic();
-    $typed = $this->topicMap->createTopic();
+  public function testRemoveInstanceofDuplicates()
+  {
+    $type1 = $this->_topicMap->createTopic();
+    $type2 = $this->_topicMap->createTopic();
+    $typed = $this->_topicMap->createTopic();
     $typed->addType($type1);
     $typed->addType($type2);
     $this->assertEquals(count($typed->getTypes()), 2);
@@ -660,10 +682,11 @@ class TopicMergeTest extends PHPTMAPITestCase {
    * Tests the code coverage of dupl. removal in TopicImpl::mergeIn().
    * ScopedImpl::getScope() always returns a true set of topics (themes).
    */
-  public function testRemoveThemesDuplicates() {
-    $theme1 = $this->topicMap->createTopic();
-    $theme2 = $this->topicMap->createTopic();
-    $topic = $this->topicMap->createTopic();
+  public function testRemoveThemesDuplicates()
+  {
+    $theme1 = $this->_topicMap->createTopic();
+    $theme2 = $this->_topicMap->createTopic();
+    $topic = $this->_topicMap->createTopic();
     $name = $topic->createName('foo', null, array($theme1, $theme2));
     $scope = $name->getScope();
     $this->assertEquals(count($scope), 2);
@@ -672,48 +695,51 @@ class TopicMergeTest extends PHPTMAPITestCase {
     $this->assertEquals(count($scope), 1);
   }
   
-  public function testAssociationTypesMerged() {
-    $type1 = $this->topicMap->createTopic();
-    $type2 = $this->topicMap->createTopic();
-    $topics = $this->topicMap->getTopics();
+  public function testAssociationTypesMerged()
+  {
+    $type1 = $this->_topicMap->createTopic();
+    $type2 = $this->_topicMap->createTopic();
+    $topics = $this->_topicMap->getTopics();
     $this->assertEquals(count($topics), 2);
-    $assoc = $this->topicMap->createAssociation($type1);
+    $assoc = $this->_topicMap->createAssociation($type1);
     $type = $assoc->getType();
     $this->assertEquals($type1->getId(), $type->getId());
     $assoc->setType($type2);
     $type = $assoc->getType();
     $this->assertEquals($type2->getId(), $type->getId());
     $type1->mergeIn($type2);
-    $topics = $this->topicMap->getTopics();
+    $topics = $this->_topicMap->getTopics();
     $this->assertEquals(count($topics), 1);
     $type = $assoc->getType();
     $this->assertEquals($type1->getId(), $type->getId());
   }
   
-  public function testOccurrenceTypesMerged() {
-    $type1 = $this->topicMap->createTopic();
-    $type2 = $this->topicMap->createTopic();
-    $topic = $this->topicMap->createTopic();
-    $topics = $this->topicMap->getTopics();
+  public function testOccurrenceTypesMerged()
+  {
+    $type1 = $this->_topicMap->createTopic();
+    $type2 = $this->_topicMap->createTopic();
+    $topic = $this->_topicMap->createTopic();
+    $topics = $this->_topicMap->getTopics();
     $this->assertEquals(count($topics), 3);
-    $occ = $topic->createOccurrence($type1, 'foo', parent::$dtString);
+    $occ = $topic->createOccurrence($type1, 'foo', parent::$_dtString);
     $type = $occ->getType();
     $this->assertEquals($type1->getId(), $type->getId());
     $occ->setType($type2);
     $type = $occ->getType();
     $this->assertEquals($type2->getId(), $type->getId());
     $type1->mergeIn($type2);
-    $topics = $this->topicMap->getTopics();
+    $topics = $this->_topicMap->getTopics();
     $this->assertEquals(count($topics), 2);
     $type = $occ->getType();
     $this->assertEquals($type1->getId(), $type->getId());
   }
   
-  public function testNameTypesMerged() {
-    $type1 = $this->topicMap->createTopic();
-    $type2 = $this->topicMap->createTopic();
-    $topic = $this->topicMap->createTopic();
-    $topics = $this->topicMap->getTopics();
+  public function testNameTypesMerged()
+  {
+    $type1 = $this->_topicMap->createTopic();
+    $type2 = $this->_topicMap->createTopic();
+    $topic = $this->_topicMap->createTopic();
+    $topics = $this->_topicMap->getTopics();
     $this->assertEquals(count($topics), 3);
     $name = $topic->createName('foo', $type1);
     $type = $name->getType();
@@ -722,7 +748,7 @@ class TopicMergeTest extends PHPTMAPITestCase {
     $type = $name->getType();
     $this->assertEquals($type2->getId(), $type->getId());
     $type1->mergeIn($type2);
-    $topics = $this->topicMap->getTopics();
+    $topics = $this->_topicMap->getTopics();
     $this->assertEquals(count($topics), 2);
     $type = $name->getType();
     $this->assertEquals($type1->getId(), $type->getId());

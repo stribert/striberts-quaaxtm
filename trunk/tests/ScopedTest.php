@@ -28,16 +28,17 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class ScopedTest extends PHPTMAPITestCase {
-  
+class ScopedTest extends PHPTMAPITestCase
+{
   /**
    * Scoped tests: adding / removing themes.
    * 
    * @param Scoped The scoped Topic Maps construct to test.
    * @return void
    */
-  private function _testScoped(Scoped $scoped) {
-    $tm = $this->topicMap;
+  private function _testScoped(Scoped $scoped)
+  {
+    $tm = $this->_topicMap;
     $scopeSize = $scoped instanceof IVariant ? count($scoped->getScope()) : 0;
     $this->assertEquals($scopeSize, count($scoped->getScope()), 
       'Unexpected count of themes!');
@@ -46,18 +47,18 @@ class ScopedTest extends PHPTMAPITestCase {
     $scopeSize++;
     $this->assertEquals($scopeSize, count($scoped->getScope()), 
       'Unexpected count of themes!');
-    $ids = $this->getIdsOfConstructs($scoped->getScope());
+    $ids = $this->_getIdsOfConstructs($scoped->getScope());
     $this->assertTrue(in_array($theme1->getId(), $ids, true), 
       'Theme is not part of getScope()!');
     $theme2 = $tm->createTopic();
-    $ids = $this->getIdsOfConstructs($scoped->getScope());
+    $ids = $this->_getIdsOfConstructs($scoped->getScope());
     $this->assertFalse(in_array($theme2->getId(), $ids, true), 
       'Theme is part of getScope()!');
     $scoped->addTheme($theme2);
     $scopeSize++;
     $this->assertEquals($scopeSize, count($scoped->getScope()), 
       'Unexpected count of themes!');
-    $ids = $this->getIdsOfConstructs($scoped->getScope());
+    $ids = $this->_getIdsOfConstructs($scoped->getScope());
     $this->assertTrue(in_array($theme1->getId(), $ids, true), 
       'Theme is not part of getScope()!');
     $this->assertTrue(in_array($theme2->getId(), $ids, true), 
@@ -66,7 +67,7 @@ class ScopedTest extends PHPTMAPITestCase {
     $scopeSize--;
     $this->assertEquals($scopeSize, count($scoped->getScope()), 
       'Unexpected count of themes!');
-    $ids = $this->getIdsOfConstructs($scoped->getScope());
+    $ids = $this->_getIdsOfConstructs($scoped->getScope());
     $this->assertTrue(in_array($theme1->getId(), $ids, true), 
       'Theme is not part of getScope()!');
     $this->assertFalse(in_array($theme2->getId(), $ids, true), 
@@ -77,29 +78,34 @@ class ScopedTest extends PHPTMAPITestCase {
       'Unexpected count of themes!');
   }
   
-  public function testAssociation() {
-    $this->_testScoped($this->createAssoc());
+  public function testAssociation()
+  {
+    $this->_testScoped($this->_createAssoc());
   }
   
-  public function testOccurrence() {
-    $this->_testScoped($this->createOcc());
+  public function testOccurrence()
+  {
+    $this->_testScoped($this->_createOcc());
   }
   
-  public function testName() {
-    $this->_testScoped($this->createName());
+  public function testName()
+  {
+    $this->_testScoped($this->_createName());
   }
   
-  public function testVariant() {
-    $this->_testScoped($this->createVariant());
+  public function testVariant()
+  {
+    $this->_testScoped($this->_createVariant());
   }
   
   /**
    * QuaaxTM specific test.
    */
-  public function testCleanupBlocked() {
-    $name1 = $this->createName();
-    $name2 = $this->createName();
-    $theme = $this->topicMap->createTopic();
+  public function testCleanupBlocked()
+  {
+    $name1 = $this->_createName();
+    $name2 = $this->_createName();
+    $theme = $this->_topicMap->createTopic();
     $name1->addTheme($theme);
     $this->assertEquals(count($name1->getScope()), 1, 'Unexpected scope!');
     $name2->addTheme($theme);

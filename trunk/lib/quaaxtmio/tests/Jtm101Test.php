@@ -27,44 +27,47 @@ require_once('TestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class Jtm101Test extends TestCase {
+class Jtm101Test extends TestCase
+{  
+  private static $_reader = 'JTM101TopicMapReader';
   
-  private static $reader = 'JTM101TopicMapReader';
-  
-  public function testTopicMapSystem() {
-    $this->assertTrue($this->sharedFixture instanceof TopicMapSystem);
+  public function testTopicMapSystem()
+  {
+    $this->assertTrue($this->_sharedFixture instanceof TopicMapSystem);
   }
   
   /**
    * @dataProvider getJtm10Files
    */
-  public function testJtm10($jtmFile) {
-    $jtmDir = $this->cxtmIncPath . 'jtm' . DIRECTORY_SEPARATOR . 'in';
-    $cxtmDir = $this->cxtmIncPath . 'jtm' . DIRECTORY_SEPARATOR . 'baseline';
+  public function testJtm10($jtmFile)
+  {
+    $jtmDir = $this->_cxtmIncPath . 'jtm' . DIRECTORY_SEPARATOR . 'in';
+    $cxtmDir = $this->_cxtmIncPath . 'jtm' . DIRECTORY_SEPARATOR . 'baseline';
     // read source JTM
-    $this->readSrcFile($jtmDir . DIRECTORY_SEPARATOR . $jtmFile, self::$reader);
-    $cxtmBase = $this->readCxtmFile($cxtmDir . DIRECTORY_SEPARATOR . $jtmFile . '.cxtm');
+    $this->_readSrcFile($jtmDir . DIRECTORY_SEPARATOR . $jtmFile, self::$_reader);
+    $cxtmBase = $this->_readCxtmFile($cxtmDir . DIRECTORY_SEPARATOR . $jtmFile . '.cxtm');
     // get the topic map and write the JTM
-    $topicMap = $this->sharedFixture->getTopicMap($this->tmLocator);
+    $topicMap = $this->_sharedFixture->getTopicMap($this->_tmLocator);
     $jtmWriter = new PHPTMAPIJTM10Writer();
-    $jtm = $jtmWriter->write($topicMap, $this->tmLocator);
+    $jtm = $jtmWriter->write($topicMap, $this->_tmLocator);
     $topicMap->remove();
     // read written JTM
-    $this->read($jtm, self::$reader);
+    $this->_read($jtm, self::$_reader);
     // get the topic map and write the CXTM
-    $topicMap = $this->sharedFixture->getTopicMap($this->tmLocator);
+    $topicMap = $this->_sharedFixture->getTopicMap($this->_tmLocator);
     $writer = new PHPTMAPICXTMWriter();
-    $cxtm = $writer->write($topicMap, $this->tmLocator);
+    $cxtm = $writer->write($topicMap, $this->_tmLocator);
     $this->assertEquals($cxtm, $cxtmBase);
   }
   
   /**
    * @dataProvider getInvalidJtm10Files
    */
-  public function testInvalidJtm10($jtmFile) {
+  public function testInvalidJtm10($jtmFile)
+  {
     try {
-      $jtmDir = $this->cxtmIncPath . 'jtm' . DIRECTORY_SEPARATOR . 'invalid';
-      $this->readSrcFile($jtmDir . DIRECTORY_SEPARATOR . $jtmFile, self::$reader);
+      $jtmDir = $this->_cxtmIncPath . 'jtm' . DIRECTORY_SEPARATOR . 'invalid';
+      $this->_readSrcFile($jtmDir . DIRECTORY_SEPARATOR . $jtmFile, self::$_reader);
       $this->fail('Expected MIOException while parsing ' . $jtmFile . '.');
     } catch (MIOException $e) {
       // no op.
@@ -74,54 +77,59 @@ class Jtm101Test extends TestCase {
   /**
    * @dataProvider getJtm11Files
    */
-  public function testJtm11($jtmFile) {
-    $jtmDir = $this->cxtmIncPath . 'jtm11' . DIRECTORY_SEPARATOR . 'in';
-    $cxtmDir = $this->cxtmIncPath . 'jtm11' . DIRECTORY_SEPARATOR . 'baseline';
+  public function testJtm11($jtmFile)
+  {
+    $jtmDir = $this->_cxtmIncPath . 'jtm11' . DIRECTORY_SEPARATOR . 'in';
+    $cxtmDir = $this->_cxtmIncPath . 'jtm11' . DIRECTORY_SEPARATOR . 'baseline';
     // read source JTM
-    $this->readSrcFile($jtmDir . DIRECTORY_SEPARATOR . $jtmFile, self::$reader);
-    $cxtmBase = $this->readCxtmFile($cxtmDir . DIRECTORY_SEPARATOR . $jtmFile . '.cxtm');
+    $this->_readSrcFile($jtmDir . DIRECTORY_SEPARATOR . $jtmFile, self::$_reader);
+    $cxtmBase = $this->_readCxtmFile($cxtmDir . DIRECTORY_SEPARATOR . $jtmFile . '.cxtm');
     // get the topic map and write the JTM
-    $topicMap = $this->sharedFixture->getTopicMap($this->tmLocator);
+    $topicMap = $this->_sharedFixture->getTopicMap($this->_tmLocator);
     $jtmWriter = new PHPTMAPIJTM10Writer();
-    $jtm = $jtmWriter->write($topicMap, $this->tmLocator);
+    $jtm = $jtmWriter->write($topicMap, $this->_tmLocator);
     $topicMap->remove();
     // read written JTM
-    $this->read($jtm, self::$reader);
+    $this->_read($jtm, self::$_reader);
     // get the topic map and write the CXTM
-    $topicMap = $this->sharedFixture->getTopicMap($this->tmLocator);
+    $topicMap = $this->_sharedFixture->getTopicMap($this->_tmLocator);
     $writer = new PHPTMAPICXTMWriter();
-    $cxtm = $writer->write($topicMap, $this->tmLocator);
+    $cxtm = $writer->write($topicMap, $this->_tmLocator);
     $this->assertEquals($cxtm, $cxtmBase);
   }
   
   /**
    * @dataProvider getInvalidJtm11Files
    */
-  public function testInvalidJtm11($jtmFile) {
+  public function testInvalidJtm11($jtmFile)
+  {
     try {
-      $jtmDir = $this->cxtmIncPath . 'jtm' . DIRECTORY_SEPARATOR . 'invalid';
-      $this->readSrcFile($jtmDir . DIRECTORY_SEPARATOR . $jtmFile, self::$reader);
+      $jtmDir = $this->_cxtmIncPath . 'jtm' . DIRECTORY_SEPARATOR . 'invalid';
+      $this->_readSrcFile($jtmDir . DIRECTORY_SEPARATOR . $jtmFile, self::$_reader);
       $this->fail('Expected MIOException while parsing ' . $jtmFile . '.');
     } catch (MIOException $e) {
       // no op.
     }
   }
   
-  public function getJtm10Files() {
-    return $this->getSrcFiles('jtm' . DIRECTORY_SEPARATOR . 'in');
+  public function getJtm10Files()
+  {
+    return $this->_getSrcFiles('jtm' . DIRECTORY_SEPARATOR . 'in');
   }
   
-  public function getInvalidJtm10Files() {
-    return $this->getSrcFiles('jtm' . DIRECTORY_SEPARATOR . 'invalid');
+  public function getInvalidJtm10Files()
+  {
+    return $this->_getSrcFiles('jtm' . DIRECTORY_SEPARATOR . 'invalid');
   }
   
-  public function getJtm11Files() {
-    return $this->getSrcFiles('jtm11' . DIRECTORY_SEPARATOR . 'in');
+  public function getJtm11Files()
+  {
+    return $this->_getSrcFiles('jtm11' . DIRECTORY_SEPARATOR . 'in');
   }
   
-  public function getInvalidJtm11Files() {
-    return $this->getSrcFiles('jtm11' . DIRECTORY_SEPARATOR . 'invalid');
+  public function getInvalidJtm11Files()
+  {
+    return $this->_getSrcFiles('jtm11' . DIRECTORY_SEPARATOR . 'invalid');
   }
-  
 }
 ?>

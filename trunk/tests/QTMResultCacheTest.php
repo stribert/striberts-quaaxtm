@@ -28,46 +28,56 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class QTMResultCacheTest extends PHPTMAPITestCase {
-  
-  protected function setUp() {
+class QTMResultCacheTest extends PHPTMAPITestCase
+{
+  /**
+   * @override
+   */
+  protected function setUp()
+  {
     $tmSystemFactory = TopicMapSystemFactory::newInstance();
     // QuaaxTM specific features
     $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
     $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, true);
     try {
-      $this->sharedFixture = $tmSystemFactory->newTopicMapSystem();
-      $this->preservedBaseLocators = $this->sharedFixture->getLocators();
-      $this->topicMap = $this->sharedFixture->createTopicMap(self::$tmLocator);
+      $this->_sharedFixture = $tmSystemFactory->newTopicMapSystem();
+      $this->preservedBaseLocators = $this->_sharedFixture->getLocators();
+      $this->_topicMap = $this->_sharedFixture->createTopicMap(self::$_tmLocator);
     } catch (PHPTMAPIRuntimeException $e) {
       $this->markTestSkipped($e->getMessage() . ': Skip test.');
     }
   }
   
-  protected function tearDown() {
-    if ($this->sharedFixture instanceof TopicMapSystem) {
-      $locators = $this->sharedFixture->getLocators();
+  /**
+   * @override
+   */
+  protected function tearDown()
+  {
+    if ($this->_sharedFixture instanceof TopicMapSystem) {
+      $locators = $this->_sharedFixture->getLocators();
       foreach ($locators as $locator) {
         if (!in_array($locator, $this->preservedBaseLocators)) {
-          $tm = $this->sharedFixture->getTopicMap($locator);
+          $tm = $this->_sharedFixture->getTopicMap($locator);
           $tm->close();
           $tm->remove();
         }
       }
-      $this->sharedFixture->close();
-      $this->topicMap = 
-      $this->sharedFixture = null;
+      $this->_sharedFixture->close();
+      $this->_topicMap = 
+      $this->_sharedFixture = null;
     }
   }
   
-  public function testTopicMapSystem() {
-    $this->assertTrue($this->sharedFixture instanceof TopicMapSystem);
-    $this->assertTrue($this->topicMap instanceof TopicMap);
+  public function testTopicMapSystem()
+  {
+    $this->assertTrue($this->_sharedFixture instanceof TopicMapSystem);
+    $this->assertTrue($this->_topicMap instanceof TopicMap);
   }
   
-  public function testAssociation() {
-    $role = $this->createRole();
-    $assocs = $this->topicMap->getAssociations();
+  public function testAssociation()
+  {
+    $role = $this->_createRole();
+    $assocs = $this->_topicMap->getAssociations();
     $this->assertEquals(count($assocs), 1);
     $assoc = $assocs[0];
     $roles = $assoc->getRoles();
@@ -78,6 +88,5 @@ class QTMResultCacheTest extends PHPTMAPITestCase {
       $this->assertEquals(count($roles), 1);
     }
   }
-  
 }
 ?>

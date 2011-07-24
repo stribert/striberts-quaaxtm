@@ -31,41 +31,45 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class TopicMergeDetectionAutomergeEnabledTest extends PHPTMAPITestCase {
-
-  private $automerge;
+class TopicMergeDetectionAutomergeEnabledTest extends PHPTMAPITestCase
+{
+  private $_automerge;
   
   /**
    * @override
    */
-  public function setUp() {
+  protected function setUp()
+  {
     parent::setUp();
     try {
-      $sys = $this->sharedFixture;
-      $this->automerge = (bool) $sys->getFeature('http://tmapi.org/features/automerge/');
+      $sys = $this->_sharedFixture;
+      $this->_automerge = (bool) $sys->getFeature('http://tmapi.org/features/automerge/');
     } catch (FeatureNotRecognizedException $e) {
-      $this->automerge = false;
+      $this->_automerge = false;
     }
   }
   
   /**
    * @override
    */
-  public function tearDown() {
+  protected function tearDown()
+  {
     parent::tearDown();
-    $this->automerge = false;
+    $this->_automerge = false;
   }
 
-  public function testTopicMap() {
-    $this->assertTrue($this->topicMap instanceof TopicMap);
+  public function testTopicMap()
+  {
+    $this->assertTrue($this->_topicMap instanceof TopicMap);
   }
   
   /**
    * Tests if adding a duplicate subject identifier is detected.
    */
-  public function testExistingSubjectIdentifier() {
-    if (!$this->automerge) return;
-    $tm = $this->topicMap;
+  public function testExistingSubjectIdentifier()
+  {
+    if (!$this->_automerge) return;
+    $tm = $this->_topicMap;
     $topic1 = $tm->createTopic();
     $topic2 = $tm->createTopic();
     $this->assertEquals(count($tm->getTopics()), 2, 'Expected 2 topics!');
@@ -89,9 +93,10 @@ class TopicMergeDetectionAutomergeEnabledTest extends PHPTMAPITestCase {
   /**
    * Tests if adding a duplicate subject identifier on the same topic is ignored.
    */
-  public function testExistingSubjectIdentifierLegal() {
-    if (!$this->automerge) return;
-    $tm = $this->topicMap;
+  public function testExistingSubjectIdentifierLegal()
+  {
+    if (!$this->_automerge) return;
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $this->assertEquals(count($tm->getTopics()), 1, 'Expected 1 topic!');
     $sid = 'http://phptmapi.sourceforge.net/';
@@ -108,9 +113,10 @@ class TopicMergeDetectionAutomergeEnabledTest extends PHPTMAPITestCase {
   /**
    * Tests if adding a duplicate subject locator is detected.
    */
-  public function testExistingSubjectLocator() {
-    if (!$this->automerge) return;
-    $tm = $this->topicMap;
+  public function testExistingSubjectLocator()
+  {
+    if (!$this->_automerge) return;
+    $tm = $this->_topicMap;
     $topic1 = $tm->createTopic();
     $topic2 = $tm->createTopic();
     $this->assertEquals(count($tm->getTopics()), 2, 'Expected 2 topics!');
@@ -134,9 +140,10 @@ class TopicMergeDetectionAutomergeEnabledTest extends PHPTMAPITestCase {
   /**
    * Tests if adding a duplicate subject locator at the same topic is ignored.
    */
-  public function testExistingSubjectLocatorLegal() {
-    if (!$this->automerge) return;
-    $tm = $this->topicMap;
+  public function testExistingSubjectLocatorLegal()
+  {
+    if (!$this->_automerge) return;
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $this->assertEquals(count($tm->getTopics()), 1, 'Expected 1 topic!');
     $slo = 'http://phptmapi.sourceforge.net/';
@@ -153,9 +160,10 @@ class TopicMergeDetectionAutomergeEnabledTest extends PHPTMAPITestCase {
   /**
    * Tests if adding an item identifier equals to a subject identifier is detected.
    */
-  public function testExistingSubjectIdentifierAddItemIdentifier() {
-    if (!$this->automerge) return;
-    $tm = $this->topicMap;
+  public function testExistingSubjectIdentifierAddItemIdentifier()
+  {
+    if (!$this->_automerge) return;
+    $tm = $this->_topicMap;
     $topic1 = $tm->createTopic();
     $topic2 = $tm->createTopic();
     $this->assertEquals(count($tm->getTopics()), 2, 'Expected 2 topics!');
@@ -180,9 +188,10 @@ class TopicMergeDetectionAutomergeEnabledTest extends PHPTMAPITestCase {
    * Tests if adding an item identifier equals to a subject identifier 
    * on the same topic is accepted.
    */
-  public function testExistingSubjectIdentifierAddItemIdentifierLegal() {
-    if (!$this->automerge) return;
-    $tm = $this->topicMap;
+  public function testExistingSubjectIdentifierAddItemIdentifierLegal()
+  {
+    if (!$this->_automerge) return;
+    $tm = $this->_topicMap;
     $sid = 'http://phptmapi.sourceforge.net/';
     $topic = $tm->createTopicBySubjectIdentifier($sid);
     $this->assertEquals(count($tm->getTopics()), 1, 'Expected 1 topic!');
@@ -213,9 +222,10 @@ class TopicMergeDetectionAutomergeEnabledTest extends PHPTMAPITestCase {
   /**
    * Tests if adding a subject identifier equals to an item identifier is detected.
    */
-  public function testExistingItemIdentifierAddSubjectIdentifier() {
-    if (!$this->automerge) return;
-    $tm = $this->topicMap;
+  public function testExistingItemIdentifierAddSubjectIdentifier()
+  {
+    if (!$this->_automerge) return;
+    $tm = $this->_topicMap;
     $topic1 = $tm->createTopic();
     $topic2 = $tm->createTopic();
     $this->assertEquals(count($tm->getTopics()), 2, 'Expected 2 topics!');
@@ -240,9 +250,10 @@ class TopicMergeDetectionAutomergeEnabledTest extends PHPTMAPITestCase {
    * Tests if adding a subject identifier equals to an item identifier 
    * on the same topic is accepted.
    */
-  public function testExistingItemIdentifierAddSubjectIdentifierLegal() {
-    if (!$this->automerge) return;
-    $tm = $this->topicMap;
+  public function testExistingItemIdentifierAddSubjectIdentifierLegal()
+  {
+    if (!$this->_automerge) return;
+    $tm = $this->_topicMap;
     $iid = 'http://phptmapi.sourceforge.net/';
     $topic = $tm->createTopicByItemIdentifier($iid);
     $this->assertEquals(count($tm->getTopics()), 1, 'Expected 1 topic!');

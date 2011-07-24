@@ -28,8 +28,8 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class ConstructTest extends PHPTMAPITestCase {
-  
+class ConstructTest extends PHPTMAPITestCase
+{
   /**
    * Tests adding / removing item identifiers, retrieval by item identifier 
    * and retrieval by the system specific id.
@@ -37,8 +37,9 @@ class ConstructTest extends PHPTMAPITestCase {
    * @param Construct The Topic Maps construct to test.
    * @return void
    */
-  private function _testConstruct(Construct $construct) {
-    $tm = $this->topicMap;
+  private function _testConstruct(Construct $construct)
+  {
+    $tm = $this->_topicMap;
     $this->assertEquals(0, count($construct->getItemIdentifiers()), 
       'Expected number of iids to be 0 for newly created construct!');
     $locator1 = 'http://tmapi.org/test#' . uniqid();
@@ -85,7 +86,7 @@ class ConstructTest extends PHPTMAPITestCase {
     } else {
       $this->assertNotNull($construct->getParent(), 'Topic Maps constructs have a parent!');
     }
-    $this->assertEquals($this->topicMap->getId(), $construct->getTopicMap()->getId(), 
+    $this->assertEquals($this->_topicMap->getId(), $construct->getTopicMap()->getId(), 
       'Construct belongs to wrong topic map!');
     $id = $construct->getId();
     $this->assertEquals($construct->getId(), $tm->getConstructById($id)->getId(), 
@@ -114,7 +115,7 @@ class ConstructTest extends PHPTMAPITestCase {
       );
       $this->assertEquals(
         $occ->getDatatype(), 
-        parent::$dtUri, 
+        parent::$_dtUri, 
         'Expected identity!'
       );
       $type = $occ->getType();
@@ -135,35 +136,43 @@ class ConstructTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testTopicMap() {
-    $this->assertTrue($this->topicMap instanceof TopicMap);
-    $this->_testConstruct($this->topicMap);
+  public function testTopicMap()
+  {
+    $this->assertTrue($this->_topicMap instanceof TopicMap);
+    $this->_testConstruct($this->_topicMap);
   }
   
-  public function testTopic() {
+  public function testTopic()
+  {
     // Avoid the topic having an item identifier
-    $this->_testConstruct($this->topicMap
-      ->createTopicBySubjectIdentifier('http://tmapi.org/test#topic1'));
+    $this->_testConstruct(
+      $this->_topicMap->createTopicBySubjectIdentifier('http://tmapi.org/test#topic1')
+    );
   }
   
-  public function testAssociation() {
-    $this->_testConstruct($this->createAssoc());
+  public function testAssociation()
+  {
+    $this->_testConstruct($this->_createAssoc());
   }
   
-  public function testRole() {
-    $this->_testConstruct($this->createRole());
+  public function testRole()
+  {
+    $this->_testConstruct($this->_createRole());
   }
   
-  public function testOccurrence() {
-    $this->_testConstruct($this->createOcc());
+  public function testOccurrence()
+  {
+    $this->_testConstruct($this->_createOcc());
   }
   
-  public function testName() {
-    $this->_testConstruct($this->createName());
+  public function testName()
+  {
+    $this->_testConstruct($this->_createName());
   }
   
-  public function testVariant() {
-    $this->_testConstruct($this->createVariant());
+  public function testVariant()
+  {
+    $this->_testConstruct($this->_createVariant());
   }
 }
 ?>

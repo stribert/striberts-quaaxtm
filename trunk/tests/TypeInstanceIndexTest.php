@@ -28,10 +28,11 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class TypeInstanceIndexTest extends PHPTMAPITestCase {
-  
-  public function testGetTopics() {
-    $tm = $this->topicMap;
+class TypeInstanceIndexTest extends PHPTMAPITestCase
+{
+  public function testGetTopics()
+  {
+    $tm = $this->_topicMap;
     $this->assertTrue($tm instanceof TopicMap);
     $index = $tm->getIndex('TypeInstanceIndexImpl');
     $this->assertTrue($index instanceof TypeInstanceIndexImpl);
@@ -79,7 +80,7 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     $topics = $index->getTopics(array($tm->createTopic()), true);
     $this->assertEquals(count($topics), 0);
     
-    $tm2 = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+    $tm2 = $this->_sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
     $tm2Type1 = $tm2->createTopic();
     $tm2Type2 = $tm2->createTopic();
     $tm2Instance1 = $tm2->createTopic();
@@ -116,8 +117,9 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testGetTopicTypes() {
-    $tm = $this->topicMap;
+  public function testGetTopicTypes()
+  {
+    $tm = $this->_topicMap;
     $this->assertTrue($tm instanceof TopicMap);
     $index = $tm->getIndex('TypeInstanceIndexImpl');
     $this->assertTrue($index instanceof TypeInstanceIndexImpl);
@@ -135,8 +137,9 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     $this->assertEquals(count($types), 2);
   }
   
-  public function testGetAssociations() {
-    $tm1 = $this->topicMap;
+  public function testGetAssociations()
+  {
+    $tm1 = $this->_topicMap;
     $this->assertTrue($tm1 instanceof TopicMap);
     $index = $tm1->getIndex('TypeInstanceIndexImpl');
     $this->assertTrue($index instanceof TypeInstanceIndexImpl);
@@ -158,7 +161,7 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     $assocs = $index->getAssociations($tm1->createTopic());
     $this->assertEquals(count($assocs), 0);
     
-    $tm2 = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+    $tm2 = $this->_sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
     $tm2AssocType = $tm2->createTopic();
     $tm2->createAssociation($tm2AssocType);
     $tm2Assocs = $tm2->getAssociationsByType($tm2AssocType);
@@ -168,8 +171,9 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     $tm2->remove();
   }
   
-  public function testGetAssociationTypes() {
-    $tm = $this->topicMap;
+  public function testGetAssociationTypes()
+  {
+    $tm = $this->_topicMap;
     $this->assertTrue($tm instanceof TopicMap);
     $index = $tm->getIndex('TypeInstanceIndexImpl');
     $this->assertTrue($index instanceof TypeInstanceIndexImpl);
@@ -201,8 +205,9 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     $this->assertTrue(empty($assocTypes));
   }
   
-  public function testGetRoles() {
-    $tm = $this->topicMap;
+  public function testGetRoles()
+  {
+    $tm = $this->_topicMap;
     $this->assertTrue($tm instanceof TopicMap);
     $index = $tm->getIndex('TypeInstanceIndexImpl');
     $this->assertTrue($index instanceof TypeInstanceIndexImpl);
@@ -241,7 +246,7 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     $roles = $index->getRoles($tm->createTopic());
     $this->assertEquals(count($roles), 0);
     
-    $tm2 = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+    $tm2 = $this->_sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
     $tm2AssocType = $tm2->createTopic();
     $tm2Assoc = $tm2->createAssociation($tm2AssocType);
     $tm2RoleType = $tm2->createTopic();
@@ -257,8 +262,9 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     $tm2->remove();
   }
   
-  public function testGetRoleTypes() {
-    $tm = $this->topicMap;
+  public function testGetRoleTypes()
+  {
+    $tm = $this->_topicMap;
     $this->assertTrue($tm instanceof TopicMap);
     $index = $tm->getIndex('TypeInstanceIndexImpl');
     $this->assertTrue($index instanceof TypeInstanceIndexImpl);
@@ -290,8 +296,9 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     $this->assertTrue(empty($roleTypes));
   }
   
-  public function testGetNames() {
-    $tm = $this->topicMap;
+  public function testGetNames()
+  {
+    $tm = $this->_topicMap;
     $this->assertTrue($tm instanceof TopicMap);
     $index = $tm->getIndex('TypeInstanceIndexImpl');
     $this->assertTrue($index instanceof TypeInstanceIndexImpl);
@@ -325,7 +332,7 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     $this->assertEquals($name->getValue(), 'baz');
     $this->assertEquals($name->getParent()->getId(), $topic->getId());
     
-    $tm2 = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+    $tm2 = $this->_sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
     $tm2Topic = $tm2->createTopic();
     $tm2NameType = $tm2->createTopic();
     $tm2Topic->createName('baz', $tm2NameType);
@@ -336,8 +343,9 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     $this->assertEquals(count($tm1TopicNames), 0);
   }
   
-  public function testGetNameTypes() {
-    $tm = $this->topicMap;
+  public function testGetNameTypes()
+  {
+    $tm = $this->_topicMap;
     $this->assertTrue($tm instanceof TopicMap);
     $index = $tm->getIndex('TypeInstanceIndexImpl');
     $this->assertTrue($index instanceof TypeInstanceIndexImpl);
@@ -365,8 +373,9 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     $this->assertTrue(empty($nameTypes));
   }
   
-  public function testGetOccurrences() {
-    $tm = $this->topicMap;
+  public function testGetOccurrences()
+  {
+    $tm = $this->_topicMap;
     $this->assertTrue($tm instanceof TopicMap);
     $index = $tm->getIndex('TypeInstanceIndexImpl');
     $this->assertTrue($index instanceof TypeInstanceIndexImpl);
@@ -375,8 +384,8 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     $occType1 = $tm->createTopic();
     $occType2 = $tm->createTopic();
     
-    $topic->createOccurrence($occType1, 'foo', parent::$dtString);
-    $topic->createOccurrence($occType2, 'http://example.org', parent::$dtUri);
+    $topic->createOccurrence($occType1, 'foo', parent::$_dtString);
+    $topic->createOccurrence($occType2, 'http://example.org', parent::$_dtUri);
     
     $occs = $topic->getOccurrences();
     $this->assertEquals(count($occs), 2);
@@ -385,20 +394,20 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     $occ = $occs[0];
     $this->assertEquals($occ->getType()->getId(), $occType1->getId());
     $this->assertEquals($occ->getValue(), 'foo');
-    $this->assertEquals($occ->getDatatype(), parent::$dtString);
+    $this->assertEquals($occ->getDatatype(), parent::$_dtString);
     $occs = $index->getOccurrences($occType2);
     $this->assertEquals(count($occs), 1);
     $occ = $occs[0];
     $this->assertEquals($occ->getType()->getId(), $occType2->getId());
     $this->assertEquals($occ->getValue(), 'http://example.org');
-    $this->assertEquals($occ->getDatatype(), parent::$dtUri);
+    $this->assertEquals($occ->getDatatype(), parent::$_dtUri);
     
     $occs = $topic->getOccurrences($occType1);
     $this->assertEquals(count($occs), 1);
     $occ = $occs[0];
     $this->assertEquals($occ->getType()->getId(), $occType1->getId());
     $this->assertEquals($occ->getValue(), 'foo');
-    $this->assertEquals($occ->getDatatype(), parent::$dtString);
+    $this->assertEquals($occ->getDatatype(), parent::$_dtString);
     $occs = $index->getOccurrences($occType2);
     $this->assertEquals(count($occs), 1);
     $occs = $topic->getOccurrences($occType2);
@@ -406,12 +415,12 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     $occ = $occs[0];
     $this->assertEquals($occ->getType()->getId(), $occType2->getId());
     $this->assertEquals($occ->getValue(), 'http://example.org');
-    $this->assertEquals($occ->getDatatype(), parent::$dtUri);
+    $this->assertEquals($occ->getDatatype(), parent::$_dtUri);
     
-    $tm2 = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+    $tm2 = $this->_sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
     $tm2Topic = $tm2->createTopic();
     $tm2OccType = $tm2->createTopic();
-    $tm2Topic->createOccurrence($tm2OccType, 'http://example.org', parent::$dtUri);
+    $tm2Topic->createOccurrence($tm2OccType, 'http://example.org', parent::$_dtUri);
     
     $tm2Occs = $tm2Topic->getOccurrences($tm2OccType);
     $this->assertEquals(count($tm2Occs), 1);
@@ -419,8 +428,9 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
     $this->assertEquals(count($tm1Occs), 0);
   }
   
-  public function testGetOccurrenceTypes() {
-    $tm = $this->topicMap;
+  public function testGetOccurrenceTypes()
+  {
+    $tm = $this->_topicMap;
     $this->assertTrue($tm instanceof TopicMap);
     $index = $tm->getIndex('TypeInstanceIndexImpl');
     $this->assertTrue($index instanceof TypeInstanceIndexImpl);
@@ -433,8 +443,8 @@ class TypeInstanceIndexTest extends PHPTMAPITestCase {
       $occType2->getId() => $occType2
     );
     
-    $topic->createOccurrence($occType1, 'foo', parent::$dtString);
-    $topic->createOccurrence($occType2, 'bar', parent::$dtString);
+    $topic->createOccurrence($occType1, 'foo', parent::$_dtString);
+    $topic->createOccurrence($occType2, 'bar', parent::$_dtString);
     
     $occs = $topic->getOccurrences();
     $this->assertEquals(count($occs), 2);

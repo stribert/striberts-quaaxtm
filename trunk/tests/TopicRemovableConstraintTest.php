@@ -29,10 +29,11 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class TopicRemovableConstraintTest extends PHPTMAPITestCase {
-  
-  public function testTopicMap() {
-    $this->assertTrue($this->topicMap instanceof TopicMap);
+class TopicRemovableConstraintTest extends PHPTMAPITestCase
+{
+  public function testTopicMap()
+  {
+    $this->assertTrue($this->_topicMap instanceof TopicMap);
   }
   
   /**
@@ -42,8 +43,9 @@ class TopicRemovableConstraintTest extends PHPTMAPITestCase {
    * @param Typed A typed construct.
    * @return void
    */
-  private function _testTyped(Typed $typed) {
-    $tm = $this->topicMap;
+  private function _testTyped(Typed $typed)
+  {
+    $tm = $this->_topicMap;
     $topicCount = count($tm->getTopics());
     $formerType = $typed->getType();
     $topic = $tm->createTopic();
@@ -72,8 +74,9 @@ class TopicRemovableConstraintTest extends PHPTMAPITestCase {
    * @param Scoped A scoped construct.
    * @return void
    */
-  private function _testScoped(Scoped $scoped) {
-    $tm = $this->topicMap;
+  private function _testScoped(Scoped $scoped)
+  {
+    $tm = $this->_topicMap;
     $topicCount = count($tm->getTopics());
     $topic = $tm->createTopic();
     $this->assertEquals(count($tm->getTopics()), $topicCount+1, 
@@ -100,8 +103,9 @@ class TopicRemovableConstraintTest extends PHPTMAPITestCase {
    * 
    * @param Reifiable A reifiable that is not reified.
    */
-  private function _testReifiable(Reifiable $reifiable) {
-    $tm = $this->topicMap;
+  private function _testReifiable(Reifiable $reifiable)
+  {
+    $tm = $this->_topicMap;
     $this->assertNull($reifiable->getReifier(), 'Unexpected reifier!');
     $topicCount = count($tm->getTopics());
     $topic = $tm->createTopic();
@@ -123,68 +127,83 @@ class TopicRemovableConstraintTest extends PHPTMAPITestCase {
       'Unexpected topics count!');
   }
   
-  public function testUsedAsTopicMapReifier() {
-    $this->_testReifiable($this->topicMap);
+  public function testUsedAsTopicMapReifier()
+  {
+    $this->_testReifiable($this->_topicMap);
   }
   
-  public function testUsedAsAssociationType() {
-    $this->_testTyped($this->createAssoc());
+  public function testUsedAsAssociationType()
+  {
+    $this->_testTyped($this->_createAssoc());
   }
   
-  public function testUsedAsAssociationTheme() {
-    $this->_testScoped($this->createAssoc());
+  public function testUsedAsAssociationTheme()
+  {
+    $this->_testScoped($this->_createAssoc());
   }
   
-  public function testUsedAsAssociationReifier() {
-    $this->_testReifiable($this->createAssoc());
+  public function testUsedAsAssociationReifier()
+  {
+    $this->_testReifiable($this->_createAssoc());
   }
   
-  public function testUsedAsRoleType() {
-    $this->_testTyped($this->createRole());
+  public function testUsedAsRoleType()
+  {
+    $this->_testTyped($this->_createRole());
   }
   
-  public function testUsedAsRoleReifier() {
-    $this->_testReifiable($this->createRole());
+  public function testUsedAsRoleReifier()
+  {
+    $this->_testReifiable($this->_createRole());
   }
   
-  public function testUsedAsOccurrenceType() {
-    $this->_testTyped($this->createOcc());
+  public function testUsedAsOccurrenceType()
+  {
+    $this->_testTyped($this->_createOcc());
   }
   
-  public function testUsedAsOccurrenceTheme() {
-    $this->_testScoped($this->createOcc());
+  public function testUsedAsOccurrenceTheme()
+  {
+    $this->_testScoped($this->_createOcc());
   }
   
-  public function testUsedAsOccurrenceReifier() {
-    $this->_testReifiable($this->createOcc());
+  public function testUsedAsOccurrenceReifier()
+  {
+    $this->_testReifiable($this->_createOcc());
   }
   
-  public function testUsedAsNameType() {
-    $this->_testTyped($this->createName());
+  public function testUsedAsNameType()
+  {
+    $this->_testTyped($this->_createName());
   }
   
-  public function testUsedAsNameTheme() {
-    $this->_testScoped($this->createName());
+  public function testUsedAsNameTheme()
+  {
+    $this->_testScoped($this->_createName());
   }
   
-  public function testUsedAsNameReifier() {
-    $this->_testReifiable($this->createName());
+  public function testUsedAsNameReifier()
+  {
+    $this->_testReifiable($this->_createName());
   }
   
-  public function testUsedAsVariantTheme() {
-    $this->_testScoped($this->createVariant());
+  public function testUsedAsVariantTheme()
+  {
+    $this->_testScoped($this->_createVariant());
   }
   
-  public function testUsedAsVariantReifier() {
-    $this->_testReifiable($this->createVariant());
+  public function testUsedAsVariantReifier()
+  {
+    $this->_testReifiable($this->_createVariant());
   }
   
   /**
    * Tests if the removable constraint is respected if a topic is 
    * used as topic type.
    */
-  public function testUsedAsTopicType() {
-    $tm = $this->topicMap;
+  public function testUsedAsTopicType()
+  {
+    $tm = $this->_topicMap;
     $topic1 = $tm->createTopic();
     $topic2 = $tm->createTopic();
     $this->assertEquals(count($tm->getTopics()), 2, 'Expected 2 topics!');
@@ -206,15 +225,16 @@ class TopicRemovableConstraintTest extends PHPTMAPITestCase {
    * Tests if the removable constraint is respected if a topic is 
    * used as player.
    */
-  public function testUsedAsPlayer() {
-    $tm = $this->topicMap;
+  public function testUsedAsPlayer()
+  {
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $this->assertEquals(count($tm->getTopics()), 1, 'Expected 1 topic!');
     $topic->remove();
     $this->assertEquals(count($tm->getTopics()), 0, 'Expected 0 topics!');
     $topic = $tm->createTopic();
     $this->assertEquals(count($tm->getTopics()), 1, 'Expected 1 topic!');
-    $assoc = $this->createAssoc();
+    $assoc = $this->_createAssoc();
     $this->assertEquals(count($tm->getTopics()), 2, 'Expected 2 topics!');
     $role = $assoc->createRole($tm->createTopic(), $topic);
     $this->assertEquals(count($tm->getTopics()), 3, 'Expected 3 topics!');
@@ -231,10 +251,11 @@ class TopicRemovableConstraintTest extends PHPTMAPITestCase {
     $this->assertEquals(count($tm->getTopics()), 3, 'Expected 3 topics!');
   }
   
-  public function testUsedAsThemeScopeUnused() {
-    $tm = $this->topicMap;
+  public function testUsedAsThemeScopeUnused()
+  {
+    $tm = $this->_topicMap;
     $theme = $tm->createTopic();
-    $variant = $this->createVariant();
+    $variant = $this->_createVariant();
     $scope = $variant->getScope();
     $countThemes = count($scope);
     $variant->addTheme($theme);

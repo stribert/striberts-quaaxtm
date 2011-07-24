@@ -28,44 +28,47 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class QTMGetConstructTest extends PHPTMAPITestCase {
-  
-  public function testTopicMap() {
-    $this->assertTrue($this->topicMap instanceof TopicMap);
+class QTMGetConstructTest extends PHPTMAPITestCase
+{
+  public function testTopicMap()
+  {
+    $this->assertTrue($this->_topicMap instanceof TopicMap);
   }
   
-  public function testGetConstructById() {
-    $tm = $this->topicMap;
+  public function testGetConstructById()
+  {
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $retrievedTopic = $tm->getConstructById($topic->getId());
     $this->assertEquals($topic->getId(), $retrievedTopic->getId(), 'Expected identity!');
     $retrievedTm = $tm->getConstructById($tm->getId());
     $this->assertEquals($tm->getId(), $retrievedTm->getId(), 'Expected identity!');
-    $assoc = $this->createAssoc();
+    $assoc = $this->_createAssoc();
     $retrievedAssoc = $tm->getConstructById($assoc->getId());
     $this->assertEquals($assoc->getId(), $retrievedAssoc->getId(), 'Expected identity!');
-    $role = $this->createRole();
+    $role = $this->_createRole();
     $retrievedRole = $tm->getConstructById($role->getId());
     $this->assertEquals($role->getId(), $retrievedRole->getId(), 'Expected identity!');
-    $occ = $this->createOcc();
+    $occ = $this->_createOcc();
     $retrievedOcc = $tm->getConstructById($occ->getId());
     $this->assertEquals($occ->getId(), $retrievedOcc->getId(), 'Expected identity!');
-    $name = $this->createName();
+    $name = $this->_createName();
     $retrievedName = $tm->getConstructById($name->getId());
     $this->assertEquals($name->getId(), $retrievedName->getId(), 'Expected identity!');
-    $variant = $this->createVariant();
+    $variant = $this->_createVariant();
     $retrievedVariant = $tm->getConstructById($variant->getId());
     $this->assertEquals($variant->getId(), $retrievedVariant->getId(), 'Expected identity!');
   }
   
-  public function testGetConstructByIdInvalid() {
-    $tm = $this->topicMap;
+  public function testGetConstructByIdInvalid()
+  {
+    $tm = $this->_topicMap;
     $tm->createTopic();
-    $this->createAssoc();
-    $this->createName();
-    $this->createOcc();
-    $this->createRole();
-    $this->createVariant();
+    $this->_createAssoc();
+    $this->_createName();
+    $this->_createOcc();
+    $this->_createRole();
+    $this->_createVariant();
     
     $unknown = $tm->getConstructById(uniqid());
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');

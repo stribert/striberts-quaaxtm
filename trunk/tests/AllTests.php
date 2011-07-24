@@ -76,11 +76,10 @@ require_once('QTMResultCacheTest.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class AllTests extends PHPUnit_Framework_TestSuite {
-  
-  protected $sharedFixture;
-  
-  public static function suite() {
+class AllTests extends PHPUnit_Framework_TestSuite
+{  
+  public static function suite()
+  {
     $suite = new AllTests();
     $suite->addTestSuite('BasicRunTest');
     $suite->addTestSuite('AssociationTest');

@@ -28,17 +28,18 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class ReifiableTest extends PHPTMAPITestCase {
-  
+class ReifiableTest extends PHPTMAPITestCase
+{
   /**
    * Tests setting / getting the reifier for the <var>reifiable</var>.
    * 
    * @param Reifiable The reifiable to run the tests against.
    * @return void
    */
-  private function _testReification(Reifiable $reifiable) {
+  private function _testReification(Reifiable $reifiable)
+  {
     $this->assertNull($reifiable->getReifier(), 'Unexpected reifier property!');
-    $reifier = $this->topicMap->createTopic();
+    $reifier = $this->_topicMap->createTopic();
     $this->assertNull($reifier->getReified(), 'Unexpected reified property!');
     $reifiable->setReifier($reifier);
     $this->assertEquals($reifier->getId(), $reifiable->getReifier()->getId(), 
@@ -76,11 +77,12 @@ class ReifiableTest extends PHPTMAPITestCase {
    * @param Reifiable The reifiable to run the tests against.
    * @return void
    */
-  private function _testReificationCollision(Reifiable $reifiable) {
+  private function _testReificationCollision(Reifiable $reifiable)
+  {
     $this->assertNull($reifiable->getReifier(), 'Unexpected reifier property!');
-    $reifier = $this->topicMap->createTopic();
+    $reifier = $this->_topicMap->createTopic();
     $this->assertNull($reifier->getReified(), 'Unexpected reified property!');
-    $otherReifiable = $this->createAssoc();
+    $otherReifiable = $this->_createAssoc();
     $otherReifiable->setReifier($reifier);
     $this->assertEquals($reifier->getId(), $otherReifiable->getReifier()->getId(), 
       'Unexpected reifier property!');
@@ -102,52 +104,64 @@ class ReifiableTest extends PHPTMAPITestCase {
       'Reified property should have been changed!');
   }
   
-  public function testTopicMap() {
-    $this->_testReification($this->topicMap);
+  public function testTopicMap()
+  {
+    $this->_testReification($this->_topicMap);
   }
   
-  public function testTopicMapReifierCollision() {
-    $this->_testReificationCollision($this->topicMap);
+  public function testTopicMapReifierCollision()
+  {
+    $this->_testReificationCollision($this->_topicMap);
   }
   
-  public function testAssociation() {
-    $this->_testReification($this->createAssoc());
+  public function testAssociation()
+  {
+    $this->_testReification($this->_createAssoc());
   }
   
-  public function testAssociationReifierCollision() {
-    $this->_testReificationCollision($this->createAssoc());
+  public function testAssociationReifierCollision()
+  {
+    $this->_testReificationCollision($this->_createAssoc());
   }
   
-  public function testRole() {
-    $this->_testReification($this->createRole());
+  public function testRole()
+  {
+    $this->_testReification($this->_createRole());
   }
   
-  public function testRoleReifierCollision() {
-    $this->_testReificationCollision($this->createRole());
+  public function testRoleReifierCollision()
+  {
+    $this->_testReificationCollision($this->_createRole());
   }
   
-  public function testOccurrence() {
-    $this->_testReification($this->createOcc());
+  public function testOccurrence()
+  {
+    $this->_testReification($this->_createOcc());
   }
   
-  public function testOccurrenceReifierCollision() {
-    $this->_testReificationCollision($this->createOcc());
+  public function testOccurrenceReifierCollision()
+  {
+    $this->_testReificationCollision($this->_createOcc());
   }
   
-  public function testName() {
-    $this->_testReification($this->createName());
+  public function testName()
+  {
+    $this->_testReification($this->_createName());
   }
   
-  public function testNameReifierCollision() {
-    $this->_testReificationCollision($this->createName());
+  public function testNameReifierCollision()
+  {
+    $this->_testReificationCollision($this->_createName());
   }
   
-  public function testVariant() {
-    $this->_testReification($this->createVariant());
+  public function testVariant()
+  {
+    $this->_testReification($this->_createVariant());
   }
   
-  public function testVariantReifierCollision() {
-    $this->_testReificationCollision($this->createVariant());
+  public function testVariantReifierCollision()
+  {
+    $this->_testReificationCollision($this->_createVariant());
   }
 }
 ?>

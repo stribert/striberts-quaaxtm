@@ -28,14 +28,15 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class IndexTest extends PHPTMAPITestCase {
-  
-  public function testIndex() {
-    $this->assertTrue($this->topicMap instanceof TopicMap);
-    $index = $this->topicMap->getIndex('TypeInstanceIndexImpl');
+class IndexTest extends PHPTMAPITestCase
+{
+  public function testIndex()
+  {
+    $this->assertTrue($this->_topicMap instanceof TopicMap);
+    $index = $this->_topicMap->getIndex('TypeInstanceIndexImpl');
     $this->assertTrue($index instanceof Index);
     try {
-      $this->topicMap->getIndex('Index' . time());
+      $this->_topicMap->getIndex('Index' . time());
       $this->fail('This index is not supported!');
     } catch (FeatureNotSupportedException $e) {
       // no op.

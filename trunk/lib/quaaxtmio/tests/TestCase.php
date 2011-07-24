@@ -98,20 +98,28 @@ require_once(
 );
 
 /**
- * Provides common functionality for io tests.
+ * Provides common functions for IO tests.
  *
  * @package test
  * @author Johannes Schmidt <joschmidt@users.sourceforge.net>
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class TestCase extends PHPUnit_Framework_TestCase {
+class TestCase extends PHPUnit_Framework_TestCase
+{  
+  protected $_sharedFixture,
+            $_tmLocator,
+            $_cxtmIncPath;
   
-  protected $sharedFixture;
+  private $_preservedBaseLocators;
   
-  private $preservedBaseLocators;
-  
-  protected function setUp() {
+  /**
+   * (non-PHPDoc)
+   * @see PHPUnit_Framework_TestCase#setUp()
+   * @override
+   */
+  protected function setUp()
+  {
     $tmSystemFactory = TopicMapSystemFactory::newInstance();
     // QuaaxTM specific feature
     try {
@@ -119,54 +127,64 @@ class TestCase extends PHPUnit_Framework_TestCase {
     } catch (FactoryConfigurationException $e) {
       // no op.
     }
-    $this->sharedFixture = $tmSystemFactory->newTopicMapSystem();
-    $this->preservedBaseLocators = $this->sharedFixture->getLocators();
-    $this->tmLocator = null;
-    $this->cxtmIncPath = dirname(__FILE__) . 
-                          DIRECTORY_SEPARATOR . 
-  												'cxtm-tests-0.4' . 
-                          DIRECTORY_SEPARATOR;
+    $this->_sharedFixture = $tmSystemFactory->newTopicMapSystem();
+    $this->_preservedBaseLocators = $this->_sharedFixture->getLocators();
+    $this->_tmLocator = null;
+    $this->_cxtmIncPath = dirname(__FILE__) . 
+      DIRECTORY_SEPARATOR . 
+  		'cxtm-tests-0.4' . 
+      DIRECTORY_SEPARATOR;
   }
   
-  protected function tearDown() {
-    $locators = $this->sharedFixture->getLocators();
+  /**
+   * (non-PHPDoc)
+   * @see PHPUnit_Framework_TestCase#tearDown()
+   * @override
+   */
+  protected function tearDown()
+  {
+    $locators = $this->_sharedFixture->getLocators();
     foreach ($locators as $locator) {
-      if (!in_array($locator, $this->preservedBaseLocators)) {
-        $tm = $this->sharedFixture->getTopicMap($locator);
+      if (!in_array($locator, $this->_preservedBaseLocators)) {
+        $tm = $this->_sharedFixture->getTopicMap($locator);
         $tm->close();
         $tm->remove();
       }
     }
-    $this->sharedFixture->close();
-    $this->sharedFixture = 
-    $this->tmLocator = null;
+    $this->_sharedFixture->close();
+    $this->_sharedFixture = 
+    $this->_tmLocator = null;
   }
   
-  protected function readSrcFile($file, $reader) {
+  protected function _readSrcFile($file, $reader)
+  {
     $tmLocator = 'file://' . $file;
-    $tmHandler = new PHPTMAPITopicMapHandler($this->sharedFixture, $tmLocator);
-    $this->tmLocator = $tmHandler->getBaseLocator();
+    $tmHandler = new PHPTMAPITopicMapHandler($this->_sharedFixture, $tmLocator);
+    $this->_tmLocator = $tmHandler->getBaseLocator();
     $reader = new $reader($tmHandler);
     $reader->readFile($file);
   }
   
-  protected function read($xtm, $reader) {
-    $tmHandler = new PHPTMAPITopicMapHandler($this->sharedFixture, $this->tmLocator);
+  protected function _read($xtm, $reader)
+  {
+    $tmHandler = new PHPTMAPITopicMapHandler($this->_sharedFixture, $this->_tmLocator);
     $reader = new $reader($tmHandler);
     $reader->read($xtm);
   }
   
-  protected function readCxtmFile($file) {
+  protected function _readCxtmFile($file)
+  {
     $cxtm = MIOUtil::readFile('file://' . $file);
     return trim($cxtm);
   }
   
-  protected function getSrcFiles($dir) {
+  protected function _getSrcFiles($dir)
+  {
     $files = array();
     $cxtmIncPath = dirname(__FILE__) . 
-                    DIRECTORY_SEPARATOR . 
-  									'cxtm-tests-0.4' . 
-                    DIRECTORY_SEPARATOR;
+      DIRECTORY_SEPARATOR . 
+  		'cxtm-tests-0.4' . 
+      DIRECTORY_SEPARATOR;
     $allFiles = array_diff(scandir($cxtmIncPath . $dir), array('.', '..', '.svn'));
     foreach ($allFiles as $file) {
       if (substr($file, -3) != 'sub') {
@@ -175,6 +193,5 @@ class TestCase extends PHPUnit_Framework_TestCase {
     }
     return $files;
   }
-  
 }
 ?>

@@ -28,23 +28,25 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class OccurrenceTest extends PHPTMAPITestCase {
-  
-  public function testTopicMap() {
-    $this->assertTrue($this->topicMap instanceof TopicMap);
+class OccurrenceTest extends PHPTMAPITestCase
+{
+  public function testTopicMap()
+  {
+    $this->assertTrue($this->_topicMap instanceof TopicMap);
   }
   
-  public function testParent() {
-    $tm = $this->topicMap;
+  public function testParent()
+  {
+    $tm = $this->_topicMap;
     $parent = $tm->createTopic();
     $this->assertEquals(count($parent->getOccurrences()), 0, 
       'Expected new topic to be created without occurrences!');
     $occ = $parent->createOccurrence($tm->createTopic(), 
-      'http://phptmapi.sourceforge.net/', parent::$dtUri);
+      'http://phptmapi.sourceforge.net/', parent::$_dtUri);
     $this->assertEquals($occ->getParent()->getId(), $parent->getId());
     $this->assertEquals(count($parent->getOccurrences()), 1, 
       'Expected 1 occurrence!');
-    $ids = $this->getIdsOfConstructs($parent->getOccurrences());
+    $ids = $this->_getIdsOfConstructs($parent->getOccurrences());
     $this->assertTrue(in_array($occ->getId(), $ids, true), 
       'Occurrence is not part of getOccurrences()!');
     $occ->remove();
@@ -52,11 +54,12 @@ class OccurrenceTest extends PHPTMAPITestCase {
       'Expected 0 occurrences after removal!');
   }
   
-  public function testType() {
-    $occ = $this->createOcc();
+  public function testType()
+  {
+    $occ = $this->_createOcc();
     $this->assertTrue($occ instanceof Occurrence);
-    $type1 = $this->topicMap->createTopic();
-    $type2 = $this->topicMap->createTopic();
+    $type1 = $this->_topicMap->createTopic();
+    $type2 = $this->_topicMap->createTopic();
     $occ->setType($type1);
     $occType = $occ->getType();
     $this->assertEquals($occType->getId(), $type1->getId());
@@ -65,11 +68,12 @@ class OccurrenceTest extends PHPTMAPITestCase {
     $this->assertEquals($occType->getId(), $type2->getId());
   }
   
-  public function testValueDatatype() {
-    $tm = $this->topicMap;
+  public function testValueDatatype()
+  {
+    $tm = $this->_topicMap;
     $parent = $tm->createTopic();
     try {
-      $parent->createOccurrence($tm->createTopic(), null, parent::$dtUri);
+      $parent->createOccurrence($tm->createTopic(), null, parent::$_dtUri);
       $this->fail('null is not allowed as value!');
     } catch (ModelConstraintException $e) {
       $msg = $e->getMessage();
@@ -91,18 +95,18 @@ class OccurrenceTest extends PHPTMAPITestCase {
       $this->assertTrue(!empty($msg));
     }
     $occ = $parent->createOccurrence($tm->createTopic(), 
-      'http://phptmapi.sourceforge.net/', parent::$dtUri);
+      'http://phptmapi.sourceforge.net/', parent::$_dtUri);
     $this->assertEquals($occ->getValue(), 'http://phptmapi.sourceforge.net/', 
       'Values are different!');
-    $this->assertEquals($occ->getDatatype(), parent::$dtUri, 'Datatypes are different!');
-    $occ->setValue('http://localhost/', parent::$dtUri);
+    $this->assertEquals($occ->getDatatype(), parent::$_dtUri, 'Datatypes are different!');
+    $occ->setValue('http://localhost/', parent::$_dtUri);
     $this->assertEquals($occ->getValue(), 'http://localhost/', 'Values are different!');
-    $this->assertEquals($occ->getDatatype(), parent::$dtUri, 'Datatypes are different!');
-    $occ->setValue('test', parent::$dtString);
+    $this->assertEquals($occ->getDatatype(), parent::$_dtUri, 'Datatypes are different!');
+    $occ->setValue('test', parent::$_dtString);
     $this->assertEquals($occ->getValue(), 'test', 'Values are different!');
-    $this->assertEquals($occ->getDatatype(), parent::$dtString, 'Datatypes are different!');
+    $this->assertEquals($occ->getDatatype(), parent::$_dtString, 'Datatypes are different!');
     try {
-      $occ->setValue(null, parent::$dtUri);
+      $occ->setValue(null, parent::$_dtUri);
       $this->fail('Occurrence value must not be null!');
     } catch (ModelConstraintException $e) {
       $msg = $e->getMessage();
@@ -124,72 +128,75 @@ class OccurrenceTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testScope() {
-    $occ = $this->createOcc();
+  public function testScope()
+  {
+    $occ = $this->_createOcc();
     $this->assertTrue($occ instanceof Occurrence);
-    $tm = $this->topicMap;
+    $tm = $this->_topicMap;
     $theme1 = $tm->createTopic();
     $theme2 = $tm->createTopic();
     $occ->addTheme($theme1);
     $occ->addTheme($theme2);
     $this->assertEquals(count($occ->getScope()), 2, 'Expected 2 themes!');
-    $ids = $this->getIdsOfConstructs($occ->getScope());
+    $ids = $this->_getIdsOfConstructs($occ->getScope());
     $this->assertTrue(in_array($theme1->getId(), $ids, true), 
       'Theme is not part of getScope()!');
     $this->assertTrue(in_array($theme2->getId(), $ids, true), 
       'Theme is not part of getScope()!');
     $occ = $tm->createTopic()->createOccurrence($tm->createTopic(), 
-      'http://phptmapi.sourceforge.net/', parent::$dtUri, array($theme1, $theme2));
+      'http://phptmapi.sourceforge.net/', parent::$_dtUri, array($theme1, $theme2));
     $this->assertEquals(count($occ->getScope()), 2);
-    $ids = $this->getIdsOfConstructs($occ->getScope());
+    $ids = $this->_getIdsOfConstructs($occ->getScope());
     $this->assertTrue(in_array($theme1->getId(), $ids, true), 
       'Theme is not part of getScope()!');
     $this->assertTrue(in_array($theme2->getId(), $ids, true), 
       'Theme is not part of getScope()!');
   }
   
-  public function testDuplicates() {
-    $tm = $this->topicMap;
+  public function testDuplicates()
+  {
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $occTheme = $tm->createTopic();
     $occType = $tm->createTopic();
-    $topic->createOccurrence($occType, 'Occurrence', parent::$dtString, 
+    $topic->createOccurrence($occType, 'Occurrence', parent::$_dtString, 
       array($occTheme));
     $occurrences = $topic->getOccurrences();
     $this->assertEquals(count($occurrences), 1, 'Expected 1 occurrence!');
     $occ = $occurrences[0];
     $this->assertEquals(count($occ->getScope()), 1, 'Expected 1 theme!');
-    $ids = $this->getIdsOfConstructs($occ->getScope());
+    $ids = $this->_getIdsOfConstructs($occ->getScope());
     $this->assertTrue(in_array($occTheme->getId(), $ids, true), 
       'Theme is not part of getScope()!');
     $this->assertEquals($occ->getValue(), 'Occurrence', 'Expected identity!');
     $this->assertEquals($occ->getType()->getId(), $occType->getId(), 
       'Expected identity!');
-    $this->assertEquals($occ->getDataType(), parent::$dtString, 'Expected identity!');
-    $duplOcc = $topic->createOccurrence($occType, 'Occurrence', parent::$dtString, 
+    $this->assertEquals($occ->getDataType(), parent::$_dtString, 'Expected identity!');
+    $duplOcc = $topic->createOccurrence($occType, 'Occurrence', parent::$_dtString, 
       array($occTheme));
     $occurrences = $topic->getOccurrences();
     $this->assertEquals(count($occurrences), 1, 'Expected 1 occurrence!');
     $occ = $occurrences[0];
     $this->assertEquals(count($occ->getScope()), 1, 'Expected 1 theme!');
-    $ids = $this->getIdsOfConstructs($occ->getScope());
+    $ids = $this->_getIdsOfConstructs($occ->getScope());
     $this->assertTrue(in_array($occTheme->getId(), $ids, true), 
       'Theme is not part of getScope()!');
     $this->assertEquals($occ->getValue(), 'Occurrence', 'Expected identity!');
     $this->assertEquals($occ->getType()->getId(), $occType->getId(), 
       'Expected identity!');
-    $this->assertEquals($occ->getDataType(), parent::$dtString, 'Expected identity!');
+    $this->assertEquals($occ->getDataType(), parent::$_dtString, 'Expected identity!');
   }
   
-  public function testMergeScope() {
-    $tm = $this->topicMap;
+  public function testMergeScope()
+  {
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $occType = $tm->createTopic();
     $occTheme = $tm->createTopicByItemIdentifier('#english');
-    $topic->createOccurrence($occType, 'Occurrence', parent::$dtString, 
+    $topic->createOccurrence($occType, 'Occurrence', parent::$_dtString, 
       array($occTheme));
     $occTheme = $tm->createTopicByItemIdentifier('#en');
-    $topic->createOccurrence($occType, 'Occurrence', parent::$dtString, 
+    $topic->createOccurrence($occType, 'Occurrence', parent::$_dtString, 
       array($occTheme));
     $mergeTopic = $tm->createTopicByItemIdentifier('#en');
     $mergeTopic->addItemIdentifier('#english');

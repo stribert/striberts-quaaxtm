@@ -28,39 +28,43 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class NameTest extends PHPTMAPITestCase {
-  
-  public function testTopicMap() {
-    $this->assertTrue($this->topicMap instanceof TopicMap);
+class NameTest extends PHPTMAPITestCase
+{
+  public function testTopicMap()
+  {
+    $this->assertTrue($this->_topicMap instanceof TopicMap);
   }
   
-  public function testParent() {
-    $parent = $this->topicMap->createTopic();
+  public function testParent()
+  {
+    $parent = $this->_topicMap->createTopic();
     $this->assertEquals(count($parent->getNames()), 0, 
       'Expected new topic to be created without names!');
     $name = $parent->createName('Name');
     $this->assertEquals($name->getParent()->getId(), $parent->getId(), 
       'Unexpected name parent after creation!');
     $this->assertEquals(count($parent->getNames()), 1, 'Expected 1 name!');
-    $ids = $this->getIdsOfConstructs($parent->getNames());
+    $ids = $this->_getIdsOfConstructs($parent->getNames());
     $this->assertTrue(in_array($name->getId(), $ids, true), 
       'Name is not part of getNames()!');
     $name->remove();
     $this->assertEquals(count($parent->getNames()), 0, 'Expected 0 names after removal!');
   }
   
-  public function testDefaultNameType() {
-    $name = $this->createName();
+  public function testDefaultNameType()
+  {
+    $name = $this->_createName();
     $defaultType = $name->getType();
     $sids = $defaultType->getSubjectIdentifiers();
     $this->assertTrue(in_array('http://psi.topicmaps.org/iso13250/model/topic-name', 
       $sids));
   }
   
-  public function testType() {
-    $name = $this->createName();
-    $type1 = $this->topicMap->createTopic();
-    $type2 = $this->topicMap->createTopic();
+  public function testType()
+  {
+    $name = $this->_createName();
+    $type1 = $this->_topicMap->createTopic();
+    $type2 = $this->_topicMap->createTopic();
     $name->setType($type1);
     $nameType = $name->getType();
     $this->assertEquals($nameType->getId(), $type1->getId());
@@ -72,10 +76,11 @@ class NameTest extends PHPTMAPITestCase {
     $this->assertEquals($nameType->getId(), $type2->getId());
   }
   
-  public function testValue() {
+  public function testValue()
+  {
     $value1 = 'PHPTMAPI name';
     $value2 = 'Süßer Name';
-    $name = $this->createName();
+    $name = $this->_createName();
     $this->assertTrue($name instanceof Name);
     $name->setValue($value1);
     $this->assertEquals($name->getValue(), $value1);
@@ -91,32 +96,34 @@ class NameTest extends PHPTMAPITestCase {
     $this->assertEquals($name->getValue(), $value2);
   }
   
-  public function testScope() {
-    $name = $this->createName();
+  public function testScope()
+  {
+    $name = $this->_createName();
     $this->assertTrue($name instanceof Name);
-    $tm = $this->topicMap;
+    $tm = $this->_topicMap;
     $type = $tm->createTopic();
     $theme1 = $tm->createTopic();
     $theme2 = $tm->createTopic();
     $name->addTheme($theme1);
     $name->addTheme($theme2);
     $this->assertEquals(count($name->getScope()), 2, 'Expected 2 themes!');
-    $ids = $this->getIdsOfConstructs($name->getScope());
+    $ids = $this->_getIdsOfConstructs($name->getScope());
     $this->assertTrue(in_array($theme1->getId(), $ids, true), 
       'Theme is not part of getScope()!');
     $this->assertTrue(in_array($theme2->getId(), $ids, true), 
       'Theme is not part of getScope()!');
     $name = $tm->createTopic()->createName('Name', $type, array($theme1, $theme2));
     $this->assertEquals(count($name->getScope()), 2);
-    $ids = $this->getIdsOfConstructs($name->getScope());
+    $ids = $this->_getIdsOfConstructs($name->getScope());
     $this->assertTrue(in_array($theme1->getId(), $ids, true), 
       'Theme is not part of getScope()!');
     $this->assertTrue(in_array($theme2->getId(), $ids, true), 
       'Theme is not part of getScope()!');
   }
   
-  public function testDuplicates() {
-    $tm = $this->topicMap;
+  public function testDuplicates()
+  {
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $type = $tm->createTopic();
     $nameTheme = $tm->createTopic();
@@ -125,12 +132,12 @@ class NameTest extends PHPTMAPITestCase {
     $this->assertEquals(count($names), 1, 'Expected 1 name');
     $name = $names[0];
     $this->assertEquals(count($name->getScope()), 1, 'Expected 1 theme!');
-    $ids = $this->getIdsOfConstructs($name->getScope());
+    $ids = $this->_getIdsOfConstructs($name->getScope());
     $this->assertTrue(in_array($nameTheme->getId(), $ids, true), 
       'Theme is not part of getScope()!');
     $this->assertEquals($name->getValue(), 'Name', 'Expected identity!');
     $this->assertEquals(count($topic->getNames()), 1, 'Expected 1 name');
-    $ids = $this->getIdsOfConstructs($topic->getNames());
+    $ids = $this->_getIdsOfConstructs($topic->getNames());
     $this->assertTrue(in_array($name->getId(), $ids, true), 
       'Name is not part of getNames()!');
     $duplName = $topic->createName('Name', $type, array($nameTheme));
@@ -139,13 +146,14 @@ class NameTest extends PHPTMAPITestCase {
     $name = $names[0];
     $this->assertEquals($name->getValue(), 'Name', 'Expected identity!');
     $this->assertEquals(count($name->getScope()), 1, 'Expected 1 theme!');
-    $ids = $this->getIdsOfConstructs($name->getScope());
+    $ids = $this->_getIdsOfConstructs($name->getScope());
     $this->assertTrue(in_array($nameTheme->getId(), $ids, true), 
       'Theme is not part of getScope()!');
   }
   
-  public function testMergeScope() {
-    $tm = $this->topicMap;
+  public function testMergeScope()
+  {
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $type = $tm->createTopic();
     $nameTheme = $tm->createTopicByItemIdentifier('#en');
@@ -158,17 +166,18 @@ class NameTest extends PHPTMAPITestCase {
     $this->assertEquals(count($names), 1, 'Expected 1 name');
   }
   
-  public function testGainVariantsUsingFinished() {
-    $topic = $this->topicMap->createTopic();
-    $theme = $this->topicMap->createTopic();
+  public function testGainVariantsUsingFinished()
+  {
+    $topic = $this->_topicMap->createTopic();
+    $theme = $this->_topicMap->createTopic();
     $name1 = $topic->createName('foo');
-    $variant1 = $name1->createVariant('bar', parent::$dtString, array($theme));
-    $reifier = $this->topicMap->createTopic();
+    $variant1 = $name1->createVariant('bar', parent::$_dtString, array($theme));
+    $reifier = $this->_topicMap->createTopic();
     $variant1->setReifier($reifier);
     $iid = 'http://localhost' . uniqid();
     $variant1->addItemIdentifier($iid);
     $name2 = $topic->createName('baz');
-    $variant2 = $name2->createVariant('bar', parent::$dtString, array($theme));
+    $variant2 = $name2->createVariant('bar', parent::$_dtString, array($theme));
     $this->assertEquals(count($name1->getVariants()), 1);
     $this->assertEquals(count($name2->getVariants()), 1);
     $name2->setValue('foo');
@@ -181,7 +190,7 @@ class NameTest extends PHPTMAPITestCase {
     $this->assertEquals(count($variants), 1);
     $variant = $variants[0];
     $this->assertEquals($variant->getValue(), 'bar');
-    $this->assertEquals($variant->getDatatype(), parent::$dtString);
+    $this->assertEquals($variant->getDatatype(), parent::$_dtString);
     $scope = $variant->getScope();
     $this->assertEquals(count($scope), 1);
     $this->assertEquals($scope[0]->getId(), $theme->getId());

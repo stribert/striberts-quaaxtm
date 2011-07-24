@@ -28,21 +28,23 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class TopicTest extends PHPTMAPITestCase {
-  
-  public function testTopicMap() {
-    $this->assertTrue($this->topicMap instanceof TopicMap);
+class TopicTest extends PHPTMAPITestCase
+{
+  public function testTopicMap()
+  {
+    $this->assertTrue($this->_topicMap instanceof TopicMap);
   }
   
-  public function testParent() {
-    $parent = $this->topicMap;
+  public function testParent()
+  {
+    $parent = $this->_topicMap;
     $this->assertEquals(count($parent->getTopics()), 0, 
       'Expected new topic map to be created without topics!');
     $topic = $parent->createTopic();
     $this->assertEquals($parent->getId(), $topic->getParent()->getId(), 
       'Unexpected topic parent!');
     $this->assertEquals(count($parent->getTopics()), 1, 'Expected 1 topic!');
-    $ids = $this->getIdsOfConstructs($parent->getTopics());
+    $ids = $this->_getIdsOfConstructs($parent->getTopics());
     $this->assertTrue(in_array($topic->getId(), $ids, true), 
       'Topic is not part of getTopics()!');
     $topic->remove();
@@ -50,8 +52,9 @@ class TopicTest extends PHPTMAPITestCase {
       'Expected 0 topics after removal!');
   }
   
-  public function testAddSubjectIdentifierIllegal() {
-    $topic = $this->topicMap->createTopic();
+  public function testAddSubjectIdentifierIllegal()
+  {
+    $topic = $this->_topicMap->createTopic();
     try {
       $topic->addSubjectIdentifier(null);
       $this->fail('null is not allowed as subject identifier!');
@@ -61,8 +64,9 @@ class TopicTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testAddSubjectLocatorIllegal() {
-    $topic = $this->topicMap->createTopic();
+  public function testAddSubjectLocatorIllegal()
+  {
+    $topic = $this->_topicMap->createTopic();
     try {
       $topic->addSubjectLocator(null);
       $this->fail('null is not allowed as subject locator!');
@@ -72,10 +76,11 @@ class TopicTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testSubjectIdentifiers() {
+  public function testSubjectIdentifiers()
+  {
     $sid1 = 'http://www.example.org/1';
     $sid2 = 'http://www.example.org/2';
-    $topic = $this->topicMap->createTopicBySubjectIdentifier($sid1);
+    $topic = $this->_topicMap->createTopicBySubjectIdentifier($sid1);
     $this->assertEquals(count($topic->getSubjectIdentifiers()), 1, 
       'Expected 1 subject identifier');
     $this->assertTrue(in_array($sid1, $topic->getSubjectIdentifiers(), true), 
@@ -95,10 +100,11 @@ class TopicTest extends PHPTMAPITestCase {
       'Subject identifier is not part of getSubjectIdentifiers()!');
   }
   
-  public function testSubjectLocators() {
+  public function testSubjectLocators()
+  {
     $slo1 = 'http://www.example.org/1';
     $slo2 = 'http://www.example.org/2';
-    $topic = $this->topicMap->createTopicBySubjectLocator($slo1);
+    $topic = $this->_topicMap->createTopicBySubjectLocator($slo1);
     $this->assertEquals(count($topic->getSubjectLocators()), 1, 
       'Expected 1 subject locator');
     $this->assertTrue(in_array($slo1, $topic->getSubjectLocators(), true), 
@@ -118,8 +124,9 @@ class TopicTest extends PHPTMAPITestCase {
       'Subject locator is not part of getSubjectLocators()!');
   }
   
-  public function testTopicTypes() {
-    $tm = $this->topicMap;
+  public function testTopicTypes()
+  {
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $type1 = $tm->createTopic();
     $type2 = $tm->createTopic();
@@ -127,32 +134,33 @@ class TopicTest extends PHPTMAPITestCase {
       'Expected new topic to be created without types!');
     $topic->addType($type1);
     $this->assertEquals(count($topic->getTypes()), 1, 'Expected 1 topic type!');
-    $ids = $this->getIdsOfConstructs($topic->getTypes());
+    $ids = $this->_getIdsOfConstructs($topic->getTypes());
     $this->assertTrue(in_array($type1->getId(), $ids, true), 
       'Topic is not part of getTypes()!');
     $topic->addType($type2);
     $this->assertEquals(count($topic->getTypes()), 2, 'Expected 2 topic types!');
-    $ids = $this->getIdsOfConstructs($topic->getTypes());
+    $ids = $this->_getIdsOfConstructs($topic->getTypes());
     $this->assertTrue(in_array($type1->getId(), $ids, true), 
       'Topic is not part of getTypes()!');
     $this->assertTrue(in_array($type2->getId(), $ids, true), 
       'Topic is not part of getTypes()!');
     $topic->removeType($type1);
     $this->assertEquals(count($topic->getTypes()), 1, 'Expected 1 topic type!');
-    $ids = $this->getIdsOfConstructs($topic->getTypes());
+    $ids = $this->_getIdsOfConstructs($topic->getTypes());
     $this->assertTrue(in_array($type2->getId(), $ids, true), 
       'Topic is not part of getTypes()!');
     $topic->removeType($type2);
     $this->assertEquals(count($topic->getTypes()), 0, 'Expected 0 topic types!');
   }
   
-  public function testRoleFilter() {
-    $tm = $this->topicMap;
+  public function testRoleFilter()
+  {
+    $tm = $this->_topicMap;
     $player = $tm->createTopic();
     $type1 = $tm->createTopic();
     $type2 = $tm->createTopic();
     $unusedType = $tm->createTopic();
-    $assoc = $this->createAssoc();
+    $assoc = $this->_createAssoc();
     $this->assertEquals(count($player->getRolesPlayed($type1)), 0, 
       'Expected new topic to be created without playing roles!');
     $this->assertEquals(count($player->getRolesPlayed($type2)), 0, 
@@ -162,7 +170,7 @@ class TopicTest extends PHPTMAPITestCase {
     $role = $assoc->createRole($type1, $player);
     $this->assertEquals(count($player->getRolesPlayed($type1)), 1, 
       'Expected topic to play this role!');
-    $ids = $this->getIdsOfConstructs($player->getRolesPlayed($type1));
+    $ids = $this->_getIdsOfConstructs($player->getRolesPlayed($type1));
     $this->assertTrue(in_array($role->getId(), $ids, true), 
       'Role is not part of getRolesPlayed()!');
     $this->assertEquals(count($player->getRolesPlayed($type2)), 0, 
@@ -172,7 +180,7 @@ class TopicTest extends PHPTMAPITestCase {
     $role->setType($type2);
     $this->assertEquals(count($player->getRolesPlayed($type2)), 1, 
       'Expected topic to play this role!');
-    $ids = $this->getIdsOfConstructs($player->getRolesPlayed($type2));
+    $ids = $this->_getIdsOfConstructs($player->getRolesPlayed($type2));
     $this->assertTrue(in_array($role->getId(), $ids, true), 
       'Role is not part of getRolesPlayed()!');
     $this->assertEquals(count($player->getRolesPlayed($type1)), 0, 
@@ -188,8 +196,9 @@ class TopicTest extends PHPTMAPITestCase {
       'Expected topic to play a role!');
   }
   
-  public function testRoleAssociationFilter() {
-    $tm = $this->topicMap;
+  public function testRoleAssociationFilter()
+  {
+    $tm = $this->_topicMap;
     $player = $tm->createTopic();
     $assocType1 = $tm->createTopic();
     $assocType2 = $tm->createTopic();
@@ -214,10 +223,10 @@ class TopicTest extends PHPTMAPITestCase {
       1, 'Expected topic to play this role!');
     $this->assertEquals(count($player->getRolesPlayed(null, $assocType1)), 
       1, 'Expected topic to play this role!');
-    $ids = $this->getIdsOfConstructs($player->getRolesPlayed($roleType1, $assocType1));
+    $ids = $this->_getIdsOfConstructs($player->getRolesPlayed($roleType1, $assocType1));
     $this->assertTrue(in_array($role1->getId(), $ids, true), 
       'Role is not part of getRolesPlayed()!');
-    $ids = $this->getIdsOfConstructs($player->getRolesPlayed(null, $assocType1));
+    $ids = $this->_getIdsOfConstructs($player->getRolesPlayed(null, $assocType1));
     $this->assertTrue(in_array($role1->getId(), $ids, true), 
       'Role is not part of getRolesPlayed()!');
     $this->assertEquals(count($player->getRolesPlayed($roleType1, $assocType2)), 
@@ -230,12 +239,12 @@ class TopicTest extends PHPTMAPITestCase {
     $role2 = $assoc->createRole($roleType2, $player);
     $this->assertEquals(count($player->getRolesPlayed($roleType1, $assocType1)), 
       1, 'Expected topic to play this role!');
-    $ids = $this->getIdsOfConstructs($player->getRolesPlayed($roleType1, $assocType1));
+    $ids = $this->_getIdsOfConstructs($player->getRolesPlayed($roleType1, $assocType1));
     $this->assertTrue(in_array($role1->getId(), $ids, true), 
       'Topic is not part of getRolesPlayed()!');
     $this->assertEquals(count($player->getRolesPlayed($roleType2, $assocType1)), 
       1, 'Expected topic to play this role!');
-    $ids = $this->getIdsOfConstructs($player->getRolesPlayed($roleType2, $assocType1));
+    $ids = $this->_getIdsOfConstructs($player->getRolesPlayed($roleType2, $assocType1));
     $this->assertTrue(in_array($role2->getId(), $ids, true), 
       'Topic is not part of getRolesPlayed()!');
     
@@ -243,7 +252,7 @@ class TopicTest extends PHPTMAPITestCase {
       
     $this->assertEquals(count($player->getRolesPlayed(null, $assocType1)), 
       2, 'Expected topic to play these roles!');
-    $ids = $this->getIdsOfConstructs($player->getRolesPlayed(null, $assocType1));
+    $ids = $this->_getIdsOfConstructs($player->getRolesPlayed(null, $assocType1));
     $this->assertTrue(in_array($role1->getId(), $ids, true), 
       'Topic is not part of getRolesPlayed()!');
     $this->assertTrue(in_array($role2->getId(), $ids, true), 
@@ -257,14 +266,14 @@ class TopicTest extends PHPTMAPITestCase {
     $role2->setType($roleType1);
     $this->assertEquals(count($player->getRolesPlayed($roleType1, $assocType1)), 
       1, 'Expected topic to play these roles!');
-    $ids = $this->getIdsOfConstructs($player->getRolesPlayed($roleType1, $assocType1));
+    $ids = $this->_getIdsOfConstructs($player->getRolesPlayed($roleType1, $assocType1));
     $this->assertEquals(count($ids), 1, 'Expected 1 id!');
     $this->assertTrue(in_array($ids[0], $roles, true), 
       'Topic is not part of getRolesPlayed()!');
       
     $this->assertEquals(count($player->getRolesPlayed(null, $assocType1)), 
       1, 'Expected topic to play these roles!');
-    $ids = $this->getIdsOfConstructs($player->getRolesPlayed(null, $assocType1));
+    $ids = $this->_getIdsOfConstructs($player->getRolesPlayed(null, $assocType1));
     $this->assertEquals(count($ids), 1, 'Expected 1 id!');
     $this->assertTrue(in_array($ids[0], $roles, true), 
       'Topic is not part of getRolesPlayed()!');
@@ -281,7 +290,7 @@ class TopicTest extends PHPTMAPITestCase {
     $role1->remove();
     $this->assertEquals(count($player->getRolesPlayed($roleType1, $assocType1)), 
       1, 'Expected topic to play this role!');
-    $ids = $this->getIdsOfConstructs($player->getRolesPlayed($roleType1, $assocType1));
+    $ids = $this->_getIdsOfConstructs($player->getRolesPlayed($roleType1, $assocType1));
     $this->assertTrue(in_array($role2->getId(), $ids, true), 
       'Role is not part of getRolesPlayed()!');
     $this->assertEquals(count($player->getRolesPlayed($roleType1, $assocType2)), 
@@ -301,8 +310,9 @@ class TopicTest extends PHPTMAPITestCase {
       0, 'Expected topic not to play this role!');
   }
   
-  public function testOccurrenceFilter() {
-    $tm = $this->topicMap;
+  public function testOccurrenceFilter()
+  {
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $type1 = $tm->createTopic();
     $type2 = $tm->createTopic();
@@ -313,10 +323,10 @@ class TopicTest extends PHPTMAPITestCase {
       'Expected new topic to be created without occurrences!');
     $this->assertEquals(count($topic->getOccurrences($unusedType)), 0, 
       'Expected new topic to be created without occurrences!');
-    $occ = $topic->createOccurrence($type1, 'Occurrence', self::$dtString);
+    $occ = $topic->createOccurrence($type1, 'Occurrence', self::$_dtString);
     $this->assertEquals(count($topic->getOccurrences($type1)), 1, 
       'Expected topic to gain this occurrence!');
-    $ids = $this->getIdsOfConstructs($topic->getOccurrences($type1));
+    $ids = $this->_getIdsOfConstructs($topic->getOccurrences($type1));
     $this->assertTrue(in_array($occ->getId(), $ids, true), 
       'Occurrence is not part of getOccurrences()!');
     $this->assertEquals(count($topic->getOccurrences($type2)), 0, 
@@ -326,7 +336,7 @@ class TopicTest extends PHPTMAPITestCase {
     $occ->setType($type2);
     $this->assertEquals(count($topic->getOccurrences($type2)), 1, 
       'Expected topic to gain this occurrence!');
-    $ids = $this->getIdsOfConstructs($topic->getOccurrences($type2));
+    $ids = $this->_getIdsOfConstructs($topic->getOccurrences($type2));
     $this->assertTrue(in_array($occ->getId(), $ids, true), 
       'Occurrence is not part of getOccurrences()!');
     $this->assertEquals(count($topic->getOccurrences($type1)), 0, 
@@ -342,8 +352,9 @@ class TopicTest extends PHPTMAPITestCase {
       'Expected topic not to gain this occurrence!');
   }
   
-  public function testNameFilter() {
-    $tm = $this->topicMap;
+  public function testNameFilter()
+  {
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $type1 = $tm->createTopic();
     $type2 = $tm->createTopic();
@@ -357,7 +368,7 @@ class TopicTest extends PHPTMAPITestCase {
     $name = $topic->createName('Name', $type1);
     $this->assertEquals(count($topic->getNames($type1)), 1, 
       'Expected topic to gain this name!');
-    $ids = $this->getIdsOfConstructs($topic->getNames($type1));
+    $ids = $this->_getIdsOfConstructs($topic->getNames($type1));
     $this->assertTrue(in_array($name->getId(), $ids, true), 
       'Name is not part of getNames()!');
     $this->assertEquals(count($topic->getNames($type2)), 0, 
@@ -367,7 +378,7 @@ class TopicTest extends PHPTMAPITestCase {
     $name->setType($type2);
     $this->assertEquals(count($topic->getNames($type2)), 1, 
       'Expected topic to gain this name!');
-    $ids = $this->getIdsOfConstructs($topic->getNames($type2));
+    $ids = $this->_getIdsOfConstructs($topic->getNames($type2));
     $this->assertTrue(in_array($name->getId(), $ids, true), 
       'Name is not part of getNames()!');
     $this->assertEquals(count($topic->getNames($type1)), 0, 
@@ -383,17 +394,18 @@ class TopicTest extends PHPTMAPITestCase {
       'Expected topic not to gain this name!');
   }
   
-  public function testOccurrenceCreation() {
-    $tm = $this->topicMap;
+  public function testOccurrenceCreation()
+  {
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $type = $tm->createTopic();
     $value = 'Occurrence';
-    $dt = self::$dtString;
+    $dt = self::$_dtString;
     $this->assertEquals(count($topic->getOccurrences()), 0, 
       'Expected new topic to be created without occurrences!');
     $occ = $topic->createOccurrence($type, $value, $dt);
     $this->assertEquals(count($topic->getOccurrences()), 1, 'Expected 1 occurrence!');
-    $ids = $this->getIdsOfConstructs($topic->getOccurrences());
+    $ids = $this->_getIdsOfConstructs($topic->getOccurrences());
     $this->assertTrue(in_array($occ->getId(), $ids, true), 
       'Occurrence is not part of getOccurrences()!');
     $this->assertEquals(count($occ->getScope()), 0, 'Unexpected scope!');
@@ -403,23 +415,24 @@ class TopicTest extends PHPTMAPITestCase {
       'Unexpected number of item identifiers!');
   }
   
-  public function testOccurrenceCreationScope() {
-    $tm = $this->topicMap;
+  public function testOccurrenceCreationScope()
+  {
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $type = $tm->createTopic();
     $theme1 = $tm->createTopic();
     $theme2 = $tm->createTopic();
     $value = 'Occurrence';
-    $dt = self::$dtUri;
+    $dt = self::$_dtUri;
     $this->assertEquals(count($topic->getOccurrences()), 0, 
       'Expected new topic to be created without occurrences!');
     $occ = $topic->createOccurrence($type, $value, $dt, array($theme1, $theme2));
     $this->assertEquals(count($topic->getOccurrences()), 1, 'Expected 1 occurrence!');
-    $ids = $this->getIdsOfConstructs($topic->getOccurrences());
+    $ids = $this->_getIdsOfConstructs($topic->getOccurrences());
     $this->assertTrue(in_array($occ->getId(), $ids, true), 
       'Occurrence is not part of getOccurrences()!');
     $this->assertEquals(count($occ->getScope()), 2, 'Unexpected scope!');
-    $ids = $this->getIdsOfConstructs($occ->getScope());
+    $ids = $this->_getIdsOfConstructs($occ->getScope());
     $this->assertTrue(in_array($theme1->getId(), $ids, true), 
       'Topic is not part of getScope()!');
     $this->assertTrue(in_array($theme2->getId(), $ids, true), 
@@ -430,8 +443,9 @@ class TopicTest extends PHPTMAPITestCase {
       'Unexpected number of item identifiers!');
   }
   
-  public function testOccurrenceCreationIllegal() {
-    $tm = $this->topicMap;
+  public function testOccurrenceCreationIllegal()
+  {
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $type = $tm->createTopic();
     $value = null;
@@ -444,12 +458,13 @@ class TopicTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testOccurrenceCreationIllegalValue() {
-    $tm = $this->topicMap;
+  public function testOccurrenceCreationIllegalValue()
+  {
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $type = $tm->createTopic();
     $value = null;
-    $dt = self::$dtString;
+    $dt = self::$_dtString;
     try {
       $occ = $topic->createOccurrence($type, $value, $dt);
       $this->fail('null is not allowed as value!');
@@ -458,8 +473,9 @@ class TopicTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testOccurrenceCreationIllegalDatatype() {
-    $tm = $this->topicMap;
+  public function testOccurrenceCreationIllegalDatatype()
+  {
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $type = $tm->createTopic();
     $value = 'Occurrence';
@@ -472,8 +488,9 @@ class TopicTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testNameCreationType() {
-    $tm = $this->topicMap;
+  public function testNameCreationType()
+  {
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $type = $tm->createTopic();
     $value = 'Name';
@@ -481,7 +498,7 @@ class TopicTest extends PHPTMAPITestCase {
       'Expected new topic to be created without names!');
     $name = $topic->createName($value, $type);
     $this->assertEquals(count($topic->getNames()), 1, 'Expected 1 name!');
-    $ids = $this->getIdsOfConstructs($topic->getNames());
+    $ids = $this->_getIdsOfConstructs($topic->getNames());
     $this->assertTrue(in_array($name->getId(), $ids, true), 
       'Name is not part of getNames()!');
     $this->assertEquals(count($name->getScope()), 0, 'Unexpected scope!');
@@ -491,8 +508,9 @@ class TopicTest extends PHPTMAPITestCase {
       'Unexpected number of item identifiers!');
   }
   
-  public function testNameCreationTypeScope() {
-    $tm = $this->topicMap;
+  public function testNameCreationTypeScope()
+  {
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $type = $tm->createTopic();
     $theme1 = $tm->createTopic();
@@ -502,11 +520,11 @@ class TopicTest extends PHPTMAPITestCase {
       'Expected new topic to be created without names!');
     $name = $topic->createName($value, $type, array($theme1, $theme2));
     $this->assertEquals(count($topic->getNames()), 1, 'Expected 1 name!');
-    $ids = $this->getIdsOfConstructs($topic->getNames());
+    $ids = $this->_getIdsOfConstructs($topic->getNames());
     $this->assertTrue(in_array($name->getId(), $ids, true), 
       'Name is not part of getNames()!');
     $this->assertEquals(count($name->getScope()), 2, 'Unexpected scope!');
-    $ids = $this->getIdsOfConstructs($name->getScope());
+    $ids = $this->_getIdsOfConstructs($name->getScope());
     $this->assertTrue(in_array($theme1->getId(), $ids, true), 
       'Topic is not part of getScope()!');
     $this->assertTrue(in_array($theme2->getId(), $ids, true), 
@@ -517,8 +535,9 @@ class TopicTest extends PHPTMAPITestCase {
       'Unexpected number of item identifiers!');
   }
   
-  public function testNameCreationDefaultType() {
-    $tm = $this->topicMap;
+  public function testNameCreationDefaultType()
+  {
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $psi = 'http://psi.topicmaps.org/iso13250/model/topic-name';
     $value = 'Name';
@@ -526,7 +545,7 @@ class TopicTest extends PHPTMAPITestCase {
       'Expected new topic to be created without names!');
     $name = $topic->createName($value);
     $this->assertEquals(count($topic->getNames()), 1, 'Expected 1 name!');
-    $ids = $this->getIdsOfConstructs($topic->getNames());
+    $ids = $this->_getIdsOfConstructs($topic->getNames());
     $this->assertTrue(in_array($name->getId(), $ids, true), 
       'Name is not part of getNames()!');
     $this->assertEquals(count($name->getScope()), 0, 'Unexpected scope!');
@@ -539,8 +558,9 @@ class TopicTest extends PHPTMAPITestCase {
       'Subject identifier is not part of getSubjectIdentifiers()!');
   }
   
-  public function testNameCreationDefaultTypeScope() {
-    $tm = $this->topicMap;
+  public function testNameCreationDefaultTypeScope()
+  {
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $theme1 = $tm->createTopic();
     $theme2 = $tm->createTopic();
@@ -550,11 +570,11 @@ class TopicTest extends PHPTMAPITestCase {
       'Expected new topic to be created without names!');
     $name = $topic->createName($value, null, array($theme1, $theme2));
     $this->assertEquals(count($topic->getNames()), 1, 'Expected 1 name!');
-    $ids = $this->getIdsOfConstructs($topic->getNames());
+    $ids = $this->_getIdsOfConstructs($topic->getNames());
     $this->assertTrue(in_array($name->getId(), $ids, true), 
       'Name is not part of getNames()!');
     $this->assertEquals(count($name->getScope()), 2, 'Unexpected scope!');
-    $ids = $this->getIdsOfConstructs($name->getScope());
+    $ids = $this->_getIdsOfConstructs($name->getScope());
     $this->assertTrue(in_array($theme1->getId(), $ids, true), 
       'Topic is not part of getScope()!');
     $this->assertTrue(in_array($theme2->getId(), $ids, true), 
@@ -568,8 +588,9 @@ class TopicTest extends PHPTMAPITestCase {
       'Subject identifier is not part of getSubjectIdentifiers()!');
   }
   
-  public function testNameCreationIllegal() {
-    $tm = $this->topicMap;
+  public function testNameCreationIllegal()
+  {
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $value = null;
     try {

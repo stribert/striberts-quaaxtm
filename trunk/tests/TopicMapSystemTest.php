@@ -28,56 +28,63 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class TopicMapSystemTest extends PHPTMAPITestCase {
-  
-  private $sys;
+class TopicMapSystemTest extends PHPTMAPITestCase
+{
+  private $_tmSystem;
   
   /**
    * @override
    */
-  public function setUp() {
+  protected function setUp()
+  {
     parent::setUp();
-    $this->sys = $this->sharedFixture;
+    $this->_tmSystem = $this->_sharedFixture;
   }
   
   /**
    * @override
    */
-  public function tearDown() {
+  protected function tearDown()
+  {
     parent::tearDown();
-    $this->sys = null;
+    $this->_tmSystem = null;
   }
   
-  public function testTopicMapSystem() {
-    $this->assertTrue($this->sys instanceof TopicMapSystem);
+  public function testTopicMapSystem()
+  {
+    $this->assertTrue($this->_tmSystem instanceof TopicMapSystem);
   }
 
-  public function testTopicMap() {
-    $this->assertTrue($this->topicMap instanceof TopicMap);
+  public function testTopicMap()
+  {
+    $this->assertTrue($this->_topicMap instanceof TopicMap);
   }
   
-  public function testLoad() {
-    $tm = $this->sys->getTopicMap(self::$tmLocator);
+  public function testLoad()
+  {
+    $tm = $this->_tmSystem->getTopicMap(self::$_tmLocator);
     $this->assertNotNull($tm, 'Expected topic map!');
     $id = $tm->getId();
     $this->assertTrue(!empty($id), 'Expected internal identifier for topic map!');
-    $this->assertEquals($id, $this->topicMap->getId(), 'Expected identity!');
+    $this->assertEquals($id, $this->_topicMap->getId(), 'Expected identity!');
   }
   
-  public function testSameLocator() {
+  public function testSameLocator()
+  {
     try {
-      $tm = $this->sys->createTopicMap(self::$tmLocator);
+      $tm = $this->_tmSystem->createTopicMap(self::$_tmLocator);
       $this->fail('A topic map under the same storage address already exists!');
     } catch (TopicMapExistsException $e) {
       // no op.
     }
   }
   
-  public function testCreateTopicMaps() {
+  public function testCreateTopicMaps()
+  {
     $base = 'http://localhost/topicmaps/';
-    $tm1 = $this->sys->createTopicMap($base . uniqid());
-    $tm2 = $this->sys->createTopicMap($base . uniqid());
-    $tm3 = $this->sys->createTopicMap($base . uniqid());
+    $tm1 = $this->_tmSystem->createTopicMap($base . uniqid());
+    $tm2 = $this->_tmSystem->createTopicMap($base . uniqid());
+    $tm3 = $this->_tmSystem->createTopicMap($base . uniqid());
     $this->assertNotNull($tm1, 'Expected a topic map!');
     $this->assertNotNull($tm2, 'Expected a topic map!');
     $this->assertNotNull($tm3, 'Expected a topic map!');
@@ -90,43 +97,45 @@ class TopicMapSystemTest extends PHPTMAPITestCase {
     $this->assertNotEquals($id1, $id2, 'Unexpected identity!');
     $this->assertNotEquals($id1, $id3, 'Unexpected identity!');
     $this->assertNotEquals($id2, $id3, 'Unexpected identity!');
-    $tm = $this->sys->getTopicMap(uniqid());
+    $tm = $this->_tmSystem->getTopicMap(uniqid());
     $this->assertNull($tm, 'Unexpected topic map!');
-    $tm = $this->sys->createTopicMap('');
+    $tm = $this->_tmSystem->createTopicMap('');
     $this->assertNull($tm, 'Unexpected topic map!');
-    $tm = $this->sys->createTopicMap(null);
+    $tm = $this->_tmSystem->createTopicMap(null);
     $this->assertNull($tm, 'Unexpected topic map!');
-    $tm = $this->sys->createTopicMap(false);
+    $tm = $this->_tmSystem->createTopicMap(false);
     $this->assertNull($tm, 'Unexpected topic map!');
-    $tm = $this->sys->createTopicMap(0);
+    $tm = $this->_tmSystem->createTopicMap(0);
     $this->assertNull($tm, 'Unexpected topic map!');
-    $tm = $this->sys->createTopicMap('0');
+    $tm = $this->_tmSystem->createTopicMap('0');
     $this->assertNull($tm, 'Unexpected topic map!');
-    $tm = $this->sys->createTopicMap(array());
+    $tm = $this->_tmSystem->createTopicMap(array());
     $this->assertNull($tm, 'Unexpected topic map!');
-    $tm = $this->sys->createTopicMap(0.0);
+    $tm = $this->_tmSystem->createTopicMap(0.0);
     $this->assertNull($tm, 'Unexpected topic map!');
   }
   
-  public function testRemoveTopicMaps() {
+  public function testRemoveTopicMaps()
+  {
     $base = 'http://localhost/topicmaps/';
-    $tm1 = $this->sys->createTopicMap($base . 'map1');
-    $tm2 = $this->sys->createTopicMap($base . 'map2');
-    $tm3 = $this->sys->createTopicMap($base . 'map3');
+    $tm1 = $this->_tmSystem->createTopicMap($base . 'map1');
+    $tm2 = $this->_tmSystem->createTopicMap($base . 'map2');
+    $tm3 = $this->_tmSystem->createTopicMap($base . 'map3');
     $this->assertNotNull($tm1, 'Expected a topic map!');
     $this->assertNotNull($tm2, 'Expected a topic map!');
     $this->assertNotNull($tm3, 'Expected a topic map!');
-    $countBefore = count($this->sys->getLocators());
+    $countBefore = count($this->_tmSystem->getLocators());
     $tm3->remove();
-    $countAfter = count($this->sys->getLocators());
+    $countAfter = count($this->_tmSystem->getLocators());
     $this->assertEquals($countBefore-1, $countAfter, 'Expected ' . $countBefore-1 . 
       ' topic maps!');
   }
   
-  public function testTopicMapMembership() {
+  public function testTopicMapMembership()
+  {
     $base = 'http://localhost/topicmaps/';
-    $tm1 = $this->sys->createTopicMap($base . 'map1');
-    $tm2 = $this->sys->createTopicMap($base . 'map2');
+    $tm1 = $this->_tmSystem->createTopicMap($base . 'map1');
+    $tm2 = $this->_tmSystem->createTopicMap($base . 'map2');
     $this->assertNotNull($tm1, 'Expected a topic map!');
     $this->assertNotNull($tm2, 'Expected a topic map!');
     $topic1 = $tm1->createTopic();
@@ -151,21 +160,24 @@ class TopicMapSystemTest extends PHPTMAPITestCase {
       'Unexpected parent topic map!');
   }
   
-  public function testGetUnknownFeature() {
+  public function testGetUnknownFeature()
+  {
     try {
-      $this->sys->getFeature(md5(uniqid()));
+      $this->_tmSystem->getFeature(md5(uniqid()));
       $this->fail('Exception expected for an unknown feature!');
     } catch (FeatureNotRecognizedException $e) {
       // no op.
     }
   }
   
-  public function testGetUnknownProperty() {
-    $property = $this->sys->getProperty(md5(uniqid()));
+  public function testGetUnknownProperty()
+  {
+    $property = $this->_tmSystem->getProperty(md5(uniqid()));
     $this->assertNull($property, 'Unexpected property!');
   }
   
-  public function testGetProperty() {
+  public function testGetProperty()
+  {
     $myTmSystemFactory = TopicMapSystemFactory::newInstance();
     $myTmSystemFactory->setProperty('myProperty', new MyProperty());
     $myTmSystemFactory->setProperty('strProperty', 'foo');
@@ -182,7 +194,8 @@ class TopicMapSystemTest extends PHPTMAPITestCase {
     $this->assertEquals($property, array(1,2), 'Expected identity!');
   }
   
-  public function testUnsetProperty() {
+  public function testUnsetProperty()
+  {
     $myTmSystemFactory = TopicMapSystemFactory::newInstance();
     $myTmSystemFactory->setProperty('myProperty', new MyProperty());
     $myTmSystemFactory->setProperty('myProperty', null);

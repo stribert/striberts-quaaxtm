@@ -28,18 +28,19 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class TypedTest extends PHPTMAPITestCase {
-  
+class TypedTest extends PHPTMAPITestCase
+{
   /**
    * The typed test.
    * 
    * @param Typed A typed construct.
    * @return void
    */
-  private function _testTyped(Typed $typed) {
+  private function _testTyped(Typed $typed)
+  {
     $prevType = $typed->getType();
     $this->assertNotNull($prevType, 'Expected a type!');
-    $type = $this->topicMap->createTopic();
+    $type = $this->_topicMap->createTopic();
     $typed->setType($type);
     $this->assertEquals($type->getId(), $typed->getType()->getId(), 'Expected identity!');
     $typed->setType($prevType);
@@ -47,24 +48,29 @@ class TypedTest extends PHPTMAPITestCase {
       'Expected identity!');
   }
   
-  public function testTopicMap() {
-    $this->assertTrue($this->topicMap instanceof TopicMap);
+  public function testTopicMap()
+  {
+    $this->assertTrue($this->_topicMap instanceof TopicMap);
   }
   
-  public function testAssociation() {
-    $this->_testTyped($this->createAssoc());
+  public function testAssociation()
+  {
+    $this->_testTyped($this->_createAssoc());
   }
   
-  public function testRole() {
-    $this->_testTyped($this->createRole());
+  public function testRole()
+  {
+    $this->_testTyped($this->_createRole());
   }
   
-  public function testOccurrence() {
-    $this->_testTyped($this->createOcc());
+  public function testOccurrence()
+  {
+    $this->_testTyped($this->_createOcc());
   }
   
-  public function testName() {
-    $this->_testTyped($this->createName());
+  public function testName()
+  {
+    $this->_testTyped($this->_createName());
   }
 }
 ?>

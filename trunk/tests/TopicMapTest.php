@@ -28,24 +28,27 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class TopicMapTest extends PHPTMAPITestCase {
-  
-  public function testTopicMap() {
-    $this->assertTrue($this->topicMap instanceof TopicMap);
+class TopicMapTest extends PHPTMAPITestCase
+{
+  public function testTopicMap()
+  {
+    $this->assertTrue($this->_topicMap instanceof TopicMap);
   }
 
-  public function testParent() {
-    $this->assertNull($this->topicMap->getParent(), 'A topic map has no parent!');
+  public function testParent()
+  {
+    $this->assertNull($this->_topicMap->getParent(), 'A topic map has no parent!');
   }
   
-  public function testTopicCreationSubjectIdentifier() {
-    $tm = $this->topicMap;
+  public function testTopicCreationSubjectIdentifier()
+  {
+    $tm = $this->_topicMap;
     $sid = 'http://www.example.org/';
     $this->assertEquals(count($tm->getTopics()), 0, 
       'Expected new topic map created without topics!');
     $topic = $tm->createTopicBySubjectIdentifier($sid);
     $this->assertEquals(count($tm->getTopics()), 1, 'Expected 1 topic!');
-    $ids = $this->getIdsOfConstructs($tm->getTopics());
+    $ids = $this->_getIdsOfConstructs($tm->getTopics());
     $this->assertTrue(in_array($topic->getId(), $ids, true), 
       'Topic is not part of getTopics()!');
     $this->assertEquals(count($topic->getSubjectIdentifiers()), 1, 
@@ -69,9 +72,10 @@ class TopicMapTest extends PHPTMAPITestCase {
     );
   }
   
-  public function testTopicCreationSubjectIdentifierIllegal() {
+  public function testTopicCreationSubjectIdentifierIllegal()
+  {
     try {
-      $this->topicMap->createTopicBySubjectIdentifier(null);
+      $this->_topicMap->createTopicBySubjectIdentifier(null);
       $this->fail('null is not allowed as subject identifier!');
     } catch (ModelConstraintException $e) {
       $msg = $e->getMessage();
@@ -79,14 +83,15 @@ class TopicMapTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testTopicCreationSubjectLocator() {
-    $tm = $this->topicMap;
+  public function testTopicCreationSubjectLocator()
+  {
+    $tm = $this->_topicMap;
     $slo = 'http://www.example.org/';
     $this->assertEquals(count($tm->getTopics()), 0, 
       'Expected new topic map created without topics!');
     $topic = $tm->createTopicBySubjectLocator($slo);
     $this->assertEquals(count($tm->getTopics()), 1, 'Expected 1 topic!');
-    $ids = $this->getIdsOfConstructs($tm->getTopics());
+    $ids = $this->_getIdsOfConstructs($tm->getTopics());
     $this->assertTrue(in_array($topic->getId(), $ids, true), 
       'Topic is not part of getTopics()!');
     $this->assertEquals(count($topic->getSubjectLocators()), 1, 
@@ -106,23 +111,25 @@ class TopicMapTest extends PHPTMAPITestCase {
     $this->assertEquals($topic1->getId(), $topic2->getId(), 'Expected identity!');
   }
   
-  public function testTopicCreationSubjectLocatorIllegal() {
+  public function testTopicCreationSubjectLocatorIllegal()
+  {
     try {
-      $this->topicMap->createTopicBySubjectLocator(null);
+      $this->_topicMap->createTopicBySubjectLocator(null);
       $this->fail('null is not allowed as subject locator!');
     } catch (ModelConstraintException $e) {
       // no op.
     }
   }
   
-  public function testTopicCreationItemIdentifier() {
-    $tm = $this->topicMap;
+  public function testTopicCreationItemIdentifier()
+  {
+    $tm = $this->_topicMap;
     $iid = 'http://www.example.org/';
     $this->assertEquals(count($tm->getTopics()), 0, 
       'Expected new topic map created without topics!');
     $topic = $tm->createTopicByItemIdentifier($iid);
     $this->assertEquals(count($tm->getTopics()), 1, 'Expected 1 topic!');
-    $ids = $this->getIdsOfConstructs($tm->getTopics());
+    $ids = $this->_getIdsOfConstructs($tm->getTopics());
     $this->assertTrue(in_array($topic->getId(), $ids, true), 
       'Topic is not part of getTopics()!');
     $this->assertEquals(count($topic->getItemIdentifiers()), 1, 
@@ -137,7 +144,7 @@ class TopicMapTest extends PHPTMAPITestCase {
     foreach ($iids as $_iid) {
       $this->assertEquals($iid, $_iid, 'Unexpected item identifier');
     }
-    $name = $this->createName();
+    $name = $this->_createName();
     $iid = 'http://www.example.org#foo';
     $name->addItemIdentifier($iid);
     try {
@@ -161,22 +168,24 @@ class TopicMapTest extends PHPTMAPITestCase {
     );
   }
   
-  public function testTopicCreationItemIdentifierIllegal() {
+  public function testTopicCreationItemIdentifierIllegal()
+  {
     try {
-      $this->topicMap->createTopicByItemIdentifier(null);
+      $this->_topicMap->createTopicByItemIdentifier(null);
       $this->fail('null is not allowed as item identifier!');
     } catch (ModelConstraintException $e) {
       // no op.
     }
   }
   
-  public function testTopicCreationAutomagicItemIdentifier() {
-    $tm = $this->topicMap;
+  public function testTopicCreationAutomagicItemIdentifier()
+  {
+    $tm = $this->_topicMap;
     $this->assertEquals(count($tm->getTopics()), 0, 
       'Expected new topic map created without topics!');
     $topic = $tm->createTopic();
     $this->assertEquals(count($tm->getTopics()), 1, 'Expected 1 topic!');
-    $ids = $this->getIdsOfConstructs($tm->getTopics());
+    $ids = $this->_getIdsOfConstructs($tm->getTopics());
     $this->assertTrue(in_array($topic->getId(), $ids, true), 
       'Topic is not part of getTopics()!');
     $this->assertEquals(count($topic->getItemIdentifiers()), 1, 
@@ -187,8 +196,9 @@ class TopicMapTest extends PHPTMAPITestCase {
       'Unexpected subject locator');
   }
   
-  public function testTopicBySubjectIdentifier() {
-    $tm = $this->topicMap;
+  public function testTopicBySubjectIdentifier()
+  {
+    $tm = $this->_topicMap;
     $sid = 'http://www.example.org/';
     $topic = $tm->getTopicBySubjectIdentifier($sid);
     $this->assertNull($topic, 'Unexpected topic!');
@@ -201,8 +211,9 @@ class TopicMapTest extends PHPTMAPITestCase {
     $this->assertNull($topic, 'Unexpected topic!');
   }
   
-  public function testTopicBySubjectLocator() {
-    $tm = $this->topicMap;
+  public function testTopicBySubjectLocator()
+  {
+    $tm = $this->_topicMap;
     $slo = 'http://www.example.org/';
     $topic = $tm->getTopicBySubjectLocator($slo);
     $this->assertNull($topic, 'Unexpected topic!');
@@ -215,14 +226,15 @@ class TopicMapTest extends PHPTMAPITestCase {
     $this->assertNull($topic, 'Unexpected topic!');
   }
   
-  public function testAssociationCreation() {
-    $tm = $this->topicMap;
+  public function testAssociationCreation()
+  {
+    $tm = $this->_topicMap;
     $type = $tm->createTopic();
     $this->assertEquals(count($tm->getAssociations()), 0, 
       'Expected new topic map to be created without associations!');
     $assoc = $tm->createAssociation($type);
     $this->assertEquals(count($tm->getAssociations()), 1, 'Expected 1 association!');
-    $ids = $this->getIdsOfConstructs($tm->getAssociations());
+    $ids = $this->_getIdsOfConstructs($tm->getAssociations());
     $this->assertTrue(in_array($assoc->getId(), $ids, true), 
       'Association is not part of getAssociations()!');
     $this->assertEquals(count($assoc->getRoles()), 0, 'Unexpected number of roles!');
@@ -230,8 +242,9 @@ class TopicMapTest extends PHPTMAPITestCase {
     $this->assertEquals(count($assoc->getScope()), 0, 'Unexpected scope!');
   }
   
-  public function testAssociationCreationScope() {
-    $tm = $this->topicMap;
+  public function testAssociationCreationScope()
+  {
+    $tm = $this->_topicMap;
     $type = $tm->createTopic();
     $theme1 = $tm->createTopic();
     $theme2 = $tm->createTopic();
@@ -239,33 +252,35 @@ class TopicMapTest extends PHPTMAPITestCase {
       'Expected new topic map to be created without associations!');
     $assoc = $tm->createAssociation($type, array($theme1, $theme2));
     $this->assertEquals(count($tm->getAssociations()), 1, 'Expected 1 association!');
-    $ids = $this->getIdsOfConstructs($tm->getAssociations());
+    $ids = $this->_getIdsOfConstructs($tm->getAssociations());
     $this->assertTrue(in_array($assoc->getId(), $ids, true), 
       'Association is not part of getAssociations()!');
     $this->assertEquals(count($assoc->getRoles()), 0, 'Unexpected number of roles!');
     $this->assertEquals($assoc->getType()->getId(), $type->getId(), 'Unexpected type!');
     $this->assertEquals(count($assoc->getScope()), 2, 'Unexpected scope!');
-    $ids = $this->getIdsOfConstructs($assoc->getScope());
+    $ids = $this->_getIdsOfConstructs($assoc->getScope());
     $this->assertTrue(in_array($theme1->getId(), $ids, true), 
       'Topic is not part of getScope()!');
     $this->assertTrue(in_array($theme2->getId(), $ids, true), 
       'Topic is not part of getScope()!');
   }
   
-  public function testGetIndex() {
+  public function testGetIndex()
+  {
     try {
-      $this->topicMap->getIndex(md5(uniqid()));
+      $this->_topicMap->getIndex(md5(uniqid()));
       $this->fail('Exception expected for an unknown index!');
     } catch (Exception $e) {
       // no op.
     }
   }
   
-  public function testRemove() {
-    $tm = $this->topicMap;
+  public function testRemove()
+  {
+    $tm = $this->_topicMap;
     $typeTheme = $tm->createTopic();
     $topic = $tm->createTopic();
-    $variant = $this->createVariant();
+    $variant = $this->_createVariant();
     $variant->addTheme($typeTheme);
     $topic->addType($typeTheme);
     try {

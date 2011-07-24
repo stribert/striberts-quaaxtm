@@ -28,16 +28,18 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class QTMPropertyHolderTest extends PHPTMAPITestCase {
-  
-  public function testTopicMap() {
-    $this->assertTrue($this->topicMap instanceof TopicMap);
+class QTMPropertyHolderTest extends PHPTMAPITestCase
+{
+  public function testTopicMap()
+  {
+    $this->assertTrue($this->_topicMap instanceof TopicMap);
   }
   
-  public function testName() {
-    $parent = $this->topicMap->createTopic();
-    $type1 = $this->topicMap->createTopic();
-    $type2 = $this->topicMap->createTopic();
+  public function testName()
+  {
+    $parent = $this->_topicMap->createTopic();
+    $type1 = $this->_topicMap->createTopic();
+    $type2 = $this->_topicMap->createTopic();
     $name = $parent->createName('Testname', $type1);
     $this->assertTrue($name instanceof Name, 'Expected a name!');
     $this->assertEquals(count($parent->getNames()), 1, 'Expected 1 name!');
@@ -64,26 +66,27 @@ class QTMPropertyHolderTest extends PHPTMAPITestCase {
       'Expected identity!');
   }
   
-  public function testOccurrence() {
-    $parent = $this->topicMap->createTopic();
-    $type1 = $this->topicMap->createTopic();
-    $type2 = $this->topicMap->createTopic();
-    $occ = $parent->createOccurrence($type1, 'New occ', parent::$dtString);
+  public function testOccurrence()
+  {
+    $parent = $this->_topicMap->createTopic();
+    $type1 = $this->_topicMap->createTopic();
+    $type2 = $this->_topicMap->createTopic();
+    $occ = $parent->createOccurrence($type1, 'New occ', parent::$_dtString);
     $this->assertTrue($occ instanceof Occurrence, 'Expected an occurrence!');
     $this->assertEquals(count($parent->getOccurrences()), 1, 'Expected 1 occurrence!');
     $this->assertEquals($occ->getValue(), 'New occ', 'Expected identity!');
     $this->assertEquals($occ->getType()->getId(), $type1->getId(), 
       'Expected identity!');
-    $this->assertEquals($occ->getDatatype(), parent::$dtString, 'Expected identity!');
-    $occ->setValue('http://example.org/', parent::$dtUri);
+    $this->assertEquals($occ->getDatatype(), parent::$_dtString, 'Expected identity!');
+    $occ->setValue('http://example.org/', parent::$_dtUri);
     $this->assertEquals($occ->getValue(), 'http://example.org/', 'Expected identity!');
-    $this->assertEquals($occ->getDatatype(), parent::$dtUri, 'Expected identity!');
+    $this->assertEquals($occ->getDatatype(), parent::$_dtUri, 'Expected identity!');
     $occ->setType($type2);
     $this->assertEquals($occ->getType()->getId(), $type2->getId(), 
       'Expected identity!');
-    $occ->setValue('New occ', parent::$dtString);
+    $occ->setValue('New occ', parent::$_dtString);
     $this->assertEquals($occ->getValue(), 'New occ', 'Expected identity!');
-    $this->assertEquals($occ->getDatatype(), parent::$dtString, 'Expected identity!');
+    $this->assertEquals($occ->getDatatype(), parent::$_dtString, 'Expected identity!');
     $occ->setType($type1);
     $this->assertEquals($occ->getType()->getId(), $type1->getId(), 
       'Expected identity!');
@@ -93,17 +96,18 @@ class QTMPropertyHolderTest extends PHPTMAPITestCase {
     $restoredOcc = $occs[0];
     $this->assertTrue($restoredOcc instanceof Occurrence, 'Expected an occurrence!');
     $this->assertEquals($restoredOcc->getValue(), 'New occ', 'Expected identity!');
-    $this->assertEquals($restoredOcc->getDatatype(), parent::$dtString, 'Expected identity!');
+    $this->assertEquals($restoredOcc->getDatatype(), parent::$_dtString, 'Expected identity!');
     $this->assertEquals($restoredOcc->getType()->getId(), $type1->getId(), 
       'Expected identity!');
   }
   
-  public function testRole() {
-    $parent = $this->createAssoc();
-    $roleType = $this->topicMap->createTopic();
-    $newRoleType = $this->topicMap->createTopic();
-    $player = $this->topicMap->createTopic();
-    $newPlayer = $this->topicMap->createTopic();
+  public function testRole()
+  {
+    $parent = $this->_createAssoc();
+    $roleType = $this->_topicMap->createTopic();
+    $newRoleType = $this->_topicMap->createTopic();
+    $player = $this->_topicMap->createTopic();
+    $newPlayer = $this->_topicMap->createTopic();
     $role = $parent->createRole($roleType, $player);
     $this->assertTrue($role instanceof Role, 'Expected a role!');
     $roles = $parent->getRoles();
@@ -135,28 +139,28 @@ class QTMPropertyHolderTest extends PHPTMAPITestCase {
       'Expected identity!');
   }
   
-  public function testVariant() {
-    $parent = $this->createName();
-    $scope = array($this->topicMap->createTopic());
-    $variant = $parent->createVariant('New variant', parent::$dtString, $scope);
+  public function testVariant()
+  {
+    $parent = $this->_createName();
+    $scope = array($this->_topicMap->createTopic());
+    $variant = $parent->createVariant('New variant', parent::$_dtString, $scope);
     $this->assertTrue($variant instanceof IVariant, 'Expected a variant!');
     $this->assertEquals(count($parent->getVariants()), 1, 'Expected 1 variant!');
     $this->assertEquals($variant->getValue(), 'New variant', 'Expected identity!');
-    $this->assertEquals($variant->getDatatype(), parent::$dtString, 'Expected identity!');
-    $variant->setValue('http://example.org/', parent::$dtUri);
+    $this->assertEquals($variant->getDatatype(), parent::$_dtString, 'Expected identity!');
+    $variant->setValue('http://example.org/', parent::$_dtUri);
     $this->assertEquals($variant->getValue(), 'http://example.org/', 'Expected identity!');
-    $this->assertEquals($variant->getDatatype(), parent::$dtUri, 'Expected identity!');
-    $variant->setValue('New variant', parent::$dtString);
+    $this->assertEquals($variant->getDatatype(), parent::$_dtUri, 'Expected identity!');
+    $variant->setValue('New variant', parent::$_dtString);
     $this->assertEquals($variant->getValue(), 'New variant', 'Expected identity!');
-    $this->assertEquals($variant->getDatatype(), parent::$dtString, 'Expected identity!');
+    $this->assertEquals($variant->getDatatype(), parent::$_dtString, 'Expected identity!');
     unset($variant);
     $variants = $parent->getVariants();
     $this->assertEquals(count($variants), 1, 'Expected 1 variant!');
     $restoredVariant = $variants[0];
     $this->assertTrue($restoredVariant instanceof IVariant, 'Expected a variant!');
     $this->assertEquals($restoredVariant->getValue(), 'New variant', 'Expected identity!');
-    $this->assertEquals($restoredVariant->getDatatype(), parent::$dtString, 'Expected identity!');
+    $this->assertEquals($restoredVariant->getDatatype(), parent::$_dtString, 'Expected identity!');
   }
-  
 }
 ?>

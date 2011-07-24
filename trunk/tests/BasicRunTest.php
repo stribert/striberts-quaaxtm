@@ -28,16 +28,16 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class BasicRunTest extends PHPTMAPITestCase {
-  
-  public function testTopicMap() {
-    $this->assertTrue($this->topicMap instanceof TopicMap);
-    $tm = $this->topicMap;
-    $this->assertEquals($tm->getLocator(), self::$tmLocator);
-    $tmSystem = $this->sharedFixture;
+class BasicRunTest extends PHPTMAPITestCase
+{
+  public function testTopicMap()
+  {
+    $this->assertTrue($this->_topicMap instanceof TopicMap);
+    $tm = $this->_topicMap;
+    $this->assertEquals($tm->getLocator(), self::$_tmLocator);
+    $tmSystem = $this->_sharedFixture;
     $this->assertTrue(count($tmSystem->getLocators()) > 0);
     $this->assertTrue(in_array($tm->getLocator(), $tmSystem->getLocators()));
   }
-  
 }
 ?>

@@ -28,69 +28,81 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class TopicMapSystemFactoryTest extends PHPTMAPITestCase {
+class TopicMapSystemFactoryTest extends PHPTMAPITestCase
+{
+  private $_tmSystemFactory;
   
-  private $tmSystemFactory;
-  
-  public function setUp() {
+  /**
+   * @override
+   */
+  protected function setUp()
+  {
     parent::setUp();
-    $this->tmSystemFactory = TopicMapSystemFactory::newInstance();
+    $this->_tmSystemFactory = TopicMapSystemFactory::newInstance();
   }
   
-  public function tearDown() {
-    unset($this->tmSystemFactory);
+  /**
+   * @override
+   */
+  protected function tearDown() 
+  {
+    unset($this->_tmSystemFactory);
     parent::tearDown();
   }
   
-  public function testSetFeature() {
+  public function testSetFeature()
+  {
     try {
-      $this->tmSystemFactory->setFeature('http://localhost/' . uniqid(), true);
+      $this->_tmSystemFactory->setFeature('http://localhost/' . uniqid(), true);
       $this->fail('Setting an unknown feature must raise a FeatureNotRecognizedException.');
     } catch (FeatureNotRecognizedException $e) {
       // no op.
     }
   }
   
-  public function testGetFeature() {
+  public function testGetFeature()
+  {
     try {
-      $this->tmSystemFactory->getFeature('http://localhost/' . uniqid());
+      $this->_tmSystemFactory->getFeature('http://localhost/' . uniqid());
       $this->fail('Getting an unknown feature must raise a FeatureNotRecognizedException.');
     } catch (FeatureNotRecognizedException $e) {
       // no op.
     }
-    $feature = $this->tmSystemFactory->getFeature(VocabularyUtils::TMAPI_FEATURE_AUTOMERGE);
+    $feature = $this->_tmSystemFactory->getFeature(VocabularyUtils::TMAPI_FEATURE_AUTOMERGE);
     $this->assertTrue($feature);
-    $feature = $this->tmSystemFactory->getFeature(VocabularyUtils::TMAPI_FEATURE_READONLY);
+    $feature = $this->_tmSystemFactory->getFeature(VocabularyUtils::TMAPI_FEATURE_READONLY);
     $this->assertFalse($feature);
   }
   
-  public function testHasFeature() {
-    $hasFeature = $this->tmSystemFactory->hasFeature('http://localhost/' . uniqid());
+  public function testHasFeature()
+  {
+    $hasFeature = $this->_tmSystemFactory->hasFeature('http://localhost/' . uniqid());
     $this->assertFalse($hasFeature);
   }
   
-  public function testProperty() {
-    $property = $this->tmSystemFactory->getProperty(uniqid());
+  public function testProperty()
+  {
+    $property = $this->_tmSystemFactory->getProperty(uniqid());
     $this->assertNull($property);
-    $this->tmSystemFactory->setProperty('foo', new stdClass());
-    $property = $this->tmSystemFactory->getProperty('foo');
+    $this->_tmSystemFactory->setProperty('foo', new stdClass());
+    $property = $this->_tmSystemFactory->getProperty('foo');
     $this->assertTrue($property instanceof stdClass);
-    $this->tmSystemFactory->setProperty('foo', null);
-    $property = $this->tmSystemFactory->getProperty('foo');
+    $this->_tmSystemFactory->setProperty('foo', null);
+    $property = $this->_tmSystemFactory->getProperty('foo');
     $this->assertNull($property);
-    $this->tmSystemFactory->setProperty('foo', 'bar');
-    $property = $this->tmSystemFactory->getProperty('foo');
+    $this->_tmSystemFactory->setProperty('foo', 'bar');
+    $property = $this->_tmSystemFactory->getProperty('foo');
     $this->assertEquals($property, 'bar');
-    $this->tmSystemFactory->setProperty('foo', null);
-    $property = $this->tmSystemFactory->getProperty('foo');
+    $this->_tmSystemFactory->setProperty('foo', null);
+    $property = $this->_tmSystemFactory->getProperty('foo');
     $this->assertNull($property);
-    $this->tmSystemFactory->setProperty('foo', array(1,2));
-    $property = $this->tmSystemFactory->getProperty('foo');
+    $this->_tmSystemFactory->setProperty('foo', array(1,2));
+    $property = $this->_tmSystemFactory->getProperty('foo');
     $this->assertEquals($property, array(1,2));
-    $this->tmSystemFactory->setProperty('foo', null);
-    $property = $this->tmSystemFactory->getProperty('foo');
+    $this->_tmSystemFactory->setProperty('foo', null);
+    $property = $this->_tmSystemFactory->getProperty('foo');
     $this->assertNull($property);
-    $this->tmSystemFactory->setProperty('baz', null);
+    $this->_tmSystemFactory->setProperty('baz', null);
   }
 }
 ?>

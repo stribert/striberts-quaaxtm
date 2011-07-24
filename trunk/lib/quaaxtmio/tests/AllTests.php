@@ -28,9 +28,10 @@ require_once('Xtm201Test.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class AllTests extends PHPUnit_Framework_TestSuite {
-
-  public static function suite() {
+class AllTests extends PHPUnit_Framework_TestSuite
+{
+  public static function suite()
+  {
     $suite = new AllTests();
     $suite->addTestSuite('Jtm101Test');
     $suite->addTestSuite('Xtm201Test');

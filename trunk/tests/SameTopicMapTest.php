@@ -28,22 +28,24 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class SameTopicMapTest extends PHPTMAPITestCase {
-  
-  public function testTopicMap() {
-    $this->assertTrue($this->topicMap instanceof TopicMap);
+class SameTopicMapTest extends PHPTMAPITestCase
+{
+  public function testTopicMap()
+  {
+    $this->assertTrue($this->_topicMap instanceof TopicMap);
   }
   
-  public function testAssociationCreationIllegalType() {
+  public function testAssociationCreationIllegalType()
+  {
     try {
-      $otherTopicMap = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
-      $this->topicMap->createAssociation($otherTopicMap->createTopic());
+      $otherTopicMap = $this->_sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+      $this->_topicMap->createAssociation($otherTopicMap->createTopic());
       $this->fail('Expected a model contraint exception!');
       $otherTopicMap->remove();
     } catch (ModelConstraintException $e) {
       $this->assertEquals(
         $e->getReporter()->getId(), 
-        $this->topicMap->getId(), 
+        $this->_topicMap->getId(), 
         'Expected identity!'
       );
       $msg = $e->getMessage();
@@ -52,19 +54,20 @@ class SameTopicMapTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testAssociationCreationIllegalScope() {
+  public function testAssociationCreationIllegalScope()
+  {
     try {
-      $otherTopicMap = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
-      $this->topicMap->createAssociation(
-        $this->topicMap->createTopic(), 
-        array($this->topicMap->createTopic(), $otherTopicMap->createTopic(), 'foo')
+      $otherTopicMap = $this->_sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+      $this->_topicMap->createAssociation(
+        $this->_topicMap->createTopic(), 
+        array($this->_topicMap->createTopic(), $otherTopicMap->createTopic(), 'foo')
       );
       $this->fail('Expected a model contraint exception!');
       $otherTopicMap->remove();
     } catch (ModelConstraintException $e) {
       $this->assertEquals(
         $e->getReporter()->getId(), 
-        $this->topicMap->getId(), 
+        $this->_topicMap->getId(), 
         'Expected identity!'
       );
       $msg = $e->getMessage();
@@ -73,10 +76,11 @@ class SameTopicMapTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testNameCreationIllegalType() {
+  public function testNameCreationIllegalType()
+  {
     try {
-      $otherTopicMap = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
-      $parent = $this->topicMap->createTopic();
+      $otherTopicMap = $this->_sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+      $parent = $this->_topicMap->createTopic();
       $parent->createName('Name', $otherTopicMap->createTopic());
       $this->fail('Expected a model contraint exception!');
       $otherTopicMap->remove();
@@ -92,14 +96,15 @@ class SameTopicMapTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testNameCreationIllegalScope() {
+  public function testNameCreationIllegalScope()
+  {
     try {
-      $otherTopicMap = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
-      $parent = $this->topicMap->createTopic();
+      $otherTopicMap = $this->_sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+      $parent = $this->_topicMap->createTopic();
       $parent->createName(
       	'Name', 
-        $this->topicMap->createTopic(), 
-        array($this->topicMap->createTopic(), $otherTopicMap->createTopic(), 'foo')
+        $this->_topicMap->createTopic(), 
+        array($this->_topicMap->createTopic(), $otherTopicMap->createTopic(), 'foo')
       );
       $this->fail('Expected a model contraint exception!');
       $otherTopicMap->remove();
@@ -115,11 +120,12 @@ class SameTopicMapTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testOccurrenceCreationIllegalType() {
+  public function testOccurrenceCreationIllegalType()
+  {
     try {
-      $otherTopicMap = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
-      $parent = $this->topicMap->createTopic();
-      $parent->createOccurrence($otherTopicMap->createTopic(), 'Occurrence', parent::$dtString);
+      $otherTopicMap = $this->_sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+      $parent = $this->_topicMap->createTopic();
+      $parent->createOccurrence($otherTopicMap->createTopic(), 'Occurrence', parent::$_dtString);
       $this->fail('Expected a model contraint exception!');
       $otherTopicMap->remove();
     } catch (ModelConstraintException $e) {
@@ -134,15 +140,16 @@ class SameTopicMapTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testOccurrenceCreationIllegalScope() {
+  public function testOccurrenceCreationIllegalScope()
+  {
     try {
-      $otherTopicMap = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
-      $parent = $this->topicMap->createTopic();
+      $otherTopicMap = $this->_sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+      $parent = $this->_topicMap->createTopic();
       $parent->createOccurrence(
-        $this->topicMap->createTopic(), 
+        $this->_topicMap->createTopic(), 
         'Occurrence', 
-        parent::$dtString, 
-        array($this->topicMap->createTopic(), $otherTopicMap->createTopic(), 'foo')
+        parent::$_dtString, 
+        array($this->_topicMap->createTopic(), $otherTopicMap->createTopic(), 'foo')
       );
       $this->fail('Expected a model contraint exception!');
       $otherTopicMap->remove();
@@ -158,15 +165,16 @@ class SameTopicMapTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testVariantCreationIllegalScope() {
+  public function testVariantCreationIllegalScope()
+  {
     try {
-      $otherTopicMap = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
-      $topic = $this->topicMap->createTopic();
+      $otherTopicMap = $this->_sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+      $topic = $this->_topicMap->createTopic();
       $parent = $topic->createName('foo');
       $parent->createVariant(
         'Foo', 
-        parent::$dtString, 
-        array($this->topicMap->createTopic(), $otherTopicMap->createTopic(), 'bar')
+        parent::$_dtString, 
+        array($this->_topicMap->createTopic(), $otherTopicMap->createTopic(), 'bar')
       );
       $this->fail('Expected a model contraint exception!');
       $otherTopicMap->remove();
@@ -182,11 +190,12 @@ class SameTopicMapTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testRoleCreationIllegalType() {
+  public function testRoleCreationIllegalType()
+  {
     try {
-      $otherTopicMap = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
-      $parent = $this->topicMap->createAssociation($this->topicMap->createTopic());
-      $parent->createRole($otherTopicMap->createTopic(), $this->topicMap->createTopic());
+      $otherTopicMap = $this->_sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+      $parent = $this->_topicMap->createAssociation($this->_topicMap->createTopic());
+      $parent->createRole($otherTopicMap->createTopic(), $this->_topicMap->createTopic());
       $this->fail('Expected a model contraint exception!');
       $otherTopicMap->remove();
     } catch (ModelConstraintException $e) {
@@ -201,11 +210,12 @@ class SameTopicMapTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testRoleCreationIllegalPlayer() {
+  public function testRoleCreationIllegalPlayer()
+  {
     try {
-      $otherTopicMap = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
-      $parent = $this->topicMap->createAssociation($this->topicMap->createTopic());
-      $parent->createRole($this->topicMap->createTopic(), $otherTopicMap->createTopic());
+      $otherTopicMap = $this->_sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+      $parent = $this->_topicMap->createAssociation($this->_topicMap->createTopic());
+      $parent->createRole($this->_topicMap->createTopic(), $otherTopicMap->createTopic());
       $this->fail('Expected a model contraint exception!');
       $otherTopicMap->remove();
     } catch (ModelConstraintException $e) {
@@ -220,42 +230,51 @@ class SameTopicMapTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testAssociationIllegalTheme() {
-    $this->_testIllegalTheme($this->createAssoc());
+  public function testAssociationIllegalTheme()
+  {
+    $this->_testIllegalTheme($this->_createAssoc());
   }
   
-  public function testOccurrenceIllegalTheme() {
-    $this->_testIllegalTheme($this->createOcc());
+  public function testOccurrenceIllegalTheme()
+  {
+    $this->_testIllegalTheme($this->_createOcc());
   }
   
-  public function testNameIllegalTheme() {
-    $this->_testIllegalTheme($this->createName());
+  public function testNameIllegalTheme()
+  {
+    $this->_testIllegalTheme($this->_createName());
   }
   
-  public function testVariantIllegalTheme() {
-    $this->_testIllegalTheme($this->createVariant());
+  public function testVariantIllegalTheme()
+  {
+    $this->_testIllegalTheme($this->_createVariant());
   }
   
-  public function testAssociationIllegalType() {
-    $this->_testIllegalType($this->createAssoc());
+  public function testAssociationIllegalType()
+  {
+    $this->_testIllegalType($this->_createAssoc());
   }
   
-  public function testRoleIllegalType() {
-    $this->_testIllegalType($this->createRole());
+  public function testRoleIllegalType()
+  {
+    $this->_testIllegalType($this->_createRole());
   }
   
-  public function testOccurrenceIllegalType() {
-    $this->_testIllegalType($this->createOcc());
+  public function testOccurrenceIllegalType()
+  {
+    $this->_testIllegalType($this->_createOcc());
   }
   
-  public function testNameIllegalType() {
-    $this->_testIllegalType($this->createName());
+  public function testNameIllegalType()
+  {
+    $this->_testIllegalType($this->_createName());
   }
   
-  public function testRoleIllegalPlayer() {
+  public function testRoleIllegalPlayer()
+  {
     try {
-      $otherTopicMap = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
-      $role = $this->createRole();
+      $otherTopicMap = $this->_sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+      $role = $this->_createRole();
       $role->setPlayer($otherTopicMap->createTopic());
       $this->fail('Expected a model contraint exception!');
       $otherTopicMap->remove();
@@ -271,10 +290,11 @@ class SameTopicMapTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testIllegalTopicType() {
+  public function testIllegalTopicType()
+  {
     try {
-      $otherTopicMap = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
-      $topic = $this->topicMap->createTopic();
+      $otherTopicMap = $this->_sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+      $topic = $this->_topicMap->createTopic();
       $topic->addType($otherTopicMap->createTopic());
       $this->fail('Expected a model contraint exception!');
       $otherTopicMap->remove();
@@ -290,28 +310,34 @@ class SameTopicMapTest extends PHPTMAPITestCase {
     }
   }
   
-  public function testTopicMapIllegalReifier() {
-    $this->_testIllegalReifier($this->topicMap);
+  public function testTopicMapIllegalReifier()
+  {
+    $this->_testIllegalReifier($this->_topicMap);
   }
   
-  public function testAssociationIllegalReifier() {
-    $this->_testIllegalReifier($this->createAssoc());
+  public function testAssociationIllegalReifier()
+  {
+    $this->_testIllegalReifier($this->_createAssoc());
   }
   
-  public function testRoleIllegalReifier() {
-    $this->_testIllegalReifier($this->createRole());
+  public function testRoleIllegalReifier()
+  {
+    $this->_testIllegalReifier($this->_createRole());
   }
   
-  public function testOccurrenceIllegalReifier() {
-    $this->_testIllegalReifier($this->createOcc());
+  public function testOccurrenceIllegalReifier()
+  {
+    $this->_testIllegalReifier($this->_createOcc());
   }
   
-  public function testNameIllegalReifier() {
-    $this->_testIllegalReifier($this->createName());
+  public function testNameIllegalReifier()
+  {
+    $this->_testIllegalReifier($this->_createName());
   }
   
-  public function testVariantIllegalReifier() {
-    $this->_testIllegalReifier($this->createVariant());
+  public function testVariantIllegalReifier()
+  {
+    $this->_testIllegalReifier($this->_createVariant());
   }
   
   /**
@@ -320,9 +346,10 @@ class SameTopicMapTest extends PHPTMAPITestCase {
    * @param Scoped
    * @return void
    */
-  private function _testIllegalTheme(Scoped $scoped) {
+  private function _testIllegalTheme(Scoped $scoped)
+  {
     try {
-      $otherTopicMap = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+      $otherTopicMap = $this->_sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
       $scoped->addTheme($otherTopicMap->createTopic());
       $this->fail('Expected a model contraint exception!');
       $otherTopicMap->remove();
@@ -344,9 +371,10 @@ class SameTopicMapTest extends PHPTMAPITestCase {
    * @param Typed
    * @return void
    */
-  private function _testIllegalType(Typed $typed) {
+  private function _testIllegalType(Typed $typed)
+  {
     try {
-      $otherTopicMap = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+      $otherTopicMap = $this->_sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
       $typed->setType($otherTopicMap->createTopic());
       $this->fail('Expected a model contraint exception!');
       $otherTopicMap->remove();
@@ -368,9 +396,10 @@ class SameTopicMapTest extends PHPTMAPITestCase {
    * @param Reifiable
    * @return void
    */
-  private function _testIllegalReifier(Reifiable $reifiable) {
+  private function _testIllegalReifier(Reifiable $reifiable)
+  {
     try {
-      $otherTopicMap = $this->sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
+      $otherTopicMap = $this->_sharedFixture->createTopicMap('http://localhost/tm/' . uniqid());
       $reifiable->setReifier($otherTopicMap->createTopic());
       $this->fail('Expected a model contraint exception!');
       $otherTopicMap->remove();

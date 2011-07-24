@@ -28,42 +28,44 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class QTMFeatureStringTest extends PHPTMAPITestCase {
+class QTMFeatureStringTest extends PHPTMAPITestCase
+{
+  private $_tmSystemFactory;
   
-  private static $duplRemoval = 'http://quaaxtm.sourceforge.net/features/auto-duplicate-removal/';
-          
-  private $tmSystemFactory;
+  private static $_duplRemoval = 'http://quaaxtm.sourceforge.net/features/auto-duplicate-removal/';
   
   /**
    * @override
    */
-  public function setUp() {
-    $this->tmSystemFactory = TopicMapSystemFactory::newInstance();
+  public function setUp()
+  {
+    $this->_tmSystemFactory = TopicMapSystemFactory::newInstance();
   }
   
   /**
    * @override
    */
-  public function tearDown() {
-    $this->tmSystemFactory = null;
+  public function tearDown()
+  {
+    $this->_tmSystemFactory = null;
   }
   
-  public function testDuplicateRemoval() {
+  public function testDuplicateRemoval()
+  {
     // true
-  	$this->tmSystemFactory->setFeature(self::$duplRemoval, true);
-    $setting = $this->tmSystemFactory->getFeature(self::$duplRemoval);
+  	$this->_tmSystemFactory->setFeature(self::$_duplRemoval, true);
+    $setting = $this->_tmSystemFactory->getFeature(self::$_duplRemoval);
     $this->assertTrue($setting, 'Expected feature enabled!');
-    $tmSystem = $this->tmSystemFactory->newTopicMapSystem();
-    $setting = $tmSystem->getFeature(self::$duplRemoval);
+    $tmSystem = $this->_tmSystemFactory->newTopicMapSystem();
+    $setting = $tmSystem->getFeature(self::$_duplRemoval);
     $this->assertTrue($setting, 'Expected feature enabled!');
     // false
-    $this->tmSystemFactory->setFeature(self::$duplRemoval, false);
-    $setting = $this->tmSystemFactory->getFeature(self::$duplRemoval);
+    $this->_tmSystemFactory->setFeature(self::$_duplRemoval, false);
+    $setting = $this->_tmSystemFactory->getFeature(self::$_duplRemoval);
     $this->assertFalse($setting, 'Expected feature disabled!');
-    $tmSystem = $this->tmSystemFactory->newTopicMapSystem();
-    $setting = $tmSystem->getFeature(self::$duplRemoval);
+    $tmSystem = $this->_tmSystemFactory->newTopicMapSystem();
+    $setting = $tmSystem->getFeature(self::$_duplRemoval);
     $this->assertFalse($setting, 'Expected feature disabled!');
   }
-
 }
 ?>

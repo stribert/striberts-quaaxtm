@@ -28,43 +28,52 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class QTMDuplicateAutoRemovalTest extends PHPTMAPITestCase {
-  
+class QTMDuplicateAutoRemovalTest extends PHPTMAPITestCase
+{
+  /**
+   * @override
+   */
   protected function setUp() {
     $tmSystemFactory = TopicMapSystemFactory::newInstance();
     // QuaaxTM specific features
     $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, true);
     try {
-      $this->sharedFixture = $tmSystemFactory->newTopicMapSystem();
-      $this->preservedBaseLocators = $this->sharedFixture->getLocators();
-      $this->topicMap = $this->sharedFixture->createTopicMap(self::$tmLocator);
+      $this->_sharedFixture = $tmSystemFactory->newTopicMapSystem();
+      $this->preservedBaseLocators = $this->_sharedFixture->getLocators();
+      $this->_topicMap = $this->_sharedFixture->createTopicMap(self::$_tmLocator);
     } catch (PHPTMAPIRuntimeException $e) {
       $this->markTestSkipped($e->getMessage() . ': Skip test.');
     }
   }
   
-  protected function tearDown() {
-    if ($this->sharedFixture instanceof TopicMapSystem) {
-      $locators = $this->sharedFixture->getLocators();
+  /**
+   * @override
+   */
+  protected function tearDown()
+  {
+    if ($this->_sharedFixture instanceof TopicMapSystem) {
+      $locators = $this->_sharedFixture->getLocators();
       foreach ($locators as $locator) {
         if (!in_array($locator, $this->preservedBaseLocators)) {
-          $tm = $this->sharedFixture->getTopicMap($locator);
+          $tm = $this->_sharedFixture->getTopicMap($locator);
           $tm->close();
           $tm->remove();
         }
       }
-      $this->sharedFixture->close();
-      $this->topicMap = 
-      $this->sharedFixture = null;
+      $this->_sharedFixture->close();
+      $this->_topicMap = 
+      $this->_sharedFixture = null;
     }
   }
   
-  public function testTopicMap() {
-    $this->assertTrue($this->topicMap instanceof TopicMap);
+  public function testTopicMap()
+  {
+    $this->assertTrue($this->_topicMap instanceof TopicMap);
   }
   
-  public function testName() {
-    $tm = $this->topicMap;
+  public function testName()
+  {
+    $tm = $this->_topicMap;
     $parent = $tm->createTopic();
     $type = $tm->createTopic();
     $type->addSubjectIdentifier(VocabularyUtils::TMDM_PSI_DEFAULT_NAME_TYPE);
@@ -74,7 +83,7 @@ class QTMDuplicateAutoRemovalTest extends PHPTMAPITestCase {
     $this->assertEquals(count($parent->getNames()), 0, 
       'Expected new topic to be created without names!');
     $name1 = $parent->createName('Name1', $type, array($theme1, $theme2));
-    $variant = $name1->createVariant('NAME1', parent::$dtString, array($theme3));
+    $variant = $name1->createVariant('NAME1', parent::$_dtString, array($theme3));
     $variantId = $variant->getId();
     $name2 = $parent->createName('Name2', $type);
     $this->assertEquals($name1->getParent()->getId(), $parent->getId(), 
@@ -82,7 +91,7 @@ class QTMDuplicateAutoRemovalTest extends PHPTMAPITestCase {
     $this->assertEquals($name2->getParent()->getId(), $parent->getId(), 
       'Unexpected name parent after creation!');
     $this->assertEquals(count($parent->getNames()), 2, 'Expected 2 names!');
-    $ids = $this->getIdsOfConstructs($parent->getNames());
+    $ids = $this->_getIdsOfConstructs($parent->getNames());
     $this->assertTrue(in_array($name1->getId(), $ids, true), 
       'Name is not part of getNames()!');
     $this->assertTrue(in_array($name2->getId(), $ids, true), 
@@ -101,7 +110,7 @@ class QTMDuplicateAutoRemovalTest extends PHPTMAPITestCase {
     $this->assertEquals($name->getValue(), 'Name1', 'Unexpected value!');
     $scope = $name->getScope();
     $this->assertEquals(count($scope), 2, 'Expected 2 themes!');
-    $ids = $this->getIdsOfConstructs($scope);
+    $ids = $this->_getIdsOfConstructs($scope);
     $this->assertTrue(in_array($theme1->getId(), $ids, true), 
       'Topic is not part of getScope()!');
     $this->assertTrue(in_array($theme2->getId(), $ids, true), 
@@ -118,28 +127,29 @@ class QTMDuplicateAutoRemovalTest extends PHPTMAPITestCase {
     $this->assertEquals($variantId, $variant->getId(), 'Expected identity!');
   }
   
-  public function testVariant() {
-    $tm = $this->topicMap;
+  public function testVariant()
+  {
+    $tm = $this->_topicMap;
     $topic = $tm->createTopic();
     $parent = $topic->createName('Name');
     $theme1 = $tm->createTopic();
     $theme2 = $tm->createTopic();
     $this->assertEquals(count($parent->getVariants()), 0, 
       'Expected new name to be created without variants!');
-    $variant1 = $parent->createVariant('Variant1', parent::$dtString, array($theme1, $theme2));
-    $variant2 = $parent->createVariant('Variant2', parent::$dtString, array($theme1));
+    $variant1 = $parent->createVariant('Variant1', parent::$_dtString, array($theme1, $theme2));
+    $variant2 = $parent->createVariant('Variant2', parent::$_dtString, array($theme1));
     $this->assertEquals($variant1->getParent()->getId(), $parent->getId(), 
       'Unexpected variant parent after creation!');
     $this->assertEquals($variant2->getParent()->getId(), $parent->getId(), 
       'Unexpected variant parent after creation!');
     $this->assertEquals(count($parent->getVariants()), 2, 'Expected 2 variants!');
-    $ids = $this->getIdsOfConstructs($parent->getVariants());
+    $ids = $this->_getIdsOfConstructs($parent->getVariants());
     $this->assertTrue(in_array($variant1->getId(), $ids, true), 
       'Variant is not part of getVariants()!');
     $this->assertTrue(in_array($variant2->getId(), $ids, true), 
       'Variant is not part of getVariants()!');
     // make dupl.
-    $variant2->setValue('Variant1', parent::$dtString);
+    $variant2->setValue('Variant1', parent::$_dtString);
     $variant2->addTheme($theme2);
     
     $variant2->__destruct();// call destructor explicitly; triggers dupl. removal
@@ -151,38 +161,39 @@ class QTMDuplicateAutoRemovalTest extends PHPTMAPITestCase {
     $this->assertEquals($variant->getParent()->getId(), $parent->getId(), 
       'Unexpected variant parent!');
     $this->assertEquals($variant->getValue(), 'Variant1', 'Unexpected value!');
-    $this->assertEquals($variant->getDatatype(), parent::$dtString, 'Unexpected datatype!');
+    $this->assertEquals($variant->getDatatype(), parent::$_dtString, 'Unexpected datatype!');
     $scope = $variant->getScope();
     $this->assertEquals(count($scope), 2, 'Expected 2 themes!');
-    $ids = $this->getIdsOfConstructs($scope);
+    $ids = $this->_getIdsOfConstructs($scope);
     $this->assertTrue(in_array($theme1->getId(), $ids, true), 
       'Topic is not part of getScope()!');
     $this->assertTrue(in_array($theme2->getId(), $ids, true), 
       'Topic is not part of getScope()!');
   }
   
-  public function testOccurrence() {
-    $tm = $this->topicMap;
+  public function testOccurrence()
+  {
+    $tm = $this->_topicMap;
     $parent = $tm->createTopic();
     $type = $tm->createTopic();
     $theme1 = $tm->createTopic();
     $theme2 = $tm->createTopic();
     $this->assertEquals(count($parent->getOccurrences()), 0, 
       'Expected new topic to be created without occurrences!');
-    $occ1 = $parent->createOccurrence($type, 'occ1', parent::$dtString, array($theme1, $theme2));
-    $occ2 = $parent->createOccurrence($tm->createTopic(), 'http://quaaxtm.sf.net/', parent::$dtUri);
+    $occ1 = $parent->createOccurrence($type, 'occ1', parent::$_dtString, array($theme1, $theme2));
+    $occ2 = $parent->createOccurrence($tm->createTopic(), 'http://quaaxtm.sf.net/', parent::$_dtUri);
     $this->assertEquals($occ1->getParent()->getId(), $parent->getId(), 
       'Unexpected occurrence parent after creation!');
     $this->assertEquals($occ2->getParent()->getId(), $parent->getId(), 
       'Unexpected occurrence parent after creation!');
     $this->assertEquals(count($parent->getOccurrences()), 2, 'Expected 2 occurrences!');
-    $ids = $this->getIdsOfConstructs($parent->getOccurrences());
+    $ids = $this->_getIdsOfConstructs($parent->getOccurrences());
     $this->assertTrue(in_array($occ1->getId(), $ids, true), 
       'Occurrence is not part of getOccurrences()!');
     $this->assertTrue(in_array($occ2->getId(), $ids, true), 
       'Occurrence is not part of getOccurrences()!');
     // make dupl.
-    $occ2->setValue('occ1', parent::$dtString);
+    $occ2->setValue('occ1', parent::$_dtString);
     $occ2->setType($type);
     $occ2->addTheme($theme1);
     $occ2->addTheme($theme2);
@@ -197,18 +208,19 @@ class QTMDuplicateAutoRemovalTest extends PHPTMAPITestCase {
       'Unexpected occurrence parent!');
     $this->assertEquals($occ->getType()->getId(), $type->getId(), 'Unexpected type!');
     $this->assertEquals($occ->getValue(), 'occ1', 'Unexpected value!');
-    $this->assertEquals($occ->getDatatype(), parent::$dtString, 'Unexpected datatype!');
+    $this->assertEquals($occ->getDatatype(), parent::$_dtString, 'Unexpected datatype!');
     $scope = $occ->getScope();
     $this->assertEquals(count($scope), 2, 'Expected 2 themes!');
-    $ids = $this->getIdsOfConstructs($scope);
+    $ids = $this->_getIdsOfConstructs($scope);
     $this->assertTrue(in_array($theme1->getId(), $ids, true), 
       'Topic is not part of getScope()!');
     $this->assertTrue(in_array($theme2->getId(), $ids, true), 
       'Topic is not part of getScope()!');
   }
   
-  public function testAssociation() {
-    $tm = $parent = $this->topicMap;
+  public function testAssociation()
+  {
+    $tm = $parent = $this->_topicMap;
     $assocType = $tm->createTopic();
     $roleType = $tm->createTopic();
     $player = $tm->createTopic();
@@ -223,7 +235,7 @@ class QTMDuplicateAutoRemovalTest extends PHPTMAPITestCase {
     $this->assertEquals($assoc2->getParent()->getId(), $parent->getId(), 
       'Unexpected association parent after creation!');
     $this->assertEquals(count($parent->getAssociations()), 2, 'Expected 2 associations!');
-    $ids = $this->getIdsOfConstructs($parent->getAssociations());
+    $ids = $this->_getIdsOfConstructs($parent->getAssociations());
     $this->assertTrue(in_array($assoc1->getId(), $ids, true), 
       'Association is not part of getAssociations()!');
     $this->assertTrue(in_array($assoc2->getId(), $ids, true), 
@@ -247,7 +259,7 @@ class QTMDuplicateAutoRemovalTest extends PHPTMAPITestCase {
     $this->assertEquals($assoc->getType()->getId(), $assocType->getId(), 'Unexpected type!');
     $scope = $assoc->getScope();
     $this->assertEquals(count($scope), 2, 'Expected 2 themes!');
-    $ids = $this->getIdsOfConstructs($scope);
+    $ids = $this->_getIdsOfConstructs($scope);
     $this->assertTrue(in_array($theme1->getId(), $ids, true), 
       'Topic is not part of getScope()!');
     $this->assertTrue(in_array($theme2->getId(), $ids, true), 

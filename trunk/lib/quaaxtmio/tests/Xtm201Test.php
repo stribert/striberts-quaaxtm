@@ -27,44 +27,47 @@ require_once('TestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class Xtm201Test extends TestCase {
+class Xtm201Test extends TestCase
+{  
+  private static $_reader = 'XTM201TopicMapReader';
   
-  private static $reader = 'XTM201TopicMapReader';
-  
-  public function testTopicMapSystem() {
-    $this->assertTrue($this->sharedFixture instanceof TopicMapSystem);
+  public function testTopicMapSystem()
+  {
+    $this->assertTrue($this->_sharedFixture instanceof TopicMapSystem);
   }
   
   /**
    * @dataProvider getValid21Files
    */
-  public function testValidXtm21($xtmFile) {
-    $xtmDir = $this->cxtmIncPath . 'xtm21' . DIRECTORY_SEPARATOR . 'in';
-    $cxtmDir = $this->cxtmIncPath . 'xtm21' . DIRECTORY_SEPARATOR . 'baseline';
+  public function testValidXtm21($xtmFile)
+  {
+    $xtmDir = $this->_cxtmIncPath . 'xtm21' . DIRECTORY_SEPARATOR . 'in';
+    $cxtmDir = $this->_cxtmIncPath . 'xtm21' . DIRECTORY_SEPARATOR . 'baseline';
     // read source XTM
-    $this->readSrcFile($xtmDir . DIRECTORY_SEPARATOR . $xtmFile, self::$reader);
-    $cxtmBase = $this->readCxtmFile($cxtmDir . DIRECTORY_SEPARATOR . $xtmFile . '.cxtm');
+    $this->_readSrcFile($xtmDir . DIRECTORY_SEPARATOR . $xtmFile, self::$_reader);
+    $cxtmBase = $this->_readCxtmFile($cxtmDir . DIRECTORY_SEPARATOR . $xtmFile . '.cxtm');
     // get the topic map and write the XTM
-    $topicMap = $this->sharedFixture->getTopicMap($this->tmLocator);
+    $topicMap = $this->_sharedFixture->getTopicMap($this->_tmLocator);
     $xtmWriter = new PHPTMAPIXTM201Writer();
-    $xtm = $xtmWriter->write($topicMap, $this->tmLocator);
+    $xtm = $xtmWriter->write($topicMap, $this->_tmLocator);
     $topicMap->remove();
     // read written XTM
-    $this->read($xtm, self::$reader);
+    $this->_read($xtm, self::$_reader);
     // get the topic map and write the CXTM
-    $topicMap = $this->sharedFixture->getTopicMap($this->tmLocator);
+    $topicMap = $this->_sharedFixture->getTopicMap($this->_tmLocator);
     $cxtmWriter = new PHPTMAPICXTMWriter();
-    $cxtm = $cxtmWriter->write($topicMap, $this->tmLocator, true, 'TopicImpl-');
+    $cxtm = $cxtmWriter->write($topicMap, $this->_tmLocator, true, 'TopicImpl-');
     $this->assertEquals($cxtm, $cxtmBase);
   }
   
   /**
    * @dataProvider getInvalid21Files
    */
-  public function testInvalidXtm21($xtmFile) {
+  public function testInvalidXtm21($xtmFile)
+  {
     try {
-      $xtmDir = $this->cxtmIncPath . 'xtm21' . DIRECTORY_SEPARATOR . 'invalid';
-      $this->readSrcFile($xtmDir . DIRECTORY_SEPARATOR . $xtmFile, self::$reader);
+      $xtmDir = $this->_cxtmIncPath . 'xtm21' . DIRECTORY_SEPARATOR . 'invalid';
+      $this->_readSrcFile($xtmDir . DIRECTORY_SEPARATOR . $xtmFile, self::$_reader);
       $this->fail('Expected exception while parsing ' . $xtmFile . '.');
     } catch (MIOException $e) {
       // no op.
@@ -75,57 +78,60 @@ class Xtm201Test extends TestCase {
     }
   }
   
-  public function testValidRemoteXtm21File() {
+  public function testValidRemoteXtm21File()
+  {
     $host = 'http://quaaxtm.sourceforge.net/tests/';
     $xtmFile = 'topic-no-id-iid.xtm';
-    $cxtmDir = $this->cxtmIncPath . 'xtm21' . DIRECTORY_SEPARATOR . 'baseline';
+    $cxtmDir = $this->_cxtmIncPath . 'xtm21' . DIRECTORY_SEPARATOR . 'baseline';
     // read source XTM from remote server
-    $this->readSrcFile($host . $xtmFile, self::$reader);
-    $cxtmBase = $this->readCxtmFile($cxtmDir . DIRECTORY_SEPARATOR . $xtmFile . '.cxtm');
+    $this->_readSrcFile($host . $xtmFile, self::$_reader);
+    $cxtmBase = $this->_readCxtmFile($cxtmDir . DIRECTORY_SEPARATOR . $xtmFile . '.cxtm');
     // get the topic map and write the XTM
-    $topicMap = $this->sharedFixture->getTopicMap($this->tmLocator);
+    $topicMap = $this->_sharedFixture->getTopicMap($this->_tmLocator);
     $xtmWriter = new PHPTMAPIXTM201Writer();
-    $xtm = $xtmWriter->write($topicMap, $this->tmLocator);
+    $xtm = $xtmWriter->write($topicMap, $this->_tmLocator);
     $topicMap->remove();
     // read written XTM
-    $this->read($xtm, self::$reader);
+    $this->_read($xtm, self::$_reader);
     // get the topic map and write the CXTM
-    $topicMap = $this->sharedFixture->getTopicMap($this->tmLocator);
+    $topicMap = $this->_sharedFixture->getTopicMap($this->_tmLocator);
     $cxtmWriter = new PHPTMAPICXTMWriter();
-    $cxtm = $cxtmWriter->write($topicMap, $this->tmLocator, true, 'TopicImpl-');
+    $cxtm = $cxtmWriter->write($topicMap, $this->_tmLocator, true, 'TopicImpl-');
     $this->assertEquals($cxtm, $cxtmBase);
   }
   
   /**
    * @dataProvider getValid20Files
    */
-  public function testValidXtm20($xtmFile) {
-    $xtmDir = $this->cxtmIncPath . 'xtm2' . DIRECTORY_SEPARATOR . 'in';
-    $cxtmDir = $this->cxtmIncPath . 'xtm2' . DIRECTORY_SEPARATOR . 'baseline';
+  public function testValidXtm20($xtmFile)
+  {
+    $xtmDir = $this->_cxtmIncPath . 'xtm2' . DIRECTORY_SEPARATOR . 'in';
+    $cxtmDir = $this->_cxtmIncPath . 'xtm2' . DIRECTORY_SEPARATOR . 'baseline';
     // read source XTM
-    $this->readSrcFile($xtmDir . DIRECTORY_SEPARATOR . $xtmFile, self::$reader);
-    $cxtmBase = $this->readCxtmFile($cxtmDir . DIRECTORY_SEPARATOR . $xtmFile . '.cxtm');
+    $this->_readSrcFile($xtmDir . DIRECTORY_SEPARATOR . $xtmFile, self::$_reader);
+    $cxtmBase = $this->_readCxtmFile($cxtmDir . DIRECTORY_SEPARATOR . $xtmFile . '.cxtm');
     // get the topic map and write the XTM
-    $topicMap = $this->sharedFixture->getTopicMap($this->tmLocator);
+    $topicMap = $this->_sharedFixture->getTopicMap($this->_tmLocator);
     $xtmWriter = new PHPTMAPIXTM201Writer();
-    $xtm = $xtmWriter->write($topicMap, $this->tmLocator, '2.0');
+    $xtm = $xtmWriter->write($topicMap, $this->_tmLocator, '2.0');
     $topicMap->remove();
     // read written XTM
-    $this->read($xtm, self::$reader);
+    $this->_read($xtm, self::$_reader);
     // get the topic map and write the CXTM
-    $topicMap = $this->sharedFixture->getTopicMap($this->tmLocator);
+    $topicMap = $this->_sharedFixture->getTopicMap($this->_tmLocator);
     $cxtmWriter = new PHPTMAPICXTMWriter();
-    $cxtm = $cxtmWriter->write($topicMap, $this->tmLocator, true, 'TopicImpl-');
+    $cxtm = $cxtmWriter->write($topicMap, $this->_tmLocator, true, 'TopicImpl-');
     $this->assertEquals($cxtm, $cxtmBase);
   }
   
   /**
    * @dataProvider getInvalid20Files
    */
-  public function testInvalidXtm20($xtmFile) {
+  public function testInvalidXtm20($xtmFile)
+  {
     try {
-      $xtmDir = $this->cxtmIncPath . 'xtm2' . DIRECTORY_SEPARATOR . 'invalid';
-      $this->readSrcFile($xtmDir . DIRECTORY_SEPARATOR . $xtmFile, self::$reader);
+      $xtmDir = $this->_cxtmIncPath . 'xtm2' . DIRECTORY_SEPARATOR . 'invalid';
+      $this->_readSrcFile($xtmDir . DIRECTORY_SEPARATOR . $xtmFile, self::$_reader);
       $this->fail('Expected exception while parsing ' . $xtmFile . '.');
     } catch (MIOException $e) {
       // no op.
@@ -136,10 +142,11 @@ class Xtm201Test extends TestCase {
     }
   }
   
-  public function testInvalidXml() {
+  public function testInvalidXml()
+  {
     $invalidXml = '<foo><bar>baz</bar</foo>';
     $tmLocator = 'http://localhost/tm/' . uniqid();
-    $tmHandler = new PHPTMAPITopicMapHandler($this->sharedFixture, $tmLocator);
+    $tmHandler = new PHPTMAPITopicMapHandler($this->_sharedFixture, $tmLocator);
     $reader = new XTM201TopicMapReader($tmHandler);
     try {
       $reader->read($invalidXml);
@@ -150,33 +157,37 @@ class Xtm201Test extends TestCase {
     }
   }
   
-  public function testInvalidXmlEncoding() {
+  public function testInvalidXmlEncoding()
+  {
     $tmLocator = 'http://localhost/tm/' . uniqid();
-    $tmHandler = new PHPTMAPITopicMapHandler($this->sharedFixture, $tmLocator);
+    $tmHandler = new PHPTMAPITopicMapHandler($this->_sharedFixture, $tmLocator);
     try {
       $reader = new XTM201TopicMapReader($tmHandler, 'foo');
-      $this->fail('Should not have been able to create a parser with enc. "foo".');
+      $this->fail('Should not have been able to create a parser with encoding "foo".');
     } catch (MIOException $e) {
       $msg = $e->getMessage();
       $this->assertTrue(!empty($msg));
     }
   }
 
-  public function getValid21Files() {
-    return $files = $this->getSrcFiles('xtm21' . DIRECTORY_SEPARATOR . 'in');
+  public function getValid21Files()
+  {
+    return $files = $this->_getSrcFiles('xtm21' . DIRECTORY_SEPARATOR . 'in');
   }
   
-  public function getInvalid21Files() {
-    return $files = $this->getSrcFiles('xtm21' . DIRECTORY_SEPARATOR . 'invalid');
+  public function getInvalid21Files()
+  {
+    return $files = $this->_getSrcFiles('xtm21' . DIRECTORY_SEPARATOR . 'invalid');
   }
   
-  public function getValid20Files() {
-    return $files = $this->getSrcFiles('xtm2' . DIRECTORY_SEPARATOR . 'in');
+  public function getValid20Files()
+  {
+    return $files = $this->_getSrcFiles('xtm2' . DIRECTORY_SEPARATOR . 'in');
   }
   
-  public function getInvalid20Files() {
-    return $files = $this->getSrcFiles('xtm2' . DIRECTORY_SEPARATOR . 'invalid');
+  public function getInvalid20Files()
+  {
+    return $files = $this->_getSrcFiles('xtm2' . DIRECTORY_SEPARATOR . 'invalid');
   }
-  
 }
 ?>

@@ -39,12 +39,16 @@ require_once($utilPath . 'MysqlResult.class.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class QTMMySQLTest extends PHPUnit_Framework_TestCase {
+class QTMMySQLTest extends PHPUnit_Framework_TestCase
+{
+  private $_config,
+          $_mysql;
   
-  private $config,
-          $mysql;
-  
-  public function setUp() {
+  /**
+   * @override
+   */
+  protected function setUp()
+  {
     $config = array();
     require(
           dirname(__FILE__) . 
@@ -57,51 +61,56 @@ class QTMMySQLTest extends PHPUnit_Framework_TestCase {
           DIRECTORY_SEPARATOR . 
           'config.php'
     );
-    $this->mysql = new Mysql($config);
-    $this->config = $config;
+    $this->_mysql = new Mysql($config);
+    $this->_config = $config;
   }
   
-  public function tearDown() {
-    $this->mysql = null;
-    $this->config = array();
+  /**
+   * @override
+   */
+  protected function tearDown()
+  {
+    $this->_mysql = null;
+    $this->_config = array();
   }
   
-  public function testTrnxFail() {
-    $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['topicmap'];
-    $mysqlResult = $this->mysql->execute($query);
+  public function testTrnxFail()
+  {
+    $query = 'SELECT COUNT(*) FROM ' . $this->_config['table']['topicmap'];
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetchArray();
     $preTmCount = $result[0];
     
-    $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['topic'];
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT COUNT(*) FROM ' . $this->_config['table']['topic'];
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetchArray();
     $preTopicCount = $result[0];
     
-    $this->mysql->startTransaction();
+    $this->_mysql->startTransaction();
     
-    $query = 'INSERT INTO ' . $this->config['table']['topicmap'] . 
+    $query = 'INSERT INTO ' . $this->_config['table']['topicmap'] . 
       '(id, locator) VALUES (NULL, "http://localhost/tm1")';
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $lastTmId = $mysqlResult->getLastId();
     
     // the column "topicmap_id_fail" does not exist
-    $query = 'INSERT INTO ' . $this->config['table']['topic'] . 
+    $query = 'INSERT INTO ' . $this->_config['table']['topic'] . 
       '(id, topicmap_id_fail) VALUES (NULL, ' . $lastTmId . ')';
-    $this->mysql->execute($query);
+    $this->_mysql->execute($query);
     
-    $this->mysql->finishTransaction();
+    $this->_mysql->finishTransaction();
     
-    $this->assertTrue($this->mysql->hasError(), 'Expected a MySQL error!');
-    $errorMsg = $this->mysql->getError();
+    $this->assertTrue($this->_mysql->hasError(), 'Expected a MySQL error!');
+    $errorMsg = $this->_mysql->getError();
     $this->assertTrue(!empty($errorMsg), 'Expected an error message!');
     
-    $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['topicmap'];
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT COUNT(*) FROM ' . $this->_config['table']['topicmap'];
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetchArray();
     $postTmCount = $result[0];
     
-    $query = 'SELECT COUNT(*) FROM ' . $this->config['table']['topic'];
-    $mysqlResult = $this->mysql->execute($query);
+    $query = 'SELECT COUNT(*) FROM ' . $this->_config['table']['topic'];
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetchArray();
     $postTopicCount = $result[0];
     
@@ -109,18 +118,20 @@ class QTMMySQLTest extends PHPUnit_Framework_TestCase {
     $this->assertEquals($preTopicCount, $postTopicCount, 'Unexpected topic!');
   }
   
-  public function testMysqlResult() {
-    $query = 'SELECT id FROM ' . $this->config['table']['topicmap'] . 
+  public function testMysqlResult()
+  {
+    $query = 'SELECT id FROM ' . $this->_config['table']['topicmap'] . 
     	' WHERE locator = "fdgfd"';
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $this->assertNull($mysqlResult->fetchArray());
     $this->assertNull($mysqlResult->fetch());
   }
   
-  public function testMisc() {
-    $this->assertFalse($this->mysql->getError());
-    $this->mysql->close();
-    $mysqlResult = $this->mysql->execute('SELECT VERSION()');
+  public function testMisc()
+  {
+    $this->assertFalse($this->_mysql->getError());
+    $this->_mysql->close();
+    $mysqlResult = $this->_mysql->execute('SELECT VERSION()');
     $this->assertFalse($mysqlResult);
   }
 }

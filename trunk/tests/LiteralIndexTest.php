@@ -28,10 +28,11 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class LiteralIndexTest extends PHPTMAPITestCase {
-  
-  public function testGetNames() {
-    $tm = $this->topicMap;
+class LiteralIndexTest extends PHPTMAPITestCase
+{
+  public function testGetNames()
+  {
+    $tm = $this->_topicMap;
     $this->assertTrue($tm instanceof TopicMap);
     $index = $tm->getIndex('LiteralIndexImpl');
     $this->assertTrue($index instanceof LiteralIndexImpl);
@@ -63,16 +64,17 @@ class LiteralIndexTest extends PHPTMAPITestCase {
     $this->assertEquals($name->getParent()->getId(), $topic->getId());
   }
   
-  public function testGetOccurrences() {
-    $tm = $this->topicMap;
+  public function testGetOccurrences()
+  {
+    $tm = $this->_topicMap;
     $this->assertTrue($tm instanceof TopicMap);
     $index = $tm->getIndex('LiteralIndexImpl');
     $this->assertTrue($index instanceof LiteralIndexImpl);
     
     $topic = $tm->createTopic();
     
-    $topic->createOccurrence($tm->createTopic(), 'foo', parent::$dtString);
-    $topic->createOccurrence($tm->createTopic(), 'http://example.org', parent::$dtUri);
+    $topic->createOccurrence($tm->createTopic(), 'foo', parent::$_dtString);
+    $topic->createOccurrence($tm->createTopic(), 'http://example.org', parent::$_dtUri);
     
     $occs = $topic->getOccurrences();
     $this->assertEquals(count($occs), 2);
@@ -96,24 +98,25 @@ class LiteralIndexTest extends PHPTMAPITestCase {
     }
     $occs = $index->getOccurrences('foo', 'bar');
     $this->assertEquals(count($occs), 0);
-    $occs = $index->getOccurrences('foo', parent::$dtString);
+    $occs = $index->getOccurrences('foo', parent::$_dtString);
     $this->assertEquals(count($occs), 1);
     $occ = $occs[0];
     $this->assertTrue($occ instanceof Occurrence);
     $this->assertEquals($occ->getValue(), 'foo');
-    $this->assertEquals($occ->getDatatype(), parent::$dtString);
+    $this->assertEquals($occ->getDatatype(), parent::$_dtString);
     $this->assertEquals($occ->getParent()->getId(), $topic->getId());
-    $occs = $index->getOccurrences('http://example.org', parent::$dtUri);
+    $occs = $index->getOccurrences('http://example.org', parent::$_dtUri);
     $this->assertEquals(count($occs), 1);
     $occ = $occs[0];
     $this->assertTrue($occ instanceof Occurrence);
     $this->assertEquals($occ->getValue(), 'http://example.org');
-    $this->assertEquals($occ->getDatatype(), parent::$dtUri);
+    $this->assertEquals($occ->getDatatype(), parent::$_dtUri);
     $this->assertEquals($occ->getParent()->getId(), $topic->getId());
   }
   
-  public function testGetVariants() {
-    $tm = $this->topicMap;
+  public function testGetVariants()
+  {
+    $tm = $this->_topicMap;
     $this->assertTrue($tm instanceof TopicMap);
     $index = $tm->getIndex('LiteralIndexImpl');
     $this->assertTrue($index instanceof LiteralIndexImpl);
@@ -122,8 +125,8 @@ class LiteralIndexTest extends PHPTMAPITestCase {
     $nameType = $tm->createTopic();
     $name = $topic->createName('Name', $nameType);
     
-    $name->createVariant('foo', parent::$dtString, array($tm->createTopic()));
-    $name->createVariant('http://example.org', parent::$dtUri, array($tm->createTopic()));
+    $name->createVariant('foo', parent::$_dtString, array($tm->createTopic()));
+    $name->createVariant('http://example.org', parent::$_dtUri, array($tm->createTopic()));
     
     $variants = $name->getVariants();
     $this->assertEquals(count($variants), 2);
@@ -147,19 +150,19 @@ class LiteralIndexTest extends PHPTMAPITestCase {
     }
     $variants = $index->getVariants('foo', 'bar');
     $this->assertEquals(count($variants), 0);
-    $variants = $index->getVariants('foo', parent::$dtString);
+    $variants = $index->getVariants('foo', parent::$_dtString);
     $this->assertEquals(count($variants), 1);
     $variant = $variants[0];
     $this->assertTrue($variant instanceof IVariant);
     $this->assertEquals($variant->getValue(), 'foo');
-    $this->assertEquals($variant->getDatatype(), parent::$dtString);
+    $this->assertEquals($variant->getDatatype(), parent::$_dtString);
     $this->assertEquals($variant->getParent()->getId(), $name->getId());
-    $variants = $index->getVariants('http://example.org', parent::$dtUri);
+    $variants = $index->getVariants('http://example.org', parent::$_dtUri);
     $this->assertEquals(count($variants), 1);
     $variant = $variants[0];
     $this->assertTrue($variant instanceof IVariant);
     $this->assertEquals($variant->getValue(), 'http://example.org');
-    $this->assertEquals($variant->getDatatype(), parent::$dtUri);
+    $this->assertEquals($variant->getDatatype(), parent::$_dtUri);
     $this->assertEquals($variant->getParent()->getId(), $name->getId());
     $this->assertEquals($variant->getParent()->getValue(), $name->getValue());
     $this->assertEquals(

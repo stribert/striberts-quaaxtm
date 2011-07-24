@@ -29,12 +29,16 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class QTMScopeTest extends PHPTMAPITestCase {
+class QTMScopeTest extends PHPTMAPITestCase
+{
+  private $_config,
+          $_mysql;
   
-  private $config,
-          $mysql;
-  
-  public function setUp() {
+  /**
+   * @override
+   */
+  protected function setUp()
+  {
     parent::setUp();
     $config = array();
     require(
@@ -48,80 +52,90 @@ class QTMScopeTest extends PHPTMAPITestCase {
           DIRECTORY_SEPARATOR . 
           'config.php'
     );
-    $this->mysql = new Mysql($config);
-    $this->config = $config;
+    $this->_mysql = new Mysql($config);
+    $this->_config = $config;
   }
   
-  public function tearDown() {
+  /**
+   * @override
+   */
+  protected function tearDown()
+  {
     parent::tearDown();
-    $this->mysql = null;
-    $this->config = array();
+    $this->_mysql = null;
+    $this->_config = array();
   }
   
-  public function testTopicMap() {
-    $this->assertTrue($this->topicMap instanceof TopicMap);
+  public function testTopicMap()
+  {
+    $this->assertTrue($this->_topicMap instanceof TopicMap);
   }
   
-  public function testMysql() {
-    $this->assertTrue($this->mysql instanceof Mysql);
+  public function testMysql()
+  {
+    $this->assertTrue($this->_mysql instanceof Mysql);
   }
   
-  public function testAssociation() {
+  public function testAssociation()
+  {
     $this->_testRemoveThemeFromUnusedScope(
-      $this->createAssoc(),
-      $this->config['table']['association'],
-      $this->config['table']['association_scope'], 
+      $this->_createAssoc(),
+      $this->_config['table']['association'],
+      $this->_config['table']['association_scope'], 
       'association_id'
     );
     $this->_testRemoveThemeFromUsedScope(
-      $this->createAssoc(),
-      $this->config['table']['association'],
-      $this->config['table']['association_scope'], 
+      $this->_createAssoc(),
+      $this->_config['table']['association'],
+      $this->_config['table']['association_scope'], 
       'association_id'
     );
   }
   
-  public function testName() {
+  public function testName()
+  {
     $this->_testRemoveThemeFromUnusedScope(
-      $this->createName(), 
-      $this->config['table']['topicname'],
-      $this->config['table']['topicname_scope'], 
+      $this->_createName(), 
+      $this->_config['table']['topicname'],
+      $this->_config['table']['topicname_scope'], 
       'topicname_id'
     );
     $this->_testRemoveThemeFromUsedScope(
-      $this->createName(), 
-      $this->config['table']['topicname'],
-      $this->config['table']['topicname_scope'], 
+      $this->_createName(), 
+      $this->_config['table']['topicname'],
+      $this->_config['table']['topicname_scope'], 
       'topicname_id'
     );
   }
   
-  public function testOccurrence() {
+  public function testOccurrence()
+  {
     $this->_testRemoveThemeFromUnusedScope(
-      $this->createOcc(),
-      $this->config['table']['occurrence'],
-      $this->config['table']['occurrence_scope'], 
+      $this->_createOcc(),
+      $this->_config['table']['occurrence'],
+      $this->_config['table']['occurrence_scope'], 
       'occurrence_id'
     );
     $this->_testRemoveThemeFromUsedScope(
-      $this->createOcc(),
-      $this->config['table']['occurrence'],
-      $this->config['table']['occurrence_scope'], 
+      $this->_createOcc(),
+      $this->_config['table']['occurrence'],
+      $this->_config['table']['occurrence_scope'], 
       'occurrence_id'
     );
   }
   
-  public function testVariant() {
+  public function testVariant()
+  {
     $this->_testRemoveThemeFromUnusedScope(
-      $this->createVariant(),
-      $this->config['table']['variant'],
-      $this->config['table']['variant_scope'], 
+      $this->_createVariant(),
+      $this->_config['table']['variant'],
+      $this->_config['table']['variant_scope'], 
       'variant_id'
     );
     $this->_testRemoveThemeFromUsedScope(
-      $this->createVariant(),
-      $this->config['table']['variant'],
-      $this->config['table']['variant_scope'], 
+      $this->_createVariant(),
+      $this->_config['table']['variant'],
+      $this->_config['table']['variant_scope'], 
       'variant_id'
     );
   }
@@ -133,8 +147,8 @@ class QTMScopeTest extends PHPTMAPITestCase {
     $fk
     ) 
   {
-    $theme1 = $this->topicMap->createTopic();
-    $theme2 = $this->topicMap->createTopic();
+    $theme1 = $this->_topicMap->createTopic();
+    $theme2 = $this->_topicMap->createTopic();
     $scoped->addTheme($theme1);
     $scoped->addTheme($theme2);
     
@@ -155,7 +169,7 @@ class QTMScopeTest extends PHPTMAPITestCase {
     
     $scopedDbId = $scoped->getDbId();
     $query = 'SELECT scope_id FROM ' . $scopeTable . ' WHERE ' . $fk . ' = ' . $scopedDbId;
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetch();
     $scopeDbId = $result['scope_id'];
     $this->assertTrue(!is_null($scopeDbId), 'Expected an ID!');
@@ -163,12 +177,12 @@ class QTMScopeTest extends PHPTMAPITestCase {
     $scoped->remove();
     
     $query = 'SELECT COUNT(*) FROM ' . $scopedTable . ' WHERE id = ' . $scopedDbId;
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetchArray();
     $this->assertEquals((int) $result[0], 0, 'Expected equality!');
     
     $query = 'SELECT COUNT(*) FROM ' . $scopeTable . ' WHERE scope_id = ' . $scopeDbId;
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetchArray();
     $this->assertEquals((int) $result[0], 0, 'Expected equality!');
     
@@ -191,12 +205,12 @@ class QTMScopeTest extends PHPTMAPITestCase {
     $fk
     ) 
   {
-    $theme1 = $this->topicMap->createTopic();
-    $theme2 = $this->topicMap->createTopic();
+    $theme1 = $this->_topicMap->createTopic();
+    $theme2 = $this->_topicMap->createTopic();
     $scoped->addTheme($theme1);
     $scoped->addTheme($theme2);
     
-    $topic = $this->topicMap->createTopic();
+    $topic = $this->_topicMap->createTopic();
     // create another scoped construct to preserve scope
     $topic->createName('Test', null, array($theme1, $theme2));
     
@@ -217,7 +231,7 @@ class QTMScopeTest extends PHPTMAPITestCase {
     
     $scopedDbId = $scoped->getDbId();
     $query = 'SELECT scope_id FROM ' . $scopeTable . ' WHERE ' . $fk . ' = ' . $scopedDbId;
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetch();
     $scopeDbId = $result['scope_id'];
     $this->assertTrue(!is_null($scopeDbId), 'Expected an ID!');
@@ -225,12 +239,12 @@ class QTMScopeTest extends PHPTMAPITestCase {
     $scoped->remove();
     
     $query = 'SELECT COUNT(*) FROM ' . $scopedTable . ' WHERE id = ' . $scopedDbId;
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetchArray();
     $this->assertEquals((int) $result[0], 0, 'Expected equality!');
     
     $query = 'SELECT COUNT(*) FROM ' . $scopeTable . ' WHERE scope_id = ' . $scopeDbId;
-    $mysqlResult = $this->mysql->execute($query);
+    $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetchArray();
     // the other scoped construct sharing this scope is a topic name
     if (!$scoped instanceof Name) {

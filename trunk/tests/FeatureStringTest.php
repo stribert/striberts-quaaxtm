@@ -28,58 +28,65 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class FeatureStringTest extends PHPTMAPITestCase {
-  
-  private static $automerge = 'http://tmapi.org/features/automerge/',
-                  $readonly = 'http://tmapi.org/features/readOnly/',
-                  $typeInstAssoc = 'http://tmapi.org/features/type-instance-associations';
+class FeatureStringTest extends PHPTMAPITestCase
+{
+  private static $_automerge = 'http://tmapi.org/features/automerge/',
+                  $_readonly = 'http://tmapi.org/features/readOnly/',
+                  $_typeInstAssoc = 'http://tmapi.org/features/type-instance-associations';
           
-  private $tmSystemFactory;
+  private $_tmSystemFactory;
   
   /**
    * @override
    */
-  public function setUp() {
-    $this->tmSystemFactory = TopicMapSystemFactory::newInstance();
+  public function setUp()
+  {
+    $this->_tmSystemFactory = TopicMapSystemFactory::newInstance();
   }
   
   /**
    * @override
    */
-  public function tearDown() {
-    $this->tmSystemFactory = null;
+  public function tearDown()
+  {
+    $this->_tmSystemFactory = null;
   }
   
-  public function testTypeInstanceAssociations() {
-    $this->_testFeature(self::$typeInstAssoc);
+  public function testTypeInstanceAssociations()
+  {
+    $this->_testFeature(self::$_typeInstAssoc);
   }
 
-  public function testAutomerge() {
-    $this->_testFeature(self::$automerge);
+  public function testAutomerge()
+  {
+    $this->_testFeature(self::$_automerge);
   }
 
-  public function testReadOnly() {
-    $this->_testFeature(self::$readonly);
+  public function testReadOnly()
+  {
+    $this->_testFeature(self::$_readonly);
   }
   
-  private function _testFeature($featureString) {
-    $valueInFactory = $this->tmSystemFactory->getFeature($featureString);
+  private function _testFeature($featureString)
+  {
+    $valueInFactory = $this->_tmSystemFactory->getFeature($featureString);
     try {
-      $this->tmSystemFactory->setFeature($featureString, true);
+      $this->_tmSystemFactory->setFeature($featureString, true);
     } catch (FeatureNotRecognizedException $e) {
       $this->fail('This engine is not PHPTMAPI 2.0 compatible!');
     } catch (FeatureNotSupportedException $e) {
       // no op. - just check if feature string is recognized
     }
     
-    $tmSystem = $this->_createTopicMapystem();
+    $tmSystem = $this->_createTopicMapSystem();
     $valueInSystem = $tmSystem->getFeature($featureString);
     $this->assertEquals($valueInFactory, $valueInSystem, 
       'The system has a different value of ' . $featureString .  ' than the factory!');
   }
   
-  private function _createTopicMapystem() {
-    return $this->tmSystemFactory->newTopicMapSystem();
+  private function _createTopicMapSystem()
+  {
+    return $this->_tmSystemFactory->newTopicMapSystem();
   }
 }
 ?>

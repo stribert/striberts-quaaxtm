@@ -28,28 +28,31 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class ItemIdentifierConstraintTest extends PHPTMAPITestCase {
-  
-  public function testTopicMap() {
-    $this->assertTrue($this->topicMap instanceof TopicMap);
-    $this->_testConstraintSameTopicMap($this->topicMap);
+class ItemIdentifierConstraintTest extends PHPTMAPITestCase
+{
+  public function testTopicMap()
+  {
+    $this->assertTrue($this->_topicMap instanceof TopicMap);
+    $this->_testConstraintSameTopicMap($this->_topicMap);
     $otherMap = $this->_createAnotherTopicMap();
     $this->_testConstraintDifferentTopicMap($otherMap);
     $otherMap->remove();
   }
   
-  public function testAssociation() {
-    $this->_testConstraintSameTopicMap($this->createAssoc());
-    $this->_testConstraintSameTopicMapAgainstTopic($this->createAssoc());
+  public function testAssociation()
+  {
+    $this->_testConstraintSameTopicMap($this->_createAssoc());
+    $this->_testConstraintSameTopicMapAgainstTopic($this->_createAssoc());
     $otherMap = $this->_createAnotherTopicMap();
     $otherAssoc = $otherMap->createAssociation($otherMap->createTopic());
     $this->_testConstraintDifferentTopicMap($otherAssoc);
     $otherMap->remove();
   }
   
-  public function testRole() {
-    $this->_testConstraintSameTopicMap($this->createRole());
-    $this->_testConstraintSameTopicMapAgainstTopic($this->createRole());
+  public function testRole()
+  {
+    $this->_testConstraintSameTopicMap($this->_createRole());
+    $this->_testConstraintSameTopicMapAgainstTopic($this->_createRole());
     $otherMap = $this->_createAnotherTopicMap();
     $otherAssoc = $otherMap->createAssociation($otherMap->createTopic());
     $otherRole = $otherAssoc->createRole($otherMap->createTopic(), $otherMap->createTopic());
@@ -57,23 +60,25 @@ class ItemIdentifierConstraintTest extends PHPTMAPITestCase {
     $otherMap->remove();
   }
   
-  public function testOccurrence() {
-    $this->_testConstraintSameTopicMap($this->createOcc());
-    $this->_testConstraintSameTopicMapAgainstTopic($this->createOcc());
+  public function testOccurrence()
+  {
+    $this->_testConstraintSameTopicMap($this->_createOcc());
+    $this->_testConstraintSameTopicMapAgainstTopic($this->_createOcc());
     $otherMap = $this->_createAnotherTopicMap();
     $otherTopic = $otherMap->createTopic();
     $otherOcc = $otherTopic->createOccurrence(
       $otherMap->createTopic(), 
       'foo',
-      parent::$dtString
+      parent::$_dtString
     );
     $this->_testConstraintDifferentTopicMap($otherOcc);
     $otherMap->remove();
   }
   
-  public function testName() {
-    $this->_testConstraintSameTopicMap($this->createName());
-    $this->_testConstraintSameTopicMapAgainstTopic($this->createName());
+  public function testName()
+  {
+    $this->_testConstraintSameTopicMap($this->_createName());
+    $this->_testConstraintSameTopicMapAgainstTopic($this->_createName());
     $otherMap = $this->_createAnotherTopicMap();
     $otherTopic = $otherMap->createTopic();
     $otherName = $otherTopic->createName('foo');
@@ -81,32 +86,35 @@ class ItemIdentifierConstraintTest extends PHPTMAPITestCase {
     $otherMap->remove();
   }
   
-  public function testVariant() {
-    $this->_testConstraintSameTopicMap($this->createVariant());
-    $this->_testConstraintSameTopicMapAgainstTopic($this->createVariant());
+  public function testVariant()
+  {
+    $this->_testConstraintSameTopicMap($this->_createVariant());
+    $this->_testConstraintSameTopicMapAgainstTopic($this->_createVariant());
     $otherMap = $this->_createAnotherTopicMap();
     $otherTopic = $otherMap->createTopic();
     $otherName = $otherTopic->createName('foo');
     $otherVariant = $otherName->createVariant(
     	'bar', 
-      parent::$dtString, 
+      parent::$_dtString, 
       array($otherMap->createTopic())
     );
     $this->_testConstraintDifferentTopicMap($otherVariant);
     $otherMap->remove();
   }
   
-  public function testTopic() {
+  public function testTopic()
+  {
     $this->_testConstraintSameTopicMap(
-      $this->topicMap->createTopicBySubjectIdentifier('http://localhost/t/' . uniqid())
+      $this->_topicMap->createTopicBySubjectIdentifier('http://localhost/t/' . uniqid())
     );
   }
   
-  public function testTopicDifferentTopicMapNoMerge() {
-    $thisTopic = $this->topicMap->createTopicBySubjectIdentifier(
+  public function testTopicDifferentTopicMapNoMerge()
+  {
+    $thisTopic = $this->_topicMap->createTopicBySubjectIdentifier(
     	'http://localhost/t/' . uniqid()
     );
-    $this->assertEquals(count($this->topicMap->getTopics()), 1);
+    $this->assertEquals(count($this->_topicMap->getTopics()), 1);
     $locator = 'http://localhost/t/0';
     $thisTopic->addItemIdentifier($locator);
     $this->assertTrue(
@@ -123,13 +131,14 @@ class ItemIdentifierConstraintTest extends PHPTMAPITestCase {
       in_array($locator, $otherTopic->getItemIdentifiers(), true), 
       'Expected item identifier!'
     );
-    $this->assertEquals(count($this->topicMap->getTopics()), 1);
+    $this->assertEquals(count($this->_topicMap->getTopics()), 1);
     $this->assertEquals(count($otherMap->getTopics()), 1);
     $otherMap->remove();
   }
   
-  public function testTopicMerge() {
-    $tm = $this->topicMap;
+  public function testTopicMerge()
+  {
+    $tm = $this->_topicMap;
     $topic1 = $tm->createTopic();
     $locator1 = 'http://localhost/t/1';
     $topic1->addItemIdentifier($locator1);
@@ -138,7 +147,7 @@ class ItemIdentifierConstraintTest extends PHPTMAPITestCase {
     $topic2 = $tm->createTopic();
     try {
       $topic2->addItemIdentifier($locator1);
-      if (!$this->sharedFixture->getFeature('http://tmapi.org/features/automerge/')) {
+      if (!$this->_sharedFixture->getFeature('http://tmapi.org/features/automerge/')) {
         $this->fail('Topics with the same item identifier are not allowed!');
       }
     } catch (IdentityConstraintException $e) {
@@ -148,7 +157,7 @@ class ItemIdentifierConstraintTest extends PHPTMAPITestCase {
       $msg = $e->getMessage();
       $this->assertTrue(!empty($msg));
     }
-    if ($this->sharedFixture->getFeature('http://tmapi.org/features/automerge/')) {
+    if ($this->_sharedFixture->getFeature('http://tmapi.org/features/automerge/')) {
       // $topic1 has been merged; it must be omitted from here
       $this->assertEquals(count($tm->getTopics()), 1, 'Topics have not been merged!');
       $this->assertTrue(in_array($locator1, $topic2->getItemIdentifiers(), true), 
@@ -169,12 +178,13 @@ class ItemIdentifierConstraintTest extends PHPTMAPITestCase {
     }
   }
   
-  private function _testConstraintSameTopicMap(Construct $construct) {
+  private function _testConstraintSameTopicMap(Construct $construct)
+  {
     $this->assertEquals(0, count($construct->getItemIdentifiers()), 
       'Expected number of item identifiers to be 0 for newly created construct!');
     $locator1 = 'http://localhost/c/1';
     $locator2 = 'http://localhost/c/2';
-    $assoc = $this->createAssoc();
+    $assoc = $this->_createAssoc();
     $assoc->addItemIdentifier($locator1);
     $this->assertFalse(in_array($locator1, $construct->getItemIdentifiers(), true), 
       'Unexpected item identifier!');
@@ -207,12 +217,13 @@ class ItemIdentifierConstraintTest extends PHPTMAPITestCase {
     }
   }
   
-  private function _testConstraintSameTopicMapAgainstTopic(Construct $construct) {
+  private function _testConstraintSameTopicMapAgainstTopic(Construct $construct)
+  {
     $this->assertEquals(0, count($construct->getItemIdentifiers()), 
       'Expected number of item identifiers to be 0 for newly created construct!');
     $locator1 = 'http://localhost/c/3';
     $locator2 = 'http://localhost/c/4';
-    $topic = $this->topicMap->createTopic();
+    $topic = $this->_topicMap->createTopic();
     $topic->addItemIdentifier($locator1);
     $this->assertFalse(in_array($locator1, $construct->getItemIdentifiers(), true), 
       'Unexpected item identifier!');
@@ -245,14 +256,15 @@ class ItemIdentifierConstraintTest extends PHPTMAPITestCase {
     }
   }
   
-  private function _testConstraintDifferentTopicMap(Construct $otherConstruct) {
+  private function _testConstraintDifferentTopicMap(Construct $otherConstruct)
+  {
     $this->assertEquals(
       0, 
       count($otherConstruct->getItemIdentifiers()), 
       'Expected number of item identifiers to be 0 for newly created construct!'
     );
     $locator = 'http://localhost/c/5';
-    $thisAssoc = $this->createAssoc();
+    $thisAssoc = $this->_createAssoc();
     $thisAssoc->addItemIdentifier($locator);
     $this->assertFalse(
       in_array($locator, $otherConstruct->getItemIdentifiers(), true), 
@@ -265,8 +277,9 @@ class ItemIdentifierConstraintTest extends PHPTMAPITestCase {
     );
   }
   
-  private function _createAnotherTopicMap() {
-    return $this->sharedFixture->createTopicMap(
+  private function _createAnotherTopicMap()
+  {
+    return $this->_sharedFixture->createTopicMap(
       'http://localhost/tm/' . uniqid()
     );
   }

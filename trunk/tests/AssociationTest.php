@@ -28,14 +28,16 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class AssociationTest extends PHPTMAPITestCase {
-  
-  public function testTopicMap() {
-    $this->assertTrue($this->topicMap instanceof TopicMap);
+class AssociationTest extends PHPTMAPITestCase
+{  
+  public function testTopicMap()
+  {
+    $this->assertTrue($this->_topicMap instanceof TopicMap);
   }
   
-  public function testParent() {
-    $parent = $this->topicMap;
+  public function testParent()
+  {
+    $parent = $this->_topicMap;
     $this->assertTrue(count($parent->getAssociations()) == 0, 
       'Expected new topic map to be created without associations!');
     $assoc = $parent->createAssociation($parent->createTopic());
@@ -44,7 +46,7 @@ class AssociationTest extends PHPTMAPITestCase {
     $this->assertTrue(count($parent->getAssociations()) == 1, 
       'Unexpected number of associations in topic map!');
     $assocs = $parent->getAssociations();
-    $ids = $this->getIdsOfConstructs($assocs);
+    $ids = $this->_getIdsOfConstructs($assocs);
     $this->assertTrue(in_array($assoc->getId(), $ids, true), 
       'Association is not part of getAssociations()!');
     $assoc->remove();
@@ -55,7 +57,7 @@ class AssociationTest extends PHPTMAPITestCase {
     $this->assertTrue(count($parent->getAssociations()) == 2, 
       'Unexpected number of associations in topic map!');
     $assocs = $parent->getAssociations();
-    $ids = $this->getIdsOfConstructs($assocs);
+    $ids = $this->_getIdsOfConstructs($assocs);
     $this->assertTrue(in_array($assoc1->getId(), $ids, true), 
       'Association is not part of getAssociations()!');
     $this->assertTrue(in_array($assoc2->getId(), $ids, true), 
@@ -65,8 +67,9 @@ class AssociationTest extends PHPTMAPITestCase {
       'Unexpected number of associations in topic map after removal!');
   }
   
-  public function testRoleCreation() {
-    $tm = $this->topicMap;
+  public function testRoleCreation()
+  {
+    $tm = $this->_topicMap;
     $this->assertTrue(count($tm->getAssociations()) == 0, 
       'Expected new topic map to be created without associations!');
     $assoc = $tm->createAssociation($tm->createTopic());
@@ -83,13 +86,14 @@ class AssociationTest extends PHPTMAPITestCase {
       'Unexpected role player!');
     $this->assertEquals(1, count($player->getRolesPlayed()), 
       'Expected number of roles played to be 1 for topic!');
-    $ids = $this->getIdsOfConstructs($player->getRolesPlayed());
+    $ids = $this->_getIdsOfConstructs($player->getRolesPlayed());
     $this->assertTrue(in_array($role->getId(), $ids, true), 
       'Role is not part of getRolesPlayed()!');
   }
   
-  public function testRoleCreationDuplSuppression() {
-    $tm = $this->topicMap;
+  public function testRoleCreationDuplSuppression()
+  {
+    $tm = $this->_topicMap;
     $this->assertTrue(
       count($tm->getAssociations()) == 0, 
       'Expected new topic map to be created without associations!'
@@ -107,8 +111,9 @@ class AssociationTest extends PHPTMAPITestCase {
     $this->assertEquals($role->getId(), $roleDupl->getId(), 'Expected identity.');
   }
   
-  public function testRoleTypes() {
-    $tm = $this->topicMap;
+  public function testRoleTypes()
+  {
+    $tm = $this->_topicMap;
     $this->assertTrue(count($tm->getAssociations()) == 0, 
       'Expected new topic map to be created without associations!');
     $assoc = $tm->createAssociation($tm->createTopic());
@@ -121,13 +126,13 @@ class AssociationTest extends PHPTMAPITestCase {
     $role1 = $assoc->createRole($type1, $tm->createTopic());
     $this->assertTrue(count($assoc->getRoleTypes()) == 1, 
       'Expected 1 role type!');
-    $ids = $this->getIdsOfConstructs($assoc->getRoleTypes());
+    $ids = $this->_getIdsOfConstructs($assoc->getRoleTypes());
     $this->assertTrue(in_array($type1->getId(), $ids, true), 
       'Role type is not part of getRoleTypes()!');
     $role2 = $assoc->createRole($type2, $tm->createTopic());
     $this->assertTrue(count($assoc->getRoleTypes()) == 2, 
       'Expected 2 role types!');
-    $ids = $this->getIdsOfConstructs($assoc->getRoleTypes());
+    $ids = $this->_getIdsOfConstructs($assoc->getRoleTypes());
     $this->assertTrue(in_array($type1->getId(), $ids, true), 
       'Role type is not part of getRoleTypes()!');
     $this->assertTrue(in_array($type2->getId(), $ids, true), 
@@ -135,7 +140,7 @@ class AssociationTest extends PHPTMAPITestCase {
     $role3 = $assoc->createRole($type2, $tm->createTopic());
     $this->assertTrue(count($assoc->getRoleTypes()) == 2, 
       'Expected 2 role types!');
-    $ids = $this->getIdsOfConstructs($assoc->getRoleTypes());
+    $ids = $this->_getIdsOfConstructs($assoc->getRoleTypes());
     $this->assertTrue(in_array($type1->getId(), $ids, true), 
       'Role type is not part of getRoleTypes()!');
     $this->assertTrue(in_array($type2->getId(), $ids, true), 
@@ -143,7 +148,7 @@ class AssociationTest extends PHPTMAPITestCase {
     $role3->remove();
     $this->assertTrue(count($assoc->getRoleTypes()) == 2, 
       'Expected 2 role types!');
-    $ids = $this->getIdsOfConstructs($assoc->getRoleTypes());
+    $ids = $this->_getIdsOfConstructs($assoc->getRoleTypes());
     $this->assertTrue(in_array($type1->getId(), $ids, true), 
       'Role type is not part of getRoleTypes()!');
     $this->assertTrue(in_array($type2->getId(), $ids, true), 
@@ -151,7 +156,7 @@ class AssociationTest extends PHPTMAPITestCase {
     $role2->remove();
     $this->assertTrue(count($assoc->getRoleTypes()) == 1, 
       'Expected 1 role type!');
-    $ids = $this->getIdsOfConstructs($assoc->getRoleTypes());
+    $ids = $this->_getIdsOfConstructs($assoc->getRoleTypes());
     $this->assertTrue(in_array($type1->getId(), $ids, true), 
       'Role type is not part of getRoleTypes()!');
     $this->assertFalse(in_array($type2->getId(), $ids, true), 
@@ -161,8 +166,9 @@ class AssociationTest extends PHPTMAPITestCase {
       'Expected 0 role types!');
   }
   
-  public function testRoleFilter() {
-    $tm = $this->topicMap;
+  public function testRoleFilter()
+  {
+    $tm = $this->_topicMap;
     $this->assertTrue(count($tm->getAssociations()) == 0, 
       'Expected new topic map to be created without associations!');
     $assoc = $tm->createAssociation($tm->createTopic());
@@ -178,7 +184,7 @@ class AssociationTest extends PHPTMAPITestCase {
     $role1 = $assoc->createRole($type1, $tm->createTopic());
     $this->assertTrue(count($assoc->getRoles($type1)) == 1, 
       'Expected 1 role!');
-    $ids = $this->getIdsOfConstructs($assoc->getRoles($type1));
+    $ids = $this->_getIdsOfConstructs($assoc->getRoles($type1));
     $this->assertTrue(in_array($role1->getId(), $ids, true), 
       'Role is not part of getRoles()!');
     $this->assertTrue(count($assoc->getRoles($type2)) == 0, 
@@ -188,13 +194,13 @@ class AssociationTest extends PHPTMAPITestCase {
     $role2 = $assoc->createRole($type2, $tm->createTopic());
     $this->assertTrue(count($assoc->getRoles($type2)) == 1, 
       'Expected 1 role!');
-    $ids = $this->getIdsOfConstructs($assoc->getRoles($type2));
+    $ids = $this->_getIdsOfConstructs($assoc->getRoles($type2));
     $this->assertTrue(in_array($role2->getId(), $ids, true), 
       'Role is not part of getRoles()!');
     $role3 = $assoc->createRole($type2, $tm->createTopic());
     $this->assertTrue(count($assoc->getRoles($type2)) == 2, 
       'Expected 2 roles!');
-    $ids = $this->getIdsOfConstructs($assoc->getRoles($type2));
+    $ids = $this->_getIdsOfConstructs($assoc->getRoles($type2));
     $this->assertTrue(in_array($role2->getId(), $ids, true), 
       'Role is not part of getRoles()!');
     $this->assertTrue(in_array($role3->getId(), $ids, true), 
@@ -204,7 +210,7 @@ class AssociationTest extends PHPTMAPITestCase {
     $role3->remove();
     $this->assertTrue(count($assoc->getRoles($type2)) == 1, 
       'Expected 1 role!');
-    $ids = $this->getIdsOfConstructs($assoc->getRoles($type2));
+    $ids = $this->_getIdsOfConstructs($assoc->getRoles($type2));
     $this->assertTrue(in_array($role2->getId(), $ids, true), 
       'Role is not part of getRoles()!');
     $role2->remove();
@@ -217,8 +223,9 @@ class AssociationTest extends PHPTMAPITestCase {
       'Expected 0 roles!');
   }
   
-  public function testDuplicates() {
-    $tm = $this->topicMap;
+  public function testDuplicates()
+  {
+    $tm = $this->_topicMap;
     $player = $tm->createTopic();
     $assocType = $tm->createTopic();
     $roleType1 = $tm->createTopic();
@@ -246,8 +253,9 @@ class AssociationTest extends PHPTMAPITestCase {
     $this->assertEquals(count($rolesPlayed), 1);
   }
   
-  public function testMergeScope() {
-    $tm = $this->topicMap;
+  public function testMergeScope()
+  {
+    $tm = $this->_topicMap;
     $player = $tm->createTopic();
     $assocType = $tm->createTopic();
     $roleType = $tm->createTopic();
