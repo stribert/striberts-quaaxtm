@@ -28,16 +28,75 @@
  */
 class Mysql
 {	
-  private $_sql,
-          $_result,
-          $_errno,
-          $_error,
-          $_connection,
-          $_trnx,
-          $_delayTrnx,
-          $_commit,
-          $_connOpen,
-          $_memcached;
+  /**
+   * The SQL statement.
+   * 
+   * @var string
+   */
+  private $_sql;
+  
+  /**
+   * The MySQL error number.
+   * 
+   * @var int
+   */
+  private $_errno;
+  
+  /**
+   * The MySQL error description.
+   * 
+   * @var string
+   */
+  private $_error;
+  
+  /**
+   * The MySQL connection.
+   * 
+   * @var mysqli
+   */
+  private $_connection;
+  
+  /**
+   * The indicator if a transaction takes place.
+   * 
+   * @var boolean
+   */
+  private $_trnx;
+  
+  /**
+   * The indicator if a transaction end has to be delayed.
+   * 
+   * @var boolean
+   */
+  private $_delayTrnx;
+  
+  /**
+   * The indicator if a transaction can be committed.
+   * 
+   * @var boolean
+   */
+  private $_commit;
+  
+  /**
+   * The indicator if a connection is established.
+   * 
+   * @var boolean
+   */
+  private $_connOpen;
+  
+  /**
+   * The memcached connector.
+   * 
+   * @var Memcached
+   */
+  private $_memcached;
+  
+  /**
+   * The result cache expiration in seconds.
+   * 
+   * @var int
+   */
+  private $_resultCacheExpiration;
 	
   /**
    * Constructor.
@@ -50,7 +109,8 @@ class Mysql
   {
     $this->_sql = 
     $this->_error = '';
-    $this->_errno = 0;
+    $this->_errno = 
+    $this->_resultCacheExpiration = 0;
     $this->_connection = 
     $this->_memcached = null;
     $this->_commit = 
@@ -250,13 +310,12 @@ class Mysql
    * The result cache is taken into account if memcached is enabled and available - and 
    * permission is given.
    * 
-   * @param string The SQL query.
+   * @param string The SQL statement.
    * @param boolean Permission to use the result cache or not. Default <var>false</var>.
-   * @param int Result cache expiration in seconds. Default <var>60</var>.
    * @return array|false The query result as <var>associative array</var> or <var>false</var> 
    * 				on error.
    */
-  public function fetch($query, $resultCachePermission=false, $resultCacheExp=60)
+  public function fetch($query, $resultCachePermission=false)
   {
     if ($this->_memcached instanceof Memcached && $resultCachePermission) {
       $key = md5($query);
@@ -267,16 +326,26 @@ class Mysql
         $result = $this->_fetchAssociated($query);
         if ($result !== false) {
           if (!empty($result)) {
-            $this->_memcached->set($key, $result, $resultCacheExp);
+            $this->_memcached->set($key, $result, $this->_resultCacheExpiration);
           }
           return $result;
         }
         return false;
       }
     } else {
-      $result = $this->_fetchAssociated($query);
-      return $result !== false ? $result : false;
+      return $this->_fetchAssociated($query);
     }
+  }
+  
+  /**
+   * Sets the result cache expiration in seconds.
+   * 
+   * @param int The seconds.
+   * @return void
+   */
+  public function setResultCacheExpiration($seconds)
+  {
+    $this->_resultCacheExpiration = (int) $seconds;
   }
   
   /**
@@ -294,12 +363,12 @@ class Mysql
       $this->_error = mysqli_error($this->_connection);
       return false;
     }
-    $data = array();
+    $results = array();
     while ($result = mysqli_fetch_assoc($mysqlResult)) {
-      $data[] = $result;
+      $results[] = $result;
     }
     mysqli_free_result($mysqlResult);
-    return $data;
+    return $results;
   }
 }
 ?>
