@@ -239,7 +239,7 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory
     try {
       $mysql = new Mysql($config, $enableResultCache);
       if ($enableResultCache) {
-        $mysql->setResultCacheExpiration(60);
+        $mysql->setResultCacheExpiration($config['resultcache']['expiration']);
       }
     } catch (RuntimeException $e) {
       throw new PHPTMAPIRuntimeException($e->getMessage());
