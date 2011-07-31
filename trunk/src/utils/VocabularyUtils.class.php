@@ -28,20 +28,56 @@
  */
 class VocabularyUtils
 {
-  const TMDM_PSI_DEFAULT_NAME_TYPE = 'http://psi.topicmaps.org/iso13250/model/topic-name',
+  /**
+   * The PSI for the default name type.
+   */
+  const TMDM_PSI_DEFAULT_NAME_TYPE = 'http://psi.topicmaps.org/iso13250/model/topic-name';
   
-        XSD_STRING = 'http://www.w3.org/2001/XMLSchema#string',
-        XSD_ANYURI = 'http://www.w3.org/2001/XMLSchema#anyURI',
+  /**
+   * The identifier for the XSD datatype "string".
+   */
+  const XSD_STRING = 'http://www.w3.org/2001/XMLSchema#string';
+  
+  /**
+   * The identifier for the XSD datatype "anyURI".
+   */
+  const XSD_ANYURI = 'http://www.w3.org/2001/XMLSchema#anyURI';
+
+  /**
+   * The identifier (aka feature string) for the TMAPI 2.0 feature "automerge".
+   */
+  const TMAPI_FEATURE_AUTOMERGE = 'http://tmapi.org/features/automerge/';
+  
+  /**
+   * The identifier (aka feature string) for the TMAPI 2.0 feature "read only".
+   */
+  const TMAPI_FEATURE_READONLY = 'http://tmapi.org/features/readOnly/';
+  
+  /**
+   * The identifier (aka feature string) for the TMAPI 2.0 feature "type-instance 
+   * association".
+   */
+  const TMAPI_FEATURE_TYPE_INST_ASSOC = 'http://tmapi.org/features/type-instance-associations';
         
-        TMAPI_FEATURE_AUTOMERGE = 'http://tmapi.org/features/automerge/',
-        TMAPI_FEATURE_READONLY = 'http://tmapi.org/features/readOnly/',
-        TMAPI_FEATURE_TYPE_INST_ASSOC = 'http://tmapi.org/features/type-instance-associations',
-        
-        QTM_FEATURE_AUTO_DUPL_REMOVAL = 'http://quaaxtm.sourceforge.net/features/auto-duplicate-removal/',
-        QTM_FEATURE_RESULT_CACHE = 'http://quaaxtm.sourceforge.net/features/result-cache/',
-        
-        QTM_STATE_REGULAR = 'http://quaaxtm.sourceforge.net/state/regular/',
-        QTM_STATE_MERGING = 'http://quaaxtm.sourceforge.net/state/merging/';
+  /**
+   * The identifier (aka feature string) for the QuaaxTM feature "auto duplicate removal".
+   */
+  const QTM_FEATURE_AUTO_DUPL_REMOVAL = 'http://quaaxtm.sourceforge.net/features/auto-duplicate-removal/';
+  
+  /**
+   * The identifier (aka feature string) for the QuaaxTM feature "(MySQL) result cache".
+   */
+  const QTM_FEATURE_RESULT_CACHE = 'http://quaaxtm.sourceforge.net/features/result-cache/';
+
+  /**
+   * The identifier for the QuaaxTM topic map state "regular".
+   */
+  const QTM_STATE_REGULAR = 'http://quaaxtm.sourceforge.net/state/regular/';
+  
+  /**
+   * The identifier for the QuaaxTM topic map state "merging".
+   */
+  const QTM_STATE_MERGING = 'http://quaaxtm.sourceforge.net/state/merging/';
 
   /**
    * Constructor.
