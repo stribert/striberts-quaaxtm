@@ -32,18 +32,41 @@
  */
 final class TopicMapSystemImpl implements TopicMapSystem
 {
-  private $_mysql,
-          $_config,
-          $_properties,
-          $_features;
+  /**
+   * The MySQL wrapper.
+   * 
+   * @var Mysql
+   */
+  private $_mysql;
+  
+  /**
+   * The configuration data.
+   * 
+   * @var array
+   */
+  private $_config;
+  
+  /**
+   * The Topic Maps system properties.
+   * 
+   * @var array
+   */
+  private $_properties;
+  
+  /**
+   * The TMAPI and QuaaxTM feature strings and their "supported/not supported" status.
+   * 
+   * @var array
+   */
+  private $_features;
   
   /**
    * Constructor.
    * 
-   * @param Mysql The Mysql object.
-   * @param array The configuration data of this Topic Map System.
-   * @param array The properties of this Topic Map System.
-   * @param array The features of this Topic Map System.
+   * @param Mysql The MySQL wrapper.
+   * @param array The configuration data of this Topic Maps System.
+   * @param array The properties of this Topic Maps System.
+   * @param array The features of this Topic Maps System.
    * @return void
    */
   public function __construct(Mysql $mysql, array $config, array $properties, array $features)
@@ -93,28 +116,27 @@ final class TopicMapSystemImpl implements TopicMapSystem
     if (empty($uri)) {
       return null;
     }
-    // check if locator already exists
+    // check if the locator already exists
     $query = 'SELECT COUNT(*) FROM ' . $this->_config['table']['topicmap'] . 
       ' WHERE locator = "' . $uri . '"';
     $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetchArray();
-    if ($result[0] == 0) {
-      $this->_mysql->startTransaction();
-      $query = 'INSERT INTO ' . $this->_config['table']['topicmap'] . 
-        ' (id, locator) VALUES (NULL, "' . $uri . '")';
-      $this->_mysql->execute($query);
-      $lastId = $mysqlResult->getLastId();
-      
-      $query = 'INSERT INTO ' . $this->_config['table']['topicmapconstruct'] . 
-        ' (topicmap_id) VALUES (' . $lastId . ')';
-      $this->_mysql->execute($query);
-      $this->_mysql->finishTransaction();
-      return new TopicMapImpl($lastId, $this->_mysql, $this->_config, $this);
-    } else {
+    if ($result[0] != 0) {
       throw new TopicMapExistsException(
         __METHOD__ . ': Topic map with locator "' . $uri . '" already exists!'
       );
     }
+    $this->_mysql->startTransaction();
+    $query = 'INSERT INTO ' . $this->_config['table']['topicmap'] . 
+      ' (id, locator) VALUES (NULL, "' . $uri . '")';
+    $this->_mysql->execute($query);
+    $lastId = $mysqlResult->getLastId();
+    
+    $query = 'INSERT INTO ' . $this->_config['table']['topicmapconstruct'] . 
+      ' (topicmap_id) VALUES (' . $lastId . ')';
+    $this->_mysql->execute($query);
+    $this->_mysql->finishTransaction();
+    return new TopicMapImpl($lastId, $this->_mysql, $this->_config, $this);
   }
 
   /**

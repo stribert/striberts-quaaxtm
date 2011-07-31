@@ -43,13 +43,18 @@
  */
 final class TopicImpl extends ConstructImpl implements Topic
 {  
+  /**
+   * The default name type.
+   * 
+   * @var TopicImpl
+   */
   private $_defaultNameType;
   
   /**
    * Constructor.
    * 
-   * @param int The database id.
-   * @param Mysql The Mysql object.
+   * @param int The construct id in its table representation in the MySQL database.
+   * @param Mysql The MySQL wrapper.
    * @param array The configuration data.
    * @param TopicMapImpl The parent topic map.
    * @return void

@@ -36,10 +36,34 @@ spl_autoload_register('TopicMapSystemFactoryImpl::autoload');
  */
 final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory
 {
-  private $_properties,
-          $_features,
-          $_fixFeatures;
-          
+  /**
+   * The Topic Maps system properties.
+   * 
+   * @var array
+   */
+  private $_properties;
+  
+  /**
+   * The TMAPI and QuaaxTM feature strings and their "supported/not supported" status.
+   * 
+   * @var array
+   */
+  private $_features;
+  
+  /**
+   * The TMAPI and QuaaxTM feature strings and their "manipulation enabled/disabled" status.
+   * 
+   * @var array
+   */
+  private $_fixFeatures;
+  
+  /**
+   * The instance of <var>TopicMapSystemFactoryImpl</var>; or <var>null</var>.
+   * Default <var>null</var>.
+   * 
+   * @var TopicMapSystemFactoryImpl|null
+   * @static
+   */
   private static $_instance = null;
   
   /**
@@ -98,7 +122,8 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory
    * A list of the core features can be found at {@link http://tmapi.org/features/}.
    * 
    * @param string The name of the feature to be set.
-   * @param boolean true to enable the feature, false to disable it.
+   * @param boolean <var>True</var> to enable the feature, <var>false</var> 
+   * 				to disable it.
    * @return void
    * @throws {@link FeatureNotRecognizedException} If the underlying implementation 
    *        does not recognize the named feature.
@@ -213,6 +238,9 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory
     $enableResultCache = $this->getFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE);
     try {
       $mysql = new Mysql($config, $enableResultCache);
+      if ($enableResultCache) {
+        $mysql->setResultCacheExpiration(60);
+      }
     } catch (RuntimeException $e) {
       throw new PHPTMAPIRuntimeException($e->getMessage());
     } catch (Exception $e) {
@@ -288,16 +316,17 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory
    * Gets the file extension of the class to be autoloaded.
    * 
    * @param string The class name.
-   * @return string
+   * @return string The file extension.
    */
   private static function _getFileExtension($className)
   {
-    if (stristr($className, 'impl') ||
+    if (
+        stristr($className, 'impl') ||
         stristr($className, 'utils') ||
         stristr($className, 'mysql') ||
         stristr($className, 'topicmapsystemfactory') ||
-        stristr($className, 'exception')) 
-    {
+        stristr($className, 'exception')
+    ) {
       return '.class.php';
     } else {
       return '.interface.php';

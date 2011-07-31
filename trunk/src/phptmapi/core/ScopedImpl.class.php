@@ -31,14 +31,19 @@
  */
 abstract class ScopedImpl extends ConstructImpl implements Scoped
 {
+  /**
+   * The scope binding table name in MySQL.
+   * 
+   * @var string
+   */
   private $_bindingTable;
   
   /**
    * Constructor.
    * 
-   * @param string The Topic Maps construct id.
+   * @param string The construct id in its table representation in the MySQL database.
    * @param ConstructImpl The parent Topic Maps construct.
-   * @param Mysql The Mysql object.
+   * @param Mysql The MySQL wrapper.
    * @param array The configuration data.
    * @param TopicMapImpl The containing topic map.
    * @return void

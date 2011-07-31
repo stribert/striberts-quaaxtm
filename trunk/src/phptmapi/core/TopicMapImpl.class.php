@@ -32,17 +32,76 @@
  */
 final class TopicMapImpl extends ConstructImpl implements TopicMap
 {
+  /**
+   * The constructs cache which holds all runtime created constructs.
+   * 
+   * @var array
+   */
   protected $_seenConstructsCache;
   
-  private $_setIid,
-          $_constructParent,
-          $_constructPropertyHolder,
-          $_topicsCache,
-          $_assocsCache,
-          $_tmSystem,
-          $_locator,
-          $_topicMapState;
-          
+  /**
+   * The indicator if an item identifier has to be assigned to created topics.
+   * 
+   * @var boolean
+   */
+  private $_setIid;
+  
+  /**
+   * The construct parent.
+   * 
+   * @var AssociationImpl|NameImpl|TopicImpl|TopicMapImpl
+   */
+  private $_constructParent;
+  
+  /**
+   * The property holder for construct properties after initial retrieval 
+   * from storage.
+   * 
+   * @var array
+   */
+  private $_constructPropertyHolder;
+  
+  /**
+   * The topics cache.
+   * 
+   * @var array
+   */
+  private $_topicsCache;
+  
+  /**
+   * The associations cache.
+   * 
+   * @var array
+   */
+  private $_assocsCache;
+  
+  /**
+   * The Topic Maps system the topic map belongs to.
+   * 
+   * @var TopicMapSystemImpl
+   */
+  private $_tmSystem;
+  
+  /**
+   * The topic map base locator.
+   * 
+   * @var string
+   */
+  private $_locator;
+  
+  /**
+   * The topic map state: "regular" or "merging".
+   * 
+   * @var string
+   */
+  private $_topicMapState;
+  
+  /**
+   * The class names of the supported indexes' implementations.
+   * 
+   * @var array
+   * @static
+   */
   private static $_supportedIndices = array(
   	'TypeInstanceIndexImpl', 
     'LiteralIndexImpl', 
@@ -52,8 +111,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
   /**
    * Constructor.
    * 
-   * @param int The database id.
-   * @param Mysql The Mysql object.
+   * @param int The construct id in its table representation in the MySQL database.
+   * @param Mysql The MySQL wrapper
    * @param array The configuration data.
    * @param TopicMapSystem The underlying topic map system.
    * @return void

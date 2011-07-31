@@ -33,13 +33,19 @@
  */
 final class RoleImpl extends ConstructImpl implements Role
 {  
+  /**
+   * The property holder for construct properties after initial retrieval 
+   * from storage.
+   * 
+   * @var array
+   */
   private $_propertyHolder;
   
   /**
    * Constructor.
    * 
-   * @param int The database id.
-   * @param Mysql The Mysql object.
+   * @param int The construct id in its table representation in the MySQL database.
+   * @param Mysql The MySQL wrapper.
    * @param array The configuration data.
    * @param AssociationImpl The parent association.
    * @param TopicMapImpl The containing topic map.

@@ -33,13 +33,19 @@
  */
 final class NameImpl extends ScopedImpl implements Name
 {        
+  /**
+   * The property holder for construct properties after initial retrieval 
+   * from storage.
+   * 
+   * @var array
+   */
   private $_propertyHolder;
   
   /**
    * Constructor.
    * 
-   * @param int The database id.
-   * @param Mysql The Mysql object.
+   * @param int The construct id in its table representation in the MySQL database.
+   * @param Mysql The MySQL wrapper.
    * @param array The configuration data.
    * @param TopicImpl The parent topic.
    * @param TopicMapImpl The containing topic map.

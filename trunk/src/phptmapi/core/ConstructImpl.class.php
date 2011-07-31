@@ -19,7 +19,7 @@
  */
 
 /**
- * Base interface for all Topic Maps constructs.
+ * Base class for all Topic Maps constructs.
  *
  * @package core
  * @author Johannes Schmidt <joschmidt@users.sourceforge.net>
@@ -28,29 +28,146 @@
  */
 abstract class ConstructImpl implements Construct
 {  
-  const ASSOC_FK_COL = 'association_id',
-        ROLE_FK_COL = 'assocrole_id',
-        TOPIC_FK_COL = 'topic_id',
-        OCC_FK_COL = 'occurrence_id',
-        NAME_FK_COL = 'topicname_id',
-        VARIANT_FK_COL = 'variant_id',
-        TOPICMAP_FK_COL = 'topicmap_id';
+  /**
+   * The association foreign key column in table "qtm_topicmapconstruct".
+   */
+  const ASSOC_FK_COL = 'association_id';
   
-  protected $_id,
-            $_parent,
-            $_mysql,
-            $_config,
-            $_topicMap,
-            $_dbId,
-            $_fkColumn,
-            $_className,
-            $_constructDbId;
+  /**
+   * The association role foreign key column in table "qtm_topicmapconstruct".
+   */
+  const ROLE_FK_COL = 'assocrole_id';
+  
+  /**
+   * The topic foreign key column in table "qtm_topicmapconstruct".
+   */
+  const TOPIC_FK_COL = 'topic_id';
+  
+  /**
+   * The occurrence foreign key column in table "qtm_topicmapconstruct".
+   */
+  const OCC_FK_COL = 'occurrence_id';
+  
+  /**
+   * The topic name foreign key column in table "qtm_topicmapconstruct".
+   */
+  const NAME_FK_COL = 'topicname_id';
+  
+  /**
+   * The variant foreign key column in table "qtm_topicmapconstruct".
+   */
+  const VARIANT_FK_COL = 'variant_id';
+  
+  /**
+   * The topic map foreign key column in table "qtm_topicmapconstruct".
+   */
+  const TOPICMAP_FK_COL = 'topicmap_id';
+  
+  /**
+   * The construct id, e.g. "TopicImpl-1".
+   * 
+   * @var string
+   */
+  protected $_id;
+  
+  /**
+   * The construct parent.
+   * 
+   * @var AssociationImpl|NameImpl|TopicImpl|TopicMapImpl
+   */
+  protected $_parent;
+  
+  /**
+   * The MySQL wrapper.
+   * 
+   * @var Mysql
+   */
+  protected $_mysql;
+  
+  /**
+   * The configuration data.
+   * 
+   * @var array
+   */
+  protected $_config;
+  
+  /**
+   * The topic map the construct belongs to; or the topic map itself.
+   * 
+   * @var TopicMapImpl
+   */
+  protected $_topicMap;
+  
+  /**
+   * The construct id in its, the construct's, table representation in a 
+   * MySQL database.
+   * Used as primary key in the respective table.
+   * 
+   * @var int
+   */
+  protected $_dbId;
+  
+  /**
+   * The construct's foreign key column in the MySQL database.
+   * Affects all tables where the foreign key is implemented.
+   * 
+   * @var string
+   */
+  protected $_fkColumn;
+  
+  /**
+   * The class name of the construct implementation, e.g. "TopicImpl".
+   * 
+   * @var string
+   */
+  protected $_className;
+  
+  /**
+   * The construct id in table "qtm_topicmapconstruct".
+   * 
+   * @var int
+   */
+  protected $_constructDbId;
             
-  protected static $_valueNullErrMsg = ': Value must not be null!',
-                  $_valueDatatypeNullErrMsg = ': Value and datatype must not be null!',
-                  $_iidExistsErrMsg = ': Item identifier already exists!',
-                  $_sameTmConstraintErrMsg = ': Same topic map constraint violation!',
-                  $_identityNullErrMsg = ': Identity locator must not be null!';
+  /**
+   * Error message if mandatory value is <var>null</var>.
+   * 
+   * @var string
+   * @static
+   */
+  protected static $_valueNullErrMsg = ': Value must not be null!';
+  
+  /**
+   * Error message if mandatory value and data type are <var>null</var>.
+   * 
+   * @var string
+   * @static
+   */
+  protected static $_valueDatatypeNullErrMsg = ': Value and datatype must not be null!';
+  
+  /**
+   * Error message if item identifier already exists.
+   * 
+   * @var string
+   * @static
+   */
+  protected static $_iidExistsErrMsg = ': Item identifier already exists!';
+  
+  /**
+   * Error message if a "same topic map constraint violation" occurs.
+   * 
+   * @var string
+   * @static
+   */
+  protected static $_sameTmConstraintErrMsg = ': Same topic map constraint violation!';
+  
+  /**
+   * Error message if an identity locator is <var>null</var>.
+   * 
+   * @var string
+   * @static
+   */
+  protected static $_identityNullErrMsg = ': Identity locator must not be null!';
                   
   
   /**
@@ -59,7 +176,7 @@ abstract class ConstructImpl implements Construct
    * @param string The Topic Maps construct id.
    * @param ConstructImpl|null The parent Topic Maps construct or <var>null</var>
    *        iff the construct is an instance of {@link TopicMapImpl}.
-   * @param Mysql The Mysql object.
+   * @param Mysql The MySQL wrapper.
    * @param array The configuration data.
    * @param TopicMapImpl The containing topic map.
    * @return void
@@ -281,9 +398,9 @@ abstract class ConstructImpl implements Construct
   }
   
   /**
-   * Gets the construct's fk column name.
+   * Gets the construct's foreign key column name in table "qtm_topicmapconstruct".
    * 
-   * @param string The class name.
+   * @param string The construct impl. class name.
    * @return string|null The fk column name or <var>null</var> if class name is unknown.
    */
   protected function _getFkColumn($className)

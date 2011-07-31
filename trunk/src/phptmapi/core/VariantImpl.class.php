@@ -35,14 +35,26 @@
  */
 final class VariantImpl extends ScopedImpl implements IVariant
 {  
-  private $_propertyHolder,
-          $_hash;
+  /**
+   * The property holder for construct properties after initial retrieval 
+   * from storage.
+   * 
+   * @var array
+   */
+  private $_propertyHolder;
+  
+  /**
+   * The variant MD5 hash as stored in MySQL table "qtm_variant".
+   * 
+   * @var string
+   */
+  private $_hash;
   
   /**
    * Constructor.
    * 
-   * @param int The database id.
-   * @param Mysql The Mysql object.
+   * @param int The construct id in its table representation in the MySQL database.
+   * @param Mysql The MySQL wrapper.
    * @param array The configuration data.
    * @param NameImpl The parent name.
    * @param TopicMapImpl The containing topic map.
@@ -57,7 +69,7 @@ final class VariantImpl extends ScopedImpl implements IVariant
     Name $parent, 
     TopicMap $topicMap, 
     array $propertyHolder=array(), 
-    $hash = null
+    $hash=null
     )
   {  
     parent::__construct(__CLASS__ . '-' . $dbId, $parent, $mysql, $config, $topicMap);

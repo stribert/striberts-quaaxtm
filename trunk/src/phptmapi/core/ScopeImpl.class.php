@@ -29,23 +29,58 @@
 final class ScopeImpl
 {
   /**
-   * The id (primary key) in table qtm_scope.
+   * The scope id in MySQL table "qtm_scope" (the primary key).
    * 
    * @var int
    */
   public $dbId;
 
-  private $_mysql,
-          $_config,
-          $_themes,
-          $_themesIds,
-          $_currentTopicMap,
-          $_currentConstruct;
+  /**
+   * The MySQL wrapper.
+   * 
+   * @var Mysql
+   */
+  private $_mysql;
+  
+  /**
+   * The configuration data.
+   * 
+   * @var array
+   */
+  private $_config;
+  
+  /**
+   * The themes (topics representing a scope).
+   * 
+   * @var array
+   */
+  private $_themes;
+  
+  /**
+   * The themes ids in MySQL database.
+   * 
+   * @var int
+   */
+  private $_themesIds;
+  
+  /**
+   * The current topic map.
+   * 
+   * @var TopicMapImpl
+   */
+  private $_currentTopicMap;
+  
+  /**
+   * The current scoped construct.
+   * 
+   * @var AssociationImpl|NameImpl|OccurrenceImpl|VariantImpl
+   */
+  private $_currentConstruct;
 
   /**
    * Constructor.
    * 
-   * @param Mysql The Mysql object.
+   * @param Mysql The MySQL wrapper.
    * @param array The configuration data.
    * @param array An array containing {@link TopicImpl}s (the themes).
    * @param TopicMapImpl The current topic map.
