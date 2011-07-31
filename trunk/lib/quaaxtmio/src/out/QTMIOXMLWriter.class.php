@@ -27,6 +27,9 @@
  */
 class QTMIOXMLWriter extends XMLWriter
 {  
+  /**
+   * The "new line" control character.
+   */
   const NL = "\n";
   
   /**
