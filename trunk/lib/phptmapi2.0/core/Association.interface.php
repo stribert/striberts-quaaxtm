@@ -26,8 +26,8 @@ require_once('Scoped.interface.php');
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
  * @version svn:$Id: Association.interface.php 50 2009-07-15 21:50:46Z joschmidt $
  */
-interface Association extends Reifiable, Typed, Scoped {
-
+interface Association extends Reifiable, Typed, Scoped
+{
   /**
    * Returns the {@link Role}s participating in this association.
    * If <var>type</var> is not <var>null</var> all roles with the specified <var>type</var> 

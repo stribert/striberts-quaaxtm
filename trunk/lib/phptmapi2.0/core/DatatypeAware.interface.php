@@ -23,8 +23,8 @@ require_once('Scoped.interface.php');
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
  * @version svn:$Id: DatatypeAware.interface.php 43 2009-06-28 20:09:57Z joschmidt $
  */
-interface DatatypeAware extends Reifiable, Scoped {
-
+interface DatatypeAware extends Reifiable, Scoped
+{
   /**
    * Returns the string representation of the value.
    * 

@@ -17,8 +17,8 @@
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
  * @version svn:$Id: Index.interface.php 9 2008-11-03 20:55:37Z joschmidt $
  */
-interface Index {
-
+interface Index
+{
   /**
    * Open the index.
    * This method must be invoked before using any other method (aside from

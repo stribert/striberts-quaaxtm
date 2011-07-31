@@ -22,8 +22,8 @@ require_once('Construct.interface.php');
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
  * @version svn:$Id: Scoped.interface.php 47 2009-07-05 21:01:26Z joschmidt $
  */
-interface Scoped extends Construct {
-
+interface Scoped extends Construct
+{
   /**
    * Returns the {@link Topic}s which define the scope.
    * An empty array represents the unconstrained scope.

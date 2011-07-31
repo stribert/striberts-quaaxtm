@@ -20,8 +20,8 @@ require_once('ModelConstraintException.class.php');
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
  * @version svn:$Id: TopicInUseException.class.php 16 2009-02-06 22:03:02Z joschmidt $
  */
-class TopicInUseException extends ModelConstraintException {
-
+class TopicInUseException extends ModelConstraintException
+{
   /**
    * Constructor.
    * 
@@ -29,7 +29,8 @@ class TopicInUseException extends ModelConstraintException {
    * @param string The detail message.
    * @return void
    */
-  public function __construct(Topic $topic, $msg) {
+  public function __construct(Topic $topic, $msg)
+  {
     parent::__construct($topic, $msg);
   }
 }

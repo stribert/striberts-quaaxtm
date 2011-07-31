@@ -26,8 +26,8 @@ require_once('Scoped.interface.php');
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
  * @version svn:$Id: Name.interface.php 43 2009-06-28 20:09:57Z joschmidt $
  */
-interface Name extends Reifiable, Typed, Scoped {
-
+interface Name extends Reifiable, Typed, Scoped
+{
   /**
    * Returns the value of this name.
    *

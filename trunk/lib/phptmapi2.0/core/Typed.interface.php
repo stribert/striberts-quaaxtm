@@ -22,8 +22,8 @@ require_once('Construct.interface.php');
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
  * @version svn:$Id: Typed.interface.php 52 2009-07-15 21:57:32Z joschmidt $
  */
-interface Typed extends Construct {
-
+interface Typed extends Construct
+{
   /**
    * Returns the type of this construct.
    *

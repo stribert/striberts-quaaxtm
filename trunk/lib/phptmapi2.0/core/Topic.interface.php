@@ -34,8 +34,8 @@ require_once('Construct.interface.php');
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
  * @version svn:$Id: Topic.interface.php 54 2009-07-15 21:59:42Z joschmidt $
  */
-interface Topic extends Construct {
-
+interface Topic extends Construct
+{
   /**
    * Returns the subject identifiers assigned to this topic.
    * The return value may be an empty array but must never be <var>null</var>.

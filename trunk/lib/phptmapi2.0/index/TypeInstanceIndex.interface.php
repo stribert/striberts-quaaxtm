@@ -27,8 +27,8 @@ require_once('Index.interface.php');
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
  * @version svn:$Id: TypeInstanceIndex.interface.php 68 2011-01-09 13:41:40Z joschmidt $
  */
-interface TypeInstanceIndex extends Index {
-
+interface TypeInstanceIndex extends Index
+{
   /**
    * Returns the topics in the topic map whose type property equals one of those 
    * <var>types</var> at least. If types' length = 1, <var>matchAll</var> is 

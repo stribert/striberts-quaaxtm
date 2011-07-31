@@ -17,8 +17,8 @@
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
  * @version svn:$Id: Construct.interface.php 63 2010-02-14 21:17:19Z joschmidt $
  */
-interface Construct {
-    
+interface Construct
+{    
   /**
    * Returns the parent of this construct. See the derived constructs for the particular
    * return value.

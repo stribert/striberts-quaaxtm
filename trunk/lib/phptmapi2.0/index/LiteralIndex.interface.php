@@ -19,8 +19,8 @@ require_once('Index.interface.php');
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
  * @version svn:$Id: LiteralIndex.interface.php 18 2009-02-07 23:00:17Z joschmidt $
  */
-interface LiteralIndex extends Index {
-
+interface LiteralIndex extends Index
+{
   /**
    * Retrieves the topic names in the topic map which have a value equal to 
    * <var>value</var>.

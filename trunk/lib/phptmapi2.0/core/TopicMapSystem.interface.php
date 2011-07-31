@@ -21,8 +21,8 @@
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
  * @version svn:$Id: TopicMapSystem.interface.php 29 2009-04-09 20:13:45Z joschmidt $
  */
-interface TopicMapSystem {
-
+interface TopicMapSystem
+{
   /**
    * Retrieves a {@link TopicMap} managed by this system with the
    * specified storage address <var>uri</var>. 

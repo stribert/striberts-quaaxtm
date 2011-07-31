@@ -25,8 +25,8 @@ require_once('Typed.interface.php');
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
  * @version svn:$Id: Role.interface.php 55 2009-07-15 22:04:32Z joschmidt $
  */
-interface Role extends Reifiable, Typed {
-
+interface Role extends Reifiable, Typed
+{
   /**
    * Returns the {@link Topic} playing this role.
    *

@@ -23,8 +23,8 @@ require_once('Reifiable.interface.php');
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
  * @version svn:$Id: TopicMap.interface.php 53 2009-07-15 21:58:34Z joschmidt $
  */
-interface TopicMap extends Reifiable {
-
+interface TopicMap extends Reifiable
+{
   /**
    * Returns the storage address that is defined in 
    * {@link TopicMapSystem::createTopicMap()}.

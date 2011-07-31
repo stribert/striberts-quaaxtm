@@ -23,8 +23,8 @@ require_once('Index.interface.php');
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
  * @version svn:$Id: ScopedIndex.interface.php 67 2011-01-09 13:40:25Z joschmidt $
  */
-interface ScopedIndex extends Index {
-
+interface ScopedIndex extends Index
+{
   /**
    * Returns the {@link Association}s in the topic map whose scope property 
    * equals one of those <var>themes</var> at least. If themes' length = 1,

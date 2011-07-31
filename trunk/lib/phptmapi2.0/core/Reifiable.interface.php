@@ -21,8 +21,8 @@ require_once('Construct.interface.php');
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
  * @version svn:$Id: Reifiable.interface.php 65 2011-01-09 13:35:56Z joschmidt $
  */
-interface Reifiable extends Construct {
-
+interface Reifiable extends Construct
+{
   /**
    * Returns the reifier of this {@link Construct}.
    * 
