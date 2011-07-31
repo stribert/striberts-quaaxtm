@@ -33,7 +33,8 @@ class MIOException extends Exception
    * @param string The exception message.
    * @return void
    */
-  public function __construct($msg) {
+  public function __construct($msg)
+  {
     parent::__construct($msg);
   }
 }
