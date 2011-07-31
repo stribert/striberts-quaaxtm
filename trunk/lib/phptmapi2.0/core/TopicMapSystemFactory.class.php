@@ -25,8 +25,8 @@ require_once('FactoryConfigurationException.class.php');
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
  * @version svn:$Id: TopicMapSystemFactory.class.php 70 2011-01-15 18:10:11Z joschmidt $
  */
-abstract class TopicMapSystemFactory {
-   
+abstract class TopicMapSystemFactory
+{   
   /**
    * Returns the particular feature requested for in the underlying
    * implementation of {@link TopicMapSystem}.
@@ -47,7 +47,8 @@ abstract class TopicMapSystemFactory {
    * A list of the core features can be found at {@link http://tmapi.org/features/}.
    * 
    * @param string The name of the feature to be set.
-   * @param boolean true to enable the feature, false to disable it.
+   * @param boolean <var>True</var> to enable the feature, <var>false</var> 
+   * 				to disable it.
    * @return void
    * @throws {@link FeatureNotRecognizedException} If the underlying implementation 
    *        does not recognize the named feature.
@@ -108,7 +109,8 @@ abstract class TopicMapSystemFactory {
    * @throws {@link FactoryConfigurationException}
    * @static
    */
-  public static function newInstance() {
+  public static function newInstance()
+  {
     $factoryImplClassName = self::_getImplementationClassName();
     $factoryImplLocation = null;
     require(
@@ -144,7 +146,8 @@ abstract class TopicMapSystemFactory {
    * @return string The class name of the TopicMapSystemFactory implementation.
    * @static
    */
-  private static function _getImplementationClassName() {
+  private static function _getImplementationClassName()
+  {
     $factoryImpl = null;
     require(
       dirname(__FILE__) . 
