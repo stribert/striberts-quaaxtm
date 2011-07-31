@@ -28,8 +28,15 @@
  */
 class CharacteristicUtils
 {
-  const UTF8 = 'UTF-8',
-        ISO88591 = 'ISO-8859-1';
+  /**
+   * The UTF-8 character encoding representation.
+   */
+  const UTF8 = 'UTF-8';
+  
+  /**
+   * The ISO/IEC 8859-1 character encoding representation.
+   */
+  const ISO88591 = 'ISO-8859-1';
       
   /**
    * Constructor.
