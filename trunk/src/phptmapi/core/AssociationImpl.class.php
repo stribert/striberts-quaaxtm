@@ -33,13 +33,19 @@
  */
 final class AssociationImpl extends ScopedImpl implements Association
 {  
+  /**
+   * The property holder for construct properties after initial retrieval 
+   * from storage.
+   * 
+   * @var array
+   */
   private $_propertyHolder;
   
   /**
    * Constructor.
    * 
-   * @param int The database id.
-   * @param Mysql The Mysql object.
+   * @param int The construct id in its table representation in the MySQL database.
+   * @param Mysql The MySQL wrapper.
    * @param array The configuration data.
    * @param TopicMapImpl The containing topic map.
    * @param array The property holder.
@@ -92,11 +98,7 @@ final class AssociationImpl extends ScopedImpl implements Association
       $query .= ' AND type_id = ' . $type->_dbId;
     }
     $resultCachePerm = $this->_getResultCachePermission();
-    $results = $this->_mysql->fetch(
-      $query, 
-      $resultCachePerm, 
-      $this->_config['resultcache']['expiration']
-    );
+    $results = $this->_mysql->fetch($query, $resultCachePerm);
     if (is_array($results)) {
       foreach ($results as $result) {
         $propertyHolder['type_id'] = $result['type_id'];
