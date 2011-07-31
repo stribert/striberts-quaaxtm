@@ -28,14 +28,25 @@
  */
 class MysqlResult
 {	
-  private $_result,
-          $_connection;
+  /**
+   * The MySQL result.
+   * 
+   * @var mysqli_result
+   */
+  private $_result;
+  
+  /**
+   * The MySQL connection.
+   * 
+   * @var mysqli
+   */
+  private $_connection;
 	
   /**
    * Constructor.
    * 
-   * @param resource The MySQL result resource.
-   * @param resource The MySQL connection resource.
+   * @param mysqli_result The MySQL result.
+   * @param mysqli The MySQL connection.
    * @return void
    */
   public function __construct($result, $connection)
