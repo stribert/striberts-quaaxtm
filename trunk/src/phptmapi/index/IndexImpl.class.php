@@ -28,15 +28,39 @@
  */
 abstract class IndexImpl implements Index
 {  
-  protected $_mysql,
-            $_config,
-            $_topicMap,
-            $_tmDbId;
+  /**
+   * The MySQL wrapper.
+   * 
+   * @var Mysql
+   */
+  protected $_mysql;
+  
+  /**
+   * The configuration data.
+   * 
+   * @var array
+   */
+  protected $_config;
+  
+  /**
+   * The topic map the index operates on.
+   * 
+   * @var TopicMapImpl
+   */
+  protected $_topicMap;
+  
+  /**
+   * The topic map id in its, the topic map's, table representation in a 
+   * MySQL database.
+   * 
+   * @var int
+   */
+  protected $_tmDbId;
   
   /**
    * Constructor.
    * 
-   * @param Mysql The Mysql object.
+   * @param Mysql The MySQL wrapper.
    * @param array The configuration data.
    * @param TopicMap The topic map the index operates on.
    * @return void
