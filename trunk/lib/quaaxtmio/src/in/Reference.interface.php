@@ -27,9 +27,20 @@
  */
 interface ReferenceInterface
 {
-  const ITEM_IDENTIFIER = 1,
-        SUBJECT_IDENTIFIER = 2,
-        SUBJECT_LOCATOR = 3;
+  /**
+   * The reference type "item identifier".
+   */
+  const ITEM_IDENTIFIER = 1;
+  
+  /**
+   * The reference type "subject identifier".
+   */
+  const SUBJECT_IDENTIFIER = 2;
+  
+  /**
+   * The reference type "subject locator".
+   */
+  const SUBJECT_LOCATOR = 3;
 
   /**
    * Returns the reference. The reference may be a valid URI.

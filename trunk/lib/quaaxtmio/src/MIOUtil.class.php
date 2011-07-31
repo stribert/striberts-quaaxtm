@@ -27,13 +27,35 @@
  */
 class MIOUtil
 {
-  const XSD_ANYTYPE = 'http://www.w3.org/2001/XMLSchema#anyType',
-        XSD_STRING = 'http://www.w3.org/2001/XMLSchema#string',
-        XSD_ANYURI = 'http://www.w3.org/2001/XMLSchema#anyURI',
-        
-        PSI_TYPE_INSTANCE = 'http://psi.topicmaps.org/iso13250/model/type-instance',
-        PSI_TYPE = 'http://psi.topicmaps.org/iso13250/model/type',
-        PSI_INSTANCE = 'http://psi.topicmaps.org/iso13250/model/instance';
+  /**
+   * The identifier for XSD datatype "anyType".
+   */
+  const XSD_ANYTYPE = 'http://www.w3.org/2001/XMLSchema#anyType';
+  
+  /**
+   * The identifier for XSD datatype "string".
+   */
+  const XSD_STRING = 'http://www.w3.org/2001/XMLSchema#string';
+  
+  /**
+   * The identifier for XSD datatype "anyURI".
+   */
+  const XSD_ANYURI = 'http://www.w3.org/2001/XMLSchema#anyURI';
+  
+  /**
+   * The PSI for "type-instance" in ISO/IEC 13250-2 Topic Maps Data Model.
+   */
+  const PSI_TYPE_INSTANCE = 'http://psi.topicmaps.org/iso13250/model/type-instance';
+  
+  /**
+   * The PSI for "type" in ISO/IEC 13250-2 Topic Maps Data Model.
+   */
+  const PSI_TYPE = 'http://psi.topicmaps.org/iso13250/model/type';
+  
+  /**
+   * The PSI for "instance" in ISO/IEC 13250-2 Topic Maps Data Model.
+   */
+  const PSI_INSTANCE = 'http://psi.topicmaps.org/iso13250/model/instance';
   
   /**
    * Constructor.
@@ -52,11 +74,9 @@ class MIOUtil
   public static function readFile($file)
   {
     $constituents = parse_url($file);
-    if (isset($constituents['host']) && isset($constituents['scheme'])) {
-      return self::_readRemoteFile($file);
-    } else {
-      return self::_readLocalFile($file);
-    }
+    return isset($constituents['host']) && isset($constituents['scheme']) 
+      ? self::_readRemoteFile($file) 
+      : self::_readLocalFile($file);
   }
   
   /**
@@ -99,7 +119,7 @@ class MIOUtil
     if ($httpCode != 200) {
       throw new MIOException(
       	'Error in ' . __METHOD__ . 
-      	': Cannot read ' . $file . '! Retrieved HTTP status code ' . $httpCode . '.'
+      		': Cannot read ' . $file . '! Retrieved HTTP status code ' . $httpCode . '.'
       );
     }
     return $content;
