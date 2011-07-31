@@ -45,65 +45,267 @@ require_once('Reference.class.php');
  */
 class XTM201TopicMapReader
 {
-  const TAG_TOPIC_MAP = 'topicMap',
-        TAG_TOPIC = 'topic',
-        TAG_ASSOCIATION = 'association',
-        TAG_ROLE = 'role',
-        TAG_OCCURRENCE = 'occurrence',
-        TAG_NAME = 'name',
-        TAG_VARIANT = 'variant',
+  /**
+   * The element type "topicMap".
+   */
+  const TAG_TOPIC_MAP = 'topicMap';
+  
+  /**
+   * The element type "topic".
+   */
+  const TAG_TOPIC = 'topic';
+  
+  /**
+   * The element type "association".
+   */
+  const TAG_ASSOCIATION = 'association';
+  
+  /**
+   * The element type "role".
+   */
+  const TAG_ROLE = 'role';
+  
+  /**
+   * The element type "occurrence".
+   */
+  const TAG_OCCURRENCE = 'occurrence';
+  
+  /**
+   * The element type "name".
+   */
+  const TAG_NAME = 'name';
+  
+  /**
+   * The element type "variant".
+   */
+  const TAG_VARIANT = 'variant';
+  
+  /**
+   * The element type "instanceOf".
+   */
+  const TAG_INSTANCE_OF = 'instanceOf';
+  
+  /**
+   * The element type "type".
+   */
+  const TAG_TYPE = 'type';
+  
+  /**
+   * The element type "value".
+   */
+  const TAG_VALUE = 'value';
+  
+  /**
+   * The element type "resourceref".
+   */
+  const TAG_RESOURCE_REF = 'resourceRef';
+  
+  /**
+   * The element type "resourceData".
+   */
+  const TAG_RESOURCE_DATA = 'resourceData';
+  
+  /**
+   * The element type "scope".
+   */
+  const TAG_SCOPE = 'scope';
+  
+  /**
+   * The element type "topicRef".
+   */
+  const TAG_TOPIC_REF = 'topicRef';
+  
+  /**
+   * The element type "subjectIdentifier".
+   */
+  const TAG_SUBJECT_IDENTIFIER = 'subjectIdentifier';
+  
+  /**
+   * The element type "subjectLocator".
+   */
+  const TAG_SUBJECT_LOCATOR = 'subjectLocator';
+  
+  /**
+   * The element type "itemIdentity".
+   */
+  const TAG_ITEM_IDENTITY = 'itemIdentity';
+  
+  /**
+   * The element type "mergeMap".
+   */
+  const TAG_MERGEMAP = 'mergeMap';
+  
+  /**
+   * The element type "reifier".
+   */
+  const TAG_REIFIER = 'reifier';
+  
+  /**
+   * The element type "subjectIdentifierRef".
+   */
+  const TAG_SUBJECT_IDENTIFIER_REF = 'subjectIdentifierRef';
+  
+  /**
+   * The element type "subjectLocatorRef".
+   */
+  const TAG_SUBJECT_LOCATOR_REF = 'subjectLocatorRef';
+  
+  /**
+   * The attribute "id".
+   */
+  const ATTR_ID = 'id';
+  
+  /**
+   * The attribute "href".
+   */
+  const ATTR_HREF = 'href';
+  
+  /**
+   * The attribute "reifier".
+   */
+  const ATTR_REIFIER = 'reifier';
+  
+  /**
+   * The attribute "datatype".
+   */
+  const ATTR_DATATYPE = 'datatype';
+  
+  /**
+   * The attribute "version".
+   */
+  const ATTR_VERSION = 'version';
+  
+  /**
+   * The initial state.
+   */
+  const STATE_INITIAL = 0;
+  
+  /**
+   * The topic map parsing state.
+   */
+  const STATE_TOPIC_MAP = 1;
+  
+  /**
+   * The topic parsing state.
+   */
+  const STATE_TOPIC = 2;
+  
+  /**
+   * The association parsing state.
+   */
+  const STATE_ASSOCIATION = 3;
+  
+  /**
+   * The association role parsing state.
+   */
+  const STATE_ROLE = 4;
+  
+  /**
+   * The type parsing state.
+   */
+  const STATE_TYPE = 5;
+  
+  /**
+   * The instance-of parsing state.
+   */
+  const STATE_INSTANCE_OF = 6;
+  
+  /**
+   * The scope parsing state.
+   */
+  const STATE_SCOPE = 7;
+  
+  /**
+   * The occurrence parsing state.
+   */
+  const STATE_OCCURRENCE = 8;
+  
+  /**
+   * The topic name parsing state.
+   */
+  const STATE_NAME = 9;
+  
+  /**
+   * The name variant parsing state.
+   */
+  const STATE_VARIANT = 10;
+  
+  /**
+   * The reifier parsing state.
+   */
+  const STATE_REIFIER = 11;
         
-        TAG_INSTANCE_OF = 'instanceOf',
-        TAG_TYPE = 'type',
-        
-        TAG_VALUE = 'value',
-        TAG_RESOURCE_REF = 'resourceRef',
-        TAG_RESOURCE_DATA = 'resourceData',
-        
-        TAG_SCOPE = 'scope',
-        
-        TAG_TOPIC_REF = 'topicRef',
-        
-        TAG_SUBJECT_IDENTIFIER = 'subjectIdentifier',
-        TAG_SUBJECT_LOCATOR = 'subjectLocator',
-        TAG_ITEM_IDENTITY = 'itemIdentity',
-        
-        TAG_MERGEMAP = 'mergeMap',
-        
-        TAG_REIFIER = 'reifier',
-        TAG_SUBJECT_IDENTIFIER_REF = 'subjectIdentifierRef',
-        TAG_SUBJECT_LOCATOR_REF = 'subjectLocatorRef',
-        
-        
-        ATTR_ID = 'id',
-        ATTR_HREF = 'href',
-        ATTR_REIFIER = 'reifier',
-        ATTR_DATATYPE = 'datatype',
-        ATTR_VERSION = 'version',
-        
-        STATE_INITIAL = 0,
-        STATE_TOPIC_MAP = 1,
-        STATE_TOPIC = 2,
-        STATE_ASSOCIATION = 3,
-        STATE_ROLE = 4,
-        STATE_TYPE = 5,
-        STATE_INSTANCE_OF = 6,
-        STATE_SCOPE = 7,
-        STATE_OCCURRENCE = 8,
-        STATE_NAME = 9,
-        STATE_VARIANT = 10,
-        STATE_REIFIER = 11;
-        
-  private $_sax,
-          $_tmHandler,
-          $_state,
-          $_nextState,
-          $_data,
-          $_datatype,
-          $_xtm20,
-          $_seenReifier,
-          $_seenIdentity;
+  /**
+   * The SAX XML parser.
+   * 
+   * @var resource
+   */
+  private $_sax;
+  
+  /**
+   * The topic map handler to which the reader passes the parsed results.
+   * 
+   * @var PHPTMAPITopicMapHandlerInterface
+   */
+  private $_tmHandler;
+  
+  /**
+   * The parsing state.
+   * 
+   * @var int
+   */
+  private $_state;
+  
+  /**
+   * The next parsing state.
+   * 
+   * @var int
+   */
+  private $_nextState;
+  
+  /**
+   * The XML data.
+   * 
+   * @var string
+   */
+  private $_data;
+  
+  /**
+   * The XSD datatype identifier (a URI).
+   * E.g. "http://www.w3.org/2001/XMLSchema#string" indicates datatype "string".
+   * 
+   * @var string
+   */
+  private $_datatype;
+  
+  /**
+   * The indicator if the source XTM is version 2.0 
+   * (if <var>false</var> it is version 2.1).
+   * 
+   * @var boolean
+   */
+  private $_xtm20;
+  
+  /**
+   * The indicator if a reifier has been parsed.
+   * 
+   * @var boolean
+   */
+  private $_seenReifier;
+  
+  /**
+   * The indicator if an identifier has been parsed.
+   * 
+   * @var boolean
+   */
+  private $_seenIdentity;
           
+  /**
+   * The supported XML encodings.
+   * 
+   * @var array
+   * @static
+   */
   private static $_supportedEncodings = array('UTF-8', 'ISO-8859-1', 'US-ASCII');
 
   /**

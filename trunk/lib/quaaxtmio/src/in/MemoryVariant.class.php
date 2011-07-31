@@ -29,8 +29,20 @@ require_once('MemoryScoped.class.php');
  */
 class MemoryVariant extends MemoryScoped
 {
-  private $_value,
-          $_datatype;
+  /**
+   * The name variant value.
+   * 
+   * @var string
+   */
+  private $_value;
+  
+  /**
+   * The value's XSD datatype identifier (a URI).
+   * E.g. "http://www.w3.org/2001/XMLSchema#string" indicates a string value.
+   * 
+   * @var string
+   */
+  private $_datatype;
           
   /**
    * Constructor.
@@ -53,6 +65,7 @@ class MemoryVariant extends MemoryScoped
   {
     unset($this->_value);
     unset($this->_datatype);
+    parent::__destruct();
   }
   
   /**

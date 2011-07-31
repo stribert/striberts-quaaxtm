@@ -27,8 +27,19 @@
  */
 class MemoryConstruct
 {
-  private $_reifier,
-          $_iids;
+  /**
+   * The reifier.
+   * 
+   * @var Topic
+   */
+  private $_reifier;
+  
+  /**
+   * The item identifiers.
+   * 
+   * @var array
+   */
+  private $_iids;
           
   /**
    * Constructor.

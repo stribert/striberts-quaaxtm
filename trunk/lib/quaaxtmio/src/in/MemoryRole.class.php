@@ -29,8 +29,19 @@ require_once('MemoryConstruct.class.php');
  */
 class MemoryRole extends MemoryConstruct
 {
-  private $_type,
-          $_player;
+  /**
+   * The association role type.
+   * 
+   * @var Topic
+   */
+  private $_type;
+  
+  /**
+   * The association role player.
+   * 
+   * @var Topic
+   */
+  private $_player;
   
   /**
    * Constructor.
@@ -53,6 +64,7 @@ class MemoryRole extends MemoryConstruct
   {
     unset($this->_type);
     unset($this->_player);
+    parent::__destruct();
   }
   
   /**

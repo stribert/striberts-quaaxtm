@@ -45,20 +45,101 @@ require_once('Net/URL2.php');
  */
 class PHPTMAPICXTMWriter
 { 
-  private $_playersToAssocsIndex,
-          $_topicsToNumbersIndex,
-          $_typeInstance,
-          $_type,
-          $_instance,
-          $_typeInstanceAssocs,
-          $_topicMap,
-          $_writer,
-          $_filterTopicIidPattern;
+  /**
+   * The "players to associations" index.
+   * 
+   * @var array
+   */
+  private $_playersToAssocsIndex;
+  
+  /**
+   * The "topics to numbers" index.
+   * 
+   * @var array
+   */
+  private $_topicsToNumbersIndex;
+  
+  /**
+   * The topic representing the "type-instance" association type.
+   * 
+   * @var Topic
+   */
+  private $_typeInstance;
+  
+  /**
+   * The topic representing the "type" role type in a type-instance association.
+   * 
+   * @var Topic
+   */
+  private $_type;
+  
+  /**
+   * The topic representing the "instance" role type in a type-instance association.
+   * 
+   * @var Topic
+   */
+  private $_instance;
+  
+  /**
+   * The type-instance associations.
+   * 
+   * @var array
+   */
+  private $_typeInstanceAssocs;
+  
+  /**
+   * The topic map to be serialized to CXTM.
+   * 
+   * @var TopicMap
+   */
+  private $_topicMap;
+  
+  /**
+   * The XML writer.
+   * 
+   * @var QTMIOXMLWriter
+   */
+  private $_writer;
+  
+  /**
+   * The topic map's topic item identifier fragment pattern to be filtered.
+   * The fragment is resolved against the topic map's base locator.
+   * 
+   * @var string
+   */
+  private $_filterTopicIidPattern;
           
-  private static  $_normLocs = array(),
-                  $_normBaseLoc = '',
-                  $_srcXml = true,
-                  $_xsdUri = 'http://www.w3.org/2001/XMLSchema#anyURI';
+  /**
+   * The normalized locators of a Topic Maps construct property.
+   * 
+   * @var array
+   * @static
+   */
+  private static $_normLocs = array();
+  
+  /**
+   * The normalized topic map base locator.
+   * 
+   * @var string
+   * @static
+   */
+  private static $_normBaseLoc = '';
+  
+  /**
+   * The indicator if the source serialization format is XTM.
+   * 
+   * @var boolean
+   * @static
+   */
+  private static $_srcXml = true;
+  
+  /**
+   * The XSD "anyURI" datatype identifier.
+   * 
+   * @var string
+   * @static
+   */
+  private static $_xsdUri = 'http://www.w3.org/2001/XMLSchema#anyURI';
   
   /**
    * Constructor.

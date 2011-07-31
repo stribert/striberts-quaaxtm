@@ -37,13 +37,54 @@ require_once(
  */
 abstract class PHPTMAPIGenericWriter
 {  
-  protected $_struct,
-            $_setup,
-            $_tmLocator,
-            $_topicsIidsIdx,
-            $_sidsIdx,
-            $_slosIdx,
-            $_typeInstanceAssocs;
+  /**
+   * The struct all Topic Maps constructs and their properties are appended to.
+   * 
+   * @var array
+   */
+  protected $_struct;
+  
+  /**
+   * The setup data.
+   * 
+   * @var array
+   */
+  protected $_setup;
+  
+  /**
+   * The topic map base locator.
+   * 
+   * @var string
+   */
+  protected $_tmLocator;
+  
+  /**
+   * The topics item identifiers index.
+   * 
+   * @var array
+   */
+  protected $_topicsIidsIdx;
+  
+  /**
+   * The topics subject identifiers index.
+   * 
+   * @var array
+   */
+  protected $_sidsIdx;
+  
+  /**
+   * The topics subject locators index.
+   * 
+   * @var array
+   */
+  protected $_slosIdx;
+  
+  /**
+   * The type-instance associations.
+   * 
+   * @var array
+   */  
+  protected $_typeInstanceAssocs;
   
   /**
    * Constructor.

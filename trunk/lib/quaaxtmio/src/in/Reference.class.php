@@ -29,17 +29,28 @@ require_once('Reference.interface.php');
  */
 class Reference implements ReferenceInterface
 {
-  private $_ref,
-          $_type;
+  /**
+   * The topic reference.
+   * 
+   * @var string
+   */
+  private $_ref;
+  
+  /**
+   * The reference type.
+   * 
+   * @var int
+   */
+  private $_type;
   
   /**
    * Constructor.
    * 
-   * @param string The topic's reference.
+   * @param string The topic reference.
    * @param string The reference type. Default <code>ITEM_IDENTIFIER</code>.
    * @return void
    */
-  public function __construct($ref, $type = self::ITEM_IDENTIFIER)
+  public function __construct($ref, $type=self::ITEM_IDENTIFIER)
   {    
     $this->_ref = $ref;
     $this->_type = $type;

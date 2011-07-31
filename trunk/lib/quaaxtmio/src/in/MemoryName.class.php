@@ -29,9 +29,26 @@ require_once('MemoryScoped.class.php');
  */
 class MemoryName extends MemoryScoped
 {
-  private $_type,
-          $_value,
-          $_variants;
+  /**
+   * The name type.
+   * 
+   * @var Topic
+   */
+  private $_type;
+  
+  /**
+   * The name value.
+   * 
+   * @var string
+   */
+  private $_value;
+  
+  /**
+   * The name variants.
+   * 
+   * @var array
+   */
+  private $_variants;
 
   /**
    * Constructor.
@@ -56,6 +73,7 @@ class MemoryName extends MemoryScoped
     unset($this->_type); 
     unset($this->_value);
     unset($this->_variants);
+    parent::__destruct();
   }
   
   /**

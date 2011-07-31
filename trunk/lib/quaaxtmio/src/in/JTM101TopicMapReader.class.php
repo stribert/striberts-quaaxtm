@@ -43,9 +43,26 @@ require_once('Reference.class.php');
  */
 class JTM101TopicMapReader
 {
-  private $_tmHandler,
-          $_jtm11,
-          $_prefixes;
+  /**
+   * The topic map handler to which the reader passes the parsed results.
+   * 
+   * @var PHPTMAPITopicMapHandlerInterface
+   */
+  private $_tmHandler;
+  
+  /**
+   * The indicator if the JTM source is JTM 1.1 (if <var>false</var> it is JTM 1.0).
+   * 
+   * @var boolean
+   */
+  private $_jtm11;
+  
+  /**
+   * The prefixes used to shorten IRIs using a SafeCURIE.
+   * 
+   * @var array
+   */
+  private $_prefixes;
   
   /**
    * Constructor.

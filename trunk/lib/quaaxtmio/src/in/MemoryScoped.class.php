@@ -29,6 +29,11 @@ require_once('MemoryConstruct.class.php');
  */
 class MemoryScoped extends MemoryConstruct
 {
+  /**
+   * The scope themes (topics representing the scope).
+   * 
+   * @var array
+   */
   private $_themes;
   
   /**
@@ -50,6 +55,7 @@ class MemoryScoped extends MemoryConstruct
   public function __destruct()
   {
     unset($this->_themes);
+    parent::__destruct();
   }
   
   /**

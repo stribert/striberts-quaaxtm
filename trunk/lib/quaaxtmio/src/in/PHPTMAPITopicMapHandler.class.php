@@ -53,65 +53,196 @@ require_once('MemoryOccurrence.class.php');
  */
 class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
 {
-  const TOPICMAP = 'topicmap',
-        TOPIC = 'topic',
-        ASSOCIATION = 'association',
-        ROLE = 'role',
-        OCCURRENCE = 'occurrence',
-        NAME = 'name',
-        VARIANT = 'variant',
-        SCOPE = 'scope',
-        REIFIER = 'reifier',
-        PLAYER = 'player',
-        ISA = 'isa',
-        TYPE = 'type';
+  /**
+   * The topic map state.
+   */
+  const TOPICMAP = 'topicmap';
   
-  private $_stateChain,
-          $_constructs,
-          $_tmSystem,
-          $_topicMap,
-          $_locator,
-          $_baseLocatorRef,
-          $_maxMergeMapCount,
-          $_mergeMapCount,
-          $_mergeMapLocators,
-          $_assocsIndex,
-          $_occsIndex,
-          $_namesIndex,
-          $_variantsIndex, 
-          $_defaultNameType;
+  /**
+   * The topic state.
+   */
+  const TOPIC = 'topic';
+  
+  /**
+   * The association state.
+   */
+  const ASSOCIATION = 'association';
+  
+  /**
+   * The association role state.
+   */
+  const ROLE = 'role';
+  
+  /**
+   * The occurrence state.
+   */
+  const OCCURRENCE = 'occurrence';
+  
+  /**
+   * The topic name state.
+   */
+  const NAME = 'name';
+  
+  /**
+   * The topic name variant state.
+   */
+  const VARIANT = 'variant';
+  
+  /**
+   * The scope state.
+   */
+  const SCOPE = 'scope';
+  
+  /**
+   * The reifier state.
+   */
+  const REIFIER = 'reifier';
+  
+  /**
+   * The role player state.
+   */
+  const PLAYER = 'player';
+  
+  /**
+   * The "isa-relationship" state.
+   */
+  const ISA = 'isa';
+  
+  /**
+   * The type state.
+   */
+  const TYPE = 'type';
+  
+  /**
+   * The state chain storing the states.
+   * 
+   * @var array
+   */
+  private $_stateChain;
+  
+  /**
+   * The construct holder.
+   * 
+   * @var array
+   */
+  private $_constructs;
+  
+  /**
+   * The Topic Maps system.
+   * 
+   * @var TopicMapSystem
+   */
+  private $_tmSystem;
+  
+  /**
+   * The topic map which is deserialized.
+   * 
+   * @var TopicMap
+   */
+  private $_topicMap;
+  
+  /**
+   * The topic map base locator object.
+   * 
+   * @var Net_URL2
+   */
+  private $_tmLocatorObj;
+  
+  /**
+   * The topic map base locator (a URL).
+   * The string representation of the topic map base locator object.
+   * 
+   * @var string
+   */
+  private $_tmLocator;
+  
+  /**
+   * The allowed number of topic map mergings.
+   * 
+   * @var int
+   */
+  private $_maxMergeMapCount;
+  
+  /**
+   * The current number of topic map mergings.
+   * 
+   * @var int
+   */
+  private $_mergeMapCount;
+  
+  /**
+   * The base locators of merged topic maps.
+   * 
+   * @var array
+   */
+  private $_mergeMapLocators;
+  
+  /**
+   * The associations index.
+   * 
+   * @var array
+   */
+  private $_assocsIndex;
+  
+  /**
+   * The occurrences index.
+   * 
+   * @var array
+   */
+  private $_occsIndex;
+  
+  /**
+   * The topic names index.
+   * 
+   * @var array
+   */
+  private $_namesIndex;
+  
+  /**
+   * The topic name variants index.
+   * 
+   * @var array
+   */
+  private $_variantsIndex;
+  
+  /**
+   * The default topic name type.
+   * 
+   * @var Topic
+   */
+  private $_defaultNameType;
   
   /**
    * Constructor.
    *  
    * @param TopicMapSystem The Topic Maps system instance.
-   * @param string The topic map's base locator.
-   * @param int The max. allowed number of merge map processing.
-   * @param int The merge map processing count. Will be set in startMergeMap().
+   * @param string The topic map base locator.
+   * @param int The max. allowed number of merge map processings.
+   * @param int The merge map processings count. Will be set in startMergeMap().
    * @param array The base locators of the merged topic maps. Will be set in startMergeMap().
    * @return void
-   * @throws MIOException If the topic map's base locator is not absolute, or base 
+   * @throws MIOException If the topic map base locator is not absolute, or the base 
    * 				locator is in use.
    */
   public function __construct(
     TopicMapSystem $tmSystem, 
-    $baseLocator, 
+    $tmLocator, 
     $maxMergeMapCount=2, 
     $mergeMapCount=0, 
     array $mergeMapLocators=array()
     )
   {  
-    $this->_locator = new Net_URL2($baseLocator);
-    if (!$this->_locator->getScheme() && !$this->_locator->isAbsolute()) {
+    $this->_tmLocatorObj = new Net_URL2($tmLocator);
+    if (!$this->_tmLocatorObj->getScheme() && !$this->_tmLocatorObj->isAbsolute()) {
       throw new MIOException('Error in ' . __METHOD__ . ': Base locator must have 
       	a scheme and must be absolute!');
     }
-    $this->_baseLocatorRef = $this->_locator->getUrl();
+    $this->_tmLocator = $this->_tmLocatorObj->getUrl();
     $this->_tmSystem = $tmSystem;
-    $baseLocators = $this->_tmSystem->getLocators();
-    if (in_array($this->_baseLocatorRef, $baseLocators)) {
+    $tmLocators = $this->_tmSystem->getLocators();
+    if (in_array($this->_tmLocator, $tmLocators)) {
       throw new MIOException('Error in ' . __METHOD__ . ': Base locator "' . 
-        $this->_baseLocatorRef . '" is in use!');
+        $this->_tmLocator . '" is in use!');
     }
     $this->_maxMergeMapCount = $maxMergeMapCount;
     $this->_mergeMapCount = $mergeMapCount;
@@ -133,8 +264,8 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
    */
   public function __destruct()
   {
-    unset($this->_locator);
-    unset($this->_baseLocatorRef);
+    unset($this->_tmLocatorObj);
+    unset($this->_tmLocator);
     unset($this->_tmSystem);
     unset($this->_maxMergeMapCount);
     unset($this->_mergeMapCount);
@@ -155,15 +286,15 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
    */
   public function startTopicMap()
   {
-    $topicMap = $this->_tmSystem->getTopicMap($this->_baseLocatorRef);
+    $topicMap = $this->_tmSystem->getTopicMap($this->_tmLocator);
     if (!is_null($topicMap)) {
       throw new MIOException('Error in ' . __METHOD__ . ': Topic map with ' . 
-      	'base locator "' . $this->_baseLocatorRef . '" already exists!');
+      	'base locator "' . $this->_tmLocator . '" already exists!');
     }
-    $this->_topicMap = $this->_tmSystem->createTopicMap($this->_baseLocatorRef);
+    $this->_topicMap = $this->_tmSystem->createTopicMap($this->_tmLocator);
     if (!$this->_topicMap instanceof TopicMap) {
       throw new MIOException('Error in ' . __METHOD__ . ': Topic map with ' . 
-        'base locator "' . $this->_baseLocatorRef . '" could not be created!'); 
+        'base locator "' . $this->_tmLocator . '" could not be created!'); 
     }
     $this->_enterStateNewConstruct(self::TOPICMAP, $this->_topicMap);
   }
@@ -531,7 +662,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
    */
   public function itemIdentifier($iid)
   {
-    $uri = $this->_getUri($iid);
+    $uri = $this->_getUrl($iid);
     $this->_peekConstruct()->addItemIdentifier($uri);
   }
 
@@ -607,23 +738,23 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
     if ($this->_mergeMapCount > $this->_maxMergeMapCount) {
       throw new MIOException('Error in ' . __METHOD__ . ': Exceeded merge map count!');
     }
-    $baseLocator = $this->_locator->resolve($locator)->getUrl();
+    $tmLocator = $this->_tmLocatorObj->resolve($locator)->getUrl();
     if ($this->_mergeMapCount == 0) {
-      $this->_mergeMapLocators[] = $this->_locator->getUrl();
+      $this->_mergeMapLocators[] = $this->_tmLocatorObj->getUrl();
     }
-    if (in_array($baseLocator, $this->_mergeMapLocators)) {
+    if (in_array($tmLocator, $this->_mergeMapLocators)) {
       return;// prevent "merge ping pong"
     }
-    $this->_mergeMapLocators[] = $baseLocator;
+    $this->_mergeMapLocators[] = $tmLocator;
     $mapHandler = new self(
       $this->_tmSystem, 
-      $baseLocator, 
+      $tmLocator, 
       $this->_maxMergeMapCount, 
       $this->_mergeMapCount+1, 
       $this->_mergeMapLocators
     );
     $reader = new $readerClassName($mapHandler);
-    $reader->readFile($baseLocator);
+    $reader->readFile($tmLocator);
     $this->_topicMap->mergeIn($mapHandler->getTopicMap());
   }
   
@@ -647,13 +778,13 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
   
   /**
-   * Returns the base locator.
+   * Returns the topic map base locator.
    * 
-   * @return string The base locator.
+   * @return string The topic map base locator.
    */
   public function getBaseLocator()
   {
-    return $this->_baseLocatorRef;
+    return $this->_tmLocator;
   }
 
   /**
@@ -710,11 +841,9 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
    */
   private function _peekConstruct($index=null)
   {
-    if (is_null($index)) {
-      return $this->_constructs[count($this->_constructs)-1];
-    } else {
-      return $this->_constructs[$index];
-    }
+    return is_null($index)
+      ? $this->_constructs[count($this->_constructs)-1]
+      : $this->_constructs[$index];
   }
   
   /**
@@ -784,15 +913,15 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
   
   /**
-   * Resolves given reference against base locator.
+   * Resolves the given reference against the topic map base locator.
    * 
    * @param string The reference.
-   * @return string A valid URI.
+   * @return string A valid URL.
    */
-  private function _getUri($ref)
+  private function _getUrl($ref)
   {
-    $baseLocator = new Net_URL2($this->_baseLocatorRef);
-    return $baseLocator->resolve($ref)->getUrl();
+    $tmLocatorObj = new Net_URL2($this->_tmLocator);
+    return $tmLocatorObj->resolve($ref)->getUrl();
   }
   
   /**
@@ -804,23 +933,23 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
    */
   private function _createTopic(ReferenceInterface $topicRef)
   {
-      $type = $topicRef->getType();
-      if ($type == ReferenceInterface::ITEM_IDENTIFIER) {
-        return $this->_createTopicByItemIdentifier(
-          $this->_getUri($topicRef->getReference())
-        );
-      } elseif($type == ReferenceInterface::SUBJECT_IDENTIFIER) {
-        return $this->_topicMap->createTopicBySubjectIdentifier(
-          $topicRef->getReference()
-        );
-      } elseif($type == ReferenceInterface::SUBJECT_LOCATOR) {
-        return $this->_topicMap->createTopicBySubjectLocator(
-          $topicRef->getReference()
-        );
-      } else {
-        throw new MIOException('Error in ' . __METHOD__ . 
-        	': Unexpected reference type "' . $type . '"!');
-      }
+    $type = $topicRef->getType();
+    if ($type == ReferenceInterface::ITEM_IDENTIFIER) {
+      return $this->_createTopicByItemIdentifier(
+        $this->_getUrl($topicRef->getReference())
+      );
+    } elseif($type == ReferenceInterface::SUBJECT_IDENTIFIER) {
+      return $this->_topicMap->createTopicBySubjectIdentifier(
+        $topicRef->getReference()
+      );
+    } elseif($type == ReferenceInterface::SUBJECT_LOCATOR) {
+      return $this->_topicMap->createTopicBySubjectLocator(
+        $topicRef->getReference()
+      );
+    } else {
+      throw new MIOException('Error in ' . __METHOD__ . 
+      	': Unexpected reference type "' . $type . '"!');
+    }
   }
   
   /**
@@ -852,7 +981,7 @@ class PHPTMAPITopicMapHandler implements PHPTMAPITopicMapHandlerInterface
   }
   
   /**
-   * Handles Topic Map construct's reifiers.
+   * Handles Topic Maps construct's reifiers.
    * 
    * @param object The Topic Maps construct.
    * @param Topic The reifier.

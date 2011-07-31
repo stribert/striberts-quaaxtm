@@ -39,13 +39,54 @@ require_once('Net/URL2.php');
  */
 class PHPTMAPIXTM201Writer
 {  
-  private $_baseLocator,
-          $_topicMap,
-          $_writer,
-          $_iidIdx,
-          $_sloIdx,
-          $_sidIdx,
-          $_xtm21;
+  /**
+   * The topic map base locator.
+   * 
+   * @var string
+   */
+  private $_tmLocator;
+  
+  /**
+   * The topic map to be serialized.
+   * 
+   * @var TopicMap
+   */
+  private $_topicMap;
+  
+  /**
+   * The XML writer.
+   * 
+   * @var XMLWriter
+   */
+  private $_writer;
+  
+  /**
+   * The item identifiers index.
+   * 
+   * @var array
+   */
+  private $_iidIdx;
+  
+  /**
+   * The subject locators index.
+   * 
+   * @var array
+   */
+  private $_sloIdx;
+  
+  /**
+   * The subject identifiers index.
+   * 
+   * @var array
+   */
+  private $_sidIdx;
+  
+  /**
+   * The indicator if the serialization format is XTM 2.1 (if not it is XTM 2.0).
+   *  
+   * @var boolean
+   */
+  private $_xtm21;
   
   /**
    * Constructor.
@@ -54,11 +95,12 @@ class PHPTMAPIXTM201Writer
    */
   public function __construct()
   {
-    $this->_baseLocator = 
+    $this->_tmLocator = 
     $this->_writer = null;
     $this->_iidIdx = 
     $this->_sloIdx = 
     $this->_sidIdx = array();
+    $this->_xtm21 = true;
   }
   
   /**
@@ -68,7 +110,7 @@ class PHPTMAPIXTM201Writer
    */
   public function __destruct()
   {
-    unset($this->_baseLocator);
+    unset($this->_tmLocator);
     unset($this->_writer);
     unset($this->_iidIdx);
     unset($this->_sloIdx);
@@ -78,29 +120,27 @@ class PHPTMAPIXTM201Writer
   /**
    * Creates and returns the XTM 2.0 or 2.1.
    * 
-   * @param TopicMap The topic map to write.
-   * @param string The base locator. Default <var>null</var>.
+   * @param TopicMap The topic map to be serialized.
+   * @param string The topic map base locator. Default <var>null</var>.
    * @param string The XTM version. Default <var>2.1</var>.
    * @param boolean Enable or disable XML indentation. Default <var>true</var>.
    * @return string The XTM 2.0 or 2.1.
    * @throws MIOException If provided version is invalid (i.e neither 2.0 nor 2.1).
    */
-  public function write(TopicMap $topicMap, $baseLocator=null, $version='2.1', $indent=true)
+  public function write(TopicMap $topicMap, $tmLocator=null, $version='2.1', $indent=true)
   {
-    $this->xtm21 = true;
     if ($version !== '2.1') {
       if ($version !== '2.0') {
         throw new MIOException(
         	'Error in ' . __METHOD__ . ': Version ' . $version . ' is not supported.'
         );
-      } else {
-        $this->xtm21 = false;
       }
+      $this->_xtm21 = false;
     }
-    $this->_baseLocator = !is_null($baseLocator) 
-      ? $baseLocator 
+    $this->_tmLocator = !is_null($tmLocator) 
+      ? $tmLocator 
       : $topicMap->getLocator();
-    $this->_baseLocator = $this->_normalizeLocator($this->_baseLocator);
+    $this->_tmLocator = $this->_normalizeLocator($this->_tmLocator);
       
     $this->_writer = new XMLWriter();
     $this->_writer->openMemory();
@@ -152,7 +192,7 @@ class PHPTMAPIXTM201Writer
     
     $this->_writer->startElement('topic');
     
-    if ($this->xtm21) {
+    if ($this->_xtm21) {
       if (empty($sids) && empty($slos) && empty($iids)) {
         $this->_writer->writeAttribute('id', $this->_getXtmTopicId($topic));
       }
@@ -367,7 +407,7 @@ class PHPTMAPIXTM201Writer
     if (!$reifier instanceof Topic) {
       return; 
     }
-    if ($this->xtm21) {
+    if ($this->_xtm21) {
       $this->_writer->startElement('reifier');
       $this->_writeTopicRef($reifier);
       $this->_writer->endElement();
@@ -385,7 +425,7 @@ class PHPTMAPIXTM201Writer
    */
   private function _writeTopicRef(Topic $topic)
   {
-    if ($this->xtm21) {
+    if ($this->_xtm21) {
       if (isset($this->_sidIdx[$topic->getId()])) {
         $sids = $this->_sidIdx[$topic->getId()];
       } else {
@@ -441,8 +481,8 @@ class PHPTMAPIXTM201Writer
   private function _getHref($loc)
   {
     $loc = $this->_normalizeLocator($loc);
-    if (strpos($loc, $this->_baseLocator . '#') !== false) {
-      $href = substr($loc, strlen($this->_baseLocator . '#'), strlen($loc));
+    if (strpos($loc, $this->_tmLocator . '#') !== false) {
+      $href = substr($loc, strlen($this->_tmLocator . '#'), strlen($loc));
       if (!empty($href)) {
         return '#' . $href;
       }
@@ -469,8 +509,8 @@ class PHPTMAPIXTM201Writer
       sort($iids);
       foreach ($iids as $iid) {
         $iid = $this->_normalizeLocator($iid);
-        if (strpos($iid, $this->_baseLocator . '#') !== false) {
-          $id = substr($iid, strlen($this->_baseLocator . '#'), strlen($iid));
+        if (strpos($iid, $this->_tmLocator . '#') !== false) {
+          $id = substr($iid, strlen($this->_tmLocator . '#'), strlen($iid));
           if (!empty($id)) {
             return !$fragment ? $id : '#' . $id;
           }

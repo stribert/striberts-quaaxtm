@@ -29,8 +29,19 @@ require_once('MemoryScoped.class.php');
  */
 class MemoryAssoc extends MemoryScoped
 {
-  private $_roles,
-          $_type;
+  /**
+   * The association roles.
+   * 
+   * @var array
+   */
+  private $_roles;
+  
+  /**
+   * The association type.
+   * 
+   * @var Topic
+   */
+  private $_type;
           
   /**
    * Constructor.
@@ -53,6 +64,7 @@ class MemoryAssoc extends MemoryScoped
   {
     unset($this->_roles);
     unset($this->_type);
+    parent::__destruct();
   }
   
   /**

@@ -29,9 +29,27 @@ require_once('MemoryScoped.class.php');
  */
 class MemoryOccurrence extends MemoryScoped
 {
-  private $_type,
-          $_value,
-          $_datatype;
+  /**
+   * The occurrence type.
+   * 
+   * @var Topic
+   */
+  private $_type;
+  
+  /**
+   * The occurence value.
+   * 
+   * @var string
+   */
+  private $_value;
+  
+  /**
+   * The value's XSD datatype identifier (a URI).
+   * E.g. "http://www.w3.org/2001/XMLSchema#string" indicates a string value.
+   * 
+   * @var string
+   */
+  private $_datatype;
 
   /**
    * Constructor.
@@ -56,6 +74,7 @@ class MemoryOccurrence extends MemoryScoped
     unset($this->_type);
     unset($this->_value);
     unset($this->_datatype);
+    parent::__destruct();
   }
   
   /**
