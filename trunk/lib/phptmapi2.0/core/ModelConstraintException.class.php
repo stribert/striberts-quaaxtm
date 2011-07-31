@@ -20,8 +20,13 @@ require_once('PHPTMAPIRuntimeException.class.php');
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
  * @version svn:$Id: ModelConstraintException.class.php 69 2011-01-15 18:06:38Z joschmidt $
  */
-class ModelConstraintException extends PHPTMAPIRuntimeException {
-
+class ModelConstraintException extends PHPTMAPIRuntimeException
+{
+  /**
+   * The {@link Construct} which has thrown the exception.
+   * 
+   * @var Construct
+   */
   private $_reporter;
 
   /**
@@ -31,7 +36,8 @@ class ModelConstraintException extends PHPTMAPIRuntimeException {
    * @param string The error message.
    * @return void
    */
-  public function __construct(Construct $reporter, $msg) {
+  public function __construct(Construct $reporter, $msg)
+  {
     parent::__construct($msg);
     $this->_reporter = $reporter;
   }
@@ -41,7 +47,8 @@ class ModelConstraintException extends PHPTMAPIRuntimeException {
    *
    * @return Construct The construct which has thrown the exception.
    */
-  public function getReporter() {
+  public function getReporter()
+  {
     return $this->_reporter;
   }
 }
