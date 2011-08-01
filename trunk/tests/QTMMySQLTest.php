@@ -18,10 +18,9 @@
  * Boston, MA 02111-1307 USA
  */
 
-$qtmPath = dirname(__FILE__) . 
+$utilPath = dirname(__FILE__) . 
   DIRECTORY_SEPARATOR . 
-  '..';
-$utilPath = $qtmPath . 
+  '..' .  
   DIRECTORY_SEPARATOR . 
   'src' . 
   DIRECTORY_SEPARATOR . 
@@ -50,16 +49,17 @@ class QTMMySQLTest extends PHPUnit_Framework_TestCase
   protected function setUp()
   {
     $config = array();
+    // TODO require test config
     require(
-          dirname(__FILE__) . 
-          DIRECTORY_SEPARATOR . 
-          '..' . 
-          DIRECTORY_SEPARATOR . 
-          'src' . 
-          DIRECTORY_SEPARATOR . 
-          'phptmapi' . 
-          DIRECTORY_SEPARATOR . 
-          'config.php'
+      dirname(__FILE__) . 
+      DIRECTORY_SEPARATOR . 
+      '..' . 
+      DIRECTORY_SEPARATOR . 
+      'src' . 
+      DIRECTORY_SEPARATOR . 
+      'phptmapi' . 
+      DIRECTORY_SEPARATOR . 
+      'config.php'
     );
     $this->_mysql = new Mysql($config);
     $this->_config = $config;
@@ -70,8 +70,8 @@ class QTMMySQLTest extends PHPUnit_Framework_TestCase
    */
   protected function tearDown()
   {
-    $this->_mysql = null;
-    $this->_config = array();
+    unset($this->_mysql);
+    unset($this->_config);
   }
   
   public function testTrnxFail()
@@ -130,9 +130,22 @@ class QTMMySQLTest extends PHPUnit_Framework_TestCase
   public function testMisc()
   {
     $this->assertFalse($this->_mysql->getError());
+    $this->assertFalse($this->_mysql->hasError());
     $this->_mysql->close();
     $mysqlResult = $this->_mysql->execute('SELECT VERSION()');
     $this->assertFalse($mysqlResult);
+  }
+  
+  public function testFetch()
+  {
+    $this->assertFalse($this->_mysql->getError());
+    $this->assertFalse($this->_mysql->hasError());
+    $query = 'SELECT';
+    $results = $this->_mysql->fetch($query);
+    $this->assertFalse($results);
+    $error = $this->_mysql->getError();
+    $this->assertFalse(empty($error));
+    $this->assertTrue($this->_mysql->hasError());
   }
 }
 ?>
