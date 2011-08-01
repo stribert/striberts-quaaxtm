@@ -121,7 +121,7 @@ class Mysql
   }
 
   /**
-   * Connects to MySQL.
+   * Connects to MySQL and memcached.
    * 
    * @param array Configuration data.
    * @param boolean Enable or disable the result cache.
@@ -319,16 +319,16 @@ class Mysql
   {
     if ($this->_memcached instanceof Memcached && $resultCachePermission) {
       $key = md5($query);
-      $result = $this->_memcached->get($key);
-      if ($result !== false) {
-        return $result;
+      $results = $this->_memcached->get($key);
+      if ($results !== false) {
+        return $results;
       } else {
-        $result = $this->_fetchAssociated($query);
-        if ($result !== false) {
-          if (!empty($result)) {
-            $this->_memcached->set($key, $result, $this->_resultCacheExpiration);
+        $results = $this->_fetchAssociated($query);
+        if ($results !== false) {
+          if (!empty($results)) {
+            $this->_memcached->set($key, $results, $this->_resultCacheExpiration);
           }
-          return $result;
+          return $results;
         }
         return false;
       }
