@@ -90,13 +90,6 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
   private $_locator;
   
   /**
-   * The topic map state: "regular" or "merging".
-   * 
-   * @var string
-   */
-  private $_topicMapState;
-  
-  /**
    * The class names of the supported indexes' implementations.
    * 
    * @var array
@@ -130,7 +123,6 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
     $this->_assocsCache = 
     $this->_locator = null;
     $this->_seenConstructsCache = array();
-    $this->_topicMapState = VocabularyUtils::QTM_STATE_REGULAR;
   }
   
   /**
@@ -607,7 +599,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
     if ($this->equals($other)) {
       return;
     }
-    $this->_setState(VocabularyUtils::QTM_STATE_MERGING);
+    
     $this->_mysql->startTransaction(true);
     
     $otherTopics = $other->getTopics();
@@ -632,7 +624,6 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
     $this->_copyAssociations($other->getAssociations());
     
     $this->_mysql->finishTransaction(true);
-    $this->_setState(VocabularyUtils::QTM_STATE_REGULAR);
   }
 
   /**
@@ -682,8 +673,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
   }
 
   /**
-   * (non-PHPDoc)
-   * @see phptmapi/core/ConstructImpl#_setReifier()
+   * @see ConstructImpl::_setReifier()
    */
   public function setReifier(Topic $reifier=null)
   {
@@ -1079,30 +1069,6 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
   }
   
   /**
-   * Sets the state of the topic map: <var>Merging</var> or <var>regular</var>.
-   * The states are identified by URIs <var> http://quaaxtm.sourceforge.net/state/merging/</var>
-   * and <var>http://quaaxtm.sourceforge.net/state/regular/</var>.
-   * 
-   * @param string The state URI.
-   * @return void
-   */
-  protected function _setState($state)
-  {
-    $this->_topicMapState = $state;
-  }
-  
-  /**
-   * Gets the URI representing the state of the topic map.
-   * 
-   * @see {@link TopicMapImpl::setState()}
-   * @return string The state URI.
-   */
-  protected function _getState()
-  {
-    return $this->_topicMapState;
-  }
-  
-  /**
    * Gets the construct's topicmapconstruct table <var>id</var>.
    * 
    * @return int The id.
@@ -1366,7 +1332,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
       $targetAssoc = $this->createAssociation($targetAssocType, $targetScope);
       
       // copy roles
-      $sourceRoles = $sourceAssoc->getRoles();
+      $sourceRoles = $sourceAssoc->_getRoles();
       foreach ($sourceRoles as $sourceRole) {
         $targetRoleType = $this->_copyTopic($sourceRole->getType());
         $targetPlayer = $this->_copyTopic($sourceRole->getPlayer());
