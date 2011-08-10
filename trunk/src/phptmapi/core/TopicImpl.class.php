@@ -644,7 +644,6 @@ final class TopicImpl extends ConstructImpl implements Topic
       }
     }
     
-    $this->_topicMap->_setState(VocabularyUtils::QTM_STATE_MERGING);
     $this->_mysql->startTransaction(true);
     
     // type properties and typing in table qtm_instanceof
@@ -778,7 +777,7 @@ final class TopicImpl extends ConstructImpl implements Topic
         $hash = $this->_parent->_getAssocHash(
           $assoc->getType(), 
           $assoc->getScope(), 
-          $assoc->getRoles()
+          $assoc->_getRoles()
         );
         $this->_parent->_updateAssocHash($assoc->_dbId, $hash);
       }
@@ -928,8 +927,6 @@ final class TopicImpl extends ConstructImpl implements Topic
     if (!$this->_mysql->hasError()) {
       $this->_postSave();
     }
-    
-    $this->_topicMap->_setState(VocabularyUtils::QTM_STATE_REGULAR);
   }
   
   /**
