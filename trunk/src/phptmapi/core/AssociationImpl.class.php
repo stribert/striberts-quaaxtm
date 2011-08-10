@@ -83,13 +83,14 @@ final class AssociationImpl extends ScopedImpl implements Association
   }
 
   /**
-   * Returns the roles participating in this association.
-   * The return value must never be <var>null</var>.
-   * 
-   * @param TopicImpl The type of the {@link RoleImpl} instances to be returned. Default <var>null</var>.
-   * @return array An array containing a set of {@link Role}s.
+   * @see AssociationImpl::getRoles()
+   * @param TopicImpl The type of the {@link RoleImpl} instances to be returned. 
+   * 				Default <var>null</var>.
+   * @param boolean The permission to use the memcached based MySQL result cache. 
+   * 				Default <var>false</var>.
+   * @return array An array containing a set of {@link RoleImpl}s.
    */
-  public function getRoles(Topic $type=null)
+  protected function _getRoles(Topic $type=null, $resultCachePermission=false)
   {
     $roles = array();
     $query = 'SELECT id, type_id, player_id FROM ' . $this->_config['table']['assocrole'] . 
@@ -97,8 +98,8 @@ final class AssociationImpl extends ScopedImpl implements Association
     if (!is_null($type)) {
       $query .= ' AND type_id = ' . $type->_dbId;
     }
-    $resultCachePerm = $this->_getResultCachePermission();
-    $results = $this->_mysql->fetch($query, $resultCachePerm);
+    
+    $results = $this->_mysql->fetch($query, $resultCachePermission);
     if (is_array($results)) {
       foreach ($results as $result) {
         $propertyHolder['type_id'] = $result['type_id'];
@@ -113,6 +114,19 @@ final class AssociationImpl extends ScopedImpl implements Association
       }
     }
     return array_values($roles);
+  }
+  
+  /**
+   * Returns the roles participating in this association.
+   * The return value must never be <var>null</var>.
+   * 
+   * @param TopicImpl The type of the {@link RoleImpl} instances to be returned. 
+   * 				Default <var>null</var>.
+   * @return array An array containing a set of {@link RoleImpl}s.
+   */
+  public function getRoles(Topic $type=null)
+  {
+    return $this->_getRoles($type, true);// set result cache permission to true
   }
 
   /**
@@ -156,7 +170,7 @@ final class AssociationImpl extends ScopedImpl implements Association
       $this->_mysql->execute($query);
       
       $hash = $this->_parent->_getAssocHash($this->getType(), $this->getScope(), 
-        $this->getRoles());
+        $this->_getRoles());
       $this->_parent->_updateAssocHash($this->_dbId, $hash);
       $this->_mysql->finishTransaction();
       
@@ -266,7 +280,7 @@ final class AssociationImpl extends ScopedImpl implements Association
       ' WHERE id = ' . $this->_dbId;
     $this->_mysql->execute($query);
     
-    $hash = $this->_parent->_getAssocHash($type, $this->getScope(), $this->getRoles());
+    $hash = $this->_parent->_getAssocHash($type, $this->getScope(), $this->_getRoles());
     $this->_parent->_updateAssocHash($this->_dbId, $hash);
     $this->_mysql->finishTransaction();
     
