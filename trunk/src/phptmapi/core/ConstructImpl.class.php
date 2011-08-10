@@ -687,8 +687,7 @@ abstract class ConstructImpl implements Construct
   }
   
   /**
-   * (non-PHPDoc)
-   * @see phptmapi/core/TopicMapImpl#_getConstructByVerifiedId()
+   * @see TopicMapImpl::_getConstructByVerifiedId()
    */
   protected function _getConstructByVerifiedId($id, $hash=null)
   {
@@ -696,8 +695,7 @@ abstract class ConstructImpl implements Construct
   }
   
   /**
-   * (non-PHPDoc)
-   * @see phptmapi/core/TopicMapImpl#_setConstructParent()
+   * @see TopicMapImpl::_setConstructParent()
    */
   protected function _setConstructParent(Construct $parent)
   {
@@ -705,8 +703,7 @@ abstract class ConstructImpl implements Construct
   }
   
   /**
-   * (non-PHPDoc)
-   * @see phptmapi/core/TopicMapImpl#_setConstructPropertyHolder()
+   * @see TopicMapImpl::_setConstructPropertyHolder()
    */
   protected function _setConstructPropertyHolder(array $propertyHolder)
   {
@@ -714,8 +711,7 @@ abstract class ConstructImpl implements Construct
   }
   
   /**
-   * (non-PHPDoc)
-   * @see phptmapi/core/TopicMapImpl#_getAssocHash()
+   * @see TopicMapImpl::_getAssocHash()
    */
   protected function _getAssocHash(Topic $type, array $scope, array $roles)
   {
@@ -723,8 +719,7 @@ abstract class ConstructImpl implements Construct
   }
   
   /**
-   * (non-PHPDoc)
-   * @see phptmapi/core/TopicMapImpl#_updateAssocHash()
+   * @see TopicMapImpl::_updateAssocHash()
    */
   protected function _updateAssocHash($assocId, $hash)
   {
@@ -732,8 +727,7 @@ abstract class ConstructImpl implements Construct
   }
   
   /**
-   * (non-PHPDoc)
-   * @see phptmapi/core/TopicMapImpl#_hasAssoc()
+   * @see TopicMapImpl::_hasAssoc()
    */
   protected function _hasAssoc($hash)
   {
@@ -741,8 +735,7 @@ abstract class ConstructImpl implements Construct
   }
   
   /**
-   * (non-PHPDoc)
-   * @see phptmapi/core/TopicMapImpl#_removeAssociationFromCache()
+   * @see TopicMapImpl::_removeAssociationFromCache()
    */
   protected function _removeAssociationFromCache($assocId)
   {
@@ -750,8 +743,7 @@ abstract class ConstructImpl implements Construct
   }
   
   /**
-   * (non-PHPDoc)
-   * @see phptmapi/core/TopicMapImpl#_removeTopicFromCache()
+   * @see TopicMapImpl::_removeTopicFromCache()
    */
   protected function _removeTopicFromCache($topicId)
   {
@@ -759,8 +751,7 @@ abstract class ConstructImpl implements Construct
   }
   
   /**
-   * (non-PHPDoc)
-   * @see phptmapi/core/NameImpl#_getVariantHash()
+   * @see NameImpl::_getVariantHash()
    */
   protected function _getVariantHash($value, $datatype, array $scope)
   {
@@ -768,8 +759,7 @@ abstract class ConstructImpl implements Construct
   }
   
   /**
-   * (non-PHPDoc)
-   * @see phptmapi/core/NameImpl#_updateVariantHash()
+   * @see NameImpl::_updateVariantHash()
    */
   protected function _updateVariantHash($variantId, $hash)
   {
@@ -777,8 +767,7 @@ abstract class ConstructImpl implements Construct
   }
   
   /**
-   * (non-PHPDoc)
-   * @see phptmapi/core/NameImpl#_hasVariant()
+   * @see NameImpl::_hasVariant()
    */
   protected function _hasVariant($hash)
   {
@@ -786,8 +775,7 @@ abstract class ConstructImpl implements Construct
   }
   
   /**
-   * (non-PHPDoc)
-   * @see phptmapi/core/TopicImpl#_getNameHash()
+   * @see TopicImpl::_getNameHash()
    */
   protected function _getNameHash($value, Topic $type, array $scope)
   {
@@ -795,8 +783,7 @@ abstract class ConstructImpl implements Construct
   }
   
   /**
-   * (non-PHPDoc)
-   * @see phptmapi/core/TopicImpl#_getOccurrenceHash()
+   * @see TopicImpl::_getOccurrenceHash()
    */
   protected function _getOccurrenceHash(Topic $type, $value, $datatype, array $scope)
   {
@@ -804,8 +791,7 @@ abstract class ConstructImpl implements Construct
   }
   
   /**
-   * (non-PHPDoc)
-   * @see phptmapi/core/TopicImpl#_updateNameHash()
+   * @see TopicImpl::_updateNameHash()
    */
   protected function _updateNameHash($nameId, $hash)
   {
@@ -813,8 +799,7 @@ abstract class ConstructImpl implements Construct
   }
   
   /**
-   * (non-PHPDoc)
-   * @see phptmapi/core/TopicImpl#_updateOccurrenceHash()
+   * @see TopicImpl::_updateOccurrenceHash()
    */
   protected function _updateOccurrenceHash($occId, $hash)
   {
@@ -822,31 +807,11 @@ abstract class ConstructImpl implements Construct
   }
   
   /**
-   * (non-PHPDoc)
-   * @see phptmapi/core/TopicMapImpl#_setState()
+   * @see AssociationImpl::_getRoles()
    */
-  protected function _setState($state)
+  protected function _getRoles(Topic $type=null, $resultCachePermission=false)
   {
     return;
-  }
-  
-  /**
-   * (non-PHPDoc)
-   * @see phptmapi/core/TopicMapImpl#_getState()
-   */
-  protected function _getState()
-  {
-    return;
-  }
-  
-  /**
-   * Gets the permission (or not) for using the memcached based MySQL result cache.
-   * 
-   * @return boolean <var>False</var> if in merging state, <var>true</var> otherwise.
-   */
-  protected function _getResultCachePermission()
-  {
-    return $this->_topicMap->_getState() != VocabularyUtils::QTM_STATE_MERGING;
   }
   
   /**
