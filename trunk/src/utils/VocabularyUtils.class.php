@@ -70,14 +70,14 @@ class VocabularyUtils
   const QTM_FEATURE_RESULT_CACHE = 'http://quaaxtm.sourceforge.net/features/result-cache/';
 
   /**
-   * The identifier for the QuaaxTM topic map state "regular".
+   * TODO
    */
-  const QTM_STATE_REGULAR = 'http://quaaxtm.sourceforge.net/state/regular/';
+  const QTM_FEATURE_TEST_MODE = 'http://quaaxtm.sourceforge.net/features/test-mode/';
   
   /**
-   * The identifier for the QuaaxTM topic map state "merging".
+   * TODO
    */
-  const QTM_STATE_MERGING = 'http://quaaxtm.sourceforge.net/state/merging/';
+  const QTM_PROPERTY_MYSQL = 'Mysql';
 
   /**
    * Constructor.
