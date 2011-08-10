@@ -37,7 +37,7 @@ class QTMFeatureStringTest extends PHPTMAPITestCase
   /**
    * @override
    */
-  public function setUp()
+  protected function setUp()
   {
     $this->_tmSystemFactory = TopicMapSystemFactory::newInstance();
   }
@@ -45,7 +45,7 @@ class QTMFeatureStringTest extends PHPTMAPITestCase
   /**
    * @override
    */
-  public function tearDown()
+  protected function tearDown()
   {
     $this->_tmSystemFactory = null;
   }
