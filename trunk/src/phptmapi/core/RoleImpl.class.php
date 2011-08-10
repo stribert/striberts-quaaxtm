@@ -112,8 +112,11 @@ final class RoleImpl extends ConstructImpl implements Role
       ' WHERE id = ' . $this->_dbId;
     $this->_mysql->execute($query);
     
-    $hash = $this->_topicMap->_getAssocHash($this->_parent->getType(), 
-      $this->_parent->getScope(), $this->_parent->getRoles());
+    $hash = $this->_topicMap->_getAssocHash(
+      $this->_parent->getType(), 
+      $this->_parent->getScope(), 
+      $this->_parent->_getRoles()
+    );
     $this->_topicMap->_updateAssocHash($this->_parent->_dbId, $hash);
     $this->_mysql->finishTransaction();
     
@@ -135,8 +138,7 @@ final class RoleImpl extends ConstructImpl implements Role
   }
 
   /**
-   * (non-PHPDoc)
-   * @see phptmapi/core/ConstructImpl#_setReifier()
+   * @see ConstructImpl::_setReifier()
    */
   public function setReifier(Topic $reifier=null)
   {
@@ -190,8 +192,11 @@ final class RoleImpl extends ConstructImpl implements Role
       ' WHERE id = ' . $this->_dbId;
     $this->_mysql->execute($query);
     
-    $hash = $this->_topicMap->_getAssocHash($this->_parent->getType(), 
-      $this->_parent->getScope(), $this->_parent->getRoles());
+    $hash = $this->_topicMap->_getAssocHash(
+      $this->_parent->getType(), 
+      $this->_parent->getScope(), 
+      $this->_parent->_getRoles()
+    );
     $this->_topicMap->_updateAssocHash($this->_parent->_dbId, $hash);
     $this->_mysql->finishTransaction();
     
@@ -215,8 +220,11 @@ final class RoleImpl extends ConstructImpl implements Role
       ' WHERE id = ' . $this->_dbId;
     $this->_mysql->execute($query);
      
-    $hash = $this->_topicMap->_getAssocHash($this->_parent->getType(), 
-      $this->_parent->getScope(), $this->_parent->getRoles());
+    $hash = $this->_topicMap->_getAssocHash(
+      $this->_parent->getType(), 
+      $this->_parent->getScope(), 
+      $this->_parent->_getRoles()
+    );
     $this->_topicMap->_updateAssocHash($this->_parent->_dbId, $hash);
     $this->_mysql->finishTransaction();
     
