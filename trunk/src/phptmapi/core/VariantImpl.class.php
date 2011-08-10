@@ -189,8 +189,7 @@ final class VariantImpl extends ScopedImpl implements IVariant
   }
 
   /**
-   * (non-PHPDoc)
-   * @see phptmapi/core/ConstructImpl#_setReifier()
+   * @see ConstructImpl::_setReifier()
    */
   public function setReifier(Topic $reifier=null)
   {
