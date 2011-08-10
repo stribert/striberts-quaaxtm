@@ -68,8 +68,7 @@ class Reference implements ReferenceInterface
   }
  
   /**
-   * (non-PHPDoc)
-   * @see src/in/ReferenceInterface#getReference()
+   * @see ReferenceInterface::getReference()
    */
   public function getReference()
   {
@@ -77,8 +76,7 @@ class Reference implements ReferenceInterface
   }
 
   /**
-   * (non-PHPDoc)
-   * @see src/in/ReferenceInterface#getType()
+   * @see ReferenceInterface::getType()
    */
   public function getType()
   {

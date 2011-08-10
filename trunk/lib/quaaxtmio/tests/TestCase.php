@@ -114,8 +114,7 @@ class TestCase extends PHPUnit_Framework_TestCase
   private $_preservedBaseLocators;
   
   /**
-   * (non-PHPDoc)
-   * @see PHPUnit_Framework_TestCase#setUp()
+   * @see PHPUnit_Framework_TestCase::setUp()
    * @override
    */
   protected function setUp()
@@ -137,8 +136,7 @@ class TestCase extends PHPUnit_Framework_TestCase
   }
   
   /**
-   * (non-PHPDoc)
-   * @see PHPUnit_Framework_TestCase#tearDown()
+   * @see PHPUnit_Framework_TestCase::tearDown()
    * @override
    */
   protected function tearDown()
