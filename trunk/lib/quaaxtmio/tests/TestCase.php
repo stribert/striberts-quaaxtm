@@ -119,20 +119,26 @@ class TestCase extends PHPUnit_Framework_TestCase
    */
   protected function setUp()
   {
-    $tmSystemFactory = TopicMapSystemFactory::newInstance();
-    // QuaaxTM specific feature
     try {
+      $tmSystemFactory = TopicMapSystemFactory::newInstance();
+      // QuaaxTM specific features
       $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
-    } catch (FactoryConfigurationException $e) {
-      // no op.
+      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, false);
+      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_TEST_MODE, true);
+      
+      $this->_sharedFixture = $tmSystemFactory->newTopicMapSystem();
+      
+      $this->_preservedBaseLocators = $this->_sharedFixture->getLocators();
+      $this->_tmLocator = null;
+      $cxtmDirName = $this->_getCxtmDirName();
+      $this->_cxtmIncPath = dirname(__FILE__) . 
+        DIRECTORY_SEPARATOR . 
+    		$cxtmDirName . 
+        DIRECTORY_SEPARATOR;
+        
+    } catch (Exception $e) {
+      $this->markTestSkipped('Skip test: ' . $e->getMessage());
     }
-    $this->_sharedFixture = $tmSystemFactory->newTopicMapSystem();
-    $this->_preservedBaseLocators = $this->_sharedFixture->getLocators();
-    $this->_tmLocator = null;
-    $this->_cxtmIncPath = dirname(__FILE__) . 
-      DIRECTORY_SEPARATOR . 
-  		'cxtm-tests-0.4' . 
-      DIRECTORY_SEPARATOR;
   }
   
   /**
@@ -141,17 +147,19 @@ class TestCase extends PHPUnit_Framework_TestCase
    */
   protected function tearDown()
   {
-    $locators = $this->_sharedFixture->getLocators();
-    foreach ($locators as $locator) {
-      if (!in_array($locator, $this->_preservedBaseLocators)) {
-        $tm = $this->_sharedFixture->getTopicMap($locator);
-        $tm->close();
-        $tm->remove();
+    if ($this->_sharedFixture instanceof TopicMapSystem) {
+      $locators = $this->_sharedFixture->getLocators();
+      foreach ($locators as $locator) {
+        if (!in_array($locator, $this->_preservedBaseLocators)) {
+          $tm = $this->_sharedFixture->getTopicMap($locator);
+          $tm->close();
+          $tm->remove();
+        }
       }
+      $this->_sharedFixture->close();
+      $this->_sharedFixture = 
+      $this->_tmLocator = null;
     }
-    $this->_sharedFixture->close();
-    $this->_sharedFixture = 
-    $this->_tmLocator = null;
   }
   
   protected function _readSrcFile($file, $reader)
@@ -179,9 +187,10 @@ class TestCase extends PHPUnit_Framework_TestCase
   protected function _getSrcFiles($dir)
   {
     $files = array();
+    $cxtmDirName = $this->_getCxtmDirName();
     $cxtmIncPath = dirname(__FILE__) . 
       DIRECTORY_SEPARATOR . 
-  		'cxtm-tests-0.4' . 
+  		$cxtmDirName . 
       DIRECTORY_SEPARATOR;
     $allFiles = array_diff(scandir($cxtmIncPath . $dir), array('.', '..', '.svn'));
     foreach ($allFiles as $file) {
@@ -190,6 +199,11 @@ class TestCase extends PHPUnit_Framework_TestCase
       }
     }
     return $files;
+  }
+  
+  protected function _getCxtmDirName()
+  {
+    return 'cxtm-tests-0.4';
   }
 }
 ?>
