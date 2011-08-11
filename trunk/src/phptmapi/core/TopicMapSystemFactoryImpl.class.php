@@ -77,11 +77,12 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory
     $this->_features = 
     $this->_fixFeatures = array();
     // URI of feature, value, fix?
-    $this->_setupFeatures(VocabularyUtils::TMAPI_FEATURE_AUTOMERGE, true, true);
-    $this->_setupFeatures(VocabularyUtils::TMAPI_FEATURE_READONLY, false, true);
-    $this->_setupFeatures(VocabularyUtils::TMAPI_FEATURE_TYPE_INST_ASSOC, false, true);
-    $this->_setupFeatures(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false, false);
-    $this->_setupFeatures(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, false, false);
+    $this->_setupFeature(VocabularyUtils::TMAPI_FEATURE_AUTOMERGE, true, true);
+    $this->_setupFeature(VocabularyUtils::TMAPI_FEATURE_READONLY, false, true);
+    $this->_setupFeature(VocabularyUtils::TMAPI_FEATURE_TYPE_INST_ASSOC, false, true);
+    $this->_setupFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false, false);
+    $this->_setupFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, false, false);
+    $this->_setupFeature(VocabularyUtils::QTM_FEATURE_TEST_MODE, false, false);
     
     self::$_instance = $this;
   }
@@ -332,16 +333,16 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory
   }
   
   /**
-   * Sets up the TMAPI as well as the QuaaxTM specific features.
+   * Sets up a TMAPI as well as a QuaaxTM specific feature.
    * 
    * @param string The feature name.
    * @param boolean The value. <var>True</var> to enable the feature, 
    *        <var>false</var> to disable it.
    * @param boolean The setting ability. <var>True</var> if the feature is adjustable, 
-   *        <var>false</var> if not. In QuaaxTM all features are fix.
+   *        <var>false</var> if not.
    * @return void
    */
-  private function _setupFeatures($featureName, $value, $fix)
+  private function _setupFeature($featureName, $value, $fix)
   {
     $this->_fixFeatures[$featureName] = $fix;
     $this->_features[$featureName] = $value;
