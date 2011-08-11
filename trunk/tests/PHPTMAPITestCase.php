@@ -57,16 +57,20 @@ class PHPTMAPITestCase extends PHPUnit_Framework_TestCase
    */
   protected function setUp()
   {
-    $tmSystemFactory = TopicMapSystemFactory::newInstance();
-    // QuaaxTM specific features
-    $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
-    $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, false);
     try {
+      $tmSystemFactory = TopicMapSystemFactory::newInstance();
+      // QuaaxTM specific features
+      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
+      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, false);
+      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_TEST_MODE, true);
+      
       $this->_sharedFixture = $tmSystemFactory->newTopicMapSystem();
       $this->_preservedBaseLocators = $this->_sharedFixture->getLocators();
+      
       $this->_topicMap = $this->_sharedFixture->createTopicMap(self::$_tmLocator);
-    } catch (PHPTMAPIRuntimeException $e) {
-      $this->markTestSkipped($e->getMessage() . ': Skip test.');
+    
+    } catch (Exception $e) {
+      $this->markTestSkipped('Skip test: ' . $e->getMessage());
     }
   }
   
