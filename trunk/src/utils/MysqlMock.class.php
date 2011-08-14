@@ -123,7 +123,7 @@ class MysqlMock extends Mysql
         return false;
       }
     } else {
-      $this->memcachedWasIgnored = true;// #test
+      $this->memcachedWasIgnored = true;
       return $this->_fetchAssociated($query, $fetchOne);
     }
   }
