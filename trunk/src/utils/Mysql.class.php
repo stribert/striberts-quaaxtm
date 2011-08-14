@@ -33,70 +33,70 @@ class Mysql
    * 
    * @var string
    */
-  private $_sql;
+  protected $_sql;
   
   /**
    * The MySQL error number.
    * 
    * @var int
    */
-  private $_errno;
+  protected $_errno;
   
   /**
    * The MySQL error description.
    * 
    * @var string
    */
-  private $_error;
+  protected $_error;
   
   /**
    * The MySQL connection.
    * 
    * @var mysqli
    */
-  private $_connection;
+  protected $_connection;
   
   /**
    * The indicator if a transaction takes place.
    * 
    * @var boolean
    */
-  private $_trnx;
+  protected $_trnx;
   
   /**
    * The indicator if a transaction end has to be delayed.
    * 
    * @var boolean
    */
-  private $_delayTrnx;
+  protected $_delayTrnx;
   
   /**
    * The indicator if a transaction can be committed.
    * 
    * @var boolean
    */
-  private $_commit;
+  protected $_commit;
   
   /**
    * The indicator if a connection is established.
    * 
    * @var boolean
    */
-  private $_connOpen;
+  protected $_connOpen;
   
   /**
    * The memcached connector.
    * 
    * @var Memcached
    */
-  private $_memcached;
+  protected $_memcached;
   
   /**
    * The result cache expiration in seconds.
    * 
    * @var int
    */
-  private $_resultCacheExpiration;
+  protected $_resultCacheExpiration;
 	
   /**
    * Constructor.
@@ -110,7 +110,7 @@ class Mysql
     $this->_sql = 
     $this->_error = '';
     $this->_errno = 
-    $this->_resultCacheExpiration = 0;
+    $this->_resultCacheExpiration = 60;
     $this->_connection = 
     $this->_memcached = null;
     $this->_commit = 
@@ -130,7 +130,7 @@ class Mysql
    * 				configured memcached server cannot be added to the memcached server pool.
    * @throws Exception If PHP memcached support using <var>libmemcached</var> is not available.
    */
-  private function _connect($config, $enableResultCache)
+  protected function _connect($config, $enableResultCache)
   {
     $this->_connection = mysqli_connect(
       $config['db']['host'], 
@@ -306,7 +306,7 @@ class Mysql
   }
   
   /**
-   * Fetches a query result either from MySQL or the memcached based result cache.
+   * Fetches a complete query result either from MySQL or the memcached based result cache.
    * The result cache is taken into account if memcached is enabled and available - and 
    * permission is given.
    * 
@@ -317,24 +317,24 @@ class Mysql
    */
   public function fetch($query, $resultCachePermission=false)
   {
-    if ($this->_memcached instanceof Memcached && $resultCachePermission) {
-      $key = md5($query);
-      $results = $this->_memcached->get($key);
-      if ($results !== false) {
-        return $results;
-      } else {
-        $results = $this->_fetchAssociated($query);
-        if ($results !== false) {
-          if (!empty($results)) {
-            $this->_memcached->set($key, $results, $this->_resultCacheExpiration);
-          }
-          return $results;
-        }
-        return false;
-      }
-    } else {
-      return $this->_fetchAssociated($query);
-    }
+    return $this->_get($query, $resultCachePermission);
+  }
+  
+  /**
+   * Fetches the first row of a query result either from MySQL or the memcached based 
+   * result cache.
+   * The result cache is taken into account if memcached is enabled and available - and 
+   * permission is given.
+   * 
+   * @see Mysql::fetch()
+   * @param string The SQL statement.
+   * @param boolean Permission to use the result cache or not. Default <var>false</var>.
+   * @return array|false The query result as <var>associative array</var> or <var>false</var> 
+   * 				on error.
+   */
+  public function fetchOne($query, $resultCachePermission=false)
+  {
+    return $this->_get($query, $resultCachePermission, true);
   }
   
   /**
@@ -349,13 +349,58 @@ class Mysql
   }
   
   /**
+   * Gets the result cache expiration in seconds.
+   * 
+   * @return int The cache expiration in seconds.
+   */
+  public function getResultCacheExpiration()
+  {
+    return $this->_resultCacheExpiration;
+  }
+  
+  /**
+   * Provides the storage gateway: Either returns a query result from MySQL or the 
+   * memcached based result cache.
+   * 
+   * @param string The SQL statement.
+   * @param boolean Permission to use the result cache or not. 
+   * 				Default <var>false</var>.
+   * @param boolean Fetch the whole result or only the first row. 
+   * 				Default <var>false</var>.
+   * @return array|false The query result as <var>associative array</var> or 
+   * 				<var>false</var> on error.
+   */
+  protected function _get($query, $resultCachePermission=false, $fetchOne=false)
+  {
+    if ($this->_memcached instanceof Memcached && $resultCachePermission) {
+      $key = md5($query);
+      $results = $this->_memcached->get($key);
+      if ($results !== false) {
+        return $results;
+      } else {
+        $results = $this->_fetchAssociated($query, $fetchOne);
+        if ($results !== false) {
+          if (!empty($results)) {
+            $this->_memcached->set($key, $results, $this->_resultCacheExpiration);
+          }
+          return $results;
+        }
+        return false;
+      }
+    } else {
+      return $this->_fetchAssociated($query, $fetchOne);
+    }
+  }
+  
+  /**
    * Fetches a query result from MySQL.
    * 
    * @param string The SQL query.
+   * @param boolean Fetch the whole result or only the first row.
    * @return array|false The query result as <var>associative array</var> or <var>false</var> 
    * 				on error.
    */
-  private function _fetchAssociated($query)
+  protected function _fetchAssociated($query, $fetchOne)
   {
     $mysqlResult = mysqli_query($this->_connection, $query);
     if (!$mysqlResult) {
@@ -363,12 +408,18 @@ class Mysql
       $this->_error = mysqli_error($this->_connection);
       return false;
     }
-    $results = array();
-    while ($result = mysqli_fetch_assoc($mysqlResult)) {
-      $results[] = $result;
+    if (!$fetchOne) {
+      $results = array();
+      while ($result = mysqli_fetch_assoc($mysqlResult)) {
+        $results[] = $result;
+      }
+      mysqli_free_result($mysqlResult);
+      return $results;
+    } else {
+      $result = mysqli_fetch_assoc($mysqlResult);
+      mysqli_free_result($mysqlResult);
+      return $result;
     }
-    mysqli_free_result($mysqlResult);
-    return $results;
   }
 }
 ?>
