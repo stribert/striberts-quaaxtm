@@ -37,7 +37,6 @@ class TopicMapSystemFactoryTest extends PHPTMAPITestCase
    */
   protected function setUp()
   {
-    parent::setUp();
     $this->_tmSystemFactory = TopicMapSystemFactory::newInstance();
   }
   
@@ -47,7 +46,6 @@ class TopicMapSystemFactoryTest extends PHPTMAPITestCase
   protected function tearDown() 
   {
     unset($this->_tmSystemFactory);
-    parent::tearDown();
   }
   
   public function testSetFeature()
@@ -103,6 +101,88 @@ class TopicMapSystemFactoryTest extends PHPTMAPITestCase
     $property = $this->_tmSystemFactory->getProperty('foo');
     $this->assertNull($property);
     $this->_tmSystemFactory->setProperty('baz', null);
+  }
+  
+  public function testMysqlProperty()
+  {
+    $config = array();
+    require(
+      dirname(__FILE__) . 
+      DIRECTORY_SEPARATOR . 
+      '..' . 
+      DIRECTORY_SEPARATOR . 
+      'src' . 
+      DIRECTORY_SEPARATOR . 
+      'phptmapi' . 
+      DIRECTORY_SEPARATOR . 
+      'config.php'
+    );
+    // test Mysql
+    try {
+      $mysql = new Mysql($config);
+      $mysql->setResultCacheExpiration(1);
+      
+      $this->_tmSystemFactory->setProperty(
+        VocabularyUtils::QTM_PROPERTY_MYSQL, 
+        $mysql
+      );
+      $mysqlProperty = $this->_tmSystemFactory->getProperty(
+        VocabularyUtils::QTM_PROPERTY_MYSQL
+      );
+      $this->assertEquals(
+        spl_object_hash($mysql), 
+        spl_object_hash($mysqlProperty)
+      );
+      $this->assertEquals($mysqlProperty->getResultCacheExpiration(), 1);
+    } catch (Exception $e) {
+      $this->fail($e->getMessage());
+    }
+    
+    try {
+      $tmSystem = $this->_tmSystemFactory->newTopicMapSystem();
+      $this->assertTrue($tmSystem instanceof TopicMapSystem);
+      unset($tmSystem);
+    } catch (PHPTMAPIRuntimeException $e) {
+      $this->fail($e->getMessage());
+    }
+    
+    // test MysqlMock
+    try {
+      $mysql = new MysqlMock($config);
+      $mysql->setResultCacheExpiration(1);
+      
+      $this->_tmSystemFactory->setProperty(
+        VocabularyUtils::QTM_PROPERTY_MYSQL, 
+        $mysql
+      );
+      $mysqlProperty = $this->_tmSystemFactory->getProperty(
+        VocabularyUtils::QTM_PROPERTY_MYSQL
+      );
+      $this->assertEquals(
+        spl_object_hash($mysql), 
+        spl_object_hash($mysqlProperty)
+      );
+      $this->assertEquals($mysqlProperty->getResultCacheExpiration(), 1);
+    } catch (Exception $e) {
+      $this->fail($e->getMessage());
+    }
+    
+    // test exception
+    $this->_tmSystemFactory->setProperty(
+      VocabularyUtils::QTM_PROPERTY_MYSQL, 
+      new stdClass()
+    );
+    
+    try {
+      $tmSystem = $this->_tmSystemFactory->newTopicMapSystem();
+      $this->fail('Creating a new TopicMapSystem with an invalid MySQL property must fail.');
+    } catch (PHPTMAPIRuntimeException $e) {
+      $this->_tmSystemFactory->setProperty(VocabularyUtils::QTM_PROPERTY_MYSQL, null);
+      $mysqlProperty = $this->_tmSystemFactory->getProperty(
+        VocabularyUtils::QTM_PROPERTY_MYSQL
+      );
+      $this->assertNull($mysqlProperty);
+    }
   }
 }
 ?>
