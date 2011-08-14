@@ -30,20 +30,42 @@ require_once('PHPTMAPITestCase.php');
  */
 class QTMResultCacheTest extends PHPTMAPITestCase
 {
+  private $_mysqlMock;
+  
   /**
    * @override
    */
   protected function setUp()
   {
-    $tmSystemFactory = TopicMapSystemFactory::newInstance();
-    // QuaaxTM specific features
-    $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
-    $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, true);
+    $config = array();
+    require(
+      dirname(__FILE__) . 
+      DIRECTORY_SEPARATOR . 
+      '..' . 
+      DIRECTORY_SEPARATOR . 
+      'src' . 
+      DIRECTORY_SEPARATOR . 
+      'phptmapi' . 
+      DIRECTORY_SEPARATOR . 
+      'config.php'
+    );
+    
     try {
+      $tmSystemFactory = TopicMapSystemFactory::newInstance();
+      // QuaaxTM specific features
+      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
+      
+      // create a mock object to allow detailed testing 
+      $this->_mysqlMock = new MysqlMock($config, true);// "true" enables memcached
+      $this->_mysqlMock->setResultCacheExpiration(5);
+      $tmSystemFactory->setProperty(VocabularyUtils::QTM_PROPERTY_MYSQL, $this->_mysqlMock);
+    
       $this->_sharedFixture = $tmSystemFactory->newTopicMapSystem();
-      $this->preservedBaseLocators = $this->_sharedFixture->getLocators();
+      $this->_preservedBaseLocators = $this->_sharedFixture->getLocators();
+      
       $this->_topicMap = $this->_sharedFixture->createTopicMap(self::$_tmLocator);
-    } catch (PHPTMAPIRuntimeException $e) {
+      
+    } catch (Exception $e) {
       $this->markTestSkipped($e->getMessage() . ': Skip test.');
     }
   }
@@ -54,9 +76,10 @@ class QTMResultCacheTest extends PHPTMAPITestCase
   protected function tearDown()
   {
     if ($this->_sharedFixture instanceof TopicMapSystem) {
+      $this->_mysqlMock->resetRuntimeUsedResultCache();
       $locators = $this->_sharedFixture->getLocators();
       foreach ($locators as $locator) {
-        if (!in_array($locator, $this->preservedBaseLocators)) {
+        if (!in_array($locator, $this->_preservedBaseLocators)) {
           $tm = $this->_sharedFixture->getTopicMap($locator);
           $tm->close();
           $tm->remove();
@@ -64,7 +87,8 @@ class QTMResultCacheTest extends PHPTMAPITestCase
       }
       $this->_sharedFixture->close();
       $this->_topicMap = 
-      $this->_sharedFixture = null;
+      $this->_sharedFixture = 
+      $this->_mysqlMock = null;
     }
   }
   
@@ -72,21 +96,42 @@ class QTMResultCacheTest extends PHPTMAPITestCase
   {
     $this->assertTrue($this->_sharedFixture instanceof TopicMapSystem);
     $this->assertTrue($this->_topicMap instanceof TopicMap);
+    $mysqlProperty = $this->_sharedFixture->getProperty(VocabularyUtils::QTM_PROPERTY_MYSQL);
+    $this->assertTrue($mysqlProperty instanceof MysqlMock);
   }
   
   public function testAssociation()
   {
+    $this->assertFalse($this->_mysqlMock->memcachedWasCalledSuccessfully);
+    $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
+    $this->assertFalse($this->_mysqlMock->memcachedWasSet);
+    
     $role = $this->_createRole();
     $assocs = $this->_topicMap->getAssociations();
     $this->assertEquals(count($assocs), 1);
     $assoc = $assocs[0];
     $roles = $assoc->getRoles();
     $this->assertEquals(count($roles), 1);
+    $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
+    $this->assertTrue($this->_mysqlMock->memcachedWasSet);
     // get roles from result cache
-    for ($i=0; $i<10; $i++) {
+    for ($i=0; $i<5; $i++) {
       $roles = $assoc->getRoles();
       $this->assertEquals(count($roles), 1);
+      $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
+      $this->assertTrue($this->_mysqlMock->memcachedWasCalledSuccessfully);
+      $this->assertFalse($this->_mysqlMock->memcachedWasSet);
     }
+  }
+  
+  /**
+   * TODO remove this again
+   */
+  public function testFoo()
+  {
+    $this->assertFalse($this->_mysqlMock->memcachedWasCalledSuccessfully);
+    $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
+    $this->assertFalse($this->_mysqlMock->memcachedWasSet);
   }
 }
 ?>
