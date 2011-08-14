@@ -49,7 +49,6 @@ class QTMMySQLTest extends PHPUnit_Framework_TestCase
   protected function setUp()
   {
     $config = array();
-    // TODO require test config
     require(
       dirname(__FILE__) . 
       DIRECTORY_SEPARATOR . 
@@ -146,6 +145,16 @@ class QTMMySQLTest extends PHPUnit_Framework_TestCase
     $error = $this->_mysql->getError();
     $this->assertFalse(empty($error));
     $this->assertTrue($this->_mysql->hasError());
+  }
+  
+  public function testSetResultCacheExpiration()
+  {
+    $seconds = 12;
+    $this->_mysql->setResultCacheExpiration($seconds);
+    $this->assertEquals(
+      $this->_mysql->getResultCacheExpiration(), 
+      $seconds
+    );
   }
 }
 ?>
