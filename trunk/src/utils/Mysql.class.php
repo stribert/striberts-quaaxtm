@@ -143,7 +143,7 @@ class Mysql
     if (!empty($error)) {
       throw new RuntimeException('Error in ' . __METHOD__ . ': ' . $error);
     }
-    $this->connOpen = true;
+    $this->_connOpen = true;
     
     if ($enableResultCache) {
       if (!class_exists('Memcached')) {
@@ -191,7 +191,7 @@ class Mysql
   public function close()
   {
     if (mysqli_close($this->_connection)) {
-      $this->connOpen = false;
+      $this->_connOpen = false;
     }
   }
   
@@ -202,7 +202,7 @@ class Mysql
    */
   public function isConnected()
   {
-    return $this->connOpen;
+    return $this->_connOpen;
   }
 
   /**
@@ -213,7 +213,7 @@ class Mysql
    */
   public function execute($query)
   {
-    if (!$this->connOpen) {
+    if (!$this->_connOpen) {
       return false;
     }
     $this->_sql = $query;
