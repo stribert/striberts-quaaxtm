@@ -18,7 +18,19 @@
  * Boston, MA 02111-1307 USA
  */
 
-require_once('PHPTMAPITestCase.php');
+require_once(
+  dirname(__FILE__) . 
+  DIRECTORY_SEPARATOR . 
+  '..' . 
+  DIRECTORY_SEPARATOR . 
+  'lib' . 
+  DIRECTORY_SEPARATOR . 
+  'phptmapi2.0' . 
+  DIRECTORY_SEPARATOR . 
+  'core' . 
+  DIRECTORY_SEPARATOR . 
+  'TopicMapSystemFactory.class.php'
+);
 
 /**
  * QuaaxTM MySQL result cache tests. The result cache uses memcached.
@@ -28,11 +40,16 @@ require_once('PHPTMAPITestCase.php');
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  * @version $Id$
  */
-class QTMResultCacheTest extends PHPTMAPITestCase
+class QTMResultCacheTest extends PHPUnit_Framework_TestCase
 {
-  private $_mysqlMock;
+  private $_tmSystem, 
+          $_preservedBaseLocators, 
+          $_mysqlMock;
+          
+  private static $_tmLocator = 'http://localhost/tm/s3cr31';
   
   /**
+   * @see PHPUnit_Framework_TestCase::setUp()
    * @override
    */
   protected function setUp()
@@ -60,10 +77,8 @@ class QTMResultCacheTest extends PHPTMAPITestCase
       $this->_mysqlMock->setResultCacheExpiration(5);
       $tmSystemFactory->setProperty(VocabularyUtils::QTM_PROPERTY_MYSQL, $this->_mysqlMock);
     
-      $this->_sharedFixture = $tmSystemFactory->newTopicMapSystem();
-      $this->_preservedBaseLocators = $this->_sharedFixture->getLocators();
-      
-      $this->_topicMap = $this->_sharedFixture->createTopicMap(self::$_tmLocator);
+      $this->_tmSystem = $tmSystemFactory->newTopicMapSystem();
+      $this->_preservedBaseLocators = $this->_tmSystem->getLocators();
       
     } catch (Exception $e) {
       $this->markTestSkipped($e->getMessage() . ': Skip test.');
@@ -71,32 +86,30 @@ class QTMResultCacheTest extends PHPTMAPITestCase
   }
   
   /**
+   * @see PHPUnit_Framework_TestCase::setUp()
    * @override
    */
   protected function tearDown()
   {
-    if ($this->_sharedFixture instanceof TopicMapSystem) {
+    if ($this->_tmSystem instanceof TopicMapSystem) {
       $this->_mysqlMock->resetRuntimeUsedResultCache();
-      $locators = $this->_sharedFixture->getLocators();
+      $locators = $this->_tmSystem->getLocators();
       foreach ($locators as $locator) {
         if (!in_array($locator, $this->_preservedBaseLocators)) {
-          $tm = $this->_sharedFixture->getTopicMap($locator);
+          $tm = $this->_tmSystem->getTopicMap($locator);
           $tm->close();
           $tm->remove();
         }
       }
-      $this->_sharedFixture->close();
-      $this->_topicMap = 
-      $this->_sharedFixture = 
-      $this->_mysqlMock = null;
+      $this->_tmSystem->close();
+      $this->_tmSystem = null;
     }
   }
   
   public function testTopicMapSystem()
   {
-    $this->assertTrue($this->_sharedFixture instanceof TopicMapSystem);
-    $this->assertTrue($this->_topicMap instanceof TopicMap);
-    $mysqlProperty = $this->_sharedFixture->getProperty(VocabularyUtils::QTM_PROPERTY_MYSQL);
+    $this->assertTrue($this->_tmSystem instanceof TopicMapSystem);
+    $mysqlProperty = $this->_tmSystem->getProperty(VocabularyUtils::QTM_PROPERTY_MYSQL);
     $this->assertTrue($mysqlProperty instanceof MysqlMock);
   }
   
@@ -106,21 +119,37 @@ class QTMResultCacheTest extends PHPTMAPITestCase
     $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
     $this->assertFalse($this->_mysqlMock->memcachedWasSet);
     
-    $role = $this->_createRole();
-    $assocs = $this->_topicMap->getAssociations();
+    $topicMap = $this->_tmSystem->createTopicMap(self::$_tmLocator);
+    $assoc = $topicMap->createAssociation($topicMap->createTopic());
+    $assoc->createRole($topicMap->createTopic(), $topicMap->createTopic());
+    $assocs = $topicMap->getAssociations();
     $this->assertEquals(count($assocs), 1);
     $assoc = $assocs[0];
-    $roles = $assoc->getRoles();
-    $this->assertEquals(count($roles), 1);
-    $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
-    $this->assertTrue($this->_mysqlMock->memcachedWasSet);
-    // get roles from result cache
-    for ($i=0; $i<5; $i++) {
-      $roles = $assoc->getRoles();
-      $this->assertEquals(count($roles), 1);
-      $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
-      $this->assertTrue($this->_mysqlMock->memcachedWasCalledSuccessfully);
-      $this->assertFalse($this->_mysqlMock->memcachedWasSet);
+    $this->_testAssociation($assoc, true);
+    
+    // test regular Mysql class
+    try {
+      $tmSystemFactory = TopicMapSystemFactory::newInstance();
+      // need to unset MySQL property due to singleton
+      $tmSystemFactory->setProperty(VocabularyUtils::QTM_PROPERTY_MYSQL, null);
+      // QuaaxTM specific features
+      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
+      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, true);
+      
+      $tmSystem = $tmSystemFactory->newTopicMapSystem();
+      
+      $topicMap = $tmSystem->createTopicMap(self::$_tmLocator . uniqid());
+      $assoc = $topicMap->createAssociation($topicMap->createTopic());
+      $assoc->createRole($topicMap->createTopic(), $topicMap->createTopic());
+      $assocs = $topicMap->getAssociations();
+      $this->assertEquals(count($assocs), 1);
+      $assoc = $assocs[0];
+      $this->_testAssociation($assoc);
+      
+    } catch (Exception $e) {
+      $this->fail(
+        'Could not test regular Mysql class in ' . __METHOD__ . ': ' . $e->getMessage()
+      );
     }
   }
   
@@ -132,6 +161,24 @@ class QTMResultCacheTest extends PHPTMAPITestCase
     $this->assertFalse($this->_mysqlMock->memcachedWasCalledSuccessfully);
     $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
     $this->assertFalse($this->_mysqlMock->memcachedWasSet);
+  }
+  
+  private function _testAssociation(Association $assoc, $mock=false)
+  {
+    $roles = $assoc->getRoles();
+    $this->assertEquals(count($roles), 1);
+    if ($mock) {
+      $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
+      $this->assertTrue($this->_mysqlMock->memcachedWasSet);
+    }
+    // get roles from result cache
+    $roles = $assoc->getRoles();
+    $this->assertEquals(count($roles), 1);
+    if ($mock) {
+      $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
+      $this->assertTrue($this->_mysqlMock->memcachedWasCalledSuccessfully);
+      $this->assertFalse($this->_mysqlMock->memcachedWasSet);
+    }
   }
 }
 ?>
