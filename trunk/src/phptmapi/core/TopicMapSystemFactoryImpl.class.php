@@ -82,7 +82,6 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory
     $this->_setupFeature(VocabularyUtils::TMAPI_FEATURE_TYPE_INST_ASSOC, false, true);
     $this->_setupFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false, false);
     $this->_setupFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, false, false);
-    $this->_setupFeature(VocabularyUtils::QTM_FEATURE_TEST_MODE, false, false);
     
     self::$_instance = $this;
   }
@@ -236,13 +235,28 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory
       DIRECTORY_SEPARATOR . 
       'config.php'
     );
-    $enableResultCache = $this->getFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE);
+    
     try {
-      $mysql = new Mysql($config, $enableResultCache);
-      if ($enableResultCache) {
-        $mysql->setResultCacheExpiration($config['resultcache']['expiration']);
+      $mysqlProperty = $this->getProperty(VocabularyUtils::QTM_PROPERTY_MYSQL);
+      
+      if (is_null($mysqlProperty)) {
+        $enableResultCache = $this->getFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE);
+        $mysql = new Mysql($config, $enableResultCache);
+        if ($enableResultCache) {
+          $mysql->setResultCacheExpiration($config['resultcache']['expiration']);
+        }
+      } else {
+        if (!$mysqlProperty instanceof Mysql) {
+          throw new Exception(
+            'Error in ' . __METHOD__ . 
+            	': The provided MySQL property is not an instance of class "Mysql".'
+          );
+        }
+        $mysql = $mysqlProperty;
       }
+      
       return new TopicMapSystemImpl($mysql, $config, $this->_properties, $this->_features);
+    
     } catch (Exception $e) {
       throw new PHPTMAPIRuntimeException($e->getMessage());
     }
