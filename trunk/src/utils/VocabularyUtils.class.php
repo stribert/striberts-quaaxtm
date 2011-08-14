@@ -68,14 +68,16 @@ class VocabularyUtils
    * The identifier (aka feature string) for the QuaaxTM feature "(MySQL) result cache".
    */
   const QTM_FEATURE_RESULT_CACHE = 'http://quaaxtm.sourceforge.net/features/result-cache/';
-
-  /**
-   * TODO
-   */
-  const QTM_FEATURE_TEST_MODE = 'http://quaaxtm.sourceforge.net/features/test-mode/';
   
   /**
-   * TODO
+   * The optional MySQL property. This enables developers to replace the default used 
+   * /src/utils/Mysql.class.php by a custom class which extends Mysql. Extension is a 
+   * mandatory class connection which must be considered.
+   * This is e.g. used to inject /src/utils/MysqlMock.class.php in the unit tests to test 
+   * the memcached based result cache.
+   * 
+   * See /src/phptmapi/core/TopicMapSystemFactoryImpl::newTopicMapSystem() how this 
+   * property is taken into account.
    */
   const QTM_PROPERTY_MYSQL = 'Mysql';
 
