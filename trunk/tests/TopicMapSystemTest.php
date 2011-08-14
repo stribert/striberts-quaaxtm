@@ -212,9 +212,10 @@ class TopicMapSystemTest extends PHPTMAPITestCase
  * @author Johannes Schmidt <joschmidt@users.sourceforge.net>
  * @license http://www.gnu.org/licenses/lgpl.html GNU LGPL
  */
-class MyProperty {
-  
-  public function myFunction() {
+class MyProperty
+{
+  public function myFunction() 
+  {
     return 'PHPTMAPI';
   }
 }

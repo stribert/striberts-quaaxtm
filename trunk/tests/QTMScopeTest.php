@@ -42,15 +42,15 @@ class QTMScopeTest extends PHPTMAPITestCase
     parent::setUp();
     $config = array();
     require(
-          dirname(__FILE__) . 
-          DIRECTORY_SEPARATOR . 
-          '..' . 
-          DIRECTORY_SEPARATOR . 
-          'src' . 
-          DIRECTORY_SEPARATOR . 
-          'phptmapi' . 
-          DIRECTORY_SEPARATOR . 
-          'config.php'
+      dirname(__FILE__) . 
+      DIRECTORY_SEPARATOR . 
+      '..' . 
+      DIRECTORY_SEPARATOR . 
+      'src' . 
+      DIRECTORY_SEPARATOR . 
+      'phptmapi' . 
+      DIRECTORY_SEPARATOR . 
+      'config.php'
     );
     $this->_mysql = new Mysql($config);
     $this->_config = $config;

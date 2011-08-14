@@ -43,13 +43,12 @@ require_once(
 class PHPTMAPITestCase extends PHPUnit_Framework_TestCase
 {  
   protected $_sharedFixture,
-            $_topicMap;
+            $_topicMap,
+            $_preservedBaseLocators;
   
-  protected static $_tmLocator = 'http://localhost/tm/1', 
+  protected static $_tmLocator = 'http://localhost/tm/s4l1', 
   					        $_dtString = 'http://www.w3.org/2001/XMLSchema#string', 
                     $_dtUri = 'http://www.w3.org/2001/XMLSchema#anyURI';
-  
-  private $_preservedBaseLocators;
   
   /**
    * @see PHPUnit_Framework_TestCase::setUp()
@@ -62,7 +61,6 @@ class PHPTMAPITestCase extends PHPUnit_Framework_TestCase
       // QuaaxTM specific features
       $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
       $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, false);
-      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_TEST_MODE, true);
       
       $this->_sharedFixture = $tmSystemFactory->newTopicMapSystem();
       $this->_preservedBaseLocators = $this->_sharedFixture->getLocators();
