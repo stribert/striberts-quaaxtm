@@ -124,7 +124,6 @@ class TestCase extends PHPUnit_Framework_TestCase
       // QuaaxTM specific features
       $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
       $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, false);
-      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_TEST_MODE, true);
       
       $this->_sharedFixture = $tmSystemFactory->newTopicMapSystem();
       
