@@ -201,52 +201,55 @@ final class NameImpl extends ScopedImpl implements Name
     }
     $value = CharacteristicUtils::canonicalize($value, $this->_mysql->getConnection());
     $datatype = CharacteristicUtils::canonicalize($datatype, $this->_mysql->getConnection());
+    
+    $propertyHolder['value'] = $value;
+    $propertyHolder['datatype'] = $datatype;
+    $this->_topicMap->_setConstructPropertyHolder($propertyHolder);
+    
+    $this->_topicMap->_setConstructParent($this);
+    
     $mergedScope = array_merge($scope, $this->getScope());
     $hash = $this->_getVariantHash($value, $datatype, $mergedScope);
     $variantId = $this->_hasVariant($hash);
-    if (!$variantId) {
-      $nameScopeObj = $this->_getScopeObject();
-      if (!$nameScopeObj->isTrueSubset($mergedScope)) {
-        throw new ModelConstraintException(
-          $this, 
-          __METHOD__ . ': Variant\'s scope is not a true superset of the name\'s scope!'
-        );
-      }
-      $this->_mysql->startTransaction(true);
-      $query = 'INSERT INTO ' . $this->_config['table']['variant'] . 
-        ' (id, topicname_id, value, datatype, hash) VALUES' .
-        ' (NULL, ' . $this->_dbId . ', "' . $value . '", "' . $datatype . '", "' . $hash . '")';
-      $mysqlResult = $this->_mysql->execute($query);
-      $lastVariantId = $mysqlResult->getLastId();
-      
-      $query = 'INSERT INTO ' . $this->_config['table']['topicmapconstruct'] . 
-        ' (variant_id, topicmap_id, parent_id) VALUES' .
-        ' (' . $lastVariantId . ', ' . $this->_topicMap->_dbId . ', ' . $this->_dbId . ')';
-      $this->_mysql->execute($query);
-      
-      $scopeObj = new ScopeImpl($this->_mysql, $this->_config, $scope, $this->_topicMap, $this);
-      $query = 'INSERT INTO ' . $this->_config['table']['variant_scope'] . 
-        ' (scope_id, variant_id) VALUES' .
-        ' (' . $scopeObj->_dbId . ', ' . $lastVariantId . ')';
-      $this->_mysql->execute($query);
-      
-      $this->_mysql->finishTransaction(true);
-      
-      $propertyHolder['value'] = $value;
-      $propertyHolder['datatype'] = $datatype;
-      $this->_topicMap->_setConstructPropertyHolder($propertyHolder);
-      $this->_topicMap->_setConstructParent($this);
-      
-      $variant = $this->_topicMap->_getConstructByVerifiedId('VariantImpl-' . $lastVariantId);
-      if (!$this->_mysql->hasError()) {
-        $variant->_postInsert();
-        $this->_postSave();
-      }
-      return $variant;
-    } else {
-      $this->_topicMap->_setConstructParent($this);
+    
+    if ($variantId) {
       return $this->_topicMap->_getConstructByVerifiedId('VariantImpl-' . $variantId);
     }
+    
+    $nameScopeObj = $this->_getScopeObject();
+    if (!$nameScopeObj->isTrueSubset($mergedScope)) {
+      throw new ModelConstraintException(
+        $this, 
+        __METHOD__ . ': Variant\'s scope is not a true superset of the name\'s scope!'
+      );
+    }
+    $this->_mysql->startTransaction(true);
+    $query = 'INSERT INTO ' . $this->_config['table']['variant'] . 
+      ' (id, topicname_id, value, datatype, hash) VALUES' .
+      ' (NULL, ' . $this->_dbId . ', "' . $value . '", "' . $datatype . '", "' . $hash . '")';
+    $mysqlResult = $this->_mysql->execute($query);
+    $lastVariantId = $mysqlResult->getLastId();
+    
+    $query = 'INSERT INTO ' . $this->_config['table']['topicmapconstruct'] . 
+      ' (variant_id, topicmap_id, parent_id) VALUES' .
+      ' (' . $lastVariantId . ', ' . $this->_topicMap->_dbId . ', ' . $this->_dbId . ')';
+    $this->_mysql->execute($query);
+    
+    $scopeObj = new ScopeImpl($this->_mysql, $this->_config, $scope, $this->_topicMap, $this);
+    $query = 'INSERT INTO ' . $this->_config['table']['variant_scope'] . 
+      ' (scope_id, variant_id) VALUES' .
+      ' (' . $scopeObj->_dbId . ', ' . $lastVariantId . ')';
+    $this->_mysql->execute($query);
+    
+    $this->_mysql->finishTransaction(true);
+    
+    $variant = $this->_topicMap->_getConstructByVerifiedId('VariantImpl-' . $lastVariantId);
+    
+    if (!$this->_mysql->hasError()) {
+      $variant->_postInsert();
+      $this->_postSave();
+    }
+    return $variant;
   }
   
   /**
@@ -350,7 +353,7 @@ final class NameImpl extends ScopedImpl implements Name
   }
   
   /**
-   * Tells the topic map system that a variant modification is finished and 
+   * Tells the Topic Maps system that a variant modification is finished and 
    * duplicate removal can take place.
    * 
    * NOTE: This may be a resource consuming process.
