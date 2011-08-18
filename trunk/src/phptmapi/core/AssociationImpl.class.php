@@ -83,6 +83,11 @@ final class AssociationImpl extends ScopedImpl implements Association
   }
 
   /**
+   * Returns the roles participating in this association. 
+   * 
+   * This "counterpart method" of AssociationImpl::getRoles() is introduced to 
+   * safely control the use of the result cache.
+   * 
    * @see AssociationImpl::getRoles()
    * @param TopicImpl The type of the {@link RoleImpl} instances to be returned. 
    * 				Default <var>null</var>.
@@ -90,7 +95,7 @@ final class AssociationImpl extends ScopedImpl implements Association
    * 				Default <var>false</var>.
    * @return array An array containing a set of {@link RoleImpl}s.
    */
-  protected function _getRoles(Topic $type=null, $resultCachePermission=false)
+  protected function _getRoles(Topic $type=null, $resultCacheAllowed=false)
   {
     $roles = array();
     $query = 'SELECT id, type_id, player_id FROM ' . $this->_config['table']['assocrole'] . 
@@ -99,7 +104,7 @@ final class AssociationImpl extends ScopedImpl implements Association
       $query .= ' AND type_id = ' . $type->_dbId;
     }
     
-    $results = $this->_mysql->fetch($query, $resultCachePermission);
+    $results = $this->_mysql->fetch($query, $resultCacheAllowed);
     if (is_array($results)) {
       foreach ($results as $result) {
         $propertyHolder['type_id'] = $result['type_id'];
@@ -149,6 +154,13 @@ final class AssociationImpl extends ScopedImpl implements Association
         __METHOD__ . ConstructImpl::$_sameTmConstraintErrMsg
       );
     }
+    
+    $propertyHolder['type_id'] = $type->_dbId;
+    $propertyHolder['player_id'] = $player->_dbId;
+    $this->_parent->_setConstructPropertyHolder($propertyHolder);
+    
+    $this->_parent->_setConstructParent($this);
+    
     // duplicate suppression
     $query = 'SELECT id FROM ' . $this->_config['table']['assocrole'] . 
       ' WHERE association_id = ' . $this->_dbId . 
@@ -156,42 +168,39 @@ final class AssociationImpl extends ScopedImpl implements Association
       ' AND player_id = ' . $player->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
     $rows = $mysqlResult->getNumRows();
-    if ($rows == 0) {
-      $this->_mysql->startTransaction();
-      $query = 'INSERT INTO ' . $this->_config['table']['assocrole'] . 
-        ' (id, association_id, type_id, player_id) VALUES' .
-        ' (NULL, ' . $this->_dbId . ', ' . $type->_dbId . ', ' . $player->_dbId . ')';
-      $mysqlResult = $this->_mysql->execute($query);
-      $lastRoleId = $mysqlResult->getLastId();
-      
-      $query = 'INSERT INTO ' . $this->_config['table']['topicmapconstruct'] . 
-        ' (assocrole_id, topicmap_id, parent_id) VALUES' .
-        ' (' . $lastRoleId . ', ' . $this->_parent->_dbId . ', ' . $this->_dbId . ')';
-      $this->_mysql->execute($query);
-      
-      $hash = $this->_parent->_getAssocHash($this->getType(), $this->getScope(), 
-        $this->_getRoles());
-      $this->_parent->_updateAssocHash($this->_dbId, $hash);
-      $this->_mysql->finishTransaction();
-      
-      $propertyHolder['type_id'] = $type->_dbId;
-      $propertyHolder['player_id'] = $player->_dbId;
-      $this->_parent->_setConstructPropertyHolder($propertyHolder);
-      
-      $this->_parent->_setConstructParent($this);
-      
-      $role = $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $lastRoleId);
-      
-      if (!$this->_mysql->hasError()) {
-        $role->_postInsert();
-        $this->_postSave();
-      }
-      return $role;
-    } else {
+    
+    if ($rows > 0) {
       $result = $mysqlResult->fetch();
-      $this->_parent->_setConstructParent($this);
       return $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $result['id']);
     }
+    
+    $this->_mysql->startTransaction();
+    $query = 'INSERT INTO ' . $this->_config['table']['assocrole'] . 
+      ' (id, association_id, type_id, player_id) VALUES' .
+      ' (NULL, ' . $this->_dbId . ', ' . $type->_dbId . ', ' . $player->_dbId . ')';
+    $mysqlResult = $this->_mysql->execute($query);
+    $lastRoleId = $mysqlResult->getLastId();
+    
+    $query = 'INSERT INTO ' . $this->_config['table']['topicmapconstruct'] . 
+      ' (assocrole_id, topicmap_id, parent_id) VALUES' .
+      ' (' . $lastRoleId . ', ' . $this->_parent->_dbId . ', ' . $this->_dbId . ')';
+    $this->_mysql->execute($query);
+    
+    $hash = $this->_parent->_getAssocHash(
+      $this->getType(), 
+      $this->getScope(), 
+      $this->_getRoles()
+    );
+    $this->_parent->_updateAssocHash($this->_dbId, $hash);
+    $this->_mysql->finishTransaction();
+    
+    $role = $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $lastRoleId);
+    
+    if (!$this->_mysql->hasError()) {
+      $role->_postInsert();
+      $this->_postSave();
+    }
+    return $role;
   }
 
   /**
@@ -206,10 +215,15 @@ final class AssociationImpl extends ScopedImpl implements Association
     $types = array();
     $query = 'SELECT type_id FROM ' . $this->_config['table']['assocrole'] . 
       ' WHERE association_id = ' . $this->_dbId;
-    $mysqlResult = $this->_mysql->execute($query);
-    while ($result = $mysqlResult->fetch()) {
-      $type = $this->_parent->_getConstructByVerifiedId('TopicImpl-' . $result['type_id']);
-      $types[$type->getId()] = $type;
+    // this method is never called from inside QuaaxTM - set result cache perm. to true
+    $results = $this->_mysql->fetch($query, true);
+    if (is_array($results)) {
+      foreach ($results as $result) {
+        $type = $this->_parent->_getConstructByVerifiedId(
+        	'TopicImpl-' . $result['type_id']
+        );
+        $types[$type->getId()] = $type;
+      }
     }
     return array_values($types);
   }
