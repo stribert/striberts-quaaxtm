@@ -107,7 +107,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
    * @param int The construct id in its table representation in the MySQL database.
    * @param Mysql The MySQL wrapper
    * @param array The configuration data.
-   * @param TopicMapSystem The underlying topic map system.
+   * @param TopicMapSystem The underlying Topic Maps system.
    * @return void
    */
   public function __construct($dbId, Mysql $mysql, array $config, TopicMapSystem $tmSystem)
@@ -351,11 +351,16 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
         );
       }
     }
+    $propertyHolder['type_id'] = $type->_dbId;
+    $this->_setConstructPropertyHolder($propertyHolder);
+    
     $hash = $this->_getAssocHash($type, $scope, $roles=array());
     $assocId = $this->_hasAssoc($hash);
+    
     if ($assocId) {
       return $this->_getConstructByVerifiedId('AssociationImpl-' . $assocId);
     }
+    
     $this->_mysql->startTransaction(true);
     $query = 'INSERT INTO ' . $this->_config['table']['association'] . 
       ' (id, type_id, topicmap_id, hash) VALUES' .
@@ -376,8 +381,6 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
     
     $this->_mysql->finishTransaction(true);
     
-    $propertyHolder['type_id']=$type->_dbId;
-    $this->_setConstructPropertyHolder($propertyHolder);
     $assoc = $this->_getConstructByVerifiedId('AssociationImpl-' . $lastAssocId);
     
     if (!$this->_mysql->hasError()) {
@@ -681,7 +684,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
   }
   
   /**
-   * Tells the topic map system that an association modification is finished and 
+   * Tells the Topic Maps system that an association modification is finished and 
    * duplicate removal can take place.
    * 
    * NOTE: This may be a resource consuming process.
