@@ -99,9 +99,9 @@ class MysqlMock extends Mysql
    * @see Mysql::_get()
    * @override
    */
-  protected function _get($query, $resultCachePermission=false, $fetchOne=false)
+  protected function _get($query, $resultCacheAllowed=false, $fetchOne=false)
   {
-    if ($this->_memcached instanceof Memcached && $resultCachePermission) {
+    if ($this->_resultCacheEnabled && $resultCacheAllowed) {
       $this->memcachedWasIgnored = false;
       $key = md5(self::$_salt . $query);// add $_salt to protect possibly existing keys
       $this->_memcachedKeys[$key] = $key;
