@@ -21,7 +21,7 @@
 spl_autoload_register('TopicMapSystemFactoryImpl::autoload');
 
 /**
- * This factory class provides access to a topic map system. 
+ * This factory class provides access to a Topic Maps system. 
  * 
  * A new {@link TopicMapSystemImpl} instance is created by invoking the 
  * {@link newTopicMapSystem()} method. 
@@ -110,7 +110,7 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory
   {
     if (!array_key_exists($featureName, $this->_features)) {
       throw new FeatureNotRecognizedException(
-        __METHOD__ . ': The feature "' . $featureName . '" is not recognized!'
+        __METHOD__ . ': The feature "' . $featureName . '" is unknown!'
       );
     }
     return $this->_features[$featureName];
@@ -223,7 +223,7 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory
    * @return TopicMapSystemImpl
    * @throws {@link PHPTMAPIRuntimeException} If the connection to MySQL or, if set up, the 
    * 				connection to memcached cannot be established, or if PHP memcached support using 
-   * 				libmemcached (Memcached) is not available.
+   * 				libmemcached (Memcached) is not available. TODO Mysql property
    */
   public function newTopicMapSystem()
   {
