@@ -113,7 +113,7 @@ class QTMResultCacheTest extends PHPUnit_Framework_TestCase
     $this->assertTrue($mysqlProperty instanceof MysqlMock);
   }
   
-  public function testAssociation()
+  public function testAssociationGetRoles()
   {
     $this->assertFalse($this->_mysqlMock->memcachedWasCalledSuccessfully);
     $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
@@ -125,7 +125,7 @@ class QTMResultCacheTest extends PHPUnit_Framework_TestCase
     $assocs = $topicMap->getAssociations();
     $this->assertEquals(count($assocs), 1);
     $assoc = $assocs[0];
-    $this->_testAssociation($assoc, true);
+    $this->_testAssociationGetRoles($assoc, true);
     
     // test regular Mysql class
     try {
@@ -144,7 +144,49 @@ class QTMResultCacheTest extends PHPUnit_Framework_TestCase
       $assocs = $topicMap->getAssociations();
       $this->assertEquals(count($assocs), 1);
       $assoc = $assocs[0];
-      $this->_testAssociation($assoc);
+      $this->_testAssociationGetRoles($assoc);
+      
+    } catch (Exception $e) {
+      $this->fail(
+        'Could not test regular Mysql class in ' . __METHOD__ . ': ' . $e->getMessage()
+      );
+    }
+  }
+  
+  public function testAssociationGetRoleTypes()
+  {
+    $this->assertFalse($this->_mysqlMock->memcachedWasCalledSuccessfully);
+    $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
+    $this->assertFalse($this->_mysqlMock->memcachedWasSet);
+    
+    $topicMap = $this->_tmSystem->createTopicMap(self::$_tmLocator);
+    $assoc = $topicMap->createAssociation($topicMap->createTopic());
+    $roleType = $topicMap->createTopic();
+    $assoc->createRole($roleType, $topicMap->createTopic());
+    $assocs = $topicMap->getAssociations();
+    $this->assertEquals(count($assocs), 1);
+    $assoc = $assocs[0];
+    $this->_testAssociationGetRoleTypes($assoc, $roleType, true);
+    
+    // test regular Mysql class
+    try {
+      $tmSystemFactory = TopicMapSystemFactory::newInstance();
+      // need to unset MySQL property due to singleton
+      $tmSystemFactory->setProperty(VocabularyUtils::QTM_PROPERTY_MYSQL, null);
+      // QuaaxTM specific features
+      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
+      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, true);
+      
+      $tmSystem = $tmSystemFactory->newTopicMapSystem();
+      
+      $topicMap = $this->_tmSystem->createTopicMap(self::$_tmLocator. uniqid());
+      $assoc = $topicMap->createAssociation($topicMap->createTopic());
+      $roleType = $topicMap->createTopic();
+      $assoc->createRole($roleType, $topicMap->createTopic());
+      $assocs = $topicMap->getAssociations();
+      $this->assertEquals(count($assocs), 1);
+      $assoc = $assocs[0];
+      $this->_testAssociationGetRoleTypes($assoc, $roleType);
       
     } catch (Exception $e) {
       $this->fail(
@@ -163,7 +205,7 @@ class QTMResultCacheTest extends PHPUnit_Framework_TestCase
     $this->assertFalse($this->_mysqlMock->memcachedWasSet);
   }
   
-  private function _testAssociation(Association $assoc, $mock=false)
+  private function _testAssociationGetRoles(Association $assoc, $mock=false)
   {
     $roles = $assoc->getRoles();
     $this->assertEquals(count($roles), 1);
@@ -174,6 +216,30 @@ class QTMResultCacheTest extends PHPUnit_Framework_TestCase
     // get roles from result cache
     $roles = $assoc->getRoles();
     $this->assertEquals(count($roles), 1);
+    if ($mock) {
+      $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
+      $this->assertTrue($this->_mysqlMock->memcachedWasCalledSuccessfully);
+      $this->assertFalse($this->_mysqlMock->memcachedWasSet);
+    }
+  }
+  
+  private function _testAssociationGetRoleTypes(
+    Association $assoc, 
+    Topic $roleType, 
+    $mock=false
+    )
+  {
+    $roleTypes = $assoc->getRoleTypes();
+    $this->assertEquals(count($roleTypes), 1);
+    $this->assertEquals($roleTypes[0]->getId(), $roleType->getId());
+    if ($mock) {
+      $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
+      $this->assertTrue($this->_mysqlMock->memcachedWasSet);
+    }
+    // get roles from result cache
+    $roleTypes = $assoc->getRoleTypes();
+    $this->assertEquals(count($roleTypes), 1);
+    $this->assertEquals($roleTypes[0]->getId(), $roleType->getId());
     if ($mock) {
       $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
       $this->assertTrue($this->_mysqlMock->memcachedWasCalledSuccessfully);
