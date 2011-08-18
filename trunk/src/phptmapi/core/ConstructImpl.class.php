@@ -809,7 +809,7 @@ abstract class ConstructImpl implements Construct
   /**
    * @see AssociationImpl::_getRoles()
    */
-  protected function _getRoles(Topic $type=null, $resultCachePermission=false)
+  protected function _getRoles(Topic $type=null, $resultCacheAllowed=false)
   {
     return;
   }
