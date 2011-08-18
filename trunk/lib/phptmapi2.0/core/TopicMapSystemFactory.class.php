@@ -13,7 +13,7 @@
 require_once('FactoryConfigurationException.class.php');
 
 /**
- * This factory class provides access to a topic map system. 
+ * This factory class provides access to a Topic Maps system. 
  * 
  * A new {@link TopicMapSystem} instance is created by invoking the 
  * {@link newTopicMapSystem()} method. 
