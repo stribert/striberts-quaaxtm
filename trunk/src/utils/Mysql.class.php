@@ -97,6 +97,13 @@ class Mysql
    * @var int
    */
   protected $_resultCacheExpiration;
+  
+  /**
+   * The indicator if the result is enabled.
+   * 
+   * @var boolean
+   */
+  protected $_resultCacheEnabled;
 	
   /**
    * Constructor.
@@ -115,7 +122,8 @@ class Mysql
     $this->_memcached = null;
     $this->_commit = 
     $this->_trnx = 
-    $this->_delayTrnx = false;
+    $this->_delayTrnx = 
+    $this->_resultCacheEnabled = false;
     
     $this->_connect($config, $enableResultCache);
   }
@@ -170,6 +178,7 @@ class Mysql
         );
       }
       $this->_memcached = $memcached;
+      $this->_resultCacheEnabled = true;
     }
   }
   
@@ -315,9 +324,9 @@ class Mysql
    * @return array|false The query result as <var>associative array</var> or <var>false</var> 
    * 				on error.
    */
-  public function fetch($query, $resultCachePermission=false)
+  public function fetch($query, $resultCacheAllowed=false)
   {
-    return $this->_get($query, $resultCachePermission);
+    return $this->_get($query, $resultCacheAllowed);
   }
   
   /**
@@ -332,9 +341,9 @@ class Mysql
    * @return array|false The query result as <var>associative array</var> or <var>false</var> 
    * 				on error.
    */
-  public function fetchOne($query, $resultCachePermission=false)
+  public function fetchOne($query, $resultCacheAllowed=false)
   {
-    return $this->_get($query, $resultCachePermission, true);
+    return $this->_get($query, $resultCacheAllowed, true);
   }
   
   /**
@@ -370,9 +379,9 @@ class Mysql
    * @return array|false The query result as <var>associative array</var> or 
    * 				<var>false</var> on error.
    */
-  protected function _get($query, $resultCachePermission=false, $fetchOne=false)
+  protected function _get($query, $resultCacheAllowed=false, $fetchOne=false)
   {
-    if ($this->_memcached instanceof Memcached && $resultCachePermission) {
+    if ($this->_resultCacheEnabled && $resultCacheAllowed) {
       $key = md5($query);
       $results = $this->_memcached->get($key);
       if ($results !== false) {
