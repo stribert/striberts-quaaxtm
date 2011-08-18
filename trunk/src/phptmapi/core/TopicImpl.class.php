@@ -318,6 +318,7 @@ final class TopicImpl extends ConstructImpl implements Topic
     }
     $value = CharacteristicUtils::canonicalize($value, $this->_mysql->getConnection());
     $type = is_null($type) ? $this->_getDefaultNameType() : $type;
+    
     if (!$this->_topicMap->equals($type->_topicMap)) {
       throw new ModelConstraintException(
         $this, 
@@ -332,44 +333,46 @@ final class TopicImpl extends ConstructImpl implements Topic
         );
       }
     }
+    $propertyHolder['type_id'] = $type->_dbId;
+    $propertyHolder['value'] = $value;
+    $this->_parent->_setConstructPropertyHolder($propertyHolder);
+    
+    $this->_parent->_setConstructParent($this);
+      
     $hash = $this->_getNameHash($value, $type, $scope);
-    $propertyId = $this->_hasName($hash);
-    if (!$propertyId) {
-      $this->_mysql->startTransaction(true);
-      $query = 'INSERT INTO ' . $this->_config['table']['topicname'] . 
-        ' (id, topic_id, type_id, value, hash) VALUES' .
-        ' (NULL, ' . $this->_dbId . ', ' . $type->_dbId . ', "' . $value . '", "' . $hash . '")';
-      $mysqlResult = $this->_mysql->execute($query);
-      $lastNameId = $mysqlResult->getLastId();
-      
-      $query = 'INSERT INTO ' . $this->_config['table']['topicmapconstruct'] . 
-        ' (topicname_id, topicmap_id, parent_id) VALUES' .
-        ' (' . $lastNameId . ', ' . $this->_parent->_dbId . ', ' . $this->_dbId . ')';
-      $this->_mysql->execute($query);
-      
-      $scopeObj = new ScopeImpl($this->_mysql, $this->_config, $scope, $this->_topicMap, $this);
-      $query = 'INSERT INTO ' . $this->_config['table']['topicname_scope'] . 
-        ' (scope_id, topicname_id) VALUES' .
-        ' (' . $scopeObj->_dbId . ', ' . $lastNameId . ')';
-      $this->_mysql->execute($query);
-      
-      $this->_mysql->finishTransaction(true);
-      
-      $propertyHolder['type_id'] = $type->_dbId;
-      $propertyHolder['value'] = $value;
-      $this->_parent->_setConstructPropertyHolder($propertyHolder);
-      $this->_parent->_setConstructParent($this);
-      
-      $name = $this->_parent->_getConstructByVerifiedId('NameImpl-' . $lastNameId);
-      if (!$this->_mysql->hasError()) {
-        $name->_postInsert();
-        $this->_postSave();
-      }
-      return $name;
-    } else {
-      $this->_parent->_setConstructParent($this);
-      return $this->_parent->_getConstructByVerifiedId('NameImpl-' . $propertyId);
+    $nameId = $this->_hasName($hash);
+    
+    if ($nameId) {
+      return $this->_parent->_getConstructByVerifiedId('NameImpl-' . $nameId);
     }
+    
+    $this->_mysql->startTransaction(true);
+    $query = 'INSERT INTO ' . $this->_config['table']['topicname'] . 
+      ' (id, topic_id, type_id, value, hash) VALUES' .
+      ' (NULL, ' . $this->_dbId . ', ' . $type->_dbId . ', "' . $value . '", "' . $hash . '")';
+    $mysqlResult = $this->_mysql->execute($query);
+    $lastNameId = $mysqlResult->getLastId();
+    
+    $query = 'INSERT INTO ' . $this->_config['table']['topicmapconstruct'] . 
+      ' (topicname_id, topicmap_id, parent_id) VALUES' .
+      ' (' . $lastNameId . ', ' . $this->_parent->_dbId . ', ' . $this->_dbId . ')';
+    $this->_mysql->execute($query);
+    
+    $scopeObj = new ScopeImpl($this->_mysql, $this->_config, $scope, $this->_topicMap, $this);
+    $query = 'INSERT INTO ' . $this->_config['table']['topicname_scope'] . 
+      ' (scope_id, topicname_id) VALUES' .
+      ' (' . $scopeObj->_dbId . ', ' . $lastNameId . ')';
+    $this->_mysql->execute($query);
+    
+    $this->_mysql->finishTransaction(true);
+    
+    $name = $this->_parent->_getConstructByVerifiedId('NameImpl-' . $lastNameId);
+    
+    if (!$this->_mysql->hasError()) {
+      $name->_postInsert();
+      $this->_postSave();
+    }
+    return $name;
   }
 
   /**
@@ -398,7 +401,9 @@ final class TopicImpl extends ConstructImpl implements Topic
       
       $this->_parent->_setConstructParent($this);
       
-      $occurrence = $this->_parent->_getConstructByVerifiedId('OccurrenceImpl-' . $result['id']);
+      $occurrence = $this->_parent->_getConstructByVerifiedId(
+      	'OccurrenceImpl-' . $result['id']
+      );
       
       $occurrences[$result['hash']] = $occurrence;
     }
@@ -448,46 +453,50 @@ final class TopicImpl extends ConstructImpl implements Topic
     }
     $value = CharacteristicUtils::canonicalize($value, $this->_mysql->getConnection());
     $datatype = CharacteristicUtils::canonicalize($datatype, $this->_mysql->getConnection());
+    
+    $propertyHolder['type_id'] = $type->_dbId;
+    $propertyHolder['value'] = $value;
+    $propertyHolder['datatype'] = $datatype;
+    $this->_parent->_setConstructPropertyHolder($propertyHolder);
+    
+    $this->_parent->_setConstructParent($this);
+      
     $hash = $this->_getOccurrenceHash($type, $value, $datatype, $scope);
-    $propertyId = $this->_hasOccurrence($hash);
-    if (!$propertyId) {
-      $this->_mysql->startTransaction(true);
-      $query = 'INSERT INTO ' . $this->_config['table']['occurrence'] . 
-        ' (id, topic_id, type_id, value, datatype, hash) VALUES' .
-        ' (NULL, '.$this->_dbId.', ' . $type->_dbId . ', "' . $value . '", "' . $datatype . '", "' . $hash . '")';
-      $mysqlResult = $this->_mysql->execute($query);
-      $lastOccurrenceId = $mysqlResult->getLastId();
-      
-      $query = 'INSERT INTO ' . $this->_config['table']['topicmapconstruct'] . 
-        ' (occurrence_id, topicmap_id, parent_id) VALUES' .
-        ' (' . $lastOccurrenceId . ', ' . $this->_parent->_dbId . ', ' . $this->_dbId . ')';
-      $this->_mysql->execute($query);
-      
-      $scopeObj = new ScopeImpl($this->_mysql, $this->_config, $scope, $this->_topicMap, $this);
-      $query = 'INSERT INTO ' . $this->_config['table']['occurrence_scope'] . 
-        ' (scope_id, occurrence_id) VALUES' .
-        ' (' . $scopeObj->_dbId . ', ' . $lastOccurrenceId . ')';
-      $this->_mysql->execute($query);
-      
-      $this->_mysql->finishTransaction(true);
-      
-      $propertyHolder['type_id'] = $type->_dbId;
-      $propertyHolder['value'] = $value;
-      $propertyHolder['datatype'] = $datatype;
-      $this->_parent->_setConstructPropertyHolder($propertyHolder);
-      $this->_parent->_setConstructParent($this);
-      
-      $occ = $this->_parent->_getConstructByVerifiedId('OccurrenceImpl-' . 
-        $lastOccurrenceId);
-      if (!$this->_mysql->hasError()) {
-        $occ->_postInsert();
-        $this->_postSave();
-      }
-      return $occ;
-    } else {
-      $this->_parent->_setConstructParent($this);
-      return $this->_parent->_getConstructByVerifiedId('OccurrenceImpl-' . $propertyId);
+    $occurrenceId = $this->_hasOccurrence($hash);
+    
+    if ($occurrenceId) {
+      return $this->_parent->_getConstructByVerifiedId('OccurrenceImpl-' . $occurrenceId);
     }
+    
+    $this->_mysql->startTransaction(true);
+    $query = 'INSERT INTO ' . $this->_config['table']['occurrence'] . 
+      ' (id, topic_id, type_id, value, datatype, hash) VALUES' .
+      ' (NULL, '.$this->_dbId.', ' . $type->_dbId . ', "' . $value . '", "' . $datatype . '", "' . $hash . '")';
+    $mysqlResult = $this->_mysql->execute($query);
+    $lastOccurrenceId = $mysqlResult->getLastId();
+    
+    $query = 'INSERT INTO ' . $this->_config['table']['topicmapconstruct'] . 
+      ' (occurrence_id, topicmap_id, parent_id) VALUES' .
+      ' (' . $lastOccurrenceId . ', ' . $this->_parent->_dbId . ', ' . $this->_dbId . ')';
+    $this->_mysql->execute($query);
+    
+    $scopeObj = new ScopeImpl($this->_mysql, $this->_config, $scope, $this->_topicMap, $this);
+    $query = 'INSERT INTO ' . $this->_config['table']['occurrence_scope'] . 
+      ' (scope_id, occurrence_id) VALUES' .
+      ' (' . $scopeObj->_dbId . ', ' . $lastOccurrenceId . ')';
+    $this->_mysql->execute($query);
+    
+    $this->_mysql->finishTransaction(true);
+    
+    $occurrence = $this->_parent->_getConstructByVerifiedId(
+    	'OccurrenceImpl-' . $lastOccurrenceId
+    );
+    
+    if (!$this->_mysql->hasError()) {
+      $occurrence->_postInsert();
+      $this->_postSave();
+    }
+    return $occurrence;
   }
   
   /**
@@ -836,10 +845,10 @@ final class TopicImpl extends ConstructImpl implements Topic
     
     /* type properties in occurrence; 
       use get and set in order to update the hash and remove dupl. */
-    $occs = $this->_getAllOccurrencesByType($other);
-    foreach ($occs as $occ) {
-      $occ->setType($this);
-      $occ->getParent()->finished($occ);
+    $occurrences = $this->_getAllOccurrencesByType($other);
+    foreach ($occurrences as $occurrence) {
+      $occurrence->setType($this);
+      $occurrence->getParent()->finished($occurrence);
     }
     
     /* type properties in name; 
@@ -887,16 +896,16 @@ final class TopicImpl extends ConstructImpl implements Topic
     // merge other's occurrences
     $othersOccurrences = $other->getOccurrences();
     foreach ($othersOccurrences as $othersOccurrence) {
-      $occ = $this->createOccurrence($othersOccurrence->getType(), 
-                                      $othersOccurrence->getValue(), 
-                                      $othersOccurrence->getDatatype(), 
-                                      $othersOccurrence->getScope()
-                                    );
+      $occurrence = $this->createOccurrence($othersOccurrence->getType(), 
+        $othersOccurrence->getValue(), 
+        $othersOccurrence->getDatatype(), 
+        $othersOccurrence->getScope()
+      );
       // other's occurrence's iids
-      $occ->_gainItemIdentifiers($othersOccurrence);
+      $occurrence->_gainItemIdentifiers($othersOccurrence);
 
       // other's occurrence's reifier
-      $occ->_gainReifier($othersOccurrence);
+      $occurrence->_gainReifier($othersOccurrence);
     }
     
     // merge other's sids
