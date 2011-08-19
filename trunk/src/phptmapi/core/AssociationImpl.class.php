@@ -167,9 +167,9 @@ final class AssociationImpl extends ScopedImpl implements Association
       ' AND type_id = ' . $type->_dbId . 
       ' AND player_id = ' . $player->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
+    $numRows = $mysqlResult->getNumRows();
     
-    if ($rows > 0) {
+    if ($numRows > 0) {
       $result = $mysqlResult->fetch();
       return $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $result['id']);
     }

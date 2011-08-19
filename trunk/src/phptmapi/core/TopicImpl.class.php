@@ -119,8 +119,8 @@ final class TopicImpl extends ConstructImpl implements Topic
       ' AND t2.topicmap_id = ' . $this->_topicMap->_dbId . 
       ' AND t2.id <> ' . $this->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
-    if ($rows == 0) {
+    $numRows = $mysqlResult->getNumRows();
+    if ($numRows == 0) {
       // check others' item identifiers too
       $query = 'SELECT t1.*' . 
         ' FROM ' . $this->_config['table']['topicmapconstruct'] . ' t1' . 
@@ -131,8 +131,8 @@ final class TopicImpl extends ConstructImpl implements Topic
         ' AND t1.topic_id <> ' . $this->_dbId . 
         ' AND t1.topic_id IS NOT NULL';
       $mysqlResult = $this->_mysql->execute($query);
-      $rows = $mysqlResult->getNumRows();
-      if ($rows == 0) {// insert subject identifier
+      $numRows = $mysqlResult->getNumRows();
+      if ($numRows == 0) {// insert subject identifier
         $query = 'INSERT INTO ' . $this->_config['table']['subjectidentifier'] . 
           ' (topic_id, locator) VALUES (' . $this->_dbId . ', "' . $sid .'")';
         $this->_mysql->execute($query);
@@ -225,8 +225,8 @@ final class TopicImpl extends ConstructImpl implements Topic
       ' AND t2.topicmap_id = ' . $this->_topicMap->_dbId . 
       ' AND t2.id <> ' . $this->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
-    if ($rows == 0) {// insert subject locator
+    $numRows = $mysqlResult->getNumRows();
+    if ($numRows == 0) {// insert subject locator
       $query = 'INSERT INTO ' . $this->_config['table']['subjectlocator'] . 
         ' (topic_id, locator) VALUES (' . $this->_dbId . ', "' . $slo .'")';
       $this->_mysql->execute($query);
@@ -611,8 +611,8 @@ final class TopicImpl extends ConstructImpl implements Topic
       ' WHERE reifier_id = ' . $this->_dbId . 
       ' AND topicmap_id = ' . $this->_parent->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
-    return $rows > 0
+    $numRows = $mysqlResult->getNumRows();
+    return $numRows > 0
       ? $this->_factory($mysqlResult)
       : null;
   }
@@ -1118,8 +1118,8 @@ final class TopicImpl extends ConstructImpl implements Topic
       ' WHERE topic_id = ' . $this->_dbId . 
       ' AND hash = "' . $hash . '"';
     $mysqlResult = $this->_mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
-    if ($rows > 0) {
+    $numRows = $mysqlResult->getNumRows();
+    if ($numRows > 0) {
       $result = $mysqlResult->fetch();
       return (int) $result['id'];
     }
@@ -1138,8 +1138,8 @@ final class TopicImpl extends ConstructImpl implements Topic
       ' WHERE topic_id = ' . $this->_dbId . 
       ' AND hash = "' . $hash . '"';
     $mysqlResult = $this->_mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
-    if ($rows > 0) {
+    $numRows = $mysqlResult->getNumRows();
+    if ($numRows > 0) {
       $result = $mysqlResult->fetch();
       return (int) $result['id'];
     }
@@ -1163,8 +1163,8 @@ final class TopicImpl extends ConstructImpl implements Topic
       ' WHERE t2.locator = "' . $sid . '"' .
       ' AND t1.topicmap_id = ' . $this->_parent->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
-    if ($rows > 0) {
+    $numRows = $mysqlResult->getNumRows();
+    if ($numRows > 0) {
       $result = $mysqlResult->fetch();
       $nameType = $this->_parent->_getConstructByVerifiedId(__CLASS__ . '-' . $result['id']);
       return $this->_defaultNameType = $nameType;

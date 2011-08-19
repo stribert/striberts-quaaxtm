@@ -437,8 +437,8 @@ final class NameImpl extends ScopedImpl implements Name
       ' WHERE topicname_id = ' . $this->_dbId . 
       ' AND hash = "' . $hash . '"';
     $mysqlResult = $this->_mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
-    if ($rows > 0) {
+    $numRows = $mysqlResult->getNumRows();
+    if ($numRows > 0) {
       $result = $mysqlResult->fetch();
       return (int) $result['id'];
     }

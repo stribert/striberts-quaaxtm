@@ -92,8 +92,8 @@ final class TopicMapSystemImpl implements TopicMapSystem
     $query = 'SELECT id FROM ' . $this->_config['table']['topicmap'] . 
       ' WHERE locator = "' . $uri . '"';
     $mysqlResult = $this->_mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
-    if ($rows > 0) {
+    $numRows = $mysqlResult->getNumRows();
+    if ($numRows > 0) {
       $result = $mysqlResult->fetch();
       return new TopicMapImpl($result['id'], $this->_mysql, $this->_config, $this);
     } else {

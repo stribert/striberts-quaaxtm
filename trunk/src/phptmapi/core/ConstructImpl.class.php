@@ -283,8 +283,8 @@ abstract class ConstructImpl implements Construct
       ' WHERE t2.locator = "' . $iid . '"' . 
       ' AND t1.topicmap_id = ' . $this->getTopicMap()->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
-    if ($rows == 0) {
+    $numRows = $mysqlResult->getNumRows();
+    if ($numRows == 0) {
       // if construct is a topic check sids too
       if ($this instanceof Topic) {
         $query = 'SELECT t2.id' .
@@ -295,8 +295,8 @@ abstract class ConstructImpl implements Construct
           ' AND t2.topicmap_id = ' . $this->getTopicMap()->_dbId . 
           ' AND t1.topic_id <> ' . $this->_dbId;
         $mysqlResult = $this->_mysql->execute($query);
-        $rows = $mysqlResult->getNumRows();
-        if ($rows == 0) {
+        $numRows = $mysqlResult->getNumRows();
+        if ($numRows == 0) {
           $this->_mysql->execute($insert);
           if (!$this->_mysql->hasError()) {
             $this->_postSave();

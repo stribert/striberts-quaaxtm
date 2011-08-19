@@ -157,8 +157,8 @@ final class ScopeImpl
       ' WHERE topic_id IN (' . $idsImploded . ')' .
       ' GROUP BY scope_id';
     $mysqlResult = $this->_mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
-    if ($rows > 0) {
+    $numRows = $mysqlResult->getNumRows();
+    if ($numRows > 0) {
       while ($result = $mysqlResult->fetch()) {
         $_themesIds = array();
         $query = 'SELECT topic_id FROM ' . $this->_config['table']['theme'] . 
@@ -228,8 +228,8 @@ final class ScopeImpl
       'ON t2.scope_id = t1.id ' .
       'WHERE t2.scope_id IS NULL';
     $mysqlResult = $this->_mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
-    if ($rows > 0) {
+    $numRows = $mysqlResult->getNumRows();
+    if ($numRows > 0) {
       $result = $mysqlResult->fetch();
       return (int) $result['scope_id'];
     } else {
