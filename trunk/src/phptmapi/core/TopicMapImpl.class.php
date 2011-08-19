@@ -161,19 +161,18 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
    */
   public function getTopics()
   {
-    if (is_null($this->_topicsCache)) {
-      $this->_topicsCache = array();
-      $query = 'SELECT id FROM ' . $this->_config['table']['topic'] . 
-        ' WHERE topicmap_id = ' . $this->_dbId;
-      $mysqlResult = $this->_mysql->execute($query);
-      while ($result = $mysqlResult->fetch()) {
-        $topic = $this->_getConstructByVerifiedId('TopicImpl-' . $result['id']);
-        $this->_topicsCache[$topic->getId()] = $topic;
-      }
-      return array_values($this->_topicsCache);
-    } else {
+    if (!is_null($this->_topicsCache)) {
       return array_values($this->_topicsCache);
     }
+    $this->_topicsCache = array();
+    $query = 'SELECT id FROM ' . $this->_config['table']['topic'] . 
+      ' WHERE topicmap_id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
+    while ($result = $mysqlResult->fetch()) {
+      $topic = $this->_getConstructByVerifiedId('TopicImpl-' . $result['id']);
+      $this->_topicsCache[$topic->getId()] = $topic;
+    }
+    return array_values($this->_topicsCache);
   }
 
   /**
@@ -184,26 +183,25 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
    */
   public function getAssociations()
   {
-    if (is_null($this->_assocsCache)) {
-      $this->_assocsCache = 
-      $assocsHashes = array();
-      $query = 'SELECT id, type_id, hash FROM ' . $this->_config['table']['association'] . 
-        ' WHERE topicmap_id = ' . $this->_dbId;
-      $mysqlResult = $this->_mysql->execute($query);
-      while ($result = $mysqlResult->fetch()) {    
-        $propertyHolder['type_id'] = $result['type_id'];
-        $this->_setConstructPropertyHolder($propertyHolder);
-        $assoc = $this->_getConstructByVerifiedId('AssociationImpl-' . $result['id']);
-        if (!array_key_exists($result['hash'], $assocsHashes)) {
-          $this->_assocsCache[$assoc->getId()] = $assoc;
-        }
-        $assocsHashes[$result['hash']] = null;
-      }
-      unset($assocsHashes);
-      return array_values($this->_assocsCache);
-    } else {
+    if (!is_null($this->_assocsCache)) {
       return array_values($this->_assocsCache);
     }
+    $this->_assocsCache = 
+    $assocsHashes = array();
+    $query = 'SELECT id, type_id, hash FROM ' . $this->_config['table']['association'] . 
+      ' WHERE topicmap_id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
+    while ($result = $mysqlResult->fetch()) {    
+      $propertyHolder['type_id'] = $result['type_id'];
+      $this->_setConstructPropertyHolder($propertyHolder);
+      $assoc = $this->_getConstructByVerifiedId('AssociationImpl-' . $result['id']);
+      if (!array_key_exists($result['hash'], $assocsHashes)) {
+        $this->_assocsCache[$assoc->getId()] = $assoc;
+      }
+      $assocsHashes[$result['hash']] = null;
+    }
+    unset($assocsHashes);
+    return array_values($this->_assocsCache);
   }
   
   /**
@@ -247,13 +245,12 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
       ' WHERE t2.locator = "' . $sid . '"' .
       ' AND t1.topicmap_id = ' . $this->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
-    if ($rows > 0) {
+    $numRows = $mysqlResult->getNumRows();
+    if ($numRows > 0) {
       $result = $mysqlResult->fetch();
       return $this->_getConstructByVerifiedId('TopicImpl-' . $result['id']);
-    } else {
-      return null;
     }
+    return null;
   }
 
   /**
@@ -273,13 +270,12 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
       ' WHERE t2.locator = "' . $slo . '"' .
       ' AND t1.topicmap_id = ' . $this->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
-    if ($rows > 0) {
+    $numRows = $mysqlResult->getNumRows();
+    if ($numRows > 0) {
       $result = $mysqlResult->fetch();
       return $this->_getConstructByVerifiedId('TopicImpl-' . $result['id']);
-    } else {
-      return null;
     }
+    return null;
   }
 
   /**
@@ -300,8 +296,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
       ' WHERE t2.locator = "' . $iid . '"' .
       ' AND t1.topicmap_id = ' . $this->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
-    return $rows > 0
+    $numRows = $mysqlResult->getNumRows();
+    return $numRows > 0
       ? $this->_factory($mysqlResult)
       : null;
   }
@@ -1031,8 +1027,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
       ' WHERE topicmap_id = ' . $this->_dbId . 
       ' AND hash = "' . $hash . '"';
     $mysqlResult = $this->_mysql->execute($query);
-    $rows = $mysqlResult->getNumRows();
-    if ($rows > 0) {
+    $numRows = $mysqlResult->getNumRows();
+    if ($numRows > 0) {
       $result = $mysqlResult->fetch();
       return (int) $result['id'];
     }
