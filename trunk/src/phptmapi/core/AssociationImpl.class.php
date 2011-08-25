@@ -103,7 +103,6 @@ final class AssociationImpl extends ScopedImpl implements Association
     if (!is_null($type)) {
       $query .= ' AND type_id = ' . $type->_dbId;
     }
-    
     $results = $this->_mysql->fetch($query, $resultCacheAllowed);
     if (is_array($results)) {
       foreach ($results as $result) {
