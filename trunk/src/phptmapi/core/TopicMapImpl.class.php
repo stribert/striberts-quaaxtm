@@ -178,10 +178,16 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
   /**
    * Returns all {@link AssociationImpl}s contained in this topic map.
    * The return value may be an empty array but must never be <var>null</var>.
+   * 
+   * This "counterpart method" of TopicMapImpl::getAssociations() is introduced to 
+   * safely control the use of the result cache.
    *
+   * @see TopicMapImpl::getAssociations()
+   * @param boolean The permission to use the memcached based MySQL result cache. 
+   * 				Default <var>false</var>.
    * @return array An array containing a set of {@link AssociationImpl}s.
    */
-  public function getAssociations()
+  protected function _getAssociations($resultCacheAllowed=false)
   {
     if (!is_null($this->_assocsCache)) {
       return array_values($this->_assocsCache);
@@ -190,18 +196,31 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
     $assocsHashes = array();
     $query = 'SELECT id, type_id, hash FROM ' . $this->_config['table']['association'] . 
       ' WHERE topicmap_id = ' . $this->_dbId;
-    $mysqlResult = $this->_mysql->execute($query);
-    while ($result = $mysqlResult->fetch()) {    
-      $propertyHolder['type_id'] = $result['type_id'];
-      $this->_setConstructPropertyHolder($propertyHolder);
-      $assoc = $this->_getConstructByVerifiedId('AssociationImpl-' . $result['id']);
-      if (!array_key_exists($result['hash'], $assocsHashes)) {
-        $this->_assocsCache[$assoc->getId()] = $assoc;
+    $results = $this->_mysql->fetch($query, $resultCacheAllowed);
+    if (is_array($results)) {
+      foreach ($results as $result) {
+        $propertyHolder['type_id'] = $result['type_id'];
+        $this->_setConstructPropertyHolder($propertyHolder);
+        $assoc = $this->_getConstructByVerifiedId('AssociationImpl-' . $result['id']);
+        if (!array_key_exists($result['hash'], $assocsHashes)) {
+          $this->_assocsCache[$assoc->getId()] = $assoc;
+        }
+        $assocsHashes[$result['hash']] = null;
       }
-      $assocsHashes[$result['hash']] = null;
     }
     unset($assocsHashes);
     return array_values($this->_assocsCache);
+  }
+  
+  /**
+   * Returns all {@link AssociationImpl}s contained in this topic map.
+   * The return value may be an empty array but must never be <var>null</var>.
+   *
+   * @return array An array containing a set of {@link AssociationImpl}s.
+   */
+  public function getAssociations()
+  {
+    return $this->_getAssociations(true);// set result cache permission to true
   }
   
   /**
@@ -620,7 +639,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
     
     $this->_copyIids($this, $other);
     
-    $this->_copyAssociations($other->getAssociations());
+    $this->_copyAssociations($other->_getAssociations());
     
     $this->_mysql->finishTransaction(true);
   }
@@ -629,19 +648,17 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
    * Returns the specified index.
    *
    * @param string The classname of the index.
-   * @return Index An index.
-   * @throws FeatureNotSupportedException If the implementation does not support indices, 
-   *        if the specified index is unsupported, or if the specified index does not exist.
+   * @return Index The index.
+   * @throws FeatureNotSupportedException If the specified index is unsupported.
    */
   public function getIndex($className)
   {
-    if (in_array($className, self::$_supportedIndices)) {
-      return new $className($this->_mysql, $this->_config, $this);
-    } else {
+    if (!in_array($className, self::$_supportedIndices)) {
       throw new FeatureNotSupportedException(
         __METHOD__ . ': Index "' . $className . '" is not supported!'
       );
     }
+    return new $className($this->_mysql, $this->_config, $this);
   }
 
   /**
