@@ -229,14 +229,13 @@ class Mysql
     $result = mysqli_query($this->_connection, $this->_sql);
     if ($result) {
       return new MysqlResult($result, $this->_connection);
-    } else {
-      $this->_errno = mysqli_errno($this->_connection);
-      $this->_error = mysqli_error($this->_connection);
-      if ($this->_trnx) {
-        $this->_commit = false;
-      }
-      return false;
     }
+    $this->_errno = mysqli_errno($this->_connection);
+    $this->_error = mysqli_error($this->_connection);
+    if ($this->_trnx) {
+      $this->_commit = false;
+    }
+    return false;
   }
 
   /**
@@ -258,12 +257,11 @@ class Mysql
   {
     if (!$this->hasError()) {
       return false;
-    } else {
-      $msg  = 'Query: ' . $this->_sql . "\n";
-      $msg .= 'Response: ' . $this->_error . "\n";
-      $msg .= 'Error code: ' . $this->_errno;
-      return $msg;
     }
+    $msg  = 'Query: ' . $this->_sql . "\n";
+    $msg .= 'Response: ' . $this->_error . "\n";
+    $msg .= 'Error code: ' . $this->_errno;
+    return $msg;
   }
   
   /**
@@ -386,19 +384,17 @@ class Mysql
       $results = $this->_memcached->get($key);
       if ($results !== false) {
         return $results;
-      } else {
-        $results = $this->_fetchAssociated($query, $fetchOne);
-        if ($results !== false) {
-          if (!empty($results)) {
-            $this->_memcached->set($key, $results, $this->_resultCacheExpiration);
-          }
-          return $results;
-        }
-        return false;
       }
-    } else {
-      return $this->_fetchAssociated($query, $fetchOne);
+      $results = $this->_fetchAssociated($query, $fetchOne);
+      if ($results !== false) {
+        if (!empty($results)) {
+          $this->_memcached->set($key, $results, $this->_resultCacheExpiration);
+        }
+        return $results;
+      }
+      return false;
     }
+    return $this->_fetchAssociated($query, $fetchOne);
   }
   
   /**
@@ -424,11 +420,10 @@ class Mysql
       }
       mysqli_free_result($mysqlResult);
       return $results;
-    } else {
-      $result = mysqli_fetch_assoc($mysqlResult);
-      mysqli_free_result($mysqlResult);
-      return $result;
     }
+    $result = mysqli_fetch_assoc($mysqlResult);
+    mysqli_free_result($mysqlResult);
+    return $result;
   }
 }
 ?>

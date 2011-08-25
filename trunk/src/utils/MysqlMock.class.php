@@ -110,22 +110,20 @@ class MysqlMock extends Mysql
         $this->memcachedWasCalledSuccessfully = true;
         $this->memcachedWasSet = false;
         return $results;
-      } else {
-        $this->memcachedWasCalledSuccessfully = false;
-        $results = $this->_fetchAssociated($query, $fetchOne);
-        if ($results !== false) {
-          if (!empty($results)) {
-            $this->_memcached->set($key, $results, $this->_resultCacheExpiration);
-            $this->memcachedWasSet = true;
-          }
-          return $results;
-        }
-        return false;
       }
-    } else {
-      $this->memcachedWasIgnored = true;
-      return $this->_fetchAssociated($query, $fetchOne);
+      $this->memcachedWasCalledSuccessfully = false;
+      $results = $this->_fetchAssociated($query, $fetchOne);
+      if ($results !== false) {
+        if (!empty($results)) {
+          $this->_memcached->set($key, $results, $this->_resultCacheExpiration);
+          $this->memcachedWasSet = true;
+        }
+        return $results;
+      }
+      return false;
     }
+    $this->memcachedWasIgnored = true;
+    return $this->_fetchAssociated($query, $fetchOne);
   }
 }
 ?>
