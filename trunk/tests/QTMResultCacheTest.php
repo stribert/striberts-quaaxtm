@@ -44,9 +44,12 @@ class QTMResultCacheTest extends PHPUnit_Framework_TestCase
 {
   private $_tmSystem, 
           $_preservedBaseLocators, 
-          $_mysqlMock;
+          $_mysqlMock,
+          $_config;
           
   private static $_tmLocator = 'http://localhost/tm/s3cr31';
+  
+  private static $_resultCacheExpiration = 2;
   
   /**
    * @see PHPUnit_Framework_TestCase::setUp()
@@ -66,6 +69,7 @@ class QTMResultCacheTest extends PHPUnit_Framework_TestCase
       DIRECTORY_SEPARATOR . 
       'config.php'
     );
+    $this->_config = $config;
     
     try {
       $tmSystemFactory = TopicMapSystemFactory::newInstance();
@@ -73,8 +77,8 @@ class QTMResultCacheTest extends PHPUnit_Framework_TestCase
       $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
       
       // create a mock object to allow detailed testing 
-      $this->_mysqlMock = new MysqlMock($config, true);// "true" enables memcached
-      $this->_mysqlMock->setResultCacheExpiration(5);
+      $this->_mysqlMock = new MysqlMock($this->_config, true);// "true" enables memcached
+      $this->_mysqlMock->setResultCacheExpiration(self::$_resultCacheExpiration);
       $tmSystemFactory->setProperty(VocabularyUtils::QTM_PROPERTY_MYSQL, $this->_mysqlMock);
     
       $this->_tmSystem = $tmSystemFactory->newTopicMapSystem();
@@ -102,7 +106,10 @@ class QTMResultCacheTest extends PHPUnit_Framework_TestCase
         }
       }
       $this->_tmSystem->close();
-      $this->_tmSystem = null;
+      $this->_tmSystem = 
+      $this->_mysqlMock = 
+      $this->_config = null;
+      $this->_preservedBaseLocators = array();
     }
   }
   
@@ -122,35 +129,20 @@ class QTMResultCacheTest extends PHPUnit_Framework_TestCase
     $topicMap = $this->_tmSystem->createTopicMap(self::$_tmLocator);
     $assoc = $topicMap->createAssociation($topicMap->createTopic());
     $assoc->createRole($topicMap->createTopic(), $topicMap->createTopic());
-    $assocs = $topicMap->getAssociations();
-    $this->assertEquals(count($assocs), 1);
-    $assoc = $assocs[0];
     $this->_testAssociationGetRoles($assoc, true);
     
     // test regular Mysql class
     try {
-      $tmSystemFactory = TopicMapSystemFactory::newInstance();
-      // need to unset MySQL property due to singleton
-      $tmSystemFactory->setProperty(VocabularyUtils::QTM_PROPERTY_MYSQL, null);
-      // QuaaxTM specific features
-      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
-      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, true);
-      
+      $tmSystemFactory = $this->_getTmSystemFactory();
       $tmSystem = $tmSystemFactory->newTopicMapSystem();
-      
-      $topicMap = $tmSystem->createTopicMap(self::$_tmLocator . uniqid());
-      $assoc = $topicMap->createAssociation($topicMap->createTopic());
-      $assoc->createRole($topicMap->createTopic(), $topicMap->createTopic());
-      $assocs = $topicMap->getAssociations();
-      $this->assertEquals(count($assocs), 1);
-      $assoc = $assocs[0];
-      $this->_testAssociationGetRoles($assoc);
-      
     } catch (Exception $e) {
-      $this->fail(
-        'Could not test regular Mysql class in ' . __METHOD__ . ': ' . $e->getMessage()
-      );
+      $this->markTestSkipped($e->getMessage() . ': Skip test.');
     }
+      
+    $topicMap = $tmSystem->createTopicMap(self::$_tmLocator . uniqid());
+    $assoc = $topicMap->createAssociation($topicMap->createTopic());
+    $assoc->createRole($topicMap->createTopic(), $topicMap->createTopic());
+    $this->_testAssociationGetRoles($assoc);
   }
   
   public function testAssociationGetRoleTypes()
@@ -163,46 +155,63 @@ class QTMResultCacheTest extends PHPUnit_Framework_TestCase
     $assoc = $topicMap->createAssociation($topicMap->createTopic());
     $roleType = $topicMap->createTopic();
     $assoc->createRole($roleType, $topicMap->createTopic());
-    $assocs = $topicMap->getAssociations();
-    $this->assertEquals(count($assocs), 1);
-    $assoc = $assocs[0];
     $this->_testAssociationGetRoleTypes($assoc, $roleType, true);
     
     // test regular Mysql class
     try {
-      $tmSystemFactory = TopicMapSystemFactory::newInstance();
-      // need to unset MySQL property due to singleton
-      $tmSystemFactory->setProperty(VocabularyUtils::QTM_PROPERTY_MYSQL, null);
-      // QuaaxTM specific features
-      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
-      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, true);
-      
+      $tmSystemFactory = $this->_getTmSystemFactory();
       $tmSystem = $tmSystemFactory->newTopicMapSystem();
-      
-      $topicMap = $this->_tmSystem->createTopicMap(self::$_tmLocator. uniqid());
-      $assoc = $topicMap->createAssociation($topicMap->createTopic());
-      $roleType = $topicMap->createTopic();
-      $assoc->createRole($roleType, $topicMap->createTopic());
-      $assocs = $topicMap->getAssociations();
-      $this->assertEquals(count($assocs), 1);
-      $assoc = $assocs[0];
-      $this->_testAssociationGetRoleTypes($assoc, $roleType);
-      
     } catch (Exception $e) {
-      $this->fail(
-        'Could not test regular Mysql class in ' . __METHOD__ . ': ' . $e->getMessage()
-      );
+      $this->markTestSkipped($e->getMessage() . ': Skip test.');
     }
+      
+    $topicMap = $tmSystem->createTopicMap(self::$_tmLocator. uniqid());
+    $assoc = $topicMap->createAssociation($topicMap->createTopic());
+    $roleType = $topicMap->createTopic();
+    $assoc->createRole($roleType, $topicMap->createTopic());
+    $this->_testAssociationGetRoleTypes($assoc, $roleType);
   }
   
-  /**
-   * TODO remove this again
-   */
-  public function testFoo()
+  public function testTopicMapGetAssociations()
   {
     $this->assertFalse($this->_mysqlMock->memcachedWasCalledSuccessfully);
     $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
     $this->assertFalse($this->_mysqlMock->memcachedWasSet);
+    
+    $topicMap = $this->_tmSystem->createTopicMap(self::$_tmLocator);
+    $topicMap->createAssociation($topicMap->createTopic());
+    $topicMap->createAssociation($topicMap->createTopic());
+    $this->_testTopicMapGetAssociations($topicMap, true);
+    
+    // test regular Mysql class
+    try {
+      $tmSystemFactory = $this->_getTmSystemFactory();
+      $tmSystem = $tmSystemFactory->newTopicMapSystem();
+    } catch (Exception $e) {
+      $this->markTestSkipped($e->getMessage() . ': Skip test.');
+    }
+      
+    $topicMap = $tmSystem->createTopicMap(self::$_tmLocator. uniqid());
+    $topicMap->createAssociation($topicMap->createTopic());
+    $topicMap->createAssociation($topicMap->createTopic());
+    
+    $this->_testTopicMapGetAssociations($topicMap);
+  }
+  
+  private function _getTmSystemFactory()
+  {
+    $tmSystemFactory = TopicMapSystemFactory::newInstance();
+    // need to unset MySQL property due to singleton
+    $tmSystemFactory->setProperty(VocabularyUtils::QTM_PROPERTY_MYSQL, null);
+    // QuaaxTM specific features
+    $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
+    $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, true);
+    
+    $mysql = new Mysql($this->_config, true);// "true" enables memcached
+    $mysql->setResultCacheExpiration(self::$_resultCacheExpiration);
+    $tmSystemFactory->setProperty(VocabularyUtils::QTM_PROPERTY_MYSQL, $mysql);
+    
+    return $tmSystemFactory;
   }
   
   private function _testAssociationGetRoles(Association $assoc, $mock=false)
@@ -243,6 +252,35 @@ class QTMResultCacheTest extends PHPUnit_Framework_TestCase
     if ($mock) {
       $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
       $this->assertTrue($this->_mysqlMock->memcachedWasCalledSuccessfully);
+      $this->assertFalse($this->_mysqlMock->memcachedWasSet);
+    }
+  }
+  
+  private function _testTopicMapGetAssociations(TopicMap $topicMap, $mock=false)
+  {
+    $assocs = $topicMap->getAssociations();
+    $this->assertEquals(count($assocs), 2);
+    if ($mock) {
+      $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
+      $this->assertTrue($this->_mysqlMock->memcachedWasSet);
+    }
+    // the associations are stored in class member $_assocsCache, nothing changes
+    $assocs = $topicMap->getAssociations();
+    $this->assertEquals(count($assocs), 2);
+    if ($mock) {
+      $this->assertFalse($this->_mysqlMock->memcachedWasCalledSuccessfully);
+      $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
+      $this->assertTrue($this->_mysqlMock->memcachedWasSet);
+    }
+    
+    $topicMap->clearAssociationsCache();
+    
+    // get associations from result cache
+    $assocs = $topicMap->getAssociations();
+    $this->assertEquals(count($assocs), 2);
+    if ($mock) {
+      $this->assertTrue($this->_mysqlMock->memcachedWasCalledSuccessfully);
+      $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
       $this->assertFalse($this->_mysqlMock->memcachedWasSet);
     }
   }
