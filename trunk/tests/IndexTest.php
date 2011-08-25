@@ -35,6 +35,10 @@ class IndexTest extends PHPTMAPITestCase
     $this->assertTrue($this->_topicMap instanceof TopicMap);
     $index = $this->_topicMap->getIndex('TypeInstanceIndexImpl');
     $this->assertTrue($index instanceof Index);
+    $index = $this->_topicMap->getIndex('LiteralIndexImpl');
+    $this->assertTrue($index instanceof Index);
+    $index = $this->_topicMap->getIndex('ScopedIndexImpl');
+    $this->assertTrue($index instanceof Index);
     try {
       $this->_topicMap->getIndex('Index' . time());
       $this->fail('This index is not supported!');
