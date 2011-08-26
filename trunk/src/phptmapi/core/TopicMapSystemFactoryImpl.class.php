@@ -223,7 +223,8 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory
    * @return TopicMapSystemImpl
    * @throws {@link PHPTMAPIRuntimeException} If the connection to MySQL or, if set up, the 
    * 				connection to memcached cannot be established, or if PHP memcached support using 
-   * 				libmemcached (Memcached) is not available. TODO Mysql property
+   * 				libmemcached (Memcached) is not available, or if the optionally provided MySQL 
+   * 				property is not an instance of class "Mysql".
    */
   public function newTopicMapSystem()
   {
