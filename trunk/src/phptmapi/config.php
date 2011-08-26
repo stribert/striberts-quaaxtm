@@ -25,7 +25,7 @@ $config['db']['name'] = 'quaaxtm_test';
 $config['db']['port'] = 3306;
 $config['memcached']['host'] = '127.0.0.1';
 $config['memcached']['port'] = 11211;
-$config['resultcache']['expiration'] = 60;
+$config['resultcache']['expiration'] = 5;
 $config['table']['association'] = 'qtm_association';
 $config['table']['association_scope'] = 'qtm_association_scope';
 $config['table']['assocrole'] = 'qtm_assocrole';
@@ -44,5 +44,4 @@ $config['table']['topicname'] = 'qtm_topicname';
 $config['table']['topicname_scope'] = 'qtm_topicname_scope';
 $config['table']['variant'] = 'qtm_variant';
 $config['table']['variant_scope'] = 'qtm_variant_scope';
-
 ?>
