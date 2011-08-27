@@ -404,10 +404,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
     }
     if (is_null($this->_assocsCache)) {
       return $assoc;
-    } else {
-      $this->_assocsCache[$assoc->getId()] = $assoc;
-      return $assoc;
     }
+    return $this->_assocsCache[$assoc->getId()] = $assoc;
   }
 
   /**
@@ -442,28 +440,26 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
     if (!is_null($construct)) {
       if ($construct instanceof Topic) {
         return $construct;
-      } else {
-        throw new IdentityConstraintException(
-          $this, 
-          $construct, 
-          $iid, 
-          __METHOD__ . ConstructImpl::$_iidExistsErrMsg
-        );
       }
+      throw new IdentityConstraintException(
+        $this, 
+        $construct, 
+        $iid, 
+        __METHOD__ . ConstructImpl::$_iidExistsErrMsg
+      );
     } else {
       $topic = $this->getTopicBySubjectIdentifier($iid);
       if (!is_null($topic)) {
         $topic->addItemIdentifier($iid);
         return $topic;
-      } else {
-        $this->_setIid = false;
-        $this->_mysql->startTransaction(true);
-        $topic = $this->createTopic();
-        $topic->addItemIdentifier($iid);
-        $this->_mysql->finishTransaction(true);
-        $this->_setIid = true;
-        return $topic;
       }
+      $this->_setIid = false;
+      $this->_mysql->startTransaction(true);
+      $topic = $this->createTopic();
+      $topic->addItemIdentifier($iid);
+      $this->_mysql->finishTransaction(true);
+      $this->_setIid = true;
+      return $topic;
     }
   }
 
@@ -496,23 +492,22 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
     $topic = $this->getTopicBySubjectIdentifier($sid);
     if (!is_null($topic)) {
       return $topic;
-    } else {
-      $construct = $this->getConstructByItemIdentifier($sid);
-      if ($construct instanceof Topic) {
-        // add subject identifier to this topic
-        $construct->addSubjectIdentifier($sid);
-        return $construct;
-      } else {// create new topic
-        $this->_setIid = false;
-        $this->_mysql->startTransaction(true);
-        $topic = $this->createTopic();
-        // add subject identifier to this topic
-        $topic->addSubjectIdentifier($sid);
-        $this->_mysql->finishTransaction(true);
-        $this->_setIid = true;
-        return $topic;
-      }
     }
+    $construct = $this->getConstructByItemIdentifier($sid);
+    if ($construct instanceof Topic) {
+      // add subject identifier to this topic
+      $construct->addSubjectIdentifier($sid);
+      return $construct;
+    }
+    // create new topic
+    $this->_setIid = false;
+    $this->_mysql->startTransaction(true);
+    $topic = $this->createTopic();
+    // add subject identifier to this topic
+    $topic->addSubjectIdentifier($sid);
+    $this->_mysql->finishTransaction(true);
+    $this->_setIid = true;
+    return $topic;
   }
 
   /**
@@ -536,16 +531,16 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
     $topic = $this->getTopicBySubjectLocator($slo);
     if (!is_null($topic)) {
       return $topic;
-    } else {// create new topic
-      $this->_setIid = false;
-      $this->_mysql->startTransaction(true);
-      $topic = $this->createTopic();
-      // add subject locator to this topic
-      $topic->addSubjectLocator($slo);
-      $this->_mysql->finishTransaction(true);
-      $this->_setIid = true;
-      return $topic;
     }
+    // create new topic
+    $this->_setIid = false;
+    $this->_mysql->startTransaction(true);
+    $topic = $this->createTopic();
+    // add subject locator to this topic
+    $topic->addSubjectLocator($slo);
+    $this->_mysql->finishTransaction(true);
+    $this->_setIid = true;
+    return $topic;
   }
 
   /**
@@ -589,10 +584,8 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
     }
     if (is_null($this->_topicsCache)) {
       return $topic;
-    } else {
-      $this->_topicsCache[$topic->getId()] = $topic;
-      return $topic;
     }
+    return $this->_topicsCache[$topic->getId()] = $topic;
   }
 
   /**

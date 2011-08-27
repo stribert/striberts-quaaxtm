@@ -79,14 +79,13 @@ final class RoleImpl extends ConstructImpl implements Role
       return $this->_topicMap->_getConstructByVerifiedId(
       	'TopicImpl-' . $this->_propertyHolder['player_id']
       );
-    } else {
-      $query = 'SELECT player_id FROM ' . $this->_config['table']['assocrole'] . 
-        ' WHERE id = ' . $this->_dbId;
-      $mysqlResult = $this->_mysql->execute($query);
-      $result = $mysqlResult->fetch();
-      $this->_propertyHolder['player_id'] = $result['player_id'];
-      return $this->_topicMap->_getConstructByVerifiedId('TopicImpl-' . $result['player_id']);
     }
+    $query = 'SELECT player_id FROM ' . $this->_config['table']['assocrole'] . 
+      ' WHERE id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
+    $result = $mysqlResult->fetch();
+    $this->_propertyHolder['player_id'] = $result['player_id'];
+    return $this->_topicMap->_getConstructByVerifiedId('TopicImpl-' . $result['player_id']);
   }
 
   /**
@@ -159,14 +158,13 @@ final class RoleImpl extends ConstructImpl implements Role
       return $this->_topicMap->_getConstructByVerifiedId(
       	'TopicImpl-' . $this->_propertyHolder['type_id']
       );
-    } else {
-      $query = 'SELECT type_id FROM ' . $this->_config['table']['assocrole'] . 
-        ' WHERE id = ' . $this->_dbId;
-      $mysqlResult = $this->_mysql->execute($query);
-      $result = $mysqlResult->fetch();
-      $this->_propertyHolder['type_id'] = $result['type_id'];
-      return $this->_topicMap->_getConstructByVerifiedId('TopicImpl-' . $result['type_id']);
     }
+    $query = 'SELECT type_id FROM ' . $this->_config['table']['assocrole'] . 
+      ' WHERE id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
+    $result = $mysqlResult->fetch();
+    $this->_propertyHolder['type_id'] = $result['type_id'];
+    return $this->_topicMap->_getConstructByVerifiedId('TopicImpl-' . $result['type_id']);
   }
 
   /**

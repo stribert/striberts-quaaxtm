@@ -260,14 +260,13 @@ final class AssociationImpl extends ScopedImpl implements Association
       return $this->_parent->_getConstructByVerifiedId(
       	'TopicImpl-' . $this->_propertyHolder['type_id']
       );
-    } else {
-      $query = 'SELECT type_id FROM ' . $this->_config['table']['association'] . 
-        ' WHERE id = ' . $this->_dbId;
-      $mysqlResult = $this->_mysql->execute($query);
-      $result = $mysqlResult->fetch();
-      $this->_propertyHolder['type_id'] = $result['type_id'];
-      return $this->_parent->_getConstructByVerifiedId('TopicImpl-' . $result['type_id']);
     }
+    $query = 'SELECT type_id FROM ' . $this->_config['table']['association'] . 
+      ' WHERE id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
+    $result = $mysqlResult->fetch();
+    $this->_propertyHolder['type_id'] = $result['type_id'];
+    return $this->_parent->_getConstructByVerifiedId('TopicImpl-' . $result['type_id']);
   }
 
   /**

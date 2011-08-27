@@ -232,11 +232,10 @@ final class ScopeImpl
     if ($numRows > 0) {
       $result = $mysqlResult->fetch();
       return (int) $result['scope_id'];
-    } else {
-      $query = 'INSERT INTO ' . $this->_config['table']['scope'] . ' (id) VALUES (NULL)';
-      $mysqlResult = $this->_mysql->execute($query);
-      return (int) $mysqlResult->getLastId();
     }
+    $query = 'INSERT INTO ' . $this->_config['table']['scope'] . ' (id) VALUES (NULL)';
+    $mysqlResult = $this->_mysql->execute($query);
+    return (int) $mysqlResult->getLastId();
   }
 }
 ?>

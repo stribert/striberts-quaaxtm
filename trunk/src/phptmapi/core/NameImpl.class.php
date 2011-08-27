@@ -94,13 +94,12 @@ final class NameImpl extends ScopedImpl implements Name
   {
     if (isset($this->_propertyHolder['value']) && !empty($this->_propertyHolder['value'])) {
       return $this->_propertyHolder['value'];
-    } else {
-      $query = 'SELECT value FROM ' . $this->_config['table']['topicname'] . 
-        ' WHERE id = ' . $this->_dbId;
-      $mysqlResult = $this->_mysql->execute($query);
-      $result = $mysqlResult->fetch();
-      return $this->_propertyHolder['value'] = $result['value'];
     }
+    $query = 'SELECT value FROM ' . $this->_config['table']['topicname'] . 
+      ' WHERE id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
+    $result = $mysqlResult->fetch();
+    return $this->_propertyHolder['value'] = $result['value'];
   }
 
   /**
@@ -285,14 +284,13 @@ final class NameImpl extends ScopedImpl implements Name
       return $this->_topicMap->_getConstructByVerifiedId(
       	'TopicImpl-' . $this->_propertyHolder['type_id']
       );
-    } else {
-      $query = 'SELECT type_id FROM ' . $this->_config['table']['topicname'] . 
-        ' WHERE id = ' . $this->_dbId;
-      $mysqlResult = $this->_mysql->execute($query);
-      $result = $mysqlResult->fetch();
-      $this->_propertyHolder['type_id'] = $result['type_id'];
-      return $this->_topicMap->_getConstructByVerifiedId('TopicImpl-' . $result['type_id']);
     }
+    $query = 'SELECT type_id FROM ' . $this->_config['table']['topicname'] . 
+      ' WHERE id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
+    $result = $mysqlResult->fetch();
+    $this->_propertyHolder['type_id'] = $result['type_id'];
+    return $this->_topicMap->_getConstructByVerifiedId('TopicImpl-' . $result['type_id']);
   }
 
   /**

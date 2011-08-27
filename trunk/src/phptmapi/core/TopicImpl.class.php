@@ -1037,17 +1037,16 @@ final class TopicImpl extends ConstructImpl implements Topic
   {
     if (empty($scope)) {
       return md5($value . $type->_dbId);
-    } else {
-      $ids = array();
-      foreach ($scope as $theme) {
-        if ($theme instanceof Topic) {
-          $ids[$theme->_dbId] = $theme->_dbId;
-        }
-      }
-      ksort($ids);
-      $idsImploded = implode('', $ids);
-      return md5($value . $type->_dbId . $idsImploded);
     }
+    $ids = array();
+    foreach ($scope as $theme) {
+      if ($theme instanceof Topic) {
+        $ids[$theme->_dbId] = $theme->_dbId;
+      }
+    }
+    ksort($ids);
+    $idsImploded = implode('', $ids);
+    return md5($value . $type->_dbId . $idsImploded);
   }
   
   /**
@@ -1063,17 +1062,16 @@ final class TopicImpl extends ConstructImpl implements Topic
   {
     if (empty($scope)) {
       return md5($value . $datatype . $type->_dbId);
-    } else {
-      $ids = array();
-      foreach ($scope as $theme) {
-        if ($theme instanceof Topic) {
-          $ids[$theme->_dbId] = $theme->_dbId;
-        }
-      }
-      ksort($ids);
-      $idsImploded = implode('', $ids);
-      return md5($value . $datatype . $type->_dbId . $idsImploded);
     }
+    $ids = array();
+    foreach ($scope as $theme) {
+      if ($theme instanceof Topic) {
+        $ids[$theme->_dbId] = $theme->_dbId;
+      }
+    }
+    ksort($ids);
+    $idsImploded = implode('', $ids);
+    return md5($value . $datatype . $type->_dbId . $idsImploded);
   }
   
   /**
@@ -1168,9 +1166,8 @@ final class TopicImpl extends ConstructImpl implements Topic
       $result = $mysqlResult->fetch();
       $nameType = $this->_parent->_getConstructByVerifiedId(__CLASS__ . '-' . $result['id']);
       return $this->_defaultNameType = $nameType;
-    } else {
-      return $this->_defaultNameType = $this->_parent->createTopicBySubjectIdentifier($sid);
     }
+    return $this->_defaultNameType = $this->_parent->createTopicBySubjectIdentifier($sid);
   }
   
   /**

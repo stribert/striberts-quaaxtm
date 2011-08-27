@@ -342,9 +342,8 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory
         stristr($className, 'exception')
     ) {
       return '.class.php';
-    } else {
-      return '.interface.php';
     }
+    return '.interface.php';
   }
   
   /**

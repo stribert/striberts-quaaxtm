@@ -96,9 +96,8 @@ final class TopicMapSystemImpl implements TopicMapSystem
     if ($numRows > 0) {
       $result = $mysqlResult->fetch();
       return new TopicMapImpl($result['id'], $this->_mysql, $this->_config, $this);
-    } else {
-      return null;
     }
+    return null;
   }
 
   /**
@@ -174,13 +173,12 @@ final class TopicMapSystemImpl implements TopicMapSystem
    */
   public function getFeature($featureName)
   {
-    if (array_key_exists($featureName, $this->_features)) {
-      return $this->_features[$featureName];
-    } else {
+    if (!array_key_exists($featureName, $this->_features)) {
       throw new FeatureNotRecognizedException(
         __METHOD__ . ': The feature "' . $featureName . '" is not recognized!'
       );
     }
+    return $this->_features[$featureName];
   }
 
   /**

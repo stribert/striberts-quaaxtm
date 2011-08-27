@@ -107,13 +107,12 @@ final class VariantImpl extends ScopedImpl implements IVariant
   {
     if (isset($this->_propertyHolder['value']) && !empty($this->_propertyHolder['value'])) {
       return $this->_propertyHolder['value'];
-    } else {
-      $query = 'SELECT value FROM ' . $this->_config['table']['variant'] . 
-        ' WHERE id = ' . $this->_dbId;
-      $mysqlResult = $this->_mysql->execute($query);
-      $result = $mysqlResult->fetch();
-      return $this->_propertyHolder['value'] = $result['value'];
     }
+    $query = 'SELECT value FROM ' . $this->_config['table']['variant'] . 
+      ' WHERE id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
+    $result = $mysqlResult->fetch();
+    return $this->_propertyHolder['value'] = $result['value'];
   }
 
   /**
@@ -129,13 +128,12 @@ final class VariantImpl extends ScopedImpl implements IVariant
       !empty($this->_propertyHolder['datatype'])
     ) {
       return $this->_propertyHolder['datatype'];
-    } else {
-      $query = 'SELECT datatype FROM ' . $this->_config['table']['variant'] . 
-        ' WHERE id = ' . $this->_dbId;
-      $mysqlResult = $this->_mysql->execute($query);
-      $result = $mysqlResult->fetch();
-      return $this->_propertyHolder['datatype'] = $result['datatype'];
     }
+    $query = 'SELECT datatype FROM ' . $this->_config['table']['variant'] . 
+      ' WHERE id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
+    $result = $mysqlResult->fetch();
+    return $this->_propertyHolder['datatype'] = $result['datatype'];
   }
 
   /**
@@ -239,13 +237,12 @@ final class VariantImpl extends ScopedImpl implements IVariant
   {
     if (!is_null($this->_hash)) {
       return $this->_hash;
-    } else {
-      $query = 'SELECT hash FROM ' . $this->_config['table']['variant'] . 
-        ' WHERE id = ' . $this->_dbId;
-      $mysqlResult = $this->_mysql->execute($query);
-      $result = $mysqlResult->fetch();
-      return $this->_hash = $result['hash'];
     }
+    $query = 'SELECT hash FROM ' . $this->_config['table']['variant'] . 
+      ' WHERE id = ' . $this->_dbId;
+    $mysqlResult = $this->_mysql->execute($query);
+    $result = $mysqlResult->fetch();
+    return $this->_hash = $result['hash'];
   }
 }
 ?>

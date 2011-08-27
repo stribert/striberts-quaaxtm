@@ -64,9 +64,8 @@ class MysqlResult
   {
     if ($array = mysqli_fetch_assoc($this->_result)) {
       return $array;
-    } else {
-      return null;
     }
+    return null;
   }
 	
   /**
@@ -78,9 +77,8 @@ class MysqlResult
   {
     if ($array = mysqli_fetch_array($this->_result)) {
       return $array;
-    } else {
-      return null;
     }
+    return null;
   }
 
   /**

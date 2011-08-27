@@ -579,9 +579,8 @@ abstract class ConstructImpl implements Construct
     $result = $mysqlResult->fetch();
     if (!is_null($result['reifier_id'])) {
       return $this->getTopicMap()->_getConstructByVerifiedId('TopicImpl-' . $result['reifier_id']);
-    } else {
-      return null;
     }
+    return null;
   }
   
   /**
