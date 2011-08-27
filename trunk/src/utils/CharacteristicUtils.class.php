@@ -63,7 +63,7 @@ class CharacteristicUtils
     )
   {
     $value = mysqli_real_escape_string($connection, $value);
-    return $value = $entities ? htmlentities($value, ENT_NOQUOTES, $encoding) : $value;
+    return $entities ? htmlentities($value, ENT_NOQUOTES, $encoding) : $value;
   }
 }
 ?>
