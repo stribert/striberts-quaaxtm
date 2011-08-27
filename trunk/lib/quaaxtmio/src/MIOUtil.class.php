@@ -95,9 +95,8 @@ class MIOUtil
       $content = fread($fileHandle, filesize($file));
       fclose($fileHandle);
       return $content;
-    } else {
-      throw new MIOException('Error in ' . __METHOD__ . ': Cannot read ' . $file . '!');
     }
+    throw new MIOException('Error in ' . __METHOD__ . ': Cannot read ' . $file . '!');
   }
     
   /**
