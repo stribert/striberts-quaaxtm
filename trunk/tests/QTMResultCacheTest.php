@@ -198,6 +198,22 @@ class QTMResultCacheTest extends PHPUnit_Framework_TestCase
     $this->_testTopicMapGetAssociations($topicMap);
   }
   
+  public function testSetDefaultResultCacheExpiration()
+  {
+    try {
+      $tmSystemFactory = TopicMapSystemFactory::newInstance();
+      // need to unset MySQL property due to singleton
+      $tmSystemFactory->setProperty(VocabularyUtils::QTM_PROPERTY_MYSQL, null);
+      // QuaaxTM specific features
+      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, false);
+      $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, true);
+      $tmSystem = $tmSystemFactory->newTopicMapSystem();
+      $this->assertTrue($tmSystem instanceof TopicMapSystem);
+    } catch (Exception $e) {
+      $this->markTestSkipped($e->getMessage() . ': Skip test.');
+    }
+  }
+  
   private function _getTmSystemFactory()
   {
     $tmSystemFactory = TopicMapSystemFactory::newInstance();
