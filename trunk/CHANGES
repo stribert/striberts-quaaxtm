@@ -1,23 +1,24 @@
 Changes log
 
-0.7.0 (2011/xx/xx)
+0.7.0 (2011/08/27)
 ------------------
 PHPTMAPI (lib/phptmapi2.0)
 - Allow any datatype for parameter $value in TopicMapSystemFactory::setProperty() (was object only)
-- Changed code style: Added prefix "_" for private and protected class methods and class 
-  members, set opening brackets for classes and class methods on new line
+- Changed code style: Added prefix "_" for private class members, set opening brackets for classes / 
+  interfaces and class / interface methods on new line
   
 QuaaxTM
 - Added more tests to increase code coverage in the unit tests (reached >98% lines coverage for the 
-  files in the src directory)
-- Defined all INT as UNSIGNED in the QuaaxTM database schema (schema is backward compatible: data 
-  from previous schema can be migrated seamlessly)
+  files / classes in the src directory)
+- Defined all INT as UNSIGNED in the QuaaxTM database schema, switched TINYTEXT to equivalent 
+  VARCHAR(255) in qtm_variant, changed "INDEX (value(100))" to "INDEX (value(255))" in qtm_occurrence 
+  (schema is backward compatible: data from previous schema can be migrated seamlessly)
 - Replaced PropertyUtils by simple Array
 - Introduced a memcached based MySQL result cache (currently only available in 
   AssociationImpl::getRoles(), AssociationImpl::getRoleTypes(), and TopicMapImpl::getAssociations())
-- Introduced MysqlMock for testing the result cache explicitly and allow passing MysqlMock as 
+- Introduced MysqlMock for testing the result cache explicitly and enabled passing MysqlMock as 
   TopicMapSystem property via TopicMapSystemFactoryImpl::setProperty()
-- Removed the IScope interface from core
+- Removed interface IScope from core
 - Changed code style: Added prefix "_" for private and protected class methods and class 
   members, set opening brackets for classes and class methods on new line
 - Added documentation for all class members and class constants
