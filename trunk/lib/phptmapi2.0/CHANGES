@@ -1,0 +1,9 @@
+Changes log
+
+2.1 (2011/xx/yy)
+----------------
+- Allowed any datatype for parameter $value in TopicMapSystemFactory::setProperty() (was object only)
+- Changed code style: Added prefix "_" for private class members, set opening brackets for classes / 
+  interfaces and class / interface methods on new line
+- Added documentation for private class members
+- Introduced a changes log (this file)
