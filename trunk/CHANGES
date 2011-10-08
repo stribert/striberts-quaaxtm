@@ -1,9 +1,14 @@
 Changes log
 
+0.7.1 (2011/xx/yy)
+------------------
+PHPTMAPI (lib/phptmapi2.0)
+- Upgraded to PHPTMAPi 2.1 (2.1 is backward compatible to 2.0.1)
+
 0.7.0 (2011/08/27)
 ------------------
 PHPTMAPI (lib/phptmapi2.0)
-- Allow any datatype for parameter $value in TopicMapSystemFactory::setProperty() (was object only)
+- Allowed any datatype for parameter $value in TopicMapSystemFactory::setProperty() (was object only)
 - Changed code style: Added prefix "_" for private class members, set opening brackets for classes / 
   interfaces and class / interface methods on new line
   
