@@ -91,6 +91,22 @@ class AssociationTest extends PHPTMAPITestCase
       'Role is not part of getRolesPlayed()!');
   }
   
+  public function testRoleCreationAssocRemoval()
+  {
+    $assoc = $this->_topicMap->createAssociation($this->_topicMap->createTopic());
+    $player = $this->_topicMap->createTopic();
+    $this->assertEquals(count($player->getRolesPlayed()), 0);
+    $role = $assoc->createRole(
+      $this->_topicMap->createTopic(), 
+      $player
+    );
+    $this->assertEquals(count($assoc->getRoles()), 1);
+    $this->assertEquals(count($player->getRolesPlayed()), 1);
+    $assoc->remove();
+    $this->assertEquals(count($this->_topicMap->getAssociations()), 0);
+    $this->assertEquals(count($player->getRolesPlayed()), 0);
+  }
+  
   public function testRoleCreationDuplSuppression()
   {
     $tm = $this->_topicMap;
