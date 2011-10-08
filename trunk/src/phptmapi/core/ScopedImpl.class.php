@@ -211,7 +211,7 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped
    * Builds a scope array where the db id is the key.
    * 
    * @param array The scope returned by {@link ScopedImpl::getScope()}.
-   * @return array
+   * @return array An array containing the themes having the db id as the key.
    */
   private function _idsToKeys(array $scope)
   {
@@ -257,7 +257,7 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped
   /**
    * Gets the scope binding tables.
    * 
-   * @return array
+   * @return array The binding tables.
    */
   private function _getBindingTables()
   {
