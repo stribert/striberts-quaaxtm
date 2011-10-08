@@ -636,6 +636,7 @@ class JTM101TopicMapReader
    * 
    * @param string The topic reference.
    * @return void
+   * @throws MIOException If the reference type is invalid.
    */
   private function _deconstructTopicReference($topicRef)
   {
@@ -661,8 +662,7 @@ class JTM101TopicMapReader
   }
   
   /**
-   * Gets the reference (assume URI).
-   * Handles Safe_CURIEs.
+   * Gets the reference (assumes URI) and handles Safe_CURIEs.
    * 
    * @param string A reference (assume URI) or a Safe_CURIE declaration.
    * @return string The reference (assume URI).
