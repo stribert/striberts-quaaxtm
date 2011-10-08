@@ -116,7 +116,7 @@ class Mysql
   {
     $this->_sql = 
     $this->_error = '';
-    $this->_errno = 
+    $this->_errno = 0;
     $this->_resultCacheExpiration = 60;
     $this->_connection = 
     $this->_memcached = null;
