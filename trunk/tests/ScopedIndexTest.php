@@ -511,6 +511,41 @@ class ScopedIndexTest extends PHPTMAPITestCase
     $tm2->remove();
   }
   
+  public function testGetOccurrencesMultipleMatchAll()
+  {
+    $tm = $this->_topicMap;
+    $this->assertTrue($tm instanceof TopicMap);
+    $index = $tm->getIndex('ScopedIndexImpl');
+    $this->assertTrue($index instanceof ScopedIndexImpl);
+    
+    $theme1 = $tm->createTopic();
+    $theme2 = $tm->createTopic();
+    $theme3 = $tm->createTopic();
+    $occType = $tm->createTopic();
+    $topic = $tm->createTopic();
+    
+    $occ1 = $topic->createOccurrence(
+      $occType, 
+      'foo', 
+      parent::$_dtString, 
+      array($theme1, $theme2, $theme3)
+    );
+    $occ2 = $topic->createOccurrence(
+      $occType, 
+      'http://example.org', 
+      parent::$_dtUri, 
+      array($theme1, $theme2, $theme3)
+    );
+    
+    $occs = $topic->getOccurrences();
+    $this->assertEquals(count($occs), 2);
+    
+    $occs = $index->getOccurrences(array($theme1, $theme2, $theme3), true);
+    $this->assertEquals(count($occs), 2);
+    $occs = $index->getOccurrences(array($theme1, $theme2, $theme3), false);
+    $this->assertEquals(count($occs), 2);
+  }
+  
   public function testGetOccurrenceThemes()
   {
     $tm = $this->_topicMap;
