@@ -13,14 +13,14 @@
 require_once('Construct.interface.php');
 
 /**
- * Indicates that a statement (Topic Maps construct) has a scope.
+ * Indicates that a statement (a Topic Maps construct) has a scope.
  * 
  * {@link Association}s, {@link Occurrence}s, {@link Name}s, and 
  * {@link IVariant}s are scoped.
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: Scoped.interface.php 47 2009-07-05 21:01:26Z joschmidt $
+ * @version svn:$Id: Scoped.interface.php 89 2011-09-15 15:37:45Z joschmidt $
  */
 interface Scoped extends Construct
 {

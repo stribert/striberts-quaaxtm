@@ -21,7 +21,7 @@ require_once('ModelConstraintException.class.php');
  * 
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: IdentityConstraintException.class.php 73 2011-01-15 18:20:00Z joschmidt $
+ * @version svn:$Id: IdentityConstraintException.class.php 88 2011-09-14 12:13:11Z joschmidt $
  */
 class IdentityConstraintException extends ModelConstraintException
 {
@@ -48,7 +48,7 @@ class IdentityConstraintException extends ModelConstraintException
    *        which provides the factory method.
    * @param Construct The construct which has the same identity.
    * @param string The locator representing the identity.
-   * @param string The detail message.
+   * @param string The error message.
    * @return void
    */
   public function __construct(Construct $reporter, Construct $existing, $locator, $msg)
@@ -60,7 +60,7 @@ class IdentityConstraintException extends ModelConstraintException
   
   /**
    * Returns the {@link Construct} which already has the identity represented
-   * by the locator {@link getLocator()}.
+   * by the locator in {@link getLocator()}.
    *
    * @return Construct The existing construct.
    */

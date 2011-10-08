@@ -1,5 +1,5 @@
-PHPTMAPI 2.0 is the new generation of PHPTMAPI which supports
-the Topic Maps Data Model (TMDM).
+PHPTMAPI 2.0 is the new generation of PHPTMAPI which supports 
+ISO/IEC 13250-2 Topic Maps Data Model (TMDM).
 
 See the project's homepage http://phptmapi.sourceforge.net/ for 
 documentation, implementation example, compliance tests, bug reporting, 

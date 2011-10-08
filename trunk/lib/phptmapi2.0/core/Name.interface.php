@@ -20,11 +20,11 @@ require_once('Scoped.interface.php');
  * See {@link http://www.isotopicmaps.org/sam/sam-model/#sect-topic-name}.
  *
  * Inherited method <var>getParent()</var> from {@link Construct} returns the {@link Topic}
- * to which this name belongs.
+ * to which this name belongs to.
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: Name.interface.php 43 2009-06-28 20:09:57Z joschmidt $
+ * @version svn:$Id: Name.interface.php 91 2011-09-18 14:39:00Z joschmidt $
  */
 interface Name extends Reifiable, Typed, Scoped
 {
@@ -41,7 +41,7 @@ interface Name extends Reifiable, Typed, Scoped
    *
    * @param string The name string to be assigned to the name; must not be <var>null</var>.
    * @return void
-   * @throws {@link ModelConstraintException} If the the <var>value</var> is <var>null</var>.
+   * @throws {@link ModelConstraintException} If <var>$value</var> is <var>null</var>.
    */
   public function setValue($value);
 
@@ -57,18 +57,18 @@ interface Name extends Reifiable, Typed, Scoped
    * Creates an {@link IVariant} of this topic name with the specified
    * <var>value</var>, <var>datatype</var>, and <var>scope</var>. 
    * The newly created {@link IVariant} will have the datatype specified by
-   * <var>datatype</var>. 
+   * <var>$datatype</var>. 
    * The newly created {@link IVariant} will contain all themes from the parent name 
-   * and the themes specified in <var>scope</var>.
+   * and the themes specified in <var>$scope</var>.
    * 
    * @param string A string representation of the value.
    * @param string A URI indicating the datatype of the <var>value</var>. E.g.
    *        http://www.w3.org/2001/XMLSchema#string indicates a string value.
    * @param array An array (length >= 1) containing {@link Topic}s, each representing a theme.
    * @return IVariant
-   * @throws {@link ModelConstraintException} If the <var>value</var> or <var>datatype</var>
-   *        is <var>null</var>, or the scope of the variant would not be a 
-   *        true superset of the name's scope.
+   * @throws {@link ModelConstraintException} If the <var>value</var> or the <var>datatype</var>
+   *        is <var>null</var>, or the scope of the variant would not be a true superset of the 
+   *        name's scope, or a theme in the scope does not belong to the parent topic map.
    */
   public function createVariant($value, $datatype, array $scope);
 }

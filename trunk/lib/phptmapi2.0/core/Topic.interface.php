@@ -18,7 +18,7 @@ require_once('Construct.interface.php');
  * See {@link http://www.isotopicmaps.org/sam/sam-model/#d0e739}.
  * 
  * Inherited method <var>getParent()</var> from {@link Construct} returns the {@link TopicMap}
- * to which this topic belongs.
+ * to which this topic belongs to.
  * 
  * Inherited method <var>addItemIdentifier()</var> from {@link Construct} throws an 
  * {@link IdentityConstraintException} if adding the specified item identifier would make 
@@ -32,7 +32,7 @@ require_once('Construct.interface.php');
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: Topic.interface.php 54 2009-07-15 21:59:42Z joschmidt $
+ * @version svn:$Id: Topic.interface.php 89 2011-09-15 15:37:45Z joschmidt $
  */
 interface Topic extends Construct
 {
@@ -106,7 +106,7 @@ interface Topic extends Construct
 
   /**
    * Returns the {@link Name}s of this topic. 
-   * If <var>type</var> is not <var>null</var> all names with the specified <var>type</var> 
+   * If <var>$type</var> is not <var>null</var> all names with the specified <var>type</var> 
    * are returned.
    * 
    * The return value may be an empty array but must never be <var>null</var>.
@@ -119,7 +119,7 @@ interface Topic extends Construct
   /**
    * Creates a {@link Name} for this topic with the specified <var>value</var>, <var>type</var>, 
    * and <var>scope</var>.
-   * If <var>type</var> is <var>null</var> the created {@link Name} will have the default 
+   * If <var>$type</var> is <var>null</var> the created {@link Name} will have the default 
    * name type (a {@link Topic} with the subject identifier 
    * http://psi.topicmaps.org/iso13250/model/topic-name).
    * 
@@ -136,7 +136,7 @@ interface Topic extends Construct
 
   /**
    * Returns the {@link Occurrence}s of this topic. 
-   * If <var>type</var> is not <var>null</var> all occurrences with the specified 
+   * If <var>$type</var> is not <var>null</var> all occurrences with the specified 
    * <var>type</var> are returned.
    * 
    * The return value may be an empty array but must never be <var>null</var>.
@@ -151,7 +151,7 @@ interface Topic extends Construct
    * Creates an {@link Occurrence} for this topic with the specified 
    * <var>type</var>, <var>value</var>, <var>datatype</var>, and <var>scope</var>.
    * The newly created {@link Occurrence} will have the datatype specified 
-   * by <var>datatype</var>.
+   * by <var>$datatype</var>.
    * 
    * @param Topic The occurrence type.
    * @param string A string representation of the value; must not be <var>null</var>.
@@ -170,10 +170,10 @@ interface Topic extends Construct
 
   /**
    * Returns the {@link Role}s played by this topic. 
-   * If <var>type</var> is not <var>null</var> all roles played by this topic with the 
+   * If <var>$type</var> is not <var>null</var> all roles played by this topic with the 
    * specified <var>type</var> are returned. 
-   * If <var>assocType</var> is not <var>null</var> only the {@link Association}s with the 
-   * specified <var>assocType</var> are considered.
+   * If <var>$assocType</var> is not <var>null</var> only the {@link Association}s with the 
+   * specified <var>type</var> are considered.
    * 
    * The return value may be an empty array but must never be <var>null</var>.
    *
@@ -187,7 +187,7 @@ interface Topic extends Construct
   /**
    * Returns the types of which this topic is an instance of.
    * This method may return only those types which where added by 
-   * {@link addType(Topic $type)} and may ignore type-instance relationships 
+   * {@link addType()} and may ignore type-instance relationships 
    * (see {@link http://www.isotopicmaps.org/sam/sam-model/#sect-types}) which are modeled 
    * as association.
    * 
@@ -205,7 +205,7 @@ interface Topic extends Construct
    * 
    * @param Topic The type of which this topic should become an instance of.
    * @return void
-   * @throws {@link ModelConstraintException} If the <var>type</var> does not belong 
+   * @throws {@link ModelConstraintException} If <var>$type</var> does not belong 
    *        to the parent topic map.
    */
   public function addType(Topic $type);
@@ -231,13 +231,13 @@ interface Topic extends Construct
    * Merging a topic into this topic causes this topic to gain all 
    * of the characteristics of the other topic and to replace the other 
    * topic wherever it is used as type, theme, or reifier. 
-   * After this method completes, <var>other</var> will have been removed from 
+   * After this method completes, <var>$other</var> will have been removed from 
    * the {@link TopicMap}.
    * 
    * If <var>$this->equals($other)</var> no changes are made to the topic.
    * 
    * NOTE: The other topic MUST belong to the same {@link TopicMap} instance 
-   * as this topic! 
+   * like this topic! 
    * 
    * @param Topic The topic to be merged into this topic.
    * @return void

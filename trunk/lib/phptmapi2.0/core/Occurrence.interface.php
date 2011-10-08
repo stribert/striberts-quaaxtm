@@ -19,11 +19,11 @@ require_once('Typed.interface.php');
  * See {@link http://www.isotopicmaps.org/sam/sam-model/#sect-occurrence}.
  * 
  * Inherited method <var>getParent()</var> from {@link Construct} returns the {@link Topic}
- * to which this occurrence belongs.
+ * to which this occurrence belongs to.
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: Occurrence.interface.php 23 2009-03-16 21:32:52Z joschmidt $
+ * @version svn:$Id: Occurrence.interface.php 81 2011-09-13 14:12:38Z joschmidt $
  */
 interface Occurrence extends DatatypeAware, Typed {}
 ?>

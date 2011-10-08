@@ -18,7 +18,7 @@ require_once('ModelConstraintException.class.php');
  * 
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: TopicInUseException.class.php 16 2009-02-06 22:03:02Z joschmidt $
+ * @version svn:$Id: TopicInUseException.class.php 88 2011-09-14 12:13:11Z joschmidt $
  */
 class TopicInUseException extends ModelConstraintException
 {
@@ -26,7 +26,7 @@ class TopicInUseException extends ModelConstraintException
    * Constructor.
    * 
    * @param Topic The topic which is not removable.
-   * @param string The detail message.
+   * @param string The error message.
    * @return void
    */
   public function __construct(Topic $topic, $msg)

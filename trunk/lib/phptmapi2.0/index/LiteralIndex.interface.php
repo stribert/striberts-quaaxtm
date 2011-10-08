@@ -17,13 +17,13 @@ require_once('Index.interface.php');
  *
  * @package index
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: LiteralIndex.interface.php 18 2009-02-07 23:00:17Z joschmidt $
+ * @version svn:$Id: LiteralIndex.interface.php 87 2011-09-13 23:27:47Z joschmidt $
  */
 interface LiteralIndex extends Index
 {
   /**
    * Retrieves the topic names in the topic map which have a value equal to 
-   * <var>value</var>.
+   * <var>$value</var>.
    * The return value may be an empty array but must never be <var>null</var>.
    * 
    * @param string The value of the {@link Name}s to be returned.
@@ -34,7 +34,7 @@ interface LiteralIndex extends Index
 
   /**
    * Returns the {@link Occurrence}s in the topic map whose value property 
-   * matches <var>value</var> and whose datatye is <var>datatype</var>.
+   * matches <var>$value</var> and whose datatye is <var>$datatype</var>.
    * The return value may be an empty array but must never be <var>null</var>.
    * 
    * @param string The value of the {@link Occurrence}s to be returned.
@@ -46,14 +46,14 @@ interface LiteralIndex extends Index
   public function getOccurrences($value, $datatype);
 
   /**
-   * Returns the {@link Variant}s in the topic map whose value property 
-   * matches <var>value</var> and whose datatye is <var>datatype</var>.
+   * Returns the {@link IVariant}s in the topic map whose value property 
+   * matches <var>$value</var> and whose datatye is <var>$datatype</var>.
    * The return value may be an empty array but must never be <var>null</var>.
    * 
-   * @param string The value of the {@link Variant}s to be returned.
-   * @param string A URI indicating the datatype of the {@link Variant}s. 
+   * @param string The value of the {@link IVariant}s to be returned.
+   * @param string A URI indicating the datatype of the {@link IVariant}s. 
    *        E.g. http://www.w3.org/2001/XMLSchema#string indicates a string value.
-   * @return array An array containing {@link Variant}s.
+   * @return array An array containing {@link IVariant}s.
    * @throws InvalidArgumentException If the value or datatype is <var>null</var>.
    */
   public function getVariants($value, $datatype);

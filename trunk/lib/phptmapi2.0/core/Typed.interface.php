@@ -20,7 +20,7 @@ require_once('Construct.interface.php');
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: Typed.interface.php 52 2009-07-15 21:57:32Z joschmidt $
+ * @version svn:$Id: Typed.interface.php 88 2011-09-14 12:13:11Z joschmidt $
  */
 interface Typed extends Construct
 {
@@ -37,7 +37,7 @@ interface Typed extends Construct
    * 
    * @param Topic The topic that should define the nature of this construct.
    * @return void
-   * @throws {@link ModelConstraintException} If the <var>type</var> does not belong 
+   * @throws {@link ModelConstraintException} If <var>$type</var> does not belong 
    *        to the parent topic map.
    */
   public function setType(Topic $type);

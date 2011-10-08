@@ -21,7 +21,7 @@ require_once('Reifiable.interface.php');
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: TopicMap.interface.php 53 2009-07-15 21:58:34Z joschmidt $
+ * @version svn:$Id: TopicMap.interface.php 89 2011-09-15 15:37:45Z joschmidt $
  */
 interface TopicMap extends Reifiable
 {
@@ -102,7 +102,7 @@ interface TopicMap extends Reifiable
    *        If the array's length is 0 (default), the association will be in the 
    *        unconstrained scope.
    * @return Association The newly created {@link Association}.
-   * @throws {@link ModelConstraintException} If <var>type</var> or a theme does not 
+   * @throws {@link ModelConstraintException} If <var>$type</var> or a theme does not 
    *        belong to this topic map.
    */
   public function createAssociation(Topic $type, array $scope=array());
@@ -122,8 +122,7 @@ interface TopicMap extends Reifiable
    *
    * @param string The item identifier the topic should contain; must not be <var>null</var>.
    * @return Topic A {@link Topic} instance with the specified item identifier.
-   * @throws {@link ModelConstraintException} If the item identifier <var>iid</var> is 
-   *        <var>null</var>.
+   * @throws {@link ModelConstraintException} If the item identifier is <var>null</var>.
    * @throws {@link IdentityConstraintException} If another {@link Construct} with the
    *        specified item identifier exists which is not a {@link Topic}.
    */
@@ -144,8 +143,7 @@ interface TopicMap extends Reifiable
    * 
    * @param string The subject identifier the topic should contain; must not be <var>null</var>.
    * @return Topic A {@link Topic} instance with the specified subject identifier.
-   * @throws {@link ModelConstraintException} If the subject identifier <var>sid</var> 
-   *        is <var>null</var>.
+   * @throws {@link ModelConstraintException} If the subject identifier is <var>null</var>.
    */
   public function createTopicBySubjectIdentifier($subjectIdentifier);
 
@@ -156,8 +154,7 @@ interface TopicMap extends Reifiable
    * 
    * @param string The subject locator the topic should contain; must not be <var>null</var>.
    * @return Topic A {@link Topic} instance with the specified subject locator.
-   * @throws {@link ModelConstraintException} If the subject locator <var>slo</var> 
-   *        is <var>null</var>.
+   * @throws {@link ModelConstraintException} If the subject locator is <var>null</var>.
    */
   public function createTopicBySubjectLocator($subjectLocator);
 
@@ -175,16 +172,16 @@ interface TopicMap extends Reifiable
   public function createTopic();
 
   /**
-   * Merges the topic map <var>other</var> into this topic map.
+   * Merges the topic map <var>$other</var> into this topic map.
    * 
    * All {@link Topic}s and {@link Association}s and all of their contents in
-   * <var>other</var> will be added to this topic map.
+   * <var>$other</var> will be added to this topic map.
    * 
-   * All information items in <var>other</var> will be merged into this 
-   * topic map as defined by the Topic Maps - Data Model (TMDM) merging rules.
+   * All information items in <var>$other</var> will be merged into this 
+   * topic map as defined by the Topic Maps Data Model (TMDM) merging rules.
    * See {@link http://www.isotopicmaps.org/sam/sam-model/#sect-merging}.
    * 
-   * The merge process will not modify <var>other</var> in any way.
+   * The merge process will not modify <var>$other</var> in any way.
    * 
    * If <var>$this->equals($other)</var> no changes are made to the topic map.
    * 
@@ -207,8 +204,8 @@ interface TopicMap extends Reifiable
    * Closes use of this topic map instance. 
    * This method should be invoked by the application once it has finished using this 
    * topic map instance.
-   * Implementations may release any resources required for the <var>TopicMap</var> 
-   * instance or any of the {@link Construct} instances contained by this instance.
+   * Implementations may release any resources required for the topic map instance or any of 
+   * the {@link Construct} instances contained by this instance.
    * 
    * @return void
    */

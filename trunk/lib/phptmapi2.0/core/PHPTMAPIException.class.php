@@ -12,11 +12,11 @@
  
 /**
  * The base class for all standard (non run-time) exceptions thrown by a 
- * PHPTMAPI system. 
+ * Topic Maps system. 
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: PHPTMAPIException.class.php 9 2008-11-03 20:55:37Z joschmidt $
+ * @version svn:$Id: PHPTMAPIException.class.php 88 2011-09-14 12:13:11Z joschmidt $
  */
 class PHPTMAPIException extends Exception {}
 ?>

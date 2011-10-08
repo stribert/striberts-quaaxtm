@@ -20,17 +20,17 @@ require_once('Scoped.interface.php');
  * See {@link http://www.isotopicmaps.org/sam/sam-model/#sect-association}.
  * 
  * Inherited method <var>getParent()</var> from {@link Construct} returns the {@link TopicMap}
- * to which this association belongs.
+ * to which this association belongs to.
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: Association.interface.php 50 2009-07-15 21:50:46Z joschmidt $
+ * @version svn:$Id: Association.interface.php 88 2011-09-14 12:13:11Z joschmidt $
  */
 interface Association extends Reifiable, Typed, Scoped
 {
   /**
    * Returns the {@link Role}s participating in this association.
-   * If <var>type</var> is not <var>null</var> all roles with the specified <var>type</var> 
+   * If <var>$type</var> is not <var>null</var> all roles with the specified <var>type</var> 
    * are returned.
    * 
    * The return value may be an empty array but must never be <var>null</var>.
@@ -46,8 +46,8 @@ interface Association extends Reifiable, Typed, Scoped
    * @param Topic The role type.
    * @param Topic The role player.
    * @return Role A newly created association role.
-   * @throws {@link ModelConstraintException} If either the <var>type</var> or the 
-   *        <var>player</var> does not belong to the parent topic map.
+   * @throws {@link ModelConstraintException} If either <var>$type</var> or 
+   *        <var>$player</var> does not belong to the parent topic map.
    */
   public function createRole(Topic $type, Topic $player);
 

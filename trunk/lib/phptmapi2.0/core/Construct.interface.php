@@ -15,13 +15,13 @@
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: Construct.interface.php 63 2010-02-14 21:17:19Z joschmidt $
+ * @version svn:$Id: Construct.interface.php 89 2011-09-15 15:37:45Z joschmidt $
  */
 interface Construct
 {    
   /**
-   * Returns the parent of this construct. See the derived constructs for the particular
-   * return value.
+   * Returns the parent of this construct.
+   * See the derived constructs for the particular return value.
    * This method returns <var>null</var> iff this construct is a {@link TopicMap}
    * instance.
    *
@@ -32,17 +32,17 @@ interface Construct
 
   /**
    * Returns the {@link TopicMap} instance to which this Topic Maps construct 
-   * belongs.
+   * belongs to.
    * A {@link TopicMap} instance returns itself.
    *
-   * @return TopicMap The topic map instance to which this construct belongs.
+   * @return TopicMap The topic map instance to which this construct belongs to.
    */
   public function getTopicMap();
 
   /**
    * Returns the identifier of this construct.
-   * This property has no representation in the Topic Maps - Data Model (TMDM).
-   * The ID can be anything, so long as no other {@link Construct} in the 
+   * This property has no representation in the Topic Maps Data Model (TMDM).
+   * The ID can be anything, as long as no other {@link Construct} in the 
    * same topic map has the same ID.
    *
    * @return string An identifier which identifies this construct uniquely within
@@ -69,7 +69,7 @@ interface Construct
    * @param string The item identifier to be added; must not be <var>null</var>.
    * @return void
    * @throws {@link IdentityConstraintException} If another construct has an item
-   *        identifier which is equal to <var>itemIdentifier</var>.
+   *        identifier which is equal to <var>$itemIdentifier</var>.
    * @throws {@link ModelConstraintException} If the item identifier is <var>null</var>.
    */
   public function addItemIdentifier($itemIdentifier);
@@ -103,7 +103,7 @@ interface Construct
    * Equality must be the result of comparing the ids of the two constructs.
    * 
    * Note: This equality test does not reflect any equality rule according
-   * to the Topic Maps - Data Model (TMDM) by intention.
+   * to the Topic Maps Data Model (TMDM) by intention.
    *
    * @param Construct The construct to compare this construct against.
    * @return boolean

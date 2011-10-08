@@ -13,7 +13,7 @@
 require_once('FactoryConfigurationException.class.php');
 
 /**
- * This factory class provides access to a Topic Maps system. 
+ * This factory class provides access to a Topic Maps system.
  * 
  * A new {@link TopicMapSystem} instance is created by invoking the 
  * {@link newTopicMapSystem()} method. 
@@ -23,7 +23,7 @@ require_once('FactoryConfigurationException.class.php');
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: TopicMapSystemFactory.class.php 70 2011-01-15 18:10:11Z joschmidt $
+ * @version svn:$Id: TopicMapSystemFactory.class.php 89 2011-09-15 15:37:45Z joschmidt $
  */
 abstract class TopicMapSystemFactory
 {   
@@ -32,7 +32,7 @@ abstract class TopicMapSystemFactory
    * implementation of {@link TopicMapSystem}.
    * 
    * @param string The name of the feature to check.
-   * @return boolean <var>true</var> if the named feature is enabled for
+   * @return boolean <var>True</var> if the named feature is enabled for
    *        {@link TopicMapSystem} instances created by this factory;
    *        <var>false</var> if the named feature is disabled for
    *        {@link TopicMapSystem} instances created by this factory.
@@ -54,20 +54,20 @@ abstract class TopicMapSystemFactory
    *        does not recognize the named feature.
    * @throws {@link FeatureNotSupportedException} If the underlying implementation 
    *        recognizes the named feature but does not support enabling or 
-   *        disabling it (as specified by the enabled parameter).
+   *        disabling it (as specified by the <var>$enable</var> parameter).
    */
   abstract public function setFeature($featureName, $enable);
 
   /**
    * Returns if the particular feature is supported by the 
    * {@link TopicMapSystem}.
-   * Opposite to {@link getFeature} this method returns if the requested 
+   * Opposite to {@link getFeature()} this method returns if the requested 
    * feature is generally available / supported by the underlying 
-   * {@link TopicMapSystem} and does not return the state (enabled/disabled) 
+   * {@link TopicMapSystem} and does not return the state (enabled / disabled) 
    * of the feature.
    * 
    * @param string The name of the feature to check.
-   * @return boolean <var>true</var> if the requested feature is supported, 
+   * @return boolean <var>True</var> if the requested feature is supported, 
    *        otherwise <var>false</var>.
    */
   abstract public function hasFeature($featureName);
@@ -100,13 +100,14 @@ abstract class TopicMapSystemFactory
   abstract public function setProperty($propertyName, $value);
 
   /**
-   * Obtain a new instance of a TopicMapSystemFactory.
+   * Obtains a new instance of TopicMapSystemFactory.
    * Once an application has obtained a reference to a TopicMapSystemFactory 
    * it can use the factory to configure and obtain {@link TopicMapSystem} 
    * instances. 
    *
    * @return TopicMapSystemFactory
-   * @throws {@link FactoryConfigurationException}
+   * @throws {@link FactoryConfigurationException} If the provided implementation of 
+   * 				TopicMapSystemFactory is not an instance of TopicMapSystemFactory.
    * @static
    */
   public static function newInstance()
@@ -121,10 +122,13 @@ abstract class TopicMapSystemFactory
       'config.php'
     );
     require_once($factoryImplLocation);
+    
     $factoryImpl = call_user_func(array($factoryImplClassName, 'newInstance'));
+    
     if (!$factoryImpl instanceof TopicMapSystemFactory) {
       throw new FactoryConfigurationException(
-        __METHOD__ . ': Implementation is not an instance of TopicMapSystemFactory!'
+        __METHOD__ . 
+					': The provided implementation is not an instance of TopicMapSystemFactory!'
       );
     }
     return $factoryImpl;
@@ -141,7 +145,9 @@ abstract class TopicMapSystemFactory
   abstract public function newTopicMapSystem();
   
   /**
-   * Returns the class name of the TopicMapSystemFactory implementation from config.php.
+   * Returns the class name of the TopicMapSystemFactory implementation as defined in 
+   * the PHPTMAPI configuration file. 
+   * This configuration file is <var>config.php</var> which is located on root level.
    * 
    * @return string The class name of the TopicMapSystemFactory implementation.
    * @static

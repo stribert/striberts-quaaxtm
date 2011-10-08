@@ -16,12 +16,12 @@ require_once('Scoped.interface.php');
 /**
  * Common base interface for {@link Occurrence}s and {@link IVariant}s.
  * 
- * See Topic Maps - Data Model (TMDM) section 4.4 "Datatypes"
+ * See Topic Maps Data Model (TMDM) section 4.4 "Datatypes"
  * ({@link http://www.isotopicmaps.org/sam/sam-model/#d0e507}) for datatype definition.
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: DatatypeAware.interface.php 43 2009-06-28 20:09:57Z joschmidt $
+ * @version svn:$Id: DatatypeAware.interface.php 89 2011-09-15 15:37:45Z joschmidt $
  */
 interface DatatypeAware extends Reifiable, Scoped
 {
@@ -47,8 +47,8 @@ interface DatatypeAware extends Reifiable, Scoped
    * @param string The URI identifying the datatype of the value; must not be <var>null</var>. 
    *        E.g. http://www.w3.org/2001/XMLSchema#string indicates a string value.
    * @return void
-   * @throws {@link ModelConstraintException} If the <var>value</var> or <var>datatype</var> 
-   *        is <var>null</var>.
+   * @throws {@link ModelConstraintException} If <var>$value</var> or <var>$datatype</var> 
+   *        are <var>null</var>.
    */
   public function setValue($value, $datatype);
 }

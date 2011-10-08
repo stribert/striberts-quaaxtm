@@ -11,27 +11,27 @@
  */
 
 /**
- * A generic interface to a PHPTMAPI system. 
+ * A generic interface to a Topic Maps system.
  * 
- * Any PHPTMAPI system must be capable of providing access to one or more 
- * {@link TopicMap} objects. A PHPTMAPI system may be capable of allowing a client
+ * Any Topic Maps system must be capable of providing access to one or more 
+ * {@link TopicMap} objects. A Topic Maps system may be capable of allowing a client
  * to create new {@link TopicMap} instances.
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: TopicMapSystem.interface.php 29 2009-04-09 20:13:45Z joschmidt $
+ * @version svn:$Id: TopicMapSystem.interface.php 88 2011-09-14 12:13:11Z joschmidt $
  */
 interface TopicMapSystem
 {
   /**
    * Retrieves a {@link TopicMap} managed by this system with the
-   * specified storage address <var>uri</var>. 
+   * specified storage address <var>$uri</var>. 
    * The string is assumed to be in URI notation.
    * 
    * @param string The storage address to retrieve the {@link TopicMap} from.
-   * @return TopicMap|null The instance managed by this system which 
-   *        is stored at the specified <var>uri</var>, or <var>null</var> if no 
-   *        such {@link TopicMap} is found.
+   * @return TopicMap|null The instance managed by this system which is stored 
+   * 				at the specified URI, or <var>null</var> if no such {@link TopicMap} 
+   * 				is found.
    */
   public function getTopicMap($uri);
 
@@ -48,7 +48,7 @@ interface TopicMapSystem
 
   /**
    * Returns all storage addresses of {@link TopicMap} instances known by this
-   * system.
+   * Topic Maps system.
    * The return value may be empty but must never be <var>null</var>.
    * 
    * @return array An array containing URIs of known {@link TopicMap} instances.
@@ -56,7 +56,7 @@ interface TopicMapSystem
   public function getLocators();
 
   /**
-   * Returns the value of the feature specified by <var>featureName</var>
+   * Returns the value of the feature specified by <var>$featureName</var>
    * for this TopicMapSystem instance. 
    * The features supported by the TopicMapSystem and the value for each 
    * feature is set when the TopicMapSystem is created by a call to 
@@ -64,7 +64,7 @@ interface TopicMapSystem
    * subsequently.
    * 
    * @param string The name of the feature to check.
-   * @return boolean <var>true</var> if the named feature is enabled for this
+   * @return boolean <var>True</var> if the named feature is enabled for this
    *        TopicMapSystem instance; <var>false</var> if the named feature is 
    *        disabled for this instance.
    * @throws {@link FeatureNotRecognizedException} If the underlying implementation 
@@ -89,11 +89,12 @@ interface TopicMapSystem
   public function getProperty($propertyName);
 
   /**
+   * Closes the Topic Maps system.
    * Applications SHOULD call this method when the TopicMapSystem instance is 
    * no longer required. 
    * Once the TopicMapSystem instance is closed, the TopicMapSystem and any 
    * object retrieved from or created in this TopicMapSystem MUST NOT be used
-   * by the application.
+   * by the application any more.
    * An implementation of the TopicMapSystem interface may use this method to
    * clean up any resources used by the implementation.
    * 

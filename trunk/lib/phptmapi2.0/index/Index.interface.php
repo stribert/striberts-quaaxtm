@@ -15,12 +15,12 @@
  *
  * @package index
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: Index.interface.php 9 2008-11-03 20:55:37Z joschmidt $
+ * @version svn:$Id: Index.interface.php 91 2011-09-18 14:39:00Z joschmidt $
  */
 interface Index
 {
   /**
-   * Open the index.
+   * Opens the index.
    * This method must be invoked before using any other method (aside from
    * {@link isOpen()}) exported by this interface or derived interfaces.
    * 
@@ -29,7 +29,7 @@ interface Index
   public function open();
 
   /**
-   * Close the index.
+   * Closes the index.
    * 
    * @return void
    */
@@ -38,19 +38,19 @@ interface Index
   /**
    * Indicates if the index is open.
    * 
-   * @return boolean <var>true</var> if index is already opened, <var>false</var> otherwise.
+   * @return boolean <var>True</var> if the index is already opened, 
+   * 				<var>false</var> otherwise.
    */
   public function isOpen();
 
   /**
    * Indicates whether the index is updated automatically.
-   * If the value is <var>true</var>, then the index is automatically kept
-   * synchronized with the topic map as values are changed.
-   * If the value is <var>false</var>, then the {@link Index::reindex()}
-   * method must be called to resynchronize the index with the topic map
-   * after values are changed.
+   * If the value is <var>true</var> the index is automatically kept
+   * synchronized with the topic map on updates.
+   * If the value is <var>false</var> the {@link reindex()} method must be called 
+   * to resynchronize the index with the topic map.
    * 
-   * @return boolean <var>true</var> if index is updated automatically, 
+   * @return boolean <var>True</var> if the index is updated automatically, 
    *        <var>false</var> otherwise.
    */
   public function isAutoUpdated();

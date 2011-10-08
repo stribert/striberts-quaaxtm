@@ -19,7 +19,7 @@ require_once('Construct.interface.php');
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: Reifiable.interface.php 65 2011-01-09 13:35:56Z joschmidt $
+ * @version svn:$Id: Reifiable.interface.php 88 2011-09-14 12:13:11Z joschmidt $
  */
 interface Reifiable extends Construct
 {
@@ -39,7 +39,7 @@ interface Reifiable extends Construct
    *        if an existing reifier should be removed. Default <var>null</var>.
    * @return void
    * @throws {@link ModelConstraintException} If the specified <var>reifier</var> 
-   *        reifies another construct or the <var>reifier</var> does not belong to
+   *        reifies another construct or if <var>$reifier</var> does not belong to
    *        the parent topic map.
    */
   public function setReifier(Topic $reifier=null);

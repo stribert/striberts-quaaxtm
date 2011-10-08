@@ -13,5 +13,4 @@
 $factoryImplLocation = '/home/johannes/workspace/quaaxtm/' .
   'src/phptmapi/core/TopicMapSystemFactoryImpl.class.php';
 $factoryImpl = 'TopicMapSystemFactoryImpl';
-
 ?>

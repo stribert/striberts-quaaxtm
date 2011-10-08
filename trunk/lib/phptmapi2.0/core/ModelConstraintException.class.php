@@ -13,12 +13,12 @@
 require_once('PHPTMAPIRuntimeException.class.php');
 
 /**
- * This exception is used to report Topic Maps - Data Model (TMDM)
+ * This exception is used to report Topic Maps Data Model (TMDM)
  * ({@link http://www.isotopicmaps.org/sam/sam-model/}) constraint violations. 
  *
  * @package core
  * @author Johannes Schmidt <phptmapi-discuss@lists.sourceforge.net>
- * @version svn:$Id: ModelConstraintException.class.php 69 2011-01-15 18:06:38Z joschmidt $
+ * @version svn:$Id: ModelConstraintException.class.php 89 2011-09-15 15:37:45Z joschmidt $
  */
 class ModelConstraintException extends PHPTMAPIRuntimeException
 {
