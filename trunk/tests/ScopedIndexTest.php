@@ -166,6 +166,36 @@ class ScopedIndexTest extends PHPTMAPITestCase
     $tm2->remove();
   }
   
+  public function testGetAssociationsMultipleMatchAll()
+  {
+    $tm = $this->_topicMap;
+    $this->assertTrue($tm instanceof TopicMap);
+    $index = $tm->getIndex('ScopedIndexImpl');
+    $this->assertTrue($index instanceof ScopedIndexImpl);
+    
+    $theme1 = $tm->createTopic();
+    $theme2 = $tm->createTopic();
+    $theme3 = $tm->createTopic();
+    $theme4 = $tm->createTopic();
+    $assocType1 = $tm->createTopic();
+    $assocType2 = $tm->createTopic();
+    
+    $assoc1 = $tm->createAssociation($assocType1, array($theme1, $theme2, $theme3));
+    $assoc2 = $tm->createAssociation($assocType2, array($theme1, $theme2, $theme3));
+    
+    $assocs = $tm->getAssociations();
+    $this->assertEquals(count($assocs), 2);
+    
+    $assocs = $index->getAssociations(array($theme1, $theme2, $theme3), true);
+    $this->assertEquals(count($assocs), 2);
+    $assocs = $index->getAssociations(array($theme1, $theme2, $theme3), false);
+    $this->assertEquals(count($assocs), 2);
+    $assocs = $index->getAssociations(array($theme1, $theme2, $theme3, $theme4), true);
+    $this->assertEquals(count($assocs), 0);
+    $assocs = $index->getAssociations(array($theme1, $theme2, $theme3, $theme4), false);
+    $this->assertEquals(count($assocs), 2);
+  }
+  
   public function testGetAssociationThemes()
   {
     $tm = $this->_topicMap;
@@ -328,6 +358,35 @@ class ScopedIndexTest extends PHPTMAPITestCase
     $this->assertEquals(count($names), 0);
     
     $tm2->remove();
+  }
+  
+  public function testGetNamesMultipleMatchAll()
+  {
+    $tm = $this->_topicMap;
+    $this->assertTrue($tm instanceof TopicMap);
+    $index = $tm->getIndex('ScopedIndexImpl');
+    $this->assertTrue($index instanceof ScopedIndexImpl);
+    
+    $theme1 = $tm->createTopic();
+    $theme2 = $tm->createTopic();
+    $theme3 = $tm->createTopic();
+    $theme4 = $tm->createTopic();
+    $topic = $tm->createTopic();
+    
+    $name1 = $topic->createName('foo', null, array($theme1, $theme2, $theme3));
+    $name2 = $topic->createName('bar', null, array($theme1, $theme2, $theme3));
+    
+    $names = $topic->getNames();
+    $this->assertEquals(count($names), 2);
+    
+    $names = $index->getNames(array($theme1, $theme2, $theme3), true);
+    $this->assertEquals(count($names), 2);
+    $names = $index->getNames(array($theme1, $theme2, $theme3), false);
+    $this->assertEquals(count($names), 2);
+    $names = $index->getNames(array($theme1, $theme2, $theme3, $theme4), true);
+    $this->assertEquals(count($names), 0);
+    $names = $index->getNames(array($theme1, $theme2, $theme3, $theme4), false);
+    $this->assertEquals(count($names), 2);
   }
   
   public function testGetNameThemes()
@@ -521,6 +580,7 @@ class ScopedIndexTest extends PHPTMAPITestCase
     $theme1 = $tm->createTopic();
     $theme2 = $tm->createTopic();
     $theme3 = $tm->createTopic();
+    $theme4 = $tm->createTopic();
     $occType = $tm->createTopic();
     $topic = $tm->createTopic();
     
@@ -543,6 +603,10 @@ class ScopedIndexTest extends PHPTMAPITestCase
     $occs = $index->getOccurrences(array($theme1, $theme2, $theme3), true);
     $this->assertEquals(count($occs), 2);
     $occs = $index->getOccurrences(array($theme1, $theme2, $theme3), false);
+    $this->assertEquals(count($occs), 2);
+    $occs = $index->getOccurrences(array($theme1, $theme2, $theme3, $theme4), true);
+    $this->assertEquals(count($occs), 0);
+    $occs = $index->getOccurrences(array($theme1, $theme2, $theme3, $theme4), false);
     $this->assertEquals(count($occs), 2);
   }
   
@@ -747,6 +811,44 @@ class ScopedIndexTest extends PHPTMAPITestCase
     $this->assertEquals(count($variants), 0);
     
     $tm2->remove();
+  }
+  
+  public function testGetVariantsMultipleMatchAll()
+  {
+    $tm = $this->_topicMap;
+    $this->assertTrue($tm instanceof TopicMap);
+    $index = $tm->getIndex('ScopedIndexImpl');
+    $this->assertTrue($index instanceof ScopedIndexImpl);
+    
+    $theme1 = $tm->createTopic();
+    $theme2 = $tm->createTopic();
+    $theme3 = $tm->createTopic();
+    $theme4 = $tm->createTopic();
+    $topic = $tm->createTopic();
+    $name = $topic->createName('foo');
+    
+    $variant1 = $name->createVariant(
+      'Foo', 
+      parent::$_dtString, 
+      array($theme1, $theme2, $theme3)
+    );
+    $variant2 = $name->createVariant(
+      'http://example.org/bar', 
+      parent::$_dtUri, 
+      array($theme1, $theme2, $theme3)
+    );
+    
+    $variants = $name->getVariants();
+    $this->assertEquals(count($variants), 2);
+    
+    $variants = $index->getVariants(array($theme1, $theme2, $theme3), true);
+    $this->assertEquals(count($variants), 2);
+    $variants = $index->getVariants(array($theme1, $theme2, $theme3), false);
+    $this->assertEquals(count($variants), 2);
+    $variants = $index->getVariants(array($theme1, $theme2, $theme3, $theme4), true);
+    $this->assertEquals(count($variants), 0);
+    $variants = $index->getVariants(array($theme1, $theme2, $theme3, $theme4), false);
+    $this->assertEquals(count($variants), 2);
   }
   
   public function testGetVariantThemes()
