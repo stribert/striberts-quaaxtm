@@ -52,15 +52,15 @@ require_once(
   DIRECTORY_SEPARATOR . 
   'PHPTMAPIXTM201Writer.class.php'
 );
-// create an instance of TopicMapSystemFactory
-$tmSystemFactory = TopicMapSystemFactory::newInstance();
-// set up QuaaxTM specific duplicate removal feature
-$tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, true);
-// set up QuaaxTM specific memcached based MySQL result cache feature to false; enable if 
-// memcached is set up correctly in src/phptmapi/config.php
-$tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, false);
-// create an instance of TopicMapSystem
 try {
+  // create an instance of TopicMapSystemFactory
+  $tmSystemFactory = TopicMapSystemFactory::newInstance();
+  // set up QuaaxTM specific duplicate removal feature
+  $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, true);
+  // set up QuaaxTM specific memcached based MySQL result cache feature to false; enable if 
+  // memcached is set up correctly in src/phptmapi/config.php
+  $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, false);
+  // create an instance of TopicMapSystem
   $tmSystem = $tmSystemFactory->newTopicMapSystem();
   // create a topic map; see http://phptmapi.sourceforge.net/2.0/docs/core/TopicMap.html 
   // for all topic map features
