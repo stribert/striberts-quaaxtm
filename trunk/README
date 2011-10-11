@@ -7,7 +7,7 @@ See lib/quaaxtmio for the Topic Maps syntaxes serializer / deserializer library 
 Installation
 ------------
 Prerequisites:
-a) PHP >= 5.2 with SPL enabled (PHP >=5.3 is recommended)
+a) PHP >= 5.2 with SPL enabled (PHP >= 5.3 is recommended)
 b) MySQL >= 5.0 with InnoDB enabled
 c) Optional: memcached and libmemcached based PECL extension for using the QuaaxTM MySQL query result 
    cache. See http://memcached.org/, http://libmemcached.org/, and 
@@ -21,7 +21,7 @@ c) Optional: memcached and libmemcached based PECL extension for using the Quaax
 2. Edit your specific settings in lib/phptmapi2.0/config.php and src/phptmapi/config.php.
 3. If PHPUnit (http://www.phpunit.de) is available you will be able to run the test
    suite: Open a terminal, move to 'tests', and execute phpunit AllTests.php. 
-   Each test can be executed separately. Have a look at tests/AllTests.php or example.php 
+   Each test can be executed separately. Have a look at tests/PHPTMAPITestCase.php or example.php 
    how QuaaxTM is used - you just have to include TopicMapSystemFactory.class.php from PHPTMAPI.
 
 Documentation
