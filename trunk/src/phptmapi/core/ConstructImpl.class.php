@@ -655,7 +655,7 @@ abstract class ConstructImpl implements Construct
   
   /**
    * Post insert hook for e.g. inserting into cache or search index.
-   * It is guaranteed that this hook is only called of no MySQL error occurred.
+   * It is guaranteed that this hook is only called if no MySQL error occurred.
    * 
    * @param array Optional parameters.
    * @return void
@@ -664,7 +664,7 @@ abstract class ConstructImpl implements Construct
   
   /**
    * Post save hook for e.g. updating cache or search index.
-   * It is guaranteed that this hook is only called of no MySQL error occurred.
+   * It is guaranteed that this hook is only called if no MySQL error occurred.
    * 
    * @param array Optional parameters.
    * @return void
