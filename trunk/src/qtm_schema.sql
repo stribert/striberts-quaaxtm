@@ -69,7 +69,6 @@ CREATE TABLE qtm_topicname (
 	INDEX (hash)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;
 
-
 CREATE TABLE qtm_variant (
 	id INT UNSIGNED NOT NULL AUTO_INCREMENT,
 	topicname_id INT UNSIGNED NOT NULL,
