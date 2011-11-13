@@ -3,7 +3,8 @@ Changes log
 0.7.1 (2011/xx/yy)
 ------------------
 PHPTMAPI (lib/phptmapi2.0)
-- Upgraded to PHPTMAPI 2.1 (2.1 is backward compatible to 2.0.1)
+- Upgraded to PHPTMAPI 2.1 (2.1 is backward compatible to 2.0.1), see lib/phptmapi2.0/CHANGES 
+  for details
 
 0.7.0 (2011/08/27)
 ------------------
