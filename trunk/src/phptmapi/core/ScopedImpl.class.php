@@ -19,7 +19,7 @@
  */
 
 /**
- * Indicates that a statement (Topic Maps construct) has a scope.
+ * Indicates that a statement (a Topic Maps construct) has a scope.
  * 
  * {@link AssociationImpl}s, {@link OccurrenceImpl}s, {@link NameImpl}s, and 
  * {@link VariantImpl}s are scoped.
@@ -255,9 +255,9 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped
   }
   
   /**
-   * Gets the scope binding tables.
+   * Gets the scope binding table names.
    * 
-   * @return array The binding tables.
+   * @return array The binding table names.
    */
   private function _getBindingTables()
   {
@@ -270,7 +270,7 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped
   }
   
   /**
-   * Gets the scope binding table.
+   * Gets the scope binding table name.
    * 
    * @param string The scoped construct's class name.
    * @return string The table name.
