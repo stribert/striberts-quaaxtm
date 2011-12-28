@@ -138,6 +138,15 @@ class QTMGetConstructTest extends PHPTMAPITestCase
     
     $unknown = $tm->getConstructById('FooImpl-1');
     $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    
+    $unknown = $tm->getConstructById('FooImpl-"1');
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    
+    $unknown = $tm->getConstructById("FooImpl-'1");
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
+    
+    $unknown = $tm->getConstructById('FooImpl-\n1"2');
+    $this->assertTrue(is_null($unknown), 'Unexpected construct!');
   }
 }
 ?>

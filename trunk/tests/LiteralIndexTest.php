@@ -37,31 +37,31 @@ class LiteralIndexTest extends PHPTMAPITestCase
     $index = $tm->getIndex('LiteralIndexImpl');
     $this->assertTrue($index instanceof LiteralIndexImpl);
     
-    $topic = $tm->createTopic();
+    $values = array("'s Hertogenbosch", 'äüß', "foo\n", 'bar', '"scape');
     
-    $topic->createName('Name');
-    $topic->createName('Süß');
-    
-    $names = $topic->getNames();
-    $this->assertEquals(count($names), 2);
-    try {
-      $names = $index->getNames(null);
-      $this->fail('Null is not allowed.');
-    } catch (InvalidArgumentException $e) {
-      // no op.
+    foreach ($values as $value) {
+      $names = $index->getNames($value);
+      $this->assertEquals(count($names), 0);
+      
+      $topic = $tm->createTopic();
+      
+      $topic->createName($value);
+      
+      $names = $topic->getNames();
+      $this->assertEquals(count($names), 1);
+      try {
+        $names = $index->getNames(null);
+        $this->fail('Null is not allowed.');
+      } catch (InvalidArgumentException $e) {
+        // no op.
+      }
+      $names = $index->getNames($value);
+      $this->assertEquals(count($names), 1);
+      $name = $names[0];
+      $this->assertTrue($name instanceof Name);
+      $this->assertEquals($name->getValue(), $value);
+      $this->assertEquals($name->getParent()->getId(), $topic->getId());
     }
-    $names = $index->getNames('Name');
-    $this->assertEquals(count($names), 1);
-    $name = $names[0];
-    $this->assertTrue($name instanceof Name);
-    $this->assertEquals($name->getValue(), 'Name');
-    $this->assertEquals($name->getParent()->getId(), $topic->getId());
-    $names = $index->getNames('Süß');
-    $this->assertEquals(count($names), 1);
-    $name = $names[0];
-    $this->assertTrue($name instanceof Name);
-    $this->assertEquals($name->getValue(), 'Süß');
-    $this->assertEquals($name->getParent()->getId(), $topic->getId());
   }
   
   public function testGetOccurrences()
@@ -112,6 +112,25 @@ class LiteralIndexTest extends PHPTMAPITestCase
     $this->assertEquals($occ->getValue(), 'http://example.org');
     $this->assertEquals($occ->getDatatype(), parent::$_dtUri);
     $this->assertEquals($occ->getParent()->getId(), $topic->getId());
+  }
+  
+  public function testGetOccurrencesEscapedValueDatatype()
+  {
+    $tm = $this->_topicMap;
+    $this->assertTrue($tm instanceof TopicMap);
+    $index = $tm->getIndex('LiteralIndexImpl');
+    $this->assertTrue($index instanceof LiteralIndexImpl);
+    
+    $topic = $tm->createTopic();
+    $value = '"scape';
+    $datatype = "http://localhost/'scape";// this is an invalid datatype
+    
+    $occ = $topic->createOccurrence($tm->createTopic(), $value, $datatype);
+    $this->assertTrue($occ instanceof Occurrence);
+    $occs = $index->getOccurrences($value, $datatype);
+    $this->assertEquals(count($occs), 1);
+    $retrievedOcc = $occs[0];
+    $this->assertTrue($occ->equals($retrievedOcc));
   }
   
   public function testGetVariants()
@@ -168,6 +187,26 @@ class LiteralIndexTest extends PHPTMAPITestCase
     $this->assertEquals(
       $variant->getParent()->getType()->getId(), $name->getType()->getId()
     );
+  }
+  
+  public function testGetVariantsEscapedValueDatatype()
+  {
+    $tm = $this->_topicMap;
+    $this->assertTrue($tm instanceof TopicMap);
+    $index = $tm->getIndex('LiteralIndexImpl');
+    $this->assertTrue($index instanceof LiteralIndexImpl);
+    
+    $topic = $tm->createTopic();
+    $name = $topic->createName('foo');
+    $value = "'scape";
+    $datatype = 'http://localhost/"scape';// this is an invalid datatype - and an invalid URI
+    
+    $variant = $name->createVariant($value, $datatype, array($tm->createTopic()));
+    $this->assertTrue($variant instanceof IVariant);
+    $variants = $index->getVariants($value, $datatype);
+    $this->assertEquals(count($variants), 1);
+    $retrievedVariant = $variants[0];
+    $this->assertTrue($variant->equals($retrievedVariant));
   }
 }
 ?>

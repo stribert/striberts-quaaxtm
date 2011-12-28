@@ -51,6 +51,20 @@ class NameTest extends PHPTMAPITestCase
     $this->assertEquals(count($parent->getNames()), 0, 'Expected 0 names after removal!');
   }
   
+  public function testCreateName()
+  {
+    $values = array("'s Hertogenbosch", 'äüß', "foo\n", 'bar');
+    foreach ($values as $value) {
+      $parent = $this->_topicMap->createTopic();
+      $name = $parent->createName($value);
+      $this->assertEquals($name->getValue(), $value);
+      $names = $parent->getNames();
+      $this->assertEquals(count($names), 1);
+      $name = $names[0];
+      $this->assertEquals($name->getValue(), $value);
+    }
+  }
+  
   public function testDefaultNameType()
   {
     $name = $this->_createName();
@@ -78,22 +92,21 @@ class NameTest extends PHPTMAPITestCase
   
   public function testValue()
   {
-    $value1 = 'PHPTMAPI name';
-    $value2 = 'Süßer Name';
-    $name = $this->_createName();
-    $this->assertTrue($name instanceof Name);
-    $name->setValue($value1);
-    $this->assertEquals($name->getValue(), $value1);
-    $name->setValue($value2);
-    $this->assertEquals($name->getValue(), $value2);
-    try {
-      $name->setValue(null);
-      $this->fail('setValue(null) is not allowed!');
-    } catch (ModelConstraintException $e) {
-      $msg = $e->getMessage();
-      $this->assertTrue(!empty($msg));
+    $values = array("'s Hertogenbosch", 'äüß', "foo\n", 'bar');
+    foreach ($values as $value) {
+      $name = $this->_createName();
+      $this->assertTrue($name instanceof Name);
+      $name->setValue($value);
+      $this->assertEquals($name->getValue(), $value);
+      try {
+        $name->setValue(null);
+        $this->fail('setValue(null) is not allowed!');
+      } catch (ModelConstraintException $e) {
+        $msg = $e->getMessage();
+        $this->assertTrue(!empty($msg));
+      }
+      $this->assertEquals($name->getValue(), $value);
     }
-    $this->assertEquals($name->getValue(), $value2);
   }
   
   public function testScope()
@@ -149,6 +162,19 @@ class NameTest extends PHPTMAPITestCase
     $ids = $this->_getIdsOfConstructs($name->getScope());
     $this->assertTrue(in_array($nameTheme->getId(), $ids, true), 
       'Theme is not part of getScope()!');
+  }
+  
+  public function testDuplicatesEscapedValues()
+  {
+    $values = array("'s Hertogenbosch", 'äüß', "foo\n", 'bar');
+    foreach ($values as $value) {
+      $parent = $this->_topicMap->createTopic();
+      $parent->createName($value);
+      // create duplicate
+      $parent->createName($value);
+      $names = $parent->getNames();
+      $this->assertEquals(count($names), 1);
+    }
   }
   
   public function testMergeScope()

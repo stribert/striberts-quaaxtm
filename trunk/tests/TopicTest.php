@@ -78,50 +78,50 @@ class TopicTest extends PHPTMAPITestCase
   
   public function testSubjectIdentifiers()
   {
-    $sid1 = 'http://www.example.org/1';
-    $sid2 = 'http://www.example.org/2';
-    $topic = $this->_topicMap->createTopicBySubjectIdentifier($sid1);
-    $this->assertEquals(count($topic->getSubjectIdentifiers()), 1, 
-      'Expected 1 subject identifier');
-    $this->assertTrue(in_array($sid1, $topic->getSubjectIdentifiers(), true), 
-      'Subject identifier is not part of getSubjectIdentifiers()!');
-    $topic->addSubjectIdentifier($sid2);
-    $topic->removeSubjectIdentifier(null);
-    $this->assertEquals(count($topic->getSubjectIdentifiers()), 2, 
-      'Expected 2 subject identifiers');
-    $this->assertTrue(in_array($sid1, $topic->getSubjectIdentifiers(), true), 
-      'Subject identifier is not part of getSubjectIdentifiers()!');
-    $this->assertTrue(in_array($sid2, $topic->getSubjectIdentifiers(), true), 
-      'Subject identifier is not part of getSubjectIdentifiers()!');
-    $topic->removeSubjectIdentifier($sid1);
-    $this->assertEquals(count($topic->getSubjectIdentifiers()), 1, 
-      'Expected 1 subject identifier');
-    $this->assertTrue(in_array($sid2, $topic->getSubjectIdentifiers(), true), 
-      'Subject identifier is not part of getSubjectIdentifiers()!');
+    $this->_testSubjectIdentifiers(
+    	'http://www.example.org/1',
+      'http://www.example.org/2'
+    );
+  }
+  
+  public function testSubjectIdentifiersEscaped()
+  {
+    $this->_testSubjectIdentifiers(
+    	'http://www.example.org/1/"scaped',
+      "http://www.example.org/2/'scaped"
+    );
   }
   
   public function testSubjectLocators()
   {
-    $slo1 = 'http://www.example.org/1';
-    $slo2 = 'http://www.example.org/2';
-    $topic = $this->_topicMap->createTopicBySubjectLocator($slo1);
-    $this->assertEquals(count($topic->getSubjectLocators()), 1, 
-      'Expected 1 subject locator');
-    $this->assertTrue(in_array($slo1, $topic->getSubjectLocators(), true), 
-      'Subject locator is not part of getSubjectLocators()!');
-    $topic->addSubjectLocator($slo2);
-    $topic->removeSubjectLocator(null);
-    $this->assertEquals(count($topic->getSubjectLocators()), 2, 
-      'Expected 2 subject locators');
-    $this->assertTrue(in_array($slo1, $topic->getSubjectLocators(), true), 
-      'Subject locator is not part of getSubjectLocators()!');
-    $this->assertTrue(in_array($slo2, $topic->getSubjectLocators(), true), 
-      'Subject locator is not part of getSubjectLocators()!');
-    $topic->removeSubjectLocator($slo1);
-    $this->assertEquals(count($topic->getSubjectLocators()), 1, 
-      'Expected 1 subject locator');
-    $this->assertTrue(in_array($slo2, $topic->getSubjectLocators(), true), 
-      'Subject locator is not part of getSubjectLocators()!');
+    $this->_testSubjectLocators(
+    	'http://www.example.org/1', 
+    	'http://www.example.org/2'
+    );
+  }
+  
+  public function testSubjectLocatorsEscaped()
+  {
+    $this->_testSubjectLocators(
+    	'http://www.example.org/1/"scaped',
+      "http://www.example.org/2/'scaped"
+    );
+  }
+  
+  public function testItemIdentifiers()
+  {
+    $this->_testItemIdentifiers(
+    	'http://www.example.org/1', 
+    	'http://www.example.org/2'
+    );
+  }
+  
+  public function testItemIdentifiersEscaped()
+  {
+    $this->_testItemIdentifiers(
+    	'http://www.example.org/1/"scaped',
+      "http://www.example.org/2/'scaped"
+    );
   }
   
   public function testTopicTypes()
@@ -600,6 +600,123 @@ class TopicTest extends PHPTMAPITestCase
       $msg = $e->getMessage();
       $this->assertTrue(!empty($msg));
     }
+  }
+  
+  private function _testSubjectIdentifiers($sid1, $sid2)
+  {
+    $topic = $this->_topicMap->createTopicBySubjectIdentifier($sid1);
+    $this->assertEquals(
+      count($topic->getSubjectIdentifiers()), 
+      1, 
+      'Expected 1 subject identifier!'
+    );
+    $this->assertTrue(
+      in_array($sid1, $topic->getSubjectIdentifiers(), true), 
+      'Subject identifier is not part of getSubjectIdentifiers()!'
+    );
+    $topic->addSubjectIdentifier($sid2);
+    $topic->removeSubjectIdentifier(null);
+    $this->assertEquals(
+      count($topic->getSubjectIdentifiers()), 
+      2, 
+      'Expected 2 subject identifiers!'
+    );
+    $this->assertTrue(
+      in_array($sid1, $topic->getSubjectIdentifiers(), true), 
+      'Subject identifier is not part of getSubjectIdentifiers()!'
+    );
+    $this->assertTrue(
+      in_array($sid2, $topic->getSubjectIdentifiers(), true), 
+      'Subject identifier is not part of getSubjectIdentifiers()!'
+    );
+    $topic->removeSubjectIdentifier($sid1);
+    $this->assertEquals(
+      count($topic->getSubjectIdentifiers()), 
+      1, 
+      'Expected 1 subject identifier!'
+    );
+    $this->assertTrue(
+      in_array($sid2, $topic->getSubjectIdentifiers(), true), 
+      'Subject identifier is not part of getSubjectIdentifiers()!'
+    );
+  }
+  
+  private function _testSubjectLocators($slo1, $slo2)
+  {
+    $topic = $this->_topicMap->createTopicBySubjectLocator($slo1);
+    $this->assertEquals(
+      count($topic->getSubjectLocators()), 
+      1, 
+      'Expected 1 subject locator!'
+    );
+    $this->assertTrue(
+      in_array($slo1, $topic->getSubjectLocators(), true), 
+      'Subject locator is not part of getSubjectLocators()!'
+    );
+    $topic->addSubjectLocator($slo2);
+    $topic->removeSubjectLocator(null);
+    $this->assertEquals(
+      count($topic->getSubjectLocators()), 
+      2, 
+      'Expected 2 subject locators!'
+    );
+    $this->assertTrue(
+      in_array($slo1, $topic->getSubjectLocators(), true), 
+      'Subject locator is not part of getSubjectLocators()!'
+    );
+    $this->assertTrue(
+      in_array($slo2, $topic->getSubjectLocators(), true), 
+      'Subject locator is not part of getSubjectLocators()!'
+    );
+    $topic->removeSubjectLocator($slo1);
+    $this->assertEquals(
+      count($topic->getSubjectLocators()), 
+      1, 
+      'Expected 1 subject locator!'
+    );
+    $this->assertTrue(
+      in_array($slo2, $topic->getSubjectLocators(), true), 
+      'Subject locator is not part of getSubjectLocators()!'
+    );
+  }
+  
+  private function _testItemIdentifiers($iid1, $iid2)
+  {
+    $topic = $this->_topicMap->createTopicByItemIdentifier($iid1);
+    $this->assertEquals(
+      count($topic->getItemIdentifiers()), 
+      1, 
+      'Expected 1 item identifier!'
+    );
+    $this->assertTrue(
+      in_array($iid1, $topic->getItemIdentifiers(), true), 
+      'Item identifier is not part of getItemIdentifiers()!'
+    );
+    $topic->addItemIdentifier($iid2);
+    $topic->removeItemIdentifier(null);
+    $this->assertEquals(
+      count($topic->getItemIdentifiers()), 
+      2, 
+      'Expected 2 item identifiers!'
+    );
+    $this->assertTrue(
+      in_array($iid1, $topic->getItemIdentifiers(), true), 
+      'Item identifier is not part of getItemIdentifiers()!'
+    );
+    $this->assertTrue(
+      in_array($iid2, $topic->getItemIdentifiers(), true), 
+      'Item identifier is not part of getItemIdentifiers()!'
+    );
+    $topic->removeItemIdentifier($iid1);
+    $this->assertEquals(
+      count($topic->getItemIdentifiers()), 
+      1, 
+      'Expected 1 item identifier!'
+    );
+    $this->assertTrue(
+      in_array($iid2, $topic->getItemIdentifiers(), true), 
+      'Item identifier is not part of getItemIdentifiers()!'
+    );
   }
 }
 ?>

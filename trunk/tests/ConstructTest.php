@@ -43,7 +43,7 @@ class ConstructTest extends PHPTMAPITestCase
     $this->assertEquals(0, count($construct->getItemIdentifiers()), 
       'Expected number of iids to be 0 for newly created construct!');
     $locator1 = 'http://tmapi.org/test#' . uniqid();
-    $locator2 = 'http://tmapi.org/test#' . uniqid();
+    $locator2 = 'http://tmapi.org/test/' . uniqid() . '/"scape';
     $construct->addItemIdentifier($locator1);
     $this->assertEquals(1, count($construct->getItemIdentifiers()), 
       'Expected 1 iid!');

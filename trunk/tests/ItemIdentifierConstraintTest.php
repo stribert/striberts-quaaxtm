@@ -136,45 +136,35 @@ class ItemIdentifierConstraintTest extends PHPTMAPITestCase
     $otherMap->remove();
   }
   
-  public function testTopicMerge()
+  public function testTopicMergeUnescaped()
+  {
+    $this->_testTopicMerge('http://localhost/t/1');
+  }
+  
+  public function testTopicMergeEscaped()
+  {
+    $this->_testTopicMerge('http://localhost/t/"scape');
+  }
+  
+  public function testEscapedUri()
   {
     $tm = $this->_topicMap;
-    $topic1 = $tm->createTopic();
-    $locator1 = 'http://localhost/t/1';
-    $topic1->addItemIdentifier($locator1);
-    $this->assertTrue(in_array($locator1, $topic1->getItemIdentifiers(), true), 
-      'Expected item identifier!');
-    $topic2 = $tm->createTopic();
+    $topic = $tm->createTopic();
+    $locator = 'http://localhost/t/"scape';
+    $topic->addItemIdentifier($locator);
+    $this->assertTrue(
+      in_array($locator, $topic->getItemIdentifiers(), true), 
+      'Expected item identifier!'
+    );
+    $name = $this->_createName();
     try {
-      $topic2->addItemIdentifier($locator1);
-      if (!$this->_sharedFixture->getFeature('http://tmapi.org/features/automerge/')) {
-        $this->fail('Topics with the same item identifier are not allowed!');
-      }
+      $name->addItemIdentifier($locator);
     } catch (IdentityConstraintException $e) {
-      $this->assertEquals($topic2->getId(), $e->getReporter()->getId());
-      $this->assertEquals($topic1->getId(), $e->getExisting()->getId());
-      $this->assertEquals($locator1, $e->getLocator());
+      $this->assertEquals($name->getId(), $e->getReporter()->getId());
+      $this->assertEquals($topic->getId(), $e->getExisting()->getId());
+      $this->assertEquals($locator, $e->getLocator());
       $msg = $e->getMessage();
       $this->assertTrue(!empty($msg));
-    }
-    if ($this->_sharedFixture->getFeature('http://tmapi.org/features/automerge/')) {
-      // $topic1 has been merged; it must be omitted from here
-      $this->assertEquals(count($tm->getTopics()), 1, 'Topics have not been merged!');
-      $this->assertTrue(in_array($locator1, $topic2->getItemIdentifiers(), true), 
-        'Expected item identifier!');
-      $countIidsBefore = count($topic2->getItemIdentifiers());
-      $topic2->addItemIdentifier($locator1);
-      $countIidsAfter = count($topic2->getItemIdentifiers());
-      $this->assertEquals($countIidsBefore, $countIidsAfter, 
-        'Unexpected count of item identifiers!');
-      $this->assertTrue(in_array($locator1, $topic2->getItemIdentifiers(), true), 
-        'Expected item identifier!');
-      $topic2->removeItemIdentifier($locator1);
-      $this->assertFalse(in_array($locator1, $topic2->getItemIdentifiers(), true), 
-        'Unexpected item identifier!');
-    } else {
-      $this->assertEquals(count($tm->getTopics()), 2, 'Expected 2 topics!');
-      // TODO extend tests for automerge = false
     }
   }
   
@@ -282,6 +272,47 @@ class ItemIdentifierConstraintTest extends PHPTMAPITestCase
     return $this->_sharedFixture->createTopicMap(
       'http://localhost/tm/' . uniqid()
     );
+  }
+  
+  private function _testTopicMerge($locator)
+  {
+    $tm = $this->_topicMap;
+    $topic1 = $tm->createTopic();
+    $topic1->addItemIdentifier($locator);
+    $this->assertTrue(in_array($locator, $topic1->getItemIdentifiers(), true), 
+      'Expected item identifier!');
+    $topic2 = $tm->createTopic();
+    try {
+      $topic2->addItemIdentifier($locator);
+      if (!$this->_sharedFixture->getFeature('http://tmapi.org/features/automerge/')) {
+        $this->fail('Topics with the same item identifier are not allowed!');
+      }
+    } catch (IdentityConstraintException $e) {
+      $this->assertEquals($topic2->getId(), $e->getReporter()->getId());
+      $this->assertEquals($topic1->getId(), $e->getExisting()->getId());
+      $this->assertEquals($locator, $e->getLocator());
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
+    }
+    if ($this->_sharedFixture->getFeature('http://tmapi.org/features/automerge/')) {
+      // $topic1 has been merged; it must be omitted from here
+      $this->assertEquals(count($tm->getTopics()), 1, 'Topics have not been merged!');
+      $this->assertTrue(in_array($locator, $topic2->getItemIdentifiers(), true), 
+        'Expected item identifier!');
+      $countIidsBefore = count($topic2->getItemIdentifiers());
+      $topic2->addItemIdentifier($locator);
+      $countIidsAfter = count($topic2->getItemIdentifiers());
+      $this->assertEquals($countIidsBefore, $countIidsAfter, 
+        'Unexpected count of item identifiers!');
+      $this->assertTrue(in_array($locator, $topic2->getItemIdentifiers(), true), 
+        'Expected item identifier!');
+      $topic2->removeItemIdentifier($locator);
+      $this->assertFalse(in_array($locator, $topic2->getItemIdentifiers(), true), 
+        'Unexpected item identifier!');
+    } else {
+      $this->assertEquals(count($tm->getTopics()), 2, 'Expected 2 topics!');
+      // TODO extend tests for automerge = false
+    }
   }
 }
 ?>

@@ -54,6 +54,32 @@ class OccurrenceTest extends PHPTMAPITestCase
       'Expected 0 occurrences after removal!');
   }
   
+  public function testCreateOccurrence()
+  {
+    $values = array("'s Hertogenbosch", 'äüß', "foo\n", 'bar');
+    $datatypes = array(
+    	"http://localhost/'s Hertogenbosch", 
+    	'http://localhost/äüß', 
+      'http://localhost/foo\n', 
+      'http://localhost/bar'
+    );
+    for ($i=0; $i<4; $i++) {
+      $parent = $this->_topicMap->createTopic();
+      $occ = $parent->createOccurrence(
+        $this->_topicMap->createTopic(), 
+      	$values[$i], 
+        $datatypes[$i]
+      );
+      $this->assertEquals($occ->getValue(), $values[$i]);
+      $this->assertEquals($occ->getDatatype(), $datatypes[$i]);
+      $occs = $parent->getOccurrences();
+      $this->assertEquals(count($occs), 1);
+      $occ = $occs[0];
+      $this->assertEquals($occ->getValue(), $values[$i]);
+      $this->assertEquals($occ->getDatatype(), $datatypes[$i]);
+    }
+  }
+  
   public function testType()
   {
     $occ = $this->_createOcc();
@@ -125,6 +151,23 @@ class OccurrenceTest extends PHPTMAPITestCase
     } catch (ModelConstraintException $e) {
       $msg = $e->getMessage();
       $this->assertTrue(!empty($msg));
+    }
+  }
+  
+  public function testEscapedValueDatatype()
+  {
+    $values = array("'s Hertogenbosch", 'äüß', "foo\n", 'bar');
+    $datatypes = array(
+    	"http://localhost/'s Hertogenbosch", 
+    	'http://localhost/äüß', 
+      'http://localhost/foo\n', 
+      'http://localhost/bar'
+    );
+    for ($i=0; $i<4; $i++) {
+      $occ = $this->_createOcc();
+      $occ->setValue($values[$i], $datatypes[$i]);
+      $this->assertEquals($occ->getValue(), $values[$i]);
+      $this->assertEquals($occ->getDatatype(), $datatypes[$i]);
     }
   }
   

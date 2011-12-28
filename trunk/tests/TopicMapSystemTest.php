@@ -131,6 +131,24 @@ class TopicMapSystemTest extends PHPTMAPITestCase
       ' topic maps!');
   }
   
+  public function testCreateTopicMapEscapedUri()
+  {
+    $uri = "http://localhost/tm/'scaped";
+    $tm = $this->_tmSystem->createTopicMap($uri);
+    $this->assertTrue($tm instanceof TopicMap);
+    try {
+      $this->_tmSystem->createTopicMap($uri);
+      $this->fail('Cannot create a topic map with the same base locator twice.');
+    } catch (TopicMapExistsException $e) {
+      $msg = $e->getMessage();
+      $this->assertTrue(!empty($msg));
+    }
+    $locators = $this->_tmSystem->getLocators();
+    $this->assertTrue(in_array($uri, $locators, true));
+    $retrievedTm = $this->_tmSystem->getTopicMap($uri);
+    $this->assertTrue($tm->equals($retrievedTm));
+  }
+  
   public function testTopicMapMembership()
   {
     $base = 'http://localhost/topicmaps/';

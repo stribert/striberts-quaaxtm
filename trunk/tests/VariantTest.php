@@ -52,6 +52,46 @@ class VariantTest extends PHPTMAPITestCase
     $this->assertEquals(count($parent->getVariants()), 0, 'Expected 0 variants after removal!');
   }
   
+  public function testCreateVariant()
+  {
+    $values = array("'s Hertogenbosch", 'äüß', "foo\n", 'bar');
+    $datatypes = array(
+    	"http://localhost/'s Hertogenbosch", 
+    	'http://localhost/äüß', 
+      'http://localhost/foo\n', 
+      'http://localhost/bar'
+    );
+    for ($i=0; $i<4; $i++) {
+      $parent = $this->_createName();
+      $scope = array($this->_topicMap->createTopic());
+      $variant = $parent->createVariant($values[$i], $datatypes[$i], $scope);
+      $this->assertEquals($variant->getValue(), $values[$i]);
+      $this->assertEquals($variant->getDatatype(), $datatypes[$i]);
+      $variants = $parent->getVariants();
+      $this->assertEquals(count($variants), 1);
+      $variant = $variants[0];
+      $this->assertEquals($variant->getValue(), $values[$i]);
+      $this->assertEquals($variant->getDatatype(), $datatypes[$i]);
+    }
+  }
+  
+  public function testEscapedValueDatatype()
+  {
+    $values = array("'s Hertogenbosch", 'äüß', "foo\n", 'bar');
+    $datatypes = array(
+    	"http://localhost/'s Hertogenbosch", 
+    	'http://localhost/äüß', 
+      'http://localhost/foo\n', 
+      'http://localhost/bar'
+    );
+    for ($i=0; $i<4; $i++) {
+      $variant = $this->_createVariant();
+      $variant->setValue($values[$i], $datatypes[$i]);
+      $this->assertEquals($variant->getValue(), $values[$i]);
+      $this->assertEquals($variant->getDatatype(), $datatypes[$i]);
+    }
+  }
+  
   public function testIllegalValueDatatype()
   {
     try {
