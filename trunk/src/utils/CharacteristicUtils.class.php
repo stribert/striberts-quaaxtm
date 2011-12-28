@@ -46,12 +46,12 @@ class CharacteristicUtils
   private function __construct(){}
         
   /**
-   * Canonicalizes a value for storing in a MySQL database.
+   * Canonicalizes a value for SQL statements.
    * 
    * @param string The value.
    * @param mysqli The current MySQL connection.
-   * @param string Encoding. Default UTF-8.
-   * @param boolean Create HTML entities or not.
+   * @param string The encoding. Default UTF-8.
+   * @param boolean Create HTML entities or not. Default false.
    * @return string
    * @static
    */
