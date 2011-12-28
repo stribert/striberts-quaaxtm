@@ -122,8 +122,8 @@ class QTMResultCacheTest extends PHPUnit_Framework_TestCase
   
   public function testAssociationGetRoles()
   {
+    $this->assertTrue($this->_mysqlMock->memcachedWasIgnored);
     $this->assertFalse($this->_mysqlMock->memcachedWasCalledSuccessfully);
-    $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
     $this->assertFalse($this->_mysqlMock->memcachedWasSet);
     
     $topicMap = $this->_tmSystem->createTopicMap(self::$_tmLocator);
@@ -147,8 +147,8 @@ class QTMResultCacheTest extends PHPUnit_Framework_TestCase
   
   public function testAssociationGetRoleTypes()
   {
+    $this->assertTrue($this->_mysqlMock->memcachedWasIgnored);
     $this->assertFalse($this->_mysqlMock->memcachedWasCalledSuccessfully);
-    $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
     $this->assertFalse($this->_mysqlMock->memcachedWasSet);
     
     $topicMap = $this->_tmSystem->createTopicMap(self::$_tmLocator);
@@ -174,8 +174,8 @@ class QTMResultCacheTest extends PHPUnit_Framework_TestCase
   
   public function testTopicMapGetAssociations()
   {
+    $this->assertTrue($this->_mysqlMock->memcachedWasIgnored);
     $this->assertFalse($this->_mysqlMock->memcachedWasCalledSuccessfully);
-    $this->assertFalse($this->_mysqlMock->memcachedWasIgnored);
     $this->assertFalse($this->_mysqlMock->memcachedWasSet);
     
     $topicMap = $this->_tmSystem->createTopicMap(self::$_tmLocator);
