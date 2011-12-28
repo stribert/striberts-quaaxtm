@@ -141,16 +141,22 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence
         __METHOD__ . ConstructImpl::$_valueDatatypeNullErrMsg
       );
     }
-    $value = CharacteristicUtils::canonicalize($value, $this->_mysql->getConnection());
-    $datatype = CharacteristicUtils::canonicalize($datatype, $this->_mysql->getConnection());
+    // create legal SQL strings
+    $escapedValue = $this->_mysql->escapeString($value);
+    $escapedDatatype = $this->_mysql->escapeString($datatype);
+    
     $this->_mysql->startTransaction();
     $query = 'UPDATE ' . $this->_config['table']['occurrence'] . 
-      ' SET value = "' . $value . '", datatype = "' . $datatype . '"' .
+      ' SET value = "' . $escapedValue . '", datatype = "' . $escapedDatatype . '"' .
       ' WHERE id = ' . $this->_dbId;
     $this->_mysql->execute($query);
     
-    $hash = $this->_parent->_getOccurrenceHash($this->getType(), $value, $datatype, 
-      $this->getScope());
+    $hash = $this->_parent->_getOccurrenceHash(
+      $this->getType(), 
+      $value, 
+      $datatype, 
+      $this->getScope()
+    );
     $this->_parent->_updateOccurrenceHash($this->_dbId, $hash);
     $this->_mysql->finishTransaction();
 

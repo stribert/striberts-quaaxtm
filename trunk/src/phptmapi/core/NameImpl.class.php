@@ -118,10 +118,12 @@ final class NameImpl extends ScopedImpl implements Name
         __METHOD__ . ConstructImpl::$_valueNullErrMsg
       );
     }
-    $value = CharacteristicUtils::canonicalize($value, $this->_mysql->getConnection());
+    // create a legal SQL string
+    $escapedValue = $this->_mysql->escapeString($value);
+    
     $this->_mysql->startTransaction();
     $query = 'UPDATE ' . $this->_config['table']['topicname'] . 
-      ' SET value = "' . $value . '"' .
+      ' SET value = "' . $escapedValue . '"' .
       ' WHERE id = ' . $this->_dbId;
     $this->_mysql->execute($query);
     
@@ -198,8 +200,6 @@ final class NameImpl extends ScopedImpl implements Name
         );
       }
     }
-    $value = CharacteristicUtils::canonicalize($value, $this->_mysql->getConnection());
-    $datatype = CharacteristicUtils::canonicalize($datatype, $this->_mysql->getConnection());
     
     $propertyHolder['value'] = $value;
     $propertyHolder['datatype'] = $datatype;
@@ -215,17 +215,21 @@ final class NameImpl extends ScopedImpl implements Name
       return $this->_topicMap->_getConstructByVerifiedId('VariantImpl-' . $variantId);
     }
     
-    $nameScopeObj = $this->_getScopeObject();
-    if (!$nameScopeObj->isTrueSubset($mergedScope)) {
+    if (!$this->_getScopeObject()->isTrueSubset($mergedScope)) {
       throw new ModelConstraintException(
         $this, 
         __METHOD__ . ': Variant\'s scope is not a true superset of the name\'s scope!'
       );
     }
+    
+    // create legal SQL strings
+    $escapedValue = $this->_mysql->escapeString($value);
+    $escapedDatatype = $this->_mysql->escapeString($datatype);
+    
     $this->_mysql->startTransaction(true);
     $query = 'INSERT INTO ' . $this->_config['table']['variant'] . 
       ' (id, topicname_id, value, datatype, hash) VALUES' .
-      ' (NULL, ' . $this->_dbId . ', "' . $value . '", "' . $datatype . '", "' . $hash . '")';
+      ' (NULL, ' . $this->_dbId . ', "' . $escapedValue . '", "' . $escapedDatatype . '", "' . $hash . '")';
     $mysqlResult = $this->_mysql->execute($query);
     $lastVariantId = $mysqlResult->getLastId();
     

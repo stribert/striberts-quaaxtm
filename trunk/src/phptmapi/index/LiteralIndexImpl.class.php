@@ -45,10 +45,12 @@ final class LiteralIndexImpl extends IndexImpl implements LiteralIndex
       );
     }
     $names = array();
+    // create a legal SQL string
+    $escapedValue = $this->_mysql->escapeString($value);
     $query = 'SELECT t1.id, t1.topic_id, t1.type_id 
     	FROM ' . $this->_config['table']['topicname'] . ' t1  
       INNER JOIN ' . $this->_config['table']['topic'] . ' t2 ON t1.topic_id = t2.id
-			WHERE t1.value = "' . $value . '" AND t2.topicmap_id = ' . $this->_tmDbId;
+			WHERE t1.value = "' . $escapedValue . '" AND t2.topicmap_id = ' . $this->_tmDbId;
     $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $propertyHolder['type_id'] = $result['type_id'];
@@ -89,11 +91,14 @@ final class LiteralIndexImpl extends IndexImpl implements LiteralIndex
       );
     }
     $occs = array();
+    // create legal SQL strings
+    $escapedValue = $this->_mysql->escapeString($value);
+    $escapedDatatype = $this->_mysql->escapeString($datatype);
     $query = 'SELECT t1.id, t1.topic_id, t1.type_id 
     	FROM ' . $this->_config['table']['occurrence'] . ' t1  
       INNER JOIN ' . $this->_config['table']['topic'] . ' t2 ON t1.topic_id = t2.id
-			WHERE t1.value = "' . $value . '" 
-			AND t1.datatype = "' . $datatype . '" 
+			WHERE t1.value = "' . $escapedValue . '" 
+			AND t1.datatype = "' . $escapedDatatype . '" 
 			AND t2.topicmap_id = ' . $this->_tmDbId;
     $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
@@ -136,12 +141,15 @@ final class LiteralIndexImpl extends IndexImpl implements LiteralIndex
       );
     }
     $variants = array();
-    $query = 'SELECT t1.id, t1.topicname_id, t1.hash, t2.topic_id, t2.type_id, t2.value  
+    // create legal SQL strings
+    $escapedValue = $this->_mysql->escapeString($value);
+    $escapedDatatype = $this->_mysql->escapeString($datatype);
+    $query = 'SELECT t1.id, t1.topicname_id, t1.hash, t2.topic_id, t2.type_id, t2.value AS name_value 
     	FROM ' . $this->_config['table']['variant'] . ' t1  
       INNER JOIN ' . $this->_config['table']['topicname'] . ' t2 ON t1.topicname_id = t2.id
     	INNER JOIN ' . $this->_config['table']['topic'] . ' t3 ON t2.topic_id = t3.id
-			WHERE t1.value = "' . $value . '" 
-			AND t1.datatype = "' . $datatype . '" 
+			WHERE t1.value = "' . $escapedValue . '" 
+			AND t1.datatype = "' . $escapedDatatype . '" 
 			AND t3.topicmap_id = ' . $this->_tmDbId;
     $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
@@ -150,7 +158,7 @@ final class LiteralIndexImpl extends IndexImpl implements LiteralIndex
       );
       
       $propertyHolder['type_id'] = $result['type_id'];
-      $propertyHolder['value'] = $result['value'];
+      $propertyHolder['value'] = $result['name_value'];
       
       $parentName = new NameImpl(
         $result['topicname_id'], 

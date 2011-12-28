@@ -271,16 +271,18 @@ abstract class ConstructImpl implements Construct
         $this, __METHOD__ . self::$_identityNullErrMsg
       );
     }
+    // create a legal SQL string
+    $escapedIid = $this->_mysql->escapeString($iid);
     // define insert stmnt only once
     $insert = 'INSERT INTO ' . $this->_config['table']['itemidentifier'] . 
       ' (topicmapconstruct_id, locator) VALUES' .
-      ' (' . $this->_constructDbId . ', "' . $iid . '")';
+      ' (' . $this->_constructDbId . ', "' . $escapedIid . '")';
     // check if given item identifier exists in topic map
     $query = 'SELECT t1.*' . 
       ' FROM ' . $this->_config['table']['topicmapconstruct'] . ' t1' . 
       ' INNER JOIN ' . $this->_config['table']['itemidentifier'] . ' t2' .
       ' ON t1.id = t2.topicmapconstruct_id' .
-      ' WHERE t2.locator = "' . $iid . '"' . 
+      ' WHERE t2.locator = "' . $escapedIid . '"' . 
       ' AND t1.topicmap_id = ' . $this->getTopicMap()->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
     $numRows = $mysqlResult->getNumRows();
@@ -291,7 +293,7 @@ abstract class ConstructImpl implements Construct
           ' FROM ' . $this->_config['table']['subjectidentifier'] . ' t1' .
           ' INNER JOIN ' . $this->_config['table']['topic'] . ' t2' .
           ' ON t2.id = t1.topic_id' .
-          ' WHERE t1.locator = "' . $iid . '"' .
+          ' WHERE t1.locator = "' . $escapedIid . '"' .
           ' AND t2.topicmap_id = ' . $this->getTopicMap()->_dbId . 
           ' AND t1.topic_id <> ' . $this->_dbId;
         $mysqlResult = $this->_mysql->execute($query);
@@ -342,9 +344,11 @@ abstract class ConstructImpl implements Construct
     if (is_null($iid)) {
       return;
     }
+    // create a legal SQL string
+    $escapedIid = $this->_mysql->escapeString($iid);
     $query = 'DELETE FROM ' . $this->_config['table']['itemidentifier'] . 
       ' WHERE topicmapconstruct_id = ' . $this->_constructDbId . 
-      ' AND locator = "' . $iid . '"';
+      ' AND locator = "' . $escapedIid . '"';
     $this->_mysql->execute($query);
   }
 

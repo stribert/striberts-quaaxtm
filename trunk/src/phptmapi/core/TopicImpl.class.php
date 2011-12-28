@@ -110,12 +110,14 @@ final class TopicImpl extends ConstructImpl implements Topic
     if (in_array($sid, $sids)) {
       return;
     }
+    // create a legal SQL string
+    $escapedSid = $this->_mysql->escapeString($sid);
     // check others' subject identifiers
     $query = 'SELECT t2.id' .
       ' FROM ' . $this->_config['table']['subjectidentifier'] . ' t1' .
       ' INNER JOIN ' . $this->_config['table']['topic'] . ' t2' .
       ' ON t2.id = t1.topic_id' .
-      ' WHERE t1.locator = "' . $sid . '"' .
+      ' WHERE t1.locator = "' . $escapedSid . '"' .
       ' AND t2.topicmap_id = ' . $this->_topicMap->_dbId . 
       ' AND t2.id <> ' . $this->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
@@ -126,7 +128,7 @@ final class TopicImpl extends ConstructImpl implements Topic
         ' FROM ' . $this->_config['table']['topicmapconstruct'] . ' t1' . 
         ' INNER JOIN ' . $this->_config['table']['itemidentifier'] . ' t2' .
         ' ON t1.id = t2.topicmapconstruct_id' .
-        ' WHERE t2.locator = "' . $sid . '"' . 
+        ' WHERE t2.locator = "' . $escapedSid . '"' . 
         ' AND t1.topicmap_id = ' . $this->_topicMap->_dbId . 
         ' AND t1.topic_id <> ' . $this->_dbId . 
         ' AND t1.topic_id IS NOT NULL';
@@ -134,7 +136,7 @@ final class TopicImpl extends ConstructImpl implements Topic
       $numRows = $mysqlResult->getNumRows();
       if ($numRows == 0) {// insert subject identifier
         $query = 'INSERT INTO ' . $this->_config['table']['subjectidentifier'] . 
-          ' (topic_id, locator) VALUES (' . $this->_dbId . ', "' . $sid .'")';
+          ' (topic_id, locator) VALUES (' . $this->_dbId . ', "' . $escapedSid .'")';
         $this->_mysql->execute($query);
         if (!$this->_mysql->hasError()) {
           $this->_postSave();
@@ -145,7 +147,9 @@ final class TopicImpl extends ConstructImpl implements Topic
       }
     } else {// merge
       $result = $mysqlResult->fetch();
-      $existingTopic = $this->_parent->_getConstructByVerifiedId(__CLASS__ . '-' . $result['id']);
+      $existingTopic = $this->_parent->_getConstructByVerifiedId(
+        __CLASS__ . '-' . $result['id']
+      );
       $this->mergeIn($existingTopic);
     }
   }
@@ -162,9 +166,11 @@ final class TopicImpl extends ConstructImpl implements Topic
     if (is_null($sid)) {
       return;
     }
+    // create a legal SQL string
+    $escapedSid = $this->_mysql->escapeString($sid);
     $query = 'DELETE FROM ' . $this->_config['table']['subjectidentifier'] . 
       ' WHERE topic_id = ' . $this->_dbId . 
-      ' AND locator = "' . $sid . '"';
+      ' AND locator = "' . $escapedSid . '"';
     $this->_mysql->execute($query);
     if (!$this->_mysql->hasError()) {
       $this->_postSave();
@@ -216,26 +222,30 @@ final class TopicImpl extends ConstructImpl implements Topic
     if (in_array($slo, $slos)) {
       return;
     }
+    // create a legal SQL string
+    $escapedSlo = $this->_mysql->escapeString($slo);
     // check others' subject locators
     $query = 'SELECT t2.id' .
       ' FROM ' . $this->_config['table']['subjectlocator'] . ' t1' .
       ' INNER JOIN ' . $this->_config['table']['topic'] . ' t2' .
       ' ON t2.id = t1.topic_id' .
-      ' WHERE t1.locator = "' . $slo . '"' .
+      ' WHERE t1.locator = "' . $escapedSlo . '"' .
       ' AND t2.topicmap_id = ' . $this->_topicMap->_dbId . 
       ' AND t2.id <> ' . $this->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
     $numRows = $mysqlResult->getNumRows();
     if ($numRows == 0) {// insert subject locator
       $query = 'INSERT INTO ' . $this->_config['table']['subjectlocator'] . 
-        ' (topic_id, locator) VALUES (' . $this->_dbId . ', "' . $slo .'")';
+        ' (topic_id, locator) VALUES (' . $this->_dbId . ', "' . $escapedSlo .'")';
       $this->_mysql->execute($query);
       if (!$this->_mysql->hasError()) {
         $this->_postSave();
       }
     } else {// merge
       $result = $mysqlResult->fetch();
-      $existingTopic = $this->_parent->_getConstructByVerifiedId(__CLASS__ . '-' . $result['id']);
+      $existingTopic = $this->_parent->_getConstructByVerifiedId(
+        __CLASS__ . '-' . $result['id']
+      );
       $this->mergeIn($existingTopic);
     }
   }
@@ -252,9 +262,11 @@ final class TopicImpl extends ConstructImpl implements Topic
     if (is_null($slo)) {
       return;
     }
+    // create a legal SQL string
+    $escapedSlo = $this->_mysql->escapeString($slo);
     $query = 'DELETE FROM ' . $this->_config['table']['subjectlocator'] . 
       ' WHERE topic_id = ' . $this->_dbId . 
-      ' AND locator = "' . $slo . '"';
+      ' AND locator = "' . $escapedSlo . '"';
     $this->_mysql->execute($query);
     if (!$this->_mysql->hasError()) {
       $this->_postSave();
@@ -316,7 +328,7 @@ final class TopicImpl extends ConstructImpl implements Topic
         __METHOD__ . ConstructImpl::$_valueNullErrMsg
       );
     }
-    $value = CharacteristicUtils::canonicalize($value, $this->_mysql->getConnection());
+    
     $type = is_null($type) ? $this->_getDefaultNameType() : $type;
     
     if (!$this->_topicMap->equals($type->_topicMap)) {
@@ -346,10 +358,13 @@ final class TopicImpl extends ConstructImpl implements Topic
       return $this->_parent->_getConstructByVerifiedId('NameImpl-' . $nameId);
     }
     
+    // create a legal SQL string
+    $escapedValue = $this->_mysql->escapeString($value);
+    
     $this->_mysql->startTransaction(true);
     $query = 'INSERT INTO ' . $this->_config['table']['topicname'] . 
       ' (id, topic_id, type_id, value, hash) VALUES' .
-      ' (NULL, ' . $this->_dbId . ', ' . $type->_dbId . ', "' . $value . '", "' . $hash . '")';
+      ' (NULL, ' . $this->_dbId . ', ' . $type->_dbId . ', "' . $escapedValue . '", "' . $hash . '")';
     $mysqlResult = $this->_mysql->execute($query);
     $lastNameId = $mysqlResult->getLastId();
     
@@ -451,8 +466,6 @@ final class TopicImpl extends ConstructImpl implements Topic
         );
       }
     }
-    $value = CharacteristicUtils::canonicalize($value, $this->_mysql->getConnection());
-    $datatype = CharacteristicUtils::canonicalize($datatype, $this->_mysql->getConnection());
     
     $propertyHolder['type_id'] = $type->_dbId;
     $propertyHolder['value'] = $value;
@@ -468,10 +481,15 @@ final class TopicImpl extends ConstructImpl implements Topic
       return $this->_parent->_getConstructByVerifiedId('OccurrenceImpl-' . $occurrenceId);
     }
     
+    // create legal SQL strings
+    $escapedValue = $this->_mysql->escapeString($value);
+    $escapedDatatype = $this->_mysql->escapeString($datatype);
+    
     $this->_mysql->startTransaction(true);
     $query = 'INSERT INTO ' . $this->_config['table']['occurrence'] . 
       ' (id, topic_id, type_id, value, datatype, hash) VALUES' .
-      ' (NULL, '.$this->_dbId.', ' . $type->_dbId . ', "' . $value . '", "' . $datatype . '", "' . $hash . '")';
+      ' (NULL, ' . $this->_dbId . ', ' . $type->_dbId . ', "' . $escapedValue . '", "' . 
+      $escapedDatatype . '", "' . $hash . '")';
     $mysqlResult = $this->_mysql->execute($query);
     $lastOccurrenceId = $mysqlResult->getLastId();
     

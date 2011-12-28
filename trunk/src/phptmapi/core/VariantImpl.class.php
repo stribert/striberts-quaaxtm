@@ -154,12 +154,14 @@ final class VariantImpl extends ScopedImpl implements IVariant
         __METHOD__ . ConstructImpl::$_valueDatatypeNullErrMsg
       );
     }
-    $value = CharacteristicUtils::canonicalize($value, $this->_mysql->getConnection());
-    $datatype = CharacteristicUtils::canonicalize($datatype, $this->_mysql->getConnection());
+    // create legal SQL strings
+    $escapedValue = $this->_mysql->escapeString($value);
+    $escapedDatatype = $this->_mysql->escapeString($datatype);
+    
     $this->_mysql->startTransaction();
     $query = 'UPDATE ' . $this->_config['table']['variant'] . 
-      ' SET value = "' . $value . '", ' . 
-      'datatype = "' . $datatype . '" ' . 
+      ' SET value = "' . $escapedValue . '", ' . 
+      'datatype = "' . $escapedDatatype . '" ' . 
       'WHERE id = ' . $this->_dbId;
     $this->_mysql->execute($query);
     

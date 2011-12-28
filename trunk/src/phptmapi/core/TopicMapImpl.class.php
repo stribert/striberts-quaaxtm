@@ -258,10 +258,12 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
    */
   public function getTopicBySubjectIdentifier($sid)
   {
+    // create a legal SQL string
+    $escapedSid = $this->_mysql->escapeString($sid);
     $query = 'SELECT t1.id FROM ' . $this->_config['table']['topic'] . ' AS t1' .
       ' INNER JOIN ' . $this->_config['table']['subjectidentifier'] . ' t2' .
       ' ON t1.id = t2.topic_id' .
-      ' WHERE t2.locator = "' . $sid . '"' .
+      ' WHERE t2.locator = "' . $escapedSid . '"' .
       ' AND t1.topicmap_id = ' . $this->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
     $numRows = $mysqlResult->getNumRows();
@@ -283,10 +285,12 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
    */
   public function getTopicBySubjectLocator($slo)
   {
+    // create a legal SQL string
+    $escapedSlo = $this->_mysql->escapeString($slo);
     $query = 'SELECT t1.id FROM '.$this->_config['table']['topic'] . ' AS t1' .
       ' INNER JOIN ' . $this->_config['table']['subjectlocator'] . ' t2' .
       ' ON t1.id = t2.topic_id' .
-      ' WHERE t2.locator = "' . $slo . '"' .
+      ' WHERE t2.locator = "' . $escapedSlo . '"' .
       ' AND t1.topicmap_id = ' . $this->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
     $numRows = $mysqlResult->getNumRows();
@@ -308,11 +312,13 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
    */
   public function getConstructByItemIdentifier($iid)
   {
+    // create a legal SQL string
+    $escapedIid = $this->_mysql->escapeString($iid);
     $query = 'SELECT t1.*' .
       ' FROM ' . $this->_config['table']['topicmapconstruct'] . ' t1' .
       ' INNER JOIN ' . $this->_config['table']['itemidentifier'] . ' t2' .
       ' ON t1.id = t2.topicmapconstruct_id' .
-      ' WHERE t2.locator = "' . $iid . '"' .
+      ' WHERE t2.locator = "' . $escapedIid . '"' .
       ' AND t1.topicmap_id = ' . $this->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
     $numRows = $mysqlResult->getNumRows();

@@ -89,8 +89,10 @@ final class TopicMapSystemImpl implements TopicMapSystem
    */
   public function getTopicMap($uri)
   {
+    // create a legal SQL string
+    $escapedUri = $this->_mysql->escapeString($uri);
     $query = 'SELECT id FROM ' . $this->_config['table']['topicmap'] . 
-      ' WHERE locator = "' . $uri . '"';
+      ' WHERE locator = "' . $escapedUri . '"';
     $mysqlResult = $this->_mysql->execute($query);
     $numRows = $mysqlResult->getNumRows();
     if ($numRows > 0) {
@@ -115,9 +117,11 @@ final class TopicMapSystemImpl implements TopicMapSystem
     if (empty($uri)) {
       return null;
     }
+    // create a legal SQL string
+    $escapedUri = $this->_mysql->escapeString($uri);
     // check if the locator already exists
     $query = 'SELECT COUNT(*) FROM ' . $this->_config['table']['topicmap'] . 
-      ' WHERE locator = "' . $uri . '"';
+      ' WHERE locator = "' . $escapedUri . '"';
     $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetchArray();
     if ($result[0] != 0) {
@@ -127,7 +131,7 @@ final class TopicMapSystemImpl implements TopicMapSystem
     }
     $this->_mysql->startTransaction();
     $query = 'INSERT INTO ' . $this->_config['table']['topicmap'] . 
-      ' (id, locator) VALUES (NULL, "' . $uri . '")';
+      ' (id, locator) VALUES (NULL, "' . $escapedUri . '")';
     $this->_mysql->execute($query);
     $lastId = $mysqlResult->getLastId();
     
