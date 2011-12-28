@@ -46,7 +46,7 @@ class PHPTMAPITestCase extends PHPUnit_Framework_TestCase
             $_topicMap,
             $_preservedBaseLocators;
   
-  protected static $_tmLocator = 'http://localhost/tm/s4l1', 
+  protected static $_tmLocator = 'http://localhost/tm/d9aeba30d051a2ef3c77', 
   					        $_dtString = 'http://www.w3.org/2001/XMLSchema#string', 
                     $_dtUri = 'http://www.w3.org/2001/XMLSchema#anyURI';
   
