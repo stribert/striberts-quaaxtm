@@ -1,5 +1,19 @@
 Changes log
 
+0.7.2 (2012/xx/yy)
+------------------
+QuaaxTM
+- Enhanced MysqlMock: Replaced previous salt string in $_salt by an SHA1 hash
+- Introduced Mysql::escapeString() in order to replace CharacteristicUtils::canonicalize() - and 
+  created legal SQL strings in each PHPTMAPI core and index method where strings are passed as
+  parameters
+- Removed obsolete Mysql::getConnection()
+
+Bugfixes
+--------
+- Bug #3461484 (Literal values in Names, Occurrences, and Variants are globally escaped)
+               reported by Johannes Schmidt
+
 0.7.1 (2011/11/13)
 ------------------
 PHPTMAPI (lib/phptmapi2.0)
