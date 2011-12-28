@@ -63,7 +63,7 @@ class MysqlMock extends Mysql
    * @var string
    * @static
    */
-  protected static $_salt = 's3cr31_s4l1';
+  protected static $_salt = '694de4723d3ac90edad3378630f8deae8ebbffb3';
   
   /**
    * The constructor.
@@ -74,8 +74,8 @@ class MysqlMock extends Mysql
   {
     parent::__construct($config, $enableResultCache);
     $this->memcachedWasCalledSuccessfully = 
-    $this->memcachedWasIgnored = 
     $this->memcachedWasSet = false;
+    $this->memcachedWasIgnored = true;
     $this->_memcachedKeys = array();
   }
   
@@ -99,7 +99,7 @@ class MysqlMock extends Mysql
    * @see Mysql::_get()
    * @override
    */
-  protected function _get($query, $resultCacheAllowed=false, $fetchOne=false)
+  protected function _get($query, $resultCacheAllowed, $fetchOne)
   {
     if ($this->_resultCacheEnabled && $resultCacheAllowed) {
       $this->memcachedWasIgnored = false;
