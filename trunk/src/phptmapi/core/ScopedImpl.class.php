@@ -98,11 +98,10 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped
         __METHOD__ . ConstructImpl::$_sameTmConstraintErrMsg
       );
     }
-    $prevScopeObj = $this->_getScopeObject();
     $scope = $this->getScope();
     $scope[] = $theme;
     $this->_mysql->startTransaction(true);
-    $this->_unsetScope($prevScopeObj);
+    $this->_unsetScope($this->_getScopeObject());
     $scopeObj = new ScopeImpl($this->_mysql, $this->_config, $scope, $this->_topicMap, $this);
     $this->_setScope($scopeObj);
     $this->_updateScopedPropertyHash($scope);
