@@ -181,16 +181,6 @@ class Mysql
       $this->_resultCacheEnabled = true;
     }
   }
-  
-  /**
-   * Gets the current MySQL connection.
-   * 
-   * @return mysqli
-   */
-  public function getConnection()
-  {
-    return $this->_connection;
-  }
 	
   /**
    * Closes a connection to MySQL.
@@ -324,7 +314,7 @@ class Mysql
    */
   public function fetch($query, $resultCacheAllowed=false)
   {
-    return $this->_get($query, $resultCacheAllowed);
+    return $this->_get($query, $resultCacheAllowed, false);
   }
   
   /**
@@ -366,18 +356,27 @@ class Mysql
   }
   
   /**
+   * Creates a legal SQL string using <var>mysqli_real_escape_string()</var>.
+   * 
+   * @param string The string to escape.
+   * @return string The escaped string.
+   */
+  public function escapeString($str)
+  {
+    return mysqli_real_escape_string($this->_connection, $str);
+  }
+  
+  /**
    * Provides the storage gateway: Either returns a query result from MySQL or the 
    * memcached based result cache.
    * 
    * @param string The SQL statement.
-   * @param boolean Permission to use the result cache or not. 
-   * 				Default <var>false</var>.
-   * @param boolean Fetch the whole result or only the first row. 
-   * 				Default <var>false</var>.
+   * @param boolean Permission to use the result cache or not.
+   * @param boolean Fetch the whole result or only the first row.
    * @return array|false The query result as <var>associative array</var> or 
    * 				<var>false</var> on error.
    */
-  protected function _get($query, $resultCacheAllowed=false, $fetchOne=false)
+  protected function _get($query, $resultCacheAllowed, $fetchOne)
   {
     if ($this->_resultCacheEnabled && $resultCacheAllowed) {
       $key = md5($query);
