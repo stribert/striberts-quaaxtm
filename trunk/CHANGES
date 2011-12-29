@@ -8,6 +8,7 @@ QuaaxTM
   created legal SQL strings in each PHPTMAPI core and index method where strings are passed as
   parameters
 - Removed obsolete Mysql::getConnection()
+- Removed obsolete class utils/CharacteristicUtils
 
 Bugfixes
 --------
