@@ -171,6 +171,23 @@ class OccurrenceTest extends PHPTMAPITestCase
     }
   }
   
+  public function testXmlValue()
+  {
+    $parent = $this->_topicMap->createTopic();
+    $value = '<foo bar="baz"><![CDATA["Please escape me!\n"]]></foo>';
+    $occ = $parent->createOccurrence(
+      $this->_topicMap->createTopic(), 
+    	$value, 
+      parent::$_dtString
+    );
+    $this->assertEquals($value, $occ->getValue());
+    $occs = $parent->getOccurrences();
+    $this->assertEquals(count($occs), 1);
+    $retrievedOcc = $occs[0];
+    $this->assertTrue($retrievedOcc->equals($occ));
+    $this->assertEquals($value, $retrievedOcc->getValue());
+  }
+  
   public function testScope()
   {
     $occ = $this->_createOcc();
