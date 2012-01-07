@@ -79,7 +79,7 @@ class TopicMapSystemTest extends PHPTMAPITestCase
     }
   }
   
-  public function testCreateTopicMaps()
+  public function testCreateTopicMap()
   {
     $base = 'http://localhost/topicmaps/';
     $tm1 = $this->_tmSystem->createTopicMap($base . uniqid());
