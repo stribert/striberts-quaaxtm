@@ -501,15 +501,15 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
     }
     $construct = $this->getConstructByItemIdentifier($sid);
     if ($construct instanceof Topic) {
-      // add subject identifier to this topic
+      // add the subject identifier to this topic
       $construct->addSubjectIdentifier($sid);
       return $construct;
     }
-    // create new topic
+    // create a new topic
     $this->_setIid = false;
     $this->_mysql->startTransaction(true);
     $topic = $this->createTopic();
-    // add subject identifier to this topic
+    // add the subject identifier to this topic
     $topic->addSubjectIdentifier($sid);
     $this->_mysql->finishTransaction(true);
     $this->_setIid = true;
@@ -538,11 +538,11 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
     if (!is_null($topic)) {
       return $topic;
     }
-    // create new topic
+    // create a new topic
     $this->_setIid = false;
     $this->_mysql->startTransaction(true);
     $topic = $this->createTopic();
-    // add subject locator to this topic
+    // add the subject locator to this topic
     $topic->addSubjectLocator($slo);
     $this->_mysql->finishTransaction(true);
     $this->_setIid = true;
