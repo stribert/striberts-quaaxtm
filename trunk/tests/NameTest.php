@@ -62,6 +62,12 @@ class NameTest extends PHPTMAPITestCase
       $this->assertEquals(count($names), 1);
       $name = $names[0];
       $this->assertEquals($name->getValue(), $value);
+      // test database update
+      $name->setValue($value);
+      $names = $parent->getNames();
+      $this->assertEquals(count($names), 1);
+      $name = $names[0];
+      $this->assertEquals($name->getValue(), $value);
     }
   }
   

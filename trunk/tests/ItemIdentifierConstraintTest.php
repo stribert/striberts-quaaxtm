@@ -136,7 +136,7 @@ class ItemIdentifierConstraintTest extends PHPTMAPITestCase
     $otherMap->remove();
   }
   
-  public function testTopicMergeUnescaped()
+  public function testTopicMerge()
   {
     $this->_testTopicMerge('http://localhost/t/1');
   }

@@ -196,10 +196,9 @@ class TopicMapTest extends PHPTMAPITestCase
       'Unexpected subject locator');
   }
   
-  public function testTopicBySubjectIdentifier()
+  private function _testGetTopicBySubjectIdentifier($sid)
   {
     $tm = $this->_topicMap;
-    $sid = 'http://www.example.org/';
     $topic = $tm->getTopicBySubjectIdentifier($sid);
     $this->assertNull($topic, 'Unexpected topic!');
     $_topic = $tm->createTopicBySubjectIdentifier($sid);
@@ -211,10 +210,19 @@ class TopicMapTest extends PHPTMAPITestCase
     $this->assertNull($topic, 'Unexpected topic!');
   }
   
-  public function testTopicBySubjectLocator()
+  public function testGetTopicBySubjectIdentifier()
+  {
+    $this->_testGetTopicBySubjectIdentifier('http://www.example.org/');
+  }
+  
+  public function testGetTopicBySubjectIdentifierEscaped()
+  {
+    $this->_testGetTopicBySubjectIdentifier("http://www.example.org/2/'scaped");
+  }
+  
+  private function _testGetTopicBySubjectLocator($slo)
   {
     $tm = $this->_topicMap;
-    $slo = 'http://www.example.org/';
     $topic = $tm->getTopicBySubjectLocator($slo);
     $this->assertNull($topic, 'Unexpected topic!');
     $_topic = $tm->createTopicBySubjectLocator($slo);
@@ -226,7 +234,17 @@ class TopicMapTest extends PHPTMAPITestCase
     $this->assertNull($topic, 'Unexpected topic!');
   }
   
-  public function testAssociationCreation()
+  public function testGetTopicBySubjectLocator()
+  {
+    $this->_testGetTopicBySubjectLocator('http://www.example.org/');
+  }
+  
+  public function testGetTopicBySubjectLocatorEscaped()
+  {
+    $this->_testGetTopicBySubjectLocator("http://www.example.org/2/'scaped");
+  }
+  
+  public function testCreateAssociation()
   {
     $tm = $this->_topicMap;
     $type = $tm->createTopic();
@@ -242,7 +260,7 @@ class TopicMapTest extends PHPTMAPITestCase
     $this->assertEquals(count($assoc->getScope()), 0, 'Unexpected scope!');
   }
   
-  public function testAssociationCreationScope()
+  public function testCreateAssociationScope()
   {
     $tm = $this->_topicMap;
     $type = $tm->createTopic();

@@ -639,6 +639,12 @@ class TopicTest extends PHPTMAPITestCase
       in_array($sid2, $topic->getSubjectIdentifiers(), true), 
       'Subject identifier is not part of getSubjectIdentifiers()!'
     );
+    $topic->removeSubjectIdentifier($sid2);
+    $this->assertEquals(
+      count($topic->getSubjectIdentifiers()), 
+      0, 
+      'Expected 0 subject identifiers!'
+    );
   }
   
   private function _testSubjectLocators($slo1, $slo2)
@@ -677,6 +683,12 @@ class TopicTest extends PHPTMAPITestCase
     $this->assertTrue(
       in_array($slo2, $topic->getSubjectLocators(), true), 
       'Subject locator is not part of getSubjectLocators()!'
+    );
+    $topic->removeSubjectLocator($slo2);
+    $this->assertEquals(
+      count($topic->getSubjectLocators()), 
+      0, 
+      'Expected 0 subject locators!'
     );
   }
   

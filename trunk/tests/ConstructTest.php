@@ -40,57 +40,104 @@ class ConstructTest extends PHPTMAPITestCase
   private function _testConstruct(Construct $construct)
   {
     $tm = $this->_topicMap;
-    $this->assertEquals(0, count($construct->getItemIdentifiers()), 
-      'Expected number of iids to be 0 for newly created construct!');
+    $this->assertEquals(
+      0, 
+      count($construct->getItemIdentifiers()), 
+      'Expected number of iids to be 0 for newly created construct!'
+    );
     $locator1 = 'http://tmapi.org/test#' . uniqid();
     $locator2 = 'http://tmapi.org/test/' . uniqid() . '/"scape';
     $construct->addItemIdentifier($locator1);
-    $this->assertEquals(1, count($construct->getItemIdentifiers()), 
-      'Expected 1 iid!');
+    $this->assertEquals(
+      1, 
+      count($construct->getItemIdentifiers()), 
+      'Expected 1 iid!'
+    );
     $construct->addItemIdentifier($locator2);
     $construct->removeItemIdentifier(null);
-    $this->assertEquals(2, count($construct->getItemIdentifiers()), 
-      'Expected 2 iids!');
-    $this->assertTrue(in_array($locator1, $construct->getItemIdentifiers(), true), 
-      'Expected iid!');
-    $this->assertTrue(in_array($locator2, $construct->getItemIdentifiers(), true), 
-      'Expected iid!');
-    $this->assertEquals($construct->getId(), 
-      $tm->getConstructByItemIdentifier($locator1)->getId(), 'Unexpected construct!');
-    $this->assertEquals($construct->getId(), 
-      $tm->getConstructByItemIdentifier($locator2)->getId(), 'Unexpected construct!');
-    $this->assertEquals($construct->hashCode(), 
-      $tm->getConstructByItemIdentifier($locator1)->hashCode(), 'Unexpected construct!');
-    $this->assertEquals($construct->hashCode(), 
-      $tm->getConstructByItemIdentifier($locator2)->hashCode(), 'Unexpected construct!');
+    $this->assertEquals(
+      2, 
+      count($construct->getItemIdentifiers()), 
+      'Expected 2 iids!'
+    );
+    $this->assertTrue(
+      in_array($locator1, $construct->getItemIdentifiers(), true), 
+      'Expected iid!'
+    );
+    $this->assertTrue(
+      in_array($locator2, $construct->getItemIdentifiers(), true), 
+      'Expected iid!'
+    );
+    $this->assertEquals(
+      $construct->getId(), 
+      $tm->getConstructByItemIdentifier($locator1)->getId(), 
+      'Unexpected construct!'
+    );
+    $this->assertEquals(
+      $construct->getId(), 
+      $tm->getConstructByItemIdentifier($locator2)->getId(), 
+      'Unexpected construct!'
+    );
+    $this->assertEquals(
+      $construct->hashCode(), 
+      $tm->getConstructByItemIdentifier($locator1)->hashCode(), 
+      'Unexpected construct!'
+    );
+    $this->assertEquals(
+      $construct->hashCode(), 
+      $tm->getConstructByItemIdentifier($locator2)->hashCode(), 
+      'Unexpected construct!'
+    );
     $construct->removeItemIdentifier($locator1);
-    $this->assertEquals(1, count($construct->getItemIdentifiers()), 
-      'Iid was not removed!');
+    $this->assertEquals(
+      1, 
+      count($construct->getItemIdentifiers()), 
+      'Iid was not removed!'
+    );
+    $this->assertFalse(
+      in_array($locator1, $construct->getItemIdentifiers(), true), 
+      'Unexpected iid!'
+    );
+    $this->assertTrue(
+      in_array($locator2, $construct->getItemIdentifiers(), true), 
+      'Expected iid!'
+    );
     $construct->removeItemIdentifier($locator2);
-    $this->assertEquals(0, count($construct->getItemIdentifiers()), 
-      'Iid was not removed!');
-    $this->assertFalse(in_array($locator1, $construct->getItemIdentifiers(), true), 
-      'Expected iid not to be returned!');
-    $this->assertFalse(in_array($locator2, $construct->getItemIdentifiers(), true), 
-      'Expected iid not to be returned!');
-    $this->assertNull($tm->getConstructByItemIdentifier($locator1), 
-      'Got a construct even if the iid is unassigned!');
+    $this->assertEquals(
+      0, 
+      count($construct->getItemIdentifiers()), 
+      'Iid was not removed!'
+    );
+    $this->assertNull(
+      $tm->getConstructByItemIdentifier($locator1), 
+      'Got a construct even if the iid is unassigned!'
+    );
+    $this->assertNull(
+      $tm->getConstructByItemIdentifier($locator2), 
+      'Got a construct even if the iid is unassigned!'
+    );
     try {
       $construct->addItemIdentifier(null);
       $this->fail('addItemIdentifier(null) is illegal!');
     } catch (ModelConstraintException $e) {
-      // no op.
+      $this->assertEquals(0, count($construct->getItemIdentifiers()));
     }
     if ($construct instanceof TopicMap) {
       $this->assertNull($construct->getParent(), 'Topic map has no parent!');
     } else {
       $this->assertNotNull($construct->getParent(), 'Topic Maps constructs have a parent!');
     }
-    $this->assertEquals($this->_topicMap->getId(), $construct->getTopicMap()->getId(), 
-      'Construct belongs to wrong topic map!');
+    $this->assertEquals(
+      $this->_topicMap->getId(), 
+      $construct->getTopicMap()->getId(), 
+      'Construct belongs to wrong topic map!'
+    );
     $id = $construct->getId();
-    $this->assertEquals($construct->getId(), $tm->getConstructById($id)->getId(), 
-      'Unexpected construct!');
+    $this->assertEquals(
+      $construct->getId(), 
+      $tm->getConstructById($id)->getId(), 
+      'Unexpected construct!'
+    );
     $this->assertTrue($construct->equals($tm->getConstructById($id)), 'Expected identity!');
     $topic = $tm->createTopic();
     $this->assertFalse($construct->equals($topic), 'Unexpected identity!');

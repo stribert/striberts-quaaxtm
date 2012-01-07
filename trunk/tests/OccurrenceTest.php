@@ -77,6 +77,13 @@ class OccurrenceTest extends PHPTMAPITestCase
       $occ = $occs[0];
       $this->assertEquals($occ->getValue(), $values[$i]);
       $this->assertEquals($occ->getDatatype(), $datatypes[$i]);
+      // test database update
+      $occ->setValue($values[$i], $datatypes[$i]);
+      $occs = $parent->getOccurrences();
+      $this->assertEquals(count($occs), 1);
+      $occ = $occs[0];
+      $this->assertEquals($occ->getValue(), $values[$i]);
+      $this->assertEquals($occ->getDatatype(), $datatypes[$i]);
     }
   }
   

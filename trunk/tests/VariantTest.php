@@ -72,6 +72,13 @@ class VariantTest extends PHPTMAPITestCase
       $variant = $variants[0];
       $this->assertEquals($variant->getValue(), $values[$i]);
       $this->assertEquals($variant->getDatatype(), $datatypes[$i]);
+      // test database update
+      $variant->setValue($values[$i], $datatypes[$i]);
+      $variants = $parent->getVariants();
+      $this->assertEquals(count($variants), 1);
+      $variant = $variants[0];
+      $this->assertEquals($variant->getValue(), $values[$i]);
+      $this->assertEquals($variant->getDatatype(), $datatypes[$i]);
     }
   }
   
