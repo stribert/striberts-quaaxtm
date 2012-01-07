@@ -379,7 +379,7 @@ final class NameImpl extends ScopedImpl implements Name
     while ($result = $mysqlResult->fetch()) {
       $this->_topicMap->_setConstructParent($this);
       $duplicate = $this->_topicMap->_getConstructByVerifiedId('VariantImpl-' . $result['id']);
-      // gain duplicate's item identities
+      // gain duplicate's item identifiers
       $variant->_gainItemIdentifiers($duplicate);
       // gain duplicate's reifier
       $variant->_gainReifier($duplicate);
