@@ -90,7 +90,7 @@ final class TypeInstanceIndexImpl extends IndexImpl implements TypeInstanceIndex
       	ON t1.id = t2.topic_id  
 				WHERE t1.topicmap_id = ' . $this->_tmDbId . ' AND t2.type_id IN (' . $idsImploded . ') 
 				GROUP BY t1.id';
-      if ((boolean)$matchAll) {
+      if ((boolean) $matchAll) {
         $query .= ' HAVING COUNT(*) = ' . count($typesDbIds);
       }
     }
