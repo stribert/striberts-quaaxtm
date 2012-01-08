@@ -131,6 +131,8 @@ class LiteralIndexTest extends PHPTMAPITestCase
     $this->assertEquals(count($occs), 1);
     $retrievedOcc = $occs[0];
     $this->assertTrue($occ->equals($retrievedOcc));
+    $this->assertEquals($retrievedOcc->getValue(), $value);
+    $this->assertEquals($retrievedOcc->getDatatype(), $datatype);
   }
   
   public function testGetVariants()
@@ -207,6 +209,8 @@ class LiteralIndexTest extends PHPTMAPITestCase
     $this->assertEquals(count($variants), 1);
     $retrievedVariant = $variants[0];
     $this->assertTrue($variant->equals($retrievedVariant));
+    $this->assertEquals($retrievedVariant->getValue(), $value);
+    $this->assertEquals($retrievedVariant->getDatatype(), $datatype);
   }
 }
 ?>
