@@ -1,0 +1,89 @@
+Changes log
+
+0.7.2 (2012/01/08)
+------------------
+QuaaxTM
+- Enhanced MysqlMock: Replaced previous salt string in $_salt by an SHA1 hash
+- Introduced Mysql::escapeString() in order to replace CharacteristicUtils::canonicalize() - and 
+  created legal SQL strings in each PHPTMAPI core and index method where strings are passed as
+  parameters
+- Removed obsolete Mysql::getConnection()
+- Removed obsolete class utils/CharacteristicUtils
+
+Bugfixes
+--------
+- Bug #3461484 (Literal values in Names, Occurrences, and Variants are globally escaped)
+               reported by Johannes Schmidt
+
+0.7.1 (2011/11/13)
+------------------
+PHPTMAPI (lib/phptmapi2.0)
+- Upgraded to PHPTMAPI 2.1, see lib/phptmapi2.0/CHANGES for details (2.1 is backward compatible 
+  to 2.0.1)
+
+0.7.0 (2011/08/27)
+------------------
+PHPTMAPI (lib/phptmapi2.0)
+- Allowed any datatype for parameter $value in TopicMapSystemFactory::setProperty() (was object only)
+- Changed code style: Added prefix "_" for private class members, set opening brackets for classes / 
+  interfaces and class / interface methods on new line
+  
+QuaaxTM
+- Added more tests to increase code coverage in the unit tests (reached >98% lines coverage for the 
+  files / classes in the src directory)
+- Defined all INT as UNSIGNED in the QuaaxTM database schema, switched TINYTEXT to equivalent 
+  VARCHAR(255) in qtm_variant, changed "INDEX (value(100))" to "INDEX (value(255))" in qtm_occurrence 
+  (schema is backward compatible: data from previous schema can be migrated seamlessly)
+- Replaced PropertyUtils by simple Array
+- Introduced a memcached based MySQL result cache (currently only available in 
+  AssociationImpl::getRoles(), AssociationImpl::getRoleTypes(), and TopicMapImpl::getAssociations())
+- Introduced MysqlMock for testing the result cache explicitly and enabled passing MysqlMock as 
+  TopicMapSystem property via TopicMapSystemFactoryImpl::setProperty()
+- Removed interface IScope from core
+- Changed code style: Added prefix "_" for private and protected class methods and class 
+  members, set opening brackets for classes and class methods on new line
+- Added documentation for all class members and class constants
+
+0.6.2 (2011/05/07)
+------------------
+QuaaxTM
+- Added example.php
+- Moved the checks if themes in passed scopes belong to the parent topic map from ScopeImpl 
+  to the respective implementations of Topic Maps constructs
+
+Bugfixes
+--------
+- Bug #3288234 (Missing usort of second locator array in PHPTMAPICXTMWriter) 
+               reported by Johannes Schmidt
+
+0.6.1 (2011/03/09)
+------------------
+PHPTMAPI (lib/phptmapi2.0)
+- Use call_user_func() in PHPTMAPI's TopicMapSystemFactory::newInstance() to retrieve 
+  the implementation of TopicMapSystemFactory (be backward compatible to PHP 5.2)
+
+QuaaxTMIO (lib/quaaxtmio)
+- Added more syntax checks to JTM101TopicMapReader and XTM201TopicMapReader
+- Upgraded CXTM tests from version 0.3 to version 0.4
+- Added test cases for invalid JTM and XTM
+
+QuaaxTM
+- Constrained all Scoped and Type Instance indexes to the topic map the index was created for
+
+Bugfixes
+--------
+- Bug #3174188 (QuaaxTM requires PHP 5.3) reported by Johannes Schmidt
+
+0.6.0 (2011/01/16)
+------------------
+- Updated PHPTMAPI to 2.0.1
+- Implemented the PHPTMAPI index package
+- Reduced database reads
+- Cleaned API: declared QuaaxTM specific / internal methods "protected"
+- Added more tests
+
+
+Bugfixes
+--------
+- Bug #3140283 (Missing ON clause in TopicImpl::getRolesPlayedByType(Topic $type))
+               reported by Johannes Schmidt

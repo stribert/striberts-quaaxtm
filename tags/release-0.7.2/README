@@ -1,0 +1,42 @@
+QuaaxTM is a PHP Topic Maps engine which implements PHPTMAPI. See 
+http://phptmapi.sourceforge.net/ for details. This version of QuaaxTM implements 
+PHPTMAPI 2.1. 
+QuaaxTM stores topic maps in a MySQL database and uses InnoDB as storage engine.
+See lib/quaaxtmio for the Topic Maps syntaxes serializer / deserializer library QuaaxTMIO. 
+
+Installation
+------------
+Prerequisites:
+a) PHP >= 5.2 with SPL enabled (PHP >= 5.3 is highly recommended)
+b) MySQL >= 5.0 with InnoDB enabled
+c) Optional: memcached and libmemcached based PECL extension for using the QuaaxTM MySQL query result 
+   cache. See http://memcached.org/, http://libmemcached.org/, and 
+   http://www.php.net/manual/en/book.memcached.php. This version of QuaaxTM is tested against 
+   memcached 1.4.5, libmemcached 0.40, and PECL memcached extension 1.0.2.
+   Note: The result cache is currently only available in AssociationImpl::getRoles(), 
+   AssociationImpl::getRoleTypes(), and TopicMapImpl::getAssociations(). See example.php how this 
+   feature can be enabled using the feature string mechanics. 
+
+1. Execute src/qtm_schema.sql in your MySQL database.
+2. Edit your specific settings in lib/phptmapi2.0/config.php and src/phptmapi/config.php.
+3. If PHPUnit (http://www.phpunit.de) is available you will be able to run the test
+   suite: Open a terminal, move to 'tests', and execute phpunit AllTests.php. 
+   Each test can be executed separately. Have a look at tests/PHPTMAPITestCase.php or example.php 
+   how QuaaxTM is used - you just have to include TopicMapSystemFactory.class.php from PHPTMAPI.
+
+Documentation
+-------------
+Have a look at the project's homepage http://quaaxtm.sourceforge.net/ for API documentation 
+and further information. See example.php for a quick start.
+
+Questions and answers
+---------------------
+Use the PHPTMAPI mailing list https://lists.sourceforge.net/lists/listinfo/phptmapi-discuss/ 
+for questions, ideas, and discussion.
+
+License
+-------
+This software is licensed under GNU LESSER GENERAL PUBLIC LICENSE Version 3, see LICENSE for 
+details and/or visit http://www.gnu.org/licenses/lgpl.html.
+As GNU LESSER GENERAL PUBLIC LICENSE incorporates the terms and conditions of version 3 of the 
+GNU General Public License the GNU GPL is provided in GNUGPL.
