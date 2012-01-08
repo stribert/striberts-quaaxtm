@@ -715,7 +715,7 @@ class PHPTMAPICXTMWriter
     $makeUnique=false
     )
   {
-    if ((boolean)$makeUnique) {
+    if ((boolean) $makeUnique) {
       $arr1 = array_unique($arr1);
       $arr2 = array_unique($arr2);
     }

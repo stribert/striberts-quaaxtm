@@ -1046,7 +1046,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
     $numRows = $mysqlResult->getNumRows();
     if ($numRows > 0) {
       $result = $mysqlResult->fetch();
-      return (int) $result['id'];
+      return (integer) $result['id'];
     }
     return false;
   }
@@ -1096,7 +1096,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
       ' AND parent_id IS NULL';
     $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetch();
-    return (int) $result['id'];
+    return (integer) $result['id'];
   }
   
   /**
@@ -1135,7 +1135,7 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
       return false;
     }
     $result = $mysqlResult->fetchArray();
-    if ((int)$result[0] > 0) {
+    if ((integer) $result[0] > 0) {
       $this->_seenConstructsCache[$id] = $this->_id;
       return true;
     }

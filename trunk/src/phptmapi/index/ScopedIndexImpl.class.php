@@ -86,7 +86,7 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex
       	INNER JOIN ' . $this->_config['table']['theme'] . ' t3 ON t3.scope_id = t2.scope_id 
       	WHERE t1.topicmap_id = ' . $this->_tmDbId . ' AND t3.topic_id IN(' . $idsImploded . ') 
       	GROUP BY t1.id';
-      if ((boolean)$matchAll) {
+      if ((boolean) $matchAll) {
         $query .= ' HAVING COUNT(*) = ' . count($themesDbIds);
       }
     }
@@ -185,7 +185,7 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex
       	INNER JOIN ' . $this->_config['table']['topicname_scope'] . ' t3 ON t3.topicname_id = t1.id 
       	INNER JOIN ' . $this->_config['table']['theme'] . ' t4 ON t4.scope_id = t3.scope_id 
       	WHERE t2.topicmap_id = ' . $this->_tmDbId . ' AND t4.topic_id IN(' . $idsImploded . ') GROUP BY t1.id';
-      if ((boolean)$matchAll) {
+      if ((boolean) $matchAll) {
         $query .= ' HAVING COUNT(*) = ' . count($themesDbIds);
       }
     }
@@ -291,7 +291,7 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex
       	ON t4.scope_id = t3.scope_id 
       	WHERE t2.topicmap_id = ' . $this->_tmDbId . ' 
       	AND t4.topic_id IN(' . $idsImploded . ') GROUP BY t1.id';
-      if ((boolean)$matchAll) {
+      if ((boolean) $matchAll) {
         $query .= ' HAVING COUNT(*) = ' . count($themesDbIds);
       }
     }
@@ -395,7 +395,7 @@ final class ScopedIndexImpl extends IndexImpl implements ScopedIndex
       	ON t5.scope_id = t4.scope_id 
       	WHERE t3.topicmap_id = ' . $this->_tmDbId . ' 
       	AND t5.topic_id IN(' . $idsImploded . ') GROUP BY t1.id';
-      if ((boolean)$matchAll) {
+      if ((boolean) $matchAll) {
         $query .= ' HAVING COUNT(*) = ' . count($themesDbIds);
       }
     }

@@ -165,12 +165,12 @@ final class ScopeImpl
           ' WHERE scope_id = ' . $result['scope_id'];
         $_mysqlResult = $this->_mysql->execute($query);
         while ($_result = $_mysqlResult->fetch()) {
-          $_themesIds[] = (int) $_result['topic_id'];
+          $_themesIds[] = (integer) $_result['topic_id'];
         }
         $diff = array_diff($this->_themesIds, $_themesIds);
         $diffReverse = array_diff($_themesIds, $this->_themesIds);
         if (empty($diff) && empty($diffReverse)) {
-          return (int) $result['scope_id'];
+          return (integer) $result['scope_id'];
         }
       }
     }
@@ -231,11 +231,11 @@ final class ScopeImpl
     $numRows = $mysqlResult->getNumRows();
     if ($numRows > 0) {
       $result = $mysqlResult->fetch();
-      return (int) $result['scope_id'];
+      return (integer) $result['scope_id'];
     }
     $query = 'INSERT INTO ' . $this->_config['table']['scope'] . ' (id) VALUES (NULL)';
     $mysqlResult = $this->_mysql->execute($query);
-    return (int) $mysqlResult->getLastId();
+    return (integer) $mysqlResult->getLastId();
   }
 }
 ?>

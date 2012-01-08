@@ -342,7 +342,7 @@ class Mysql
    */
   public function setResultCacheExpiration($seconds)
   {
-    $this->_resultCacheExpiration = (int) $seconds;
+    $this->_resultCacheExpiration = (integer) $seconds;
   }
   
   /**

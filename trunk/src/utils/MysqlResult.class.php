@@ -88,7 +88,7 @@ class MysqlResult
    */      
   public function getNumRows()
   {
-    return (int) mysqli_num_rows($this->_result);
+    return (integer) mysqli_num_rows($this->_result);
   }
 	
   /**
@@ -98,7 +98,7 @@ class MysqlResult
    */
   public function getLastId()
   {
-    return (int) mysqli_insert_id($this->_connection);
+    return (integer) mysqli_insert_id($this->_connection);
   }
 }
 ?>

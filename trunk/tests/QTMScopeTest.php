@@ -179,12 +179,12 @@ class QTMScopeTest extends PHPTMAPITestCase
     $query = 'SELECT COUNT(*) FROM ' . $scopedTable . ' WHERE id = ' . $scopedDbId;
     $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetchArray();
-    $this->assertEquals((int) $result[0], 0, 'Expected equality!');
+    $this->assertEquals((integer) $result[0], 0, 'Expected equality!');
     
     $query = 'SELECT COUNT(*) FROM ' . $scopeTable . ' WHERE scope_id = ' . $scopeDbId;
     $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetchArray();
-    $this->assertEquals((int) $result[0], 0, 'Expected equality!');
+    $this->assertEquals((integer) $result[0], 0, 'Expected equality!');
     
     try {
       $theme1->remove();
@@ -241,16 +241,16 @@ class QTMScopeTest extends PHPTMAPITestCase
     $query = 'SELECT COUNT(*) FROM ' . $scopedTable . ' WHERE id = ' . $scopedDbId;
     $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetchArray();
-    $this->assertEquals((int) $result[0], 0, 'Expected equality!');
+    $this->assertEquals((integer) $result[0], 0, 'Expected equality!');
     
     $query = 'SELECT COUNT(*) FROM ' . $scopeTable . ' WHERE scope_id = ' . $scopeDbId;
     $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetchArray();
     // the other scoped construct sharing this scope is a topic name
     if (!$scoped instanceof Name) {
-      $this->assertEquals((int) $result[0], 0, 'Expected equality!');
+      $this->assertEquals((integer) $result[0], 0, 'Expected equality!');
     } else {
-      $this->assertEquals((int) $result[0], 1, 'Expected equality!');
+      $this->assertEquals((integer) $result[0], 1, 'Expected equality!');
     }
     
     try {

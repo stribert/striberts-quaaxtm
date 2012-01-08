@@ -398,7 +398,7 @@ abstract class ConstructImpl implements Construct
   public function getDbId()
   {
     $constituents = explode('-', $this->_id);
-    return (int) $constituents[1];
+    return (integer) $constituents[1];
   }
   
   /**
@@ -829,7 +829,7 @@ abstract class ConstructImpl implements Construct
       ' WHERE ' . $this->_fkColumn . ' = ' . $this->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetch();
-    return (int) $result['id'];
+    return (integer) $result['id'];
   }
   
   /**
@@ -844,7 +844,7 @@ abstract class ConstructImpl implements Construct
       ' WHERE topicname_id = ' . $nameId;
     $mysqlResult = $this->_mysql->execute($query);
     $result = $mysqlResult->fetch();
-    return (int) $result['parent_id'];
+    return (integer) $result['parent_id'];
   }
 }
 ?>

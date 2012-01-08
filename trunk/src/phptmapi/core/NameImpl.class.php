@@ -442,7 +442,7 @@ final class NameImpl extends ScopedImpl implements Name
     $numRows = $mysqlResult->getNumRows();
     if ($numRows > 0) {
       $result = $mysqlResult->fetch();
-      return (int) $result['id'];
+      return (integer) $result['id'];
     }
     return false;
   }

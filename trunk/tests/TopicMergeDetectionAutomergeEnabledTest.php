@@ -43,7 +43,7 @@ class TopicMergeDetectionAutomergeEnabledTest extends PHPTMAPITestCase
     parent::setUp();
     try {
       $sys = $this->_sharedFixture;
-      $this->_automerge = (bool) $sys->getFeature('http://tmapi.org/features/automerge/');
+      $this->_automerge = (boolean) $sys->getFeature('http://tmapi.org/features/automerge/');
     } catch (FeatureNotRecognizedException $e) {
       $this->_automerge = false;
     }
