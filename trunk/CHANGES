@@ -1,6 +1,6 @@
 Changes log
 
-0.7.2 (2012/xx/yy)
+0.7.2 (2012/01/08)
 ------------------
 QuaaxTM
 - Enhanced MysqlMock: Replaced previous salt string in $_salt by an SHA1 hash
