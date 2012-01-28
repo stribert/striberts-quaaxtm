@@ -519,8 +519,10 @@ abstract class ConstructImpl implements Construct
           $this->_postSave();
         }
       } else {// only gain variant's iids and reifier
-        $this->getTopicMap()->_setConstructParent($this);
-        $variant = $this->getTopicMap()->_getConstructByVerifiedId('VariantImpl-' . $variantId);
+        $variant = $this->getTopicMap()->_getConstructByVerifiedId(
+        	'VariantImpl-' . $variantId, 
+          $this
+        );
         $variant->_gainItemIdentifiers($otherVariant);
         $variant->_gainReifier($otherVariant);
         $variant->_postSave();
@@ -543,25 +545,37 @@ abstract class ConstructImpl implements Construct
       return $topicMap->_getConstructByVerifiedId('TopicImpl-' . $result['topic_id']);
     } elseif (!is_null($result['occurrence_id'])) {
       $parentTopic = $topicMap->_getConstructByVerifiedId('TopicImpl-' . $result['parent_id']);
-      $topicMap->_setConstructParent($parentTopic);
-      return $topicMap->_getConstructByVerifiedId('OccurrenceImpl-' . $result['occurrence_id']);
+      return $topicMap->_getConstructByVerifiedId(
+      	'OccurrenceImpl-' . $result['occurrence_id'], 
+        $parentTopic
+      );
     } elseif (!is_null($result['topicname_id'])) {
       $parentTopic = $topicMap->_getConstructByVerifiedId('TopicImpl-' . $result['parent_id']);
-      $topicMap->_setConstructParent($parentTopic);
-      return $topicMap->_getConstructByVerifiedId('NameImpl-' . $result['topicname_id']);
+      return $topicMap->_getConstructByVerifiedId(
+      	'NameImpl-' . $result['topicname_id'], 
+        $parentTopic
+      );
     } elseif (!is_null($result['association_id'])) {
       return $topicMap->_getConstructByVerifiedId('AssociationImpl-' . $result['association_id']);
     } elseif (!is_null($result['assocrole_id'])) {
-      $parentAssoc = $topicMap->_getConstructByVerifiedId('AssociationImpl-' . $result['parent_id']);
-      $topicMap->_setConstructParent($parentAssoc);
-      return $topicMap->_getConstructByVerifiedId('RoleImpl-' . $result['assocrole_id']);
+      $parentAssoc = $topicMap->_getConstructByVerifiedId(
+      	'AssociationImpl-' . $result['parent_id']
+      );
+      return $topicMap->_getConstructByVerifiedId(
+      	'RoleImpl-' . $result['assocrole_id'], 
+        $parentAssoc
+      );
     } elseif (!is_null($result['variant_id'])) {
       $parentTopicId = $this->_getNameParentId($result['parent_id']);
       $parentTopic = $topicMap->_getConstructByVerifiedId('TopicImpl-' . $parentTopicId);
-      $topicMap->_setConstructParent($parentTopic);
-      $parentName = $topicMap->_getConstructByVerifiedId('NameImpl-' . $result['parent_id']);
-      $topicMap->_setConstructParent($parentName);
-      return $topicMap->_getConstructByVerifiedId('VariantImpl-' . $result['variant_id']);
+      $parentName = $topicMap->_getConstructByVerifiedId(
+      	'NameImpl-' . $result['parent_id'], 
+        $parentTopic
+      );
+      return $topicMap->_getConstructByVerifiedId(
+      	'VariantImpl-' . $result['variant_id'], 
+        $parentName
+      );
     } elseif (!is_null($result['topicmap_id'])) {
       return $topicMap->_getConstructByVerifiedId('TopicMapImpl-' . $result['topicmap_id']);
     } else {
@@ -692,23 +706,12 @@ abstract class ConstructImpl implements Construct
   /**
    * @see TopicMapImpl::_getConstructByVerifiedId()
    */
-  protected function _getConstructByVerifiedId($id, $hash=null)
-  {
-    return;
-  }
-  
-  /**
-   * @see TopicMapImpl::_setConstructParent()
-   */
-  protected function _setConstructParent(Construct $parent)
-  {
-    return;
-  }
-  
-  /**
-   * @see TopicMapImpl::_setConstructPropertyHolder()
-   */
-  protected function _setConstructPropertyHolder(array $propertyHolder)
+  protected function _getConstructByVerifiedId(
+    $id, 
+    Construct $parent=null, 
+    array $propertyHolder=array(), 
+    $hash=null
+    )
   {
     return;
   }
