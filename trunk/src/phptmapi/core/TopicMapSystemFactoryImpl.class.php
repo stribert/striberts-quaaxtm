@@ -87,14 +87,6 @@ final class TopicMapSystemFactoryImpl extends TopicMapSystemFactory
   }
   
   /**
-   * Creates a clone.
-   * Declared "private" in order to prevent cloning from outside (singleton).
-   * 
-   * @return void
-   */
-  private function __clone(){}
-  
-  /**
    * Returns the particular feature requested for in the underlying
    * implementation of {@link TopicMapSystemImpl}.
    * 
