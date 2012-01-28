@@ -1,5 +1,11 @@
 Changes log
 
+0.7.3 (2012/xx/yy)
+------------------
+QuaaxTM
+- Removed _setConstructParent() and _setConstructPropertyHolder(); a construct's parent and 
+  property holder are now passed as parameters in _getConstructByVerifiedId()
+
 0.7.2 (2012/01/08)
 ------------------
 QuaaxTM
