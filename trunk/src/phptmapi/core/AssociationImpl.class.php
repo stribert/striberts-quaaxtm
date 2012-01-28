@@ -108,11 +108,12 @@ final class AssociationImpl extends ScopedImpl implements Association
       foreach ($results as $result) {
         $propertyHolder['type_id'] = $result['type_id'];
         $propertyHolder['player_id'] = $result['player_id'];
-        $this->_parent->_setConstructPropertyHolder($propertyHolder);
         
-        $this->_parent->_setConstructParent($this);
-        
-        $role = $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $result['id']);
+        $role = $this->_parent->_getConstructByVerifiedId(
+        	'RoleImpl-' . $result['id'], 
+          $this, 
+          $propertyHolder
+        );
         
         $roles[$result['type_id'] . $result['player_id']] = $role;
       }
@@ -156,9 +157,6 @@ final class AssociationImpl extends ScopedImpl implements Association
     
     $propertyHolder['type_id'] = $type->_dbId;
     $propertyHolder['player_id'] = $player->_dbId;
-    $this->_parent->_setConstructPropertyHolder($propertyHolder);
-    
-    $this->_parent->_setConstructParent($this);
     
     // duplicate suppression
     $query = 'SELECT id FROM ' . $this->_config['table']['assocrole'] . 
@@ -170,7 +168,11 @@ final class AssociationImpl extends ScopedImpl implements Association
     
     if ($numRows > 0) {
       $result = $mysqlResult->fetch();
-      return $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $result['id']);
+      return $this->_parent->_getConstructByVerifiedId(
+      	'RoleImpl-' . $result['id'], 
+        $this, 
+        $propertyHolder
+      );
     }
     
     $this->_mysql->startTransaction();
@@ -193,7 +195,11 @@ final class AssociationImpl extends ScopedImpl implements Association
     $this->_parent->_updateAssocHash($this->_dbId, $hash);
     $this->_mysql->finishTransaction();
     
-    $role = $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $lastRoleId);
+    $role = $this->_parent->_getConstructByVerifiedId(
+    	'RoleImpl-' . $lastRoleId, 
+      $this, 
+      $propertyHolder
+    );
     
     if (!$this->_mysql->hasError()) {
       $role->_postInsert();

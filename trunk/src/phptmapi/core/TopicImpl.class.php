@@ -292,10 +292,12 @@ final class TopicImpl extends ConstructImpl implements Topic
     while ($result = $mysqlResult->fetch()) {
       $propertyHolder['type_id'] = $result['type_id'];
       $propertyHolder['value'] = $result['value'];
-      $this->_parent->_setConstructPropertyHolder($propertyHolder);
-      
-      $this->_parent->_setConstructParent($this);
-      $name = $this->_parent->_getConstructByVerifiedId('NameImpl-' . $result['id']);
+
+      $name = $this->_parent->_getConstructByVerifiedId(
+      	'NameImpl-' . $result['id'], 
+        $this, 
+        $propertyHolder
+      );
       
       $names[$result['hash']] = $name;
     }
@@ -347,15 +349,16 @@ final class TopicImpl extends ConstructImpl implements Topic
     }
     $propertyHolder['type_id'] = $type->_dbId;
     $propertyHolder['value'] = $value;
-    $this->_parent->_setConstructPropertyHolder($propertyHolder);
-    
-    $this->_parent->_setConstructParent($this);
       
     $hash = $this->_getNameHash($value, $type, $scope);
     $nameId = $this->_hasName($hash);
     
     if ($nameId) {
-      return $this->_parent->_getConstructByVerifiedId('NameImpl-' . $nameId);
+      return $this->_parent->_getConstructByVerifiedId(
+      	'NameImpl-' . $nameId, 
+        $this, 
+        $propertyHolder
+      );
     }
     
     // create a legal SQL string
@@ -381,7 +384,11 @@ final class TopicImpl extends ConstructImpl implements Topic
     
     $this->_mysql->finishTransaction(true);
     
-    $name = $this->_parent->_getConstructByVerifiedId('NameImpl-' . $lastNameId);
+    $name = $this->_parent->_getConstructByVerifiedId(
+    	'NameImpl-' . $lastNameId, 
+      $this, 
+      $propertyHolder
+    );
     
     if (!$this->_mysql->hasError()) {
       $name->_postInsert();
@@ -412,12 +419,11 @@ final class TopicImpl extends ConstructImpl implements Topic
       $propertyHolder['type_id'] = $result['type_id'];
       $propertyHolder['value'] = $result['value'];
       $propertyHolder['datatype'] = $result['datatype'];
-      $this->_parent->_setConstructPropertyHolder($propertyHolder);
-      
-      $this->_parent->_setConstructParent($this);
       
       $occurrence = $this->_parent->_getConstructByVerifiedId(
-      	'OccurrenceImpl-' . $result['id']
+      	'OccurrenceImpl-' . $result['id'], 
+        $this, 
+        $propertyHolder
       );
       
       $occurrences[$result['hash']] = $occurrence;
@@ -470,15 +476,16 @@ final class TopicImpl extends ConstructImpl implements Topic
     $propertyHolder['type_id'] = $type->_dbId;
     $propertyHolder['value'] = $value;
     $propertyHolder['datatype'] = $datatype;
-    $this->_parent->_setConstructPropertyHolder($propertyHolder);
-    
-    $this->_parent->_setConstructParent($this);
       
     $hash = $this->_getOccurrenceHash($type, $value, $datatype, $scope);
     $occurrenceId = $this->_hasOccurrence($hash);
     
     if ($occurrenceId) {
-      return $this->_parent->_getConstructByVerifiedId('OccurrenceImpl-' . $occurrenceId);
+      return $this->_parent->_getConstructByVerifiedId(
+      	'OccurrenceImpl-' . $occurrenceId, 
+        $this, 
+        $propertyHolder
+      );
     }
     
     // create legal SQL strings
@@ -507,7 +514,9 @@ final class TopicImpl extends ConstructImpl implements Topic
     $this->_mysql->finishTransaction(true);
     
     $occurrence = $this->_parent->_getConstructByVerifiedId(
-    	'OccurrenceImpl-' . $lastOccurrenceId
+    	'OccurrenceImpl-' . $lastOccurrenceId, 
+      $this, 
+      $propertyHolder
     );
     
     if (!$this->_mysql->hasError()) {
@@ -729,12 +738,11 @@ final class TopicImpl extends ConstructImpl implements Topic
         $propertyHolder['type_id'] = $result['type_id'];
         $propertyHolder['value'] = $result['value'];
         $propertyHolder['datatype'] = $result['datatype'];
-        $this->_parent->_setConstructPropertyHolder($propertyHolder);
-        
-        $this->_parent->_setConstructParent($this);
         
         $occurrence = $this->_parent->_getConstructByVerifiedId(
-        	'OccurrenceImpl-' . $result['occ_id']
+        	'OccurrenceImpl-' . $result['occ_id'], 
+          $this, 
+          $propertyHolder
         );
         $hash = $this->_getOccurrenceHash(
           $occurrence->getType(), 
@@ -754,11 +762,12 @@ final class TopicImpl extends ConstructImpl implements Topic
       while ($result = $mysqlResult->fetch()) {
         $propertyHolder['type_id'] = $result['type_id'];
         $propertyHolder['value'] = $result['value'];
-        $this->_parent->_setConstructPropertyHolder($propertyHolder);
         
-        $this->_parent->_setConstructParent($this);
-        
-        $name = $this->_parent->_getConstructByVerifiedId('NameImpl-' . $result['name_id']);
+        $name = $this->_parent->_getConstructByVerifiedId(
+        	'NameImpl-' . $result['name_id'], 
+          $this, 
+          $propertyHolder
+        );
         $hash = $this->_getNameHash(
           $name->getValue(), 
           $name->getType(), 
@@ -776,9 +785,12 @@ final class TopicImpl extends ConstructImpl implements Topic
       while ($result = $mysqlResult->fetch()) {
         $propertyHolder['value'] = $result['value'];
         $propertyHolder['datatype'] = $result['datatype'];
-        $this->_parent->_setConstructPropertyHolder($propertyHolder);
         
-        $variant = $this->_parent->_getConstructByVerifiedId('VariantImpl-' . $result['variant_id']);
+        $variant = $this->_parent->_getConstructByVerifiedId(
+        	'VariantImpl-' . $result['variant_id'], 
+          null, 
+          $propertyHolder
+        );
         $parent = $variant->getParent();
         $hash = $parent->_getVariantHash(
           $variant->getValue(), 
@@ -796,10 +808,10 @@ final class TopicImpl extends ConstructImpl implements Topic
       $mysqlResult = $this->_mysql->execute($query);
       while ($result = $mysqlResult->fetch()) {
         $propertyHolder['type_id'] = $result['type_id'];
-        $this->_parent->_setConstructPropertyHolder($propertyHolder);
-        
         $assoc = $this->_parent->_getConstructByVerifiedId(
-          'AssociationImpl-' . $result['assoc_id']
+          'AssociationImpl-' . $result['assoc_id'], 
+          null, 
+          $propertyHolder
         );
         $hash = $this->_parent->_getAssocHash(
           $assoc->getType(), 
@@ -1028,9 +1040,9 @@ final class TopicImpl extends ConstructImpl implements Topic
       ' AND topic_id = ' . $this->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $this->_parent->_setConstructParent($this);
       $duplicate = $this->_parent->_getConstructByVerifiedId(
-        $className . '-' . $result['id']
+        $className . '-' . $result['id'], 
+        $this
       );
       // gain duplicate's item identities
       $property->_gainItemIdentifiers($duplicate);
@@ -1258,8 +1270,10 @@ final class TopicImpl extends ConstructImpl implements Topic
     $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $parent = $this->_parent->_getConstructByVerifiedId(__CLASS__ . '-' . $result['topic_id']);
-      $this->_parent->_setConstructParent($parent);
-      $occurrence = $this->_parent->_getConstructByVerifiedId('OccurrenceImpl-' . $result['occ_id']);
+      $occurrence = $this->_parent->_getConstructByVerifiedId(
+      	'OccurrenceImpl-' . $result['occ_id'], 
+        $parent
+      );
       $occurrences[] = $occurrence;
     }
     return $occurrences;
@@ -1283,8 +1297,10 @@ final class TopicImpl extends ConstructImpl implements Topic
     $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
       $parent = $this->_parent->_getConstructByVerifiedId(__CLASS__ . '-' . $result['topic_id']);
-      $this->_parent->_setConstructParent($parent);
-      $name = $this->_parent->_getConstructByVerifiedId('NameImpl-' . $result['name_id']);
+      $name = $this->_parent->_getConstructByVerifiedId(
+      	'NameImpl-' . $result['name_id'], 
+        $parent
+      );
       $names[] = $name;
     }
     return $names;
@@ -1312,8 +1328,7 @@ final class TopicImpl extends ConstructImpl implements Topic
       $assoc = $this->_parent->_getConstructByVerifiedId(
       	'AssociationImpl-' . $result['association_id']
       );
-      $this->_parent->_setConstructParent($assoc);
-      $role = $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $result['role_id']);
+      $role = $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $result['role_id'], $assoc);
       $roles[$result['hash'] . $result['type_id'] . $this->_dbId] = $role;
     }
     return array_values($roles);
@@ -1342,8 +1357,7 @@ final class TopicImpl extends ConstructImpl implements Topic
       $assoc = $this->_parent->_getConstructByVerifiedId(
       	'AssociationImpl-' . $result['association_id']
       );
-      $this->_parent->_setConstructParent($assoc);
-      $role = $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $result['role_id']);
+      $role = $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $result['role_id'], $assoc);
       $roles[$result['hash'] . $result['type_id'] . $this->_dbId] = $role;
     }
     return array_values($roles);
@@ -1377,8 +1391,7 @@ final class TopicImpl extends ConstructImpl implements Topic
       $assoc = $this->_parent->_getConstructByVerifiedId(
       	'AssociationImpl-' . $result['association_id']
       );
-      $this->_parent->_setConstructParent($assoc);
-      $role = $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $result['role_id']);
+      $role = $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $result['role_id'], $assoc);
       $roles[$result['hash'] . $result['type_id'] . $this->_dbId] = $role;
     }
     return array_values($roles);
@@ -1409,8 +1422,7 @@ final class TopicImpl extends ConstructImpl implements Topic
       $assoc = $this->_parent->_getConstructByVerifiedId(
       	'AssociationImpl-' . $result['association_id']
       );
-      $this->_parent->_setConstructParent($assoc);
-      $role = $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $result['role_id']);
+      $role = $this->_parent->_getConstructByVerifiedId('RoleImpl-' . $result['role_id'], $assoc);
       $roles[$result['hash'] . $result['type_id'] . $this->_dbId] = $role;
     }
     return array_values($roles);

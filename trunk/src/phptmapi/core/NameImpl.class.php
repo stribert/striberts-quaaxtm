@@ -153,10 +153,10 @@ final class NameImpl extends ScopedImpl implements Name
       $propertyHolder['value'] = $result['value'];
       $propertyHolder['datatype'] = $result['datatype'];
       
-      $this->_topicMap->_setConstructPropertyHolder($propertyHolder);
-      $this->_topicMap->_setConstructParent($this);
       $variant = $this->_topicMap->_getConstructByVerifiedId(
-        'VariantImpl-' . $result['id'],
+        'VariantImpl-' . $result['id'], 
+        $this, 
+        $propertyHolder, 
         $result['hash']
       );
       
@@ -200,19 +200,20 @@ final class NameImpl extends ScopedImpl implements Name
         );
       }
     }
-    
     $propertyHolder['value'] = $value;
     $propertyHolder['datatype'] = $datatype;
-    $this->_topicMap->_setConstructPropertyHolder($propertyHolder);
-    
-    $this->_topicMap->_setConstructParent($this);
     
     $mergedScope = array_merge($scope, $this->getScope());
     $hash = $this->_getVariantHash($value, $datatype, $mergedScope);
     $variantId = $this->_hasVariant($hash);
     
     if ($variantId) {
-      return $this->_topicMap->_getConstructByVerifiedId('VariantImpl-' . $variantId);
+      return $this->_topicMap->_getConstructByVerifiedId(
+      	'VariantImpl-' . $variantId, 
+        $this, 
+        $propertyHolder, 
+        $hash
+      );
     }
     
     if (!$this->_getScopeObject()->isTrueSubset($mergedScope)) {
@@ -246,7 +247,11 @@ final class NameImpl extends ScopedImpl implements Name
     
     $this->_mysql->finishTransaction(true);
     
-    $variant = $this->_topicMap->_getConstructByVerifiedId('VariantImpl-' . $lastVariantId);
+    $variant = $this->_topicMap->_getConstructByVerifiedId(
+    	'VariantImpl-' . $lastVariantId, 
+      $this, 
+      $propertyHolder
+    );
     
     if (!$this->_mysql->hasError()) {
       $variant->_postInsert();
@@ -377,8 +382,10 @@ final class NameImpl extends ScopedImpl implements Name
       ' AND topicname_id = ' . $this->_dbId;
     $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {
-      $this->_topicMap->_setConstructParent($this);
-      $duplicate = $this->_topicMap->_getConstructByVerifiedId('VariantImpl-' . $result['id']);
+      $duplicate = $this->_topicMap->_getConstructByVerifiedId(
+      	'VariantImpl-' . $result['id'], 
+        $this
+      );
       // gain duplicate's item identifiers
       $variant->_gainItemIdentifiers($duplicate);
       // gain duplicate's reifier
