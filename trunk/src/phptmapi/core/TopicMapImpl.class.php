@@ -47,21 +47,6 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
   private $_setIid;
   
   /**
-   * The construct parent.
-   * 
-   * @var AssociationImpl|NameImpl|TopicImpl|TopicMapImpl
-   */
-  private $_constructParent;
-  
-  /**
-   * The property holder for construct properties after initial retrieval 
-   * from storage.
-   * 
-   * @var array
-   */
-  private $_constructPropertyHolder;
-  
-  /**
    * The topics cache.
    * 
    * @var array
@@ -117,8 +102,6 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
     $this->_setIid = true;
     $this->_constructDbId = $this->_getConstructDbId();
     $this->_tmSystem = $tmSystem;
-    $this->_constructParent = 
-    $this->_constructPropertyHolder = 
     $this->_topicsCache = 
     $this->_assocsCache = 
     $this->_locator = null;
@@ -200,8 +183,11 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
     if (is_array($results)) {
       foreach ($results as $result) {
         $propertyHolder['type_id'] = $result['type_id'];
-        $this->_setConstructPropertyHolder($propertyHolder);
-        $assoc = $this->_getConstructByVerifiedId('AssociationImpl-' . $result['id']);
+        $assoc = $this->_getConstructByVerifiedId(
+        	'AssociationImpl-' . $result['id'], 
+          null, 
+          $propertyHolder
+        );
         if (!array_key_exists($result['hash'], $assocsHashes)) {
           $this->_assocsCache[$assoc->getId()] = $assoc;
         }
@@ -240,8 +226,11 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
     $mysqlResult = $this->_mysql->execute($query);
     while ($result = $mysqlResult->fetch()) {    
       $propertyHolder['type_id'] = $result['type_id'];
-      $this->_setConstructPropertyHolder($propertyHolder);
-      $assoc = $this->_getConstructByVerifiedId('AssociationImpl-' . $result['id']);
+      $assoc = $this->_getConstructByVerifiedId(
+      	'AssociationImpl-' . $result['id'], 
+        null, 
+        $propertyHolder
+      );
       $assocs[$result['hash']] = $assoc;
     }
     return array_values($assocs);
@@ -373,13 +362,16 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
       }
     }
     $propertyHolder['type_id'] = $type->_dbId;
-    $this->_setConstructPropertyHolder($propertyHolder);
     
     $hash = $this->_getAssocHash($type, $scope, $roles=array());
     $assocId = $this->_hasAssoc($hash);
     
     if ($assocId) {
-      return $this->_getConstructByVerifiedId('AssociationImpl-' . $assocId);
+      return $this->_getConstructByVerifiedId(
+      	'AssociationImpl-' . $assocId, 
+        null, 
+        $propertyHolder
+      );
     }
     
     $this->_mysql->startTransaction(true);
@@ -402,7 +394,11 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
     
     $this->_mysql->finishTransaction(true);
     
-    $assoc = $this->_getConstructByVerifiedId('AssociationImpl-' . $lastAssocId);
+    $assoc = $this->_getConstructByVerifiedId(
+    	'AssociationImpl-' . $lastAssocId, 
+      null, 
+      $propertyHolder
+    );
     
     if (!$this->_mysql->hasError()) {
       $assoc->_postInsert();
@@ -874,10 +870,17 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
    * Returns a {@link ConstructImpl} by its (system specific) identifier.
    *
    * @param string The identifier of the construct to be returned.
+   * @param ConstructImpl The construct parent. Default <var>null</var>.
+   * @param array The property holder. Default <var>array()</var>.
    * @param string The construct's hash.
    * @return ConstructImpl The construct with the specified id.
    */
-  protected function _getConstructByVerifiedId($id, $hash=null)
+  protected function _getConstructByVerifiedId(
+    $id, 
+    Construct $parent=null, 
+    array $propertyHolder=array(), 
+    $hash=null
+    )
   {
     $constituents = explode('-', $id);
     $className = $constituents[0];
@@ -887,70 +890,56 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
         return new $className($dbId, $this->_mysql, $this->_config, $this);
         break;
       case 'NameImpl':
-        $parent = $this->_constructParent instanceof Topic 
-          ? $this->_constructParent 
+        $nameParent = $parent instanceof Topic 
+          ? $parent 
           : $this->_getNameParent($dbId);
-        $this->_constructParent = null;
-        $propertyHolder = $this->_constructPropertyHolder;
-        $this->_constructPropertyHolder = array();
         return new $className(
           $dbId, 
           $this->_mysql, 
           $this->_config, 
-          $parent, 
+          $nameParent, 
           $this, 
           $propertyHolder
         );
         break;
       case 'AssociationImpl':
-        $propertyHolder = $this->_constructPropertyHolder;
-        $this->_constructPropertyHolder = array();
         return new $className($dbId, $this->_mysql, $this->_config, $this, $propertyHolder);
         break;
       case 'RoleImpl':
-        $parent = $this->_constructParent instanceof Association 
-          ? $this->_constructParent 
+        $roleParent = $parent instanceof Association 
+          ? $parent 
           : $this->_getRoleParent($dbId);
-        $this->_constructParent = null;
-        $propertyHolder = $this->_constructPropertyHolder;
-        $this->_constructPropertyHolder = array();
         return new $className(
           $dbId, 
           $this->_mysql, 
           $this->_config, 
-          $parent, 
+          $roleParent, 
           $this, 
           $propertyHolder
         );
         break;
       case 'OccurrenceImpl':
-        $parent = $this->_constructParent instanceof Topic 
-          ? $this->_constructParent 
+        $occurrenceParent = $parent instanceof Topic 
+          ? $parent 
           : $this->_getOccurrenceParent($dbId);
-        $this->_constructParent = null;
-        $propertyHolder = $this->_constructPropertyHolder;
-        $this->_constructPropertyHolder = array();
         return new $className(
           $dbId, 
           $this->_mysql, 
           $this->_config, 
-          $parent, 
+          $occurrenceParent, 
           $this, 
           $propertyHolder
         );
         break;
       case 'VariantImpl':
-        $parent = $this->_constructParent instanceof Name 
-          ? $this->_constructParent 
+        $variantParent = $parent instanceof Name 
+          ? $parent 
           : $this->_getVariantParent($dbId);
-        $this->_constructParent = null;
-        $propertyHolder = $this->_constructPropertyHolder;
-        $this->_constructPropertyHolder = array();
         return new $className(
           $dbId, 
           $this->_mysql, 
           $this->_config, 
-          $parent, 
+          $variantParent, 
           $this, 
           $propertyHolder, 
           $hash
@@ -960,28 +949,6 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
         return new $className($dbId, $this->_mysql, $this->_config, $this->getTopicMapSystem());
         break;
     }
-  }
-  
-  /**
-   * Sets the construct's parent.
-   * 
-   * @param ConstructImpl
-   * @return void
-   */
-  protected function _setConstructParent(Construct $parent)
-  {
-    $this->_constructParent = $parent;
-  }
-  
-  /**
-   * Sets the construct property holder.
-   * 
-   * @param array The property holder.
-   * @return void
-   */
-  protected function _setConstructPropertyHolder(array $propertyHolder)
-  {
-    $this->_constructPropertyHolder = $propertyHolder;
   }
   
   /**
@@ -1201,8 +1168,10 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
     $result = $mysqlResult->fetch();
     $nameId = $result['parent_id'];
     $parentTopic = $this->_getNameParent($nameId);
-    $this->_setConstructParent($parentTopic);
-    return $this->_getConstructByVerifiedId('NameImpl-' . $result['parent_id']);
+    return $this->_getConstructByVerifiedId(
+    	'NameImpl-' . $result['parent_id'], 
+      $parentTopic
+    );
   }
   
   /**
