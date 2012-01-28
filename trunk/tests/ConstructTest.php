@@ -141,7 +141,7 @@ class ConstructTest extends PHPTMAPITestCase
     $this->assertTrue($construct->equals($tm->getConstructById($id)), 'Expected identity!');
     $topic = $tm->createTopic();
     $this->assertFalse($construct->equals($topic), 'Unexpected identity!');
-    // test the SQL fallbacks in Name's and Occurrence's getters
+    // test the property holder fallbacks in Name's, Variant's, and Occurrence's getters
     $construct->addItemIdentifier($locator1);
     if ($construct instanceof Name) {
       $name = $tm->getConstructByItemIdentifier($locator1);
@@ -151,7 +151,7 @@ class ConstructTest extends PHPTMAPITestCase
       $this->assertTrue(
         in_array('http://psi.topicmaps.org/iso13250/model/topic-name', $sids), 
         'Expected subject identifier for default name type'
-       );
+	    );
     }
     if ($construct instanceof Occurrence) {
       $occ = $tm->getConstructByItemIdentifier($locator1);
@@ -170,7 +170,20 @@ class ConstructTest extends PHPTMAPITestCase
       $this->assertTrue(
         in_array('http://example.org', $sids), 
         'Expected subject identifier for default name type'
-       );
+      );
+    }
+    if ($construct instanceof IVariant) {
+      $variant = $tm->getConstructByItemIdentifier($locator1);
+      $this->assertEquals(
+        $variant->getValue(), 
+        'bar', 
+        'Expected identity!'
+      );
+      $this->assertEquals(
+        $variant->getDatatype(), 
+        parent::$_dtString, 
+        'Expected identity!'
+      );
     }
     if ($construct instanceof Role) {
       $role = $tm->getConstructByItemIdentifier($locator1);
