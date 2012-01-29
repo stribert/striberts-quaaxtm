@@ -135,18 +135,6 @@ class QTMMySQLTest extends PHPUnit_Framework_TestCase
     $this->assertFalse($mysqlResult);
   }
   
-  public function testFetch()
-  {
-    $this->assertFalse($this->_mysql->getError());
-    $this->assertFalse($this->_mysql->hasError());
-    $query = 'SELECT';
-    $results = $this->_mysql->fetch($query);
-    $this->assertFalse($results);
-    $error = $this->_mysql->getError();
-    $this->assertFalse(empty($error));
-    $this->assertTrue($this->_mysql->hasError());
-  }
-  
   public function testSetResultCacheExpiration()
   {
     $seconds = 12;
