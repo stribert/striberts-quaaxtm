@@ -5,6 +5,13 @@ Changes log
 QuaaxTM
 - Removed _setConstructParent() and _setConstructPropertyHolder(); a construct's parent and 
   property holder are now passed as parameters in _getConstructByVerifiedId()
+- Introduced class ArrayObjectUtils for providing results from memcached based MySQL result cache
+- Replaced storage gateway Mysql::_get() by Mysql::getResult() which now returns either an instance 
+  of ArrayObjectUtils or MysqlResult - both providing a fetch() method; updated MysqlMock and result 
+  cache using methods AssociationImpl::getRoles(), AssociationImpl::getRoleTypes(), and 
+  TopicMapImpl::getAssociations() accordingly
+- Removed obsolete Mysql::fetch() and Mysql::fetchOne()
+- Introduced MysqlResult::free()
 
 0.7.2 (2012/01/08)
 ------------------
@@ -14,7 +21,7 @@ QuaaxTM
   created legal SQL strings in each PHPTMAPI core and index method where strings are passed as
   parameters
 - Removed obsolete Mysql::getConnection()
-- Removed obsolete class utils/CharacteristicUtils
+- Removed obsolete class CharacteristicUtils
 
 Bugfixes
 --------
