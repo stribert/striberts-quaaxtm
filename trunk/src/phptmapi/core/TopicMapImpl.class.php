@@ -179,9 +179,9 @@ final class TopicMapImpl extends ConstructImpl implements TopicMap
     $assocsHashes = array();
     $query = 'SELECT id, type_id, hash FROM ' . $this->_config['table']['association'] . 
       ' WHERE topicmap_id = ' . $this->_dbId;
-    $results = $this->_mysql->fetch($query, $resultCacheAllowed);
-    if (is_array($results)) {
-      foreach ($results as $result) {
+    $mysqlResult = $this->_mysql->getResult($query, $resultCacheAllowed);
+    if ($mysqlResult) {
+      while ($result = $mysqlResult->fetch()) {
         $propertyHolder['type_id'] = $result['type_id'];
         $assoc = $this->_getConstructByVerifiedId(
         	'AssociationImpl-' . $result['id'], 
