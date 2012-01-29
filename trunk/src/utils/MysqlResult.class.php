@@ -100,5 +100,15 @@ class MysqlResult
   {
     return (integer) mysqli_insert_id($this->_connection);
   }
+  
+  /**
+   * Frees a MySQL result.
+   * 
+   * @return void
+   */
+  public function free()
+  {
+    mysqli_free_result($this->_result);
+  }
 }
 ?>
