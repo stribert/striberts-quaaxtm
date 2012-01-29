@@ -93,13 +93,13 @@ class MysqlMock extends Mysql
   }
   
   /**
-   * Overrides Mysql::_get() and further provides registration of the different 
+   * Overrides Mysql::getResult() and further provides registration of the different 
    * memcached states to allow detailed testing.
    * 
-   * @see Mysql::_get()
+   * @see Mysql::getResult()
    * @override
    */
-  protected function _get($query, $resultCacheAllowed, $fetchOne)
+  public function getResult($query, $resultCacheAllowed=false)
   {
     if ($this->_resultCacheEnabled && $resultCacheAllowed) {
       $this->memcachedWasIgnored = false;
@@ -109,21 +109,21 @@ class MysqlMock extends Mysql
       if ($results !== false) {
         $this->memcachedWasCalledSuccessfully = true;
         $this->memcachedWasSet = false;
-        return $results;
+        return new ArrayObjectUtils($results);
       }
       $this->memcachedWasCalledSuccessfully = false;
-      $results = $this->_fetchAssociated($query, $fetchOne);
+      $results = $this->_fetchAssociated($query);
       if ($results !== false) {
         if (!empty($results)) {
           $this->_memcached->set($key, $results, $this->_resultCacheExpiration);
           $this->memcachedWasSet = true;
         }
-        return $results;
+        return new ArrayObjectUtils($results);
       }
       return false;
     }
     $this->memcachedWasIgnored = true;
-    return $this->_fetchAssociated($query, $fetchOne);
+    return $this->execute($query);
   }
 }
 ?>
