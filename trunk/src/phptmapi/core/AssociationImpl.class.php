@@ -103,9 +103,9 @@ final class AssociationImpl extends ScopedImpl implements Association
     if (!is_null($type)) {
       $query .= ' AND type_id = ' . $type->_dbId;
     }
-    $results = $this->_mysql->fetch($query, $resultCacheAllowed);
-    if (is_array($results)) {
-      foreach ($results as $result) {
+    $mysqlResult = $this->_mysql->getResult($query, $resultCacheAllowed);
+    if ($mysqlResult) {
+      while ($result = $mysqlResult->fetch()) {
         $propertyHolder['type_id'] = $result['type_id'];
         $propertyHolder['player_id'] = $result['player_id'];
         
@@ -221,9 +221,9 @@ final class AssociationImpl extends ScopedImpl implements Association
     $query = 'SELECT type_id FROM ' . $this->_config['table']['assocrole'] . 
       ' WHERE association_id = ' . $this->_dbId;
     // this method is never called from inside QuaaxTM - set result cache perm. to true
-    $results = $this->_mysql->fetch($query, true);
-    if (is_array($results)) {
-      foreach ($results as $result) {
+    $mysqlResult = $this->_mysql->getResult($query, true);
+    if ($mysqlResult) {
+      while ($result = $mysqlResult->fetch()) {
         $type = $this->_parent->_getConstructByVerifiedId(
         	'TopicImpl-' . $result['type_id']
         );
