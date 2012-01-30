@@ -116,7 +116,7 @@ class JTM101TopicMapReader
   {
     $struct = json_decode($jtm, true);
     if (is_null($struct)) {
-      throw new MIOException('Error in ' . __METHOD__ . ': JSON could not been decoded.');
+      throw new MIOException('Error in ' . __METHOD__ . ': JSON could not be decoded.');
     }
     if (!isset($struct['version'])) {
       throw new MIOException('Error in ' . __METHOD__ . ': Missing key "version".');
