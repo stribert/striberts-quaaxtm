@@ -1,6 +1,6 @@
 Changes log
 
-0.7.3 (2012/xx/yy)
+0.7.3 (2012/01/30)
 ------------------
 QuaaxTM
 - Removed _setConstructParent() and _setConstructPropertyHolder(); a construct's parent and 
