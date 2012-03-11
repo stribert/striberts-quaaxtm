@@ -29,6 +29,13 @@
 class ArrayObjectUtils extends ArrayObject
 {
   /**
+   * The array iterator.
+   * 
+   * @var ArrayIterator
+   */
+  private $_iterator;
+  
+  /**
    * Constructor.
    * 
    * @param mixed The input of type <var>array</var> or <var>Object</var>.
@@ -37,7 +44,7 @@ class ArrayObjectUtils extends ArrayObject
   public function __construct($input)
   {
     parent::__construct($input);
-    $this->iterator = $this->getIterator();
+    $this->_iterator = $this->getIterator();
   }
   
   /**
@@ -47,9 +54,9 @@ class ArrayObjectUtils extends ArrayObject
    */
   public function fetch()
   {
-    if ($this->iterator->valid()) {
-      $currentEntry = $this->iterator->current();
-      $this->iterator->next();
+    if ($this->_iterator->valid()) {
+      $currentEntry = $this->_iterator->current();
+      $this->_iterator->next();
       return $currentEntry;
     }
     return null;
