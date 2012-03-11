@@ -58,7 +58,7 @@ try {
   // set up QuaaxTM specific duplicate removal feature
   $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_AUTO_DUPL_REMOVAL, true);
   // set up QuaaxTM specific memcached based MySQL result cache feature to false; enable if 
-  // memcached is set up correctly in src/phptmapi/config.php
+  // memcached is running and set up correctly in src/phptmapi/config.php
   $tmSystemFactory->setFeature(VocabularyUtils::QTM_FEATURE_RESULT_CACHE, false);
   // create an instance of TopicMapSystem
   $tmSystem = $tmSystemFactory->newTopicMapSystem();
