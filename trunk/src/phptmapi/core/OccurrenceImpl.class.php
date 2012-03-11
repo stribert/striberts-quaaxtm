@@ -213,8 +213,12 @@ final class OccurrenceImpl extends ScopedImpl implements Occurrence
       ' WHERE id = ' . $this->_dbId;
     $this->_mysql->execute($query);
     
-    $hash = $this->_parent->_getOccurrenceHash($type, $this->getValue(), $this->getDatatype(), 
-      $this->getScope());
+    $hash = $this->_parent->_getOccurrenceHash(
+      $type, 
+      $this->getValue(), 
+      $this->getDatatype(), 
+      $this->getScope()
+    );
     $this->_parent->_updateOccurrenceHash($this->_dbId, $hash);
     $this->_mysql->finishTransaction();
     

@@ -898,26 +898,25 @@ final class TopicImpl extends ConstructImpl implements Topic
     $othersNames = $other->getNames();
     foreach ($othersNames as $othersName) {
       $name = $this->createName( 
-                                $othersName->getValue(), 
-                                $othersName->getType(), 
-                                $othersName->getScope()
-                              );
+        $othersName->getValue(), 
+        $othersName->getType(), 
+        $othersName->getScope()
+      );
       // other's name's iids
-      $name->_gainItemIdentifiers($othersName);
-      
+      $name->_gainItemIdentifiers($othersName);      
       // other's name's reifier
       $name->_gainReifier($othersName);
 
       // other's name's variants
       $othersNameVariants = $othersName->getVariants();
       foreach ($othersNameVariants as $othersNameVariant) {
-        $variant = $name->createVariant($othersNameVariant->getValue(), 
-                                          $othersNameVariant->getDatatype(), 
-                                          $othersNameVariant->getScope()
-                                        );
+        $variant = $name->createVariant(
+          $othersNameVariant->getValue(), 
+          $othersNameVariant->getDatatype(), 
+          $othersNameVariant->getScope()
+        );
         // other's variant's iids
         $variant->_gainItemIdentifiers($othersNameVariant);
-
         // other's variant's reifier
         $variant->_gainReifier($othersNameVariant);
       }
@@ -926,7 +925,8 @@ final class TopicImpl extends ConstructImpl implements Topic
     // merge other's occurrences
     $othersOccurrences = $other->getOccurrences();
     foreach ($othersOccurrences as $othersOccurrence) {
-      $occurrence = $this->createOccurrence($othersOccurrence->getType(), 
+      $occurrence = $this->createOccurrence(
+        $othersOccurrence->getType(), 
         $othersOccurrence->getValue(), 
         $othersOccurrence->getDatatype(), 
         $othersOccurrence->getScope()
@@ -980,7 +980,10 @@ final class TopicImpl extends ConstructImpl implements Topic
   public function remove()
   {
     if ($this->_isType()) {
-      throw new TopicInUseException($this, __METHOD__ . ': Topic is typing one or more constructs!');
+      throw new TopicInUseException(
+        $this, 
+        __METHOD__ . ': Topic is typing one or more constructs!'
+      );
     }
     if ($this->_playsRole()) {
       throw new TopicInUseException($this, __METHOD__ . ': Topic plays one or more roles!');

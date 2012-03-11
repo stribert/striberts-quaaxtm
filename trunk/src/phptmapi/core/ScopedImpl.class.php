@@ -235,8 +235,12 @@ abstract class ScopedImpl extends ConstructImpl implements Scoped
         $this->_parent->_updateNameHash($this->_dbId, $hash);
         break;
       case 'OccurrenceImpl':
-        $hash = $this->_parent->_getOccurrenceHash($this->getType(), $this->getValue(), 
-          $this->getDatatype(), $scope);
+        $hash = $this->_parent->_getOccurrenceHash(
+          $this->getType(), 
+          $this->getValue(), 
+          $this->getDatatype(), 
+          $scope
+        );
         $this->_parent->_updateOccurrenceHash($this->_dbId, $hash);
         break;
       case 'AssociationImpl':
